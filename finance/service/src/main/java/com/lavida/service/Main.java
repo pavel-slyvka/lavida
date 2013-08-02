@@ -14,6 +14,7 @@ import org.springframework.orm.jpa.JpaTransactionManager;
  * To change this template use File | Settings | File Templates.
  */
 public class Main {
+
     public static void main(String[] args) {
         UserJdo user3 = new UserJdo("login3", "pass3", true, "name3");
         user3.getAuthorities().add(new AuthorityJdo("ROLE_USER", user3));

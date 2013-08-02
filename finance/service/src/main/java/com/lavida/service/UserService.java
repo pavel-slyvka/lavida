@@ -2,7 +2,7 @@ package com.lavida.service;
 
 import com.lavida.service.dao.AuthoritiesDao;
 import com.lavida.service.dao.UserDao;
-import com.lavida.service.entity.Authorities;
+import com.lavida.service.entity.AuthorityJdo;
 import com.lavida.service.entity.UserJdo;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,13 +20,13 @@ public class UserService {
     private AuthoritiesDao authoritiesDao;
 
     @Transactional
-    public void assignAuthorityUpdate (UserJdo userJdo, Authorities authorities) {
+    public void assignAuthorityUpdate (UserJdo userJdo, AuthorityJdo authorities) {
         userDao.update(userJdo);
         authoritiesDao.put(authorities);
     }
 
     @Transactional
-    public void assignAuthoritySave (UserJdo userJdo, Authorities authorities) {
+    public void assignAuthoritySave (UserJdo userJdo, AuthorityJdo authorities) {
         userDao.put(userJdo);
         authoritiesDao.put(authorities);
     }
