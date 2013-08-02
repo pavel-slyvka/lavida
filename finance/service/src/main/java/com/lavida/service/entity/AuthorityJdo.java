@@ -1,9 +1,6 @@
 package com.lavida.service.entity;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -13,23 +10,27 @@ import javax.persistence.ManyToOne;
  * To change this template use File | Settings | File Templates.
  */
 @Entity
-public class Authorities {
+public class AuthorityJdo {
+
     @Id
+    @GeneratedValue
     private int id;
-    private String Role;
+
+    private String role;
+
     @ManyToOne
     @JoinColumn(name="user_id")
     private UserJdo user;
 
-    public Authorities() {
+    public AuthorityJdo() {
     }
 
-    public Authorities(String role) {
-        Role = role;
+    public AuthorityJdo(String role) {
+        this.role = role;
     }
 
-    public Authorities(String role, UserJdo user) {
-        Role = role;
+    public AuthorityJdo(String role, UserJdo user) {
+        this.role = role;
         this.user = user;
     }
 
@@ -42,11 +43,11 @@ public class Authorities {
     }
 
     public String getRole() {
-        return Role;
+        return role;
     }
 
     public void setRole(String role) {
-        Role = role;
+        role = role;
     }
 
     public UserJdo getUser() {
@@ -62,10 +63,10 @@ public class Authorities {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        Authorities that = (Authorities) o;
+        AuthorityJdo that = (AuthorityJdo) o;
 
         if (id != that.id) return false;
-        if (!Role.equals(that.Role)) return false;
+        if (!role.equals(that.role)) return false;
         if (user != null ? !user.equals(that.user) : that.user != null) return false;
 
         return true;
@@ -74,16 +75,16 @@ public class Authorities {
     @Override
     public int hashCode() {
         int result = id;
-        result = 31 * result + Role.hashCode();
+        result = 31 * result + role.hashCode();
         return result;
     }
 
     @Override
     public String toString() {
-        return "Authorities{" +
+        return "AuthorityJdo{" +
                 "id=" + id +
-                ", Role='" + Role + '\'' +
-                ", user=" + user +
+                ", Role='" + role + '\'' +
+                ", user=" + user.getId() +
                 '}';
     }
 }

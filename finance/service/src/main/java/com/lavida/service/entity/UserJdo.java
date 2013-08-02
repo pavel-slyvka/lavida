@@ -15,14 +15,21 @@ import java.util.List;
 @Entity
 @Table(name = "users")
 public class UserJdo {
+
     @Id
+    @GeneratedValue
     private int id;
+
     private String login;
+
     private String password;
+
     private boolean enabled;
+
     private String name;
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Authorities> authoritieses = new ArrayList<Authorities>();
+
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user", cascade = CascadeType.ALL)
+    private List<AuthorityJdo> authorities = new ArrayList<AuthorityJdo>();
 
     public UserJdo() {
     }
@@ -74,12 +81,12 @@ public class UserJdo {
         this.name = name;
     }
 
-    public List<Authorities> getAuthoritieses() {
-        return authoritieses;
+    public List<AuthorityJdo> getAuthorities() {
+        return authorities;
     }
 
-    public void setAuthoritieses(List<Authorities> authoritieses) {
-        this.authoritieses = authoritieses;
+    public void setAuthorities(List<AuthorityJdo> authorities) {
+        this.authorities = authorities;
     }
 
     @Override
@@ -110,7 +117,7 @@ public class UserJdo {
                 ", password='" + password + '\'' +
                 ", enabled=" + enabled +
                 ", name='" + name + '\'' +
-                ", authoritieses=" + authoritieses +
+                ", authoritieses=" + authorities +
                 '}';
     }
 }

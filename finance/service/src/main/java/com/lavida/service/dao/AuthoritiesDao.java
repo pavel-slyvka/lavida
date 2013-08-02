@@ -1,6 +1,6 @@
 package com.lavida.service.dao;
 
-import com.lavida.service.entity.Authorities;
+import com.lavida.service.entity.AuthorityJdo;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -13,7 +13,7 @@ import java.util.List;
  * Time: 9:20
  * To change this template use File | Settings | File Templates.
  */
-public class AuthoritiesDao implements Dao<Authorities> {
+public class AuthoritiesDao implements Dao<AuthorityJdo> {
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -26,28 +26,28 @@ public class AuthoritiesDao implements Dao<Authorities> {
     }
 
     @Override
-    public Authorities getById(int id) {
-        return entityManager.find(Authorities.class, id);
+    public AuthorityJdo getById(int id) {
+        return entityManager.find(AuthorityJdo.class, id);
     }
 
     @Override
-    public void put(Authorities authorities) {
+    public void put(AuthorityJdo authorities) {
         entityManager.persist(authorities);
     }
 
     @Override
-    public void update(Authorities authorities) {
+    public void update(AuthorityJdo authorities) {
         entityManager.merge(authorities);
     }
 
     @Override
-    public List<Authorities> getAll() {
-        return entityManager.createQuery("select a from Authorities a", Authorities.class).getResultList();
+    public List<AuthorityJdo> getAll() {
+        return entityManager.createQuery("select a from AuthorityJdo a", AuthorityJdo.class).getResultList();
     }
 
     @Override
     public void delete(int id) {
-        Authorities deleteAuthority = entityManager.find(Authorities.class, id);
+        AuthorityJdo deleteAuthority = entityManager.find(AuthorityJdo.class, id);
         if (deleteAuthority != null) {
             entityManager.remove(deleteAuthority);
         } else {  //todo change exception
