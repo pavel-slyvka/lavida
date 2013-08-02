@@ -7,7 +7,7 @@ http://java.sun.com/xml/ns/persistence ">
                       transaction-type="RESOURCE_LOCAL">
 
         <class>com.lavida.service.entity.UserJdo</class>
-        <class>com.lavida.service.entity.Authorities</class>
+        <class>com.lavida.service.entity.AuthorityJdo</class>
 
         <properties>
             <property name="javax.persistence.jdbc.driver"
