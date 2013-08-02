@@ -1,7 +1,6 @@
 package com.lavida.service.dao;
 
 import com.lavida.service.entity.Authorities;
-import com.lavida.service.entity.UserJdo;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -14,7 +13,7 @@ import java.util.List;
  * Time: 9:20
  * To change this template use File | Settings | File Templates.
  */
-public class AuthoritiesDao implements Dao<Authorities>{
+public class AuthoritiesDao implements Dao<Authorities> {
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -33,21 +32,26 @@ public class AuthoritiesDao implements Dao<Authorities>{
 
     @Override
     public void put(Authorities authorities) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        entityManager.persist(authorities);
     }
 
     @Override
     public void update(Authorities authorities) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        entityManager.merge(authorities);
     }
 
     @Override
     public List<Authorities> getAll() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return entityManager.createQuery("select a from Authorities a", Authorities.class).getResultList();
     }
 
     @Override
     public void delete(int id) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        Authorities deleteAuthority = entityManager.find(Authorities.class, id);
+        if (deleteAuthority != null) {
+            entityManager.remove(deleteAuthority);
+        } else {  //todo change exception
+            throw new RuntimeException("Cannot delete authority[" + id + "], because it doesn't exist.");
+        }
     }
 }
