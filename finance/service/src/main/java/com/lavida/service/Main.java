@@ -24,5 +24,6 @@ public class Main {
         service.save(user3);
 //        service.update(user2);
         System.out.println(service.getAll());
+        System.out.println("Privet!");
     }
 }
