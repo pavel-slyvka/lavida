@@ -26,7 +26,15 @@ public class UserDao implements Dao<UserJdo> {
     }
 
     public UserJdo getUserByLogin(String login) {
-        return entityManager.find(UserJdo.class, login);
+        UserJdo neededUser = null;
+        List<UserJdo> users = entityManager.createQuery("select u from UserJdo u", UserJdo.class).getResultList();
+//        List<UserJdo> users = getAll();
+        for (UserJdo user : users){
+            if (user.getLogin().equals(login)) {
+                neededUser = user;
+            }
+        }
+        return neededUser;
     }
 
 

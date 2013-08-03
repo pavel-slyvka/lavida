@@ -16,15 +16,14 @@ import org.springframework.orm.jpa.JpaTransactionManager;
 public class Main {
 
     public static void main(String[] args) {
-        UserJdo user3 = new UserJdo("login3", "pass3", true, "name3");
+        UserJdo user3 = new UserJdo("login2", "pass2", true, "name2");
         user3.getAuthorities().add(new AuthorityJdo("ROLE_USER", user3));
         String filePath = "spring-context.xml";
         AbstractApplicationContext context = new ClassPathXmlApplicationContext(filePath);
-        JpaTransactionManager transactionManager = context.getBean("transactionManager", JpaTransactionManager.class);
         UserService service = context.getBean("userService", UserService.class);
-        service.save(user3);
+//        service.save(user3);
 //        service.update(user2);
         System.out.println(service.getAll());
-        System.out.println("Privet!");
+        System.out.println(service.getByLogin("login2"));
     }
 }
