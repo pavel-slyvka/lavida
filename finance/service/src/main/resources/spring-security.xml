@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:beans="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
+
+    <beans:import resource="spring-context.xml" />
+
+    <global-method-security secured-annotations="enabled" />
+
+    <beans:bean id="test" class="com.lavida.service.SecurityMain"/>
+
+    <beans:bean id="userDetailsManager" class="com.lavida.service.DaoUserDetailsManagerImpl">
+        <beans:property name="userDao" ref="userDao" />
+    </beans:bean>
+
+    <authentication-manager id="authenticationManager">
+        <authentication-provider user-service-ref="userDetailsManager">
+            <password-encoder hash="md5">
+                <salt-source user-property="username" />
+            </password-encoder>
+        </authentication-provider>
+    </authentication-manager>
+</beans:beans>
