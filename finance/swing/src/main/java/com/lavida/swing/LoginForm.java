@@ -6,9 +6,11 @@ import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import javax.swing.*;
+import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 
 /**
  * LoginForm allows users to enter the program LaVida.
@@ -42,10 +44,13 @@ public class LoginForm extends JFrame {
     private JLabel errorLabel;
     private JPanel informPanel;
     private JPanel credentialPanel;
+    private JPanel buttonPanel;
+    private UserJdo currentUser;
+    private MainApplicationWindow mainApplicationWindow;
 
     public LoginForm() {
         super(LOGIN_FORM_NAME_RU);
-        this.setBounds(200, 200, 400, 150);
+        this.setBounds(200, 200, 400, 200);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(true);
 
@@ -60,32 +65,39 @@ public class LoginForm extends JFrame {
         passwordField = new JPasswordField();
         submitButton = new JButton(LOGIN_BUTTON_RU);
         submitButton.addActionListener(new SubmitButtonEventListener());
+        submitButton.setMnemonic(KeyEvent.VK_ENTER);  // Alt+Enter hot keys
+        submitButton.setBackground(Color.orange);
 
         errorLabel = new JLabel();
-//        errorLabel.setText(errorMessage);
         errorLabel.setForeground(Color.RED);
-        credentialPanel = new JPanel(new GridLayout(2, 2));
 
-        // todo make spacing before
+        credentialPanel = new JPanel(new GridLayout(2, 2));
         credentialPanel.add(loginLabel);
         credentialPanel.add(loginField);
         credentialPanel.add(passwordLabel);
         credentialPanel.add(passwordField);
+        credentialPanel.setBorder(new LineBorder(Color.ORANGE));
+        credentialPanel.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
 
         informPanel = new JPanel(new GridLayout(2, 1));
         informPanel.add(instructionsLabel);
         informPanel.add(errorLabel);
+        informPanel.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
+
+        buttonPanel = new JPanel();
+        buttonPanel.add(submitButton);
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(5,50,5,50));
 
         container.add(informPanel, BorderLayout.NORTH);
         container.add(credentialPanel, BorderLayout.CENTER);
-        container.add(submitButton, BorderLayout.SOUTH);
+        container.add(buttonPanel, BorderLayout.SOUTH);
 
-        setVisible(true);
     }
 
 
     public static void main(String[] args) {
         LoginForm form = new LoginForm();
+        form.setVisible(true);
     }
 
     /**
@@ -95,13 +107,19 @@ public class LoginForm extends JFrame {
     private class SubmitButtonEventListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            String login = loginField.getText();
+            String login = loginField.getText().trim();
             String password = new String(passwordField.getPassword());
             errorLabel.setText(null);
 
             try {
                 validateCredentials(login, password);
-                errorLabel.setText("hi!");
+                loginField.setText("");
+                passwordField.setText("");
+                currentUser = getUserByLogin(login);
+                mainApplicationWindow = new MainApplicationWindow();
+                mainApplicationWindow.setVisible(true);
+                mainApplicationWindow.setCurrentUser(currentUser);
+                dispose();
             } catch (UserValidationException e1) {
                 errorMessage = e1.getMessage();
                 errorLabel.setText(errorMessage);
@@ -113,9 +131,9 @@ public class LoginForm extends JFrame {
      * in database "lavida".
      *
      * @param login  the login text from loginField to be validated;
-     * @param password the password text from passwordField to be validated$
+     * @param password the password text from passwordField to be validated;
      * @throws UserValidationException if login and/or password are null, if login and/or password
-     * don't match regular expression   todo authentication
+     * don't match regular expression, if login and/or password don't match database values.
      */
     private void validateCredentials(String login, String password) throws UserValidationException {
         if (login == null || login.trim().isEmpty()) {
@@ -125,11 +143,7 @@ public class LoginForm extends JFrame {
         }else if (!login.matches(REGULAR_EXPRESSION_FOR_CREDENTIALS) || !password.matches(REGULAR_EXPRESSION_FOR_CREDENTIALS)) {
             throw new UserValidationException(UserValidationException.INCORRECT_FORMAT_MESSAGE_RU);
         }
-
-        String filePath = "spring-context.xml";
-        AbstractApplicationContext context = new ClassPathXmlApplicationContext(filePath);
-        UserService service = context.getBean("userService", UserService.class);
-        UserJdo user = service.getByLogin(login);
+        UserJdo user = getUserByLogin (login);
 
         if (user == null) {
             throw new UserValidationException(UserValidationException.INCORRECT_PRINCIPAL_MESSAGE_RU);
@@ -139,4 +153,15 @@ public class LoginForm extends JFrame {
 
     }
 
+    private UserJdo getUserByLogin(String login) {
+        String filePath = "spring-context.xml";
+        AbstractApplicationContext context = new ClassPathXmlApplicationContext(filePath);
+        UserService service = context.getBean("userService", UserService.class);
+        UserJdo user = service.getByLogin(login);
+        return user;
+    }
+
+    public UserJdo getCurrentUser() {
+        return currentUser;
+    }
 }
