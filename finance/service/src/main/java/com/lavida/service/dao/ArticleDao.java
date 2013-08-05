@@ -6,7 +6,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.List;
 
-/** The {@code ArticleDao}
+/** The {@code ArticleDao} is DAO for {@code ArticleJdo} .
  * Created: 9:59 05.08.13
  *
  * @author Ruslan
