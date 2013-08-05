@@ -23,6 +23,7 @@
 
     <tx:annotation-driven transaction-manager="transactionManager"/>
 
+    <!--For operations with users-->
     <bean id="userDao" class="com.lavida.service.dao.UserDao">
     </bean>
 
@@ -32,5 +33,13 @@
         <property name="userDao" ref="userDao"/>
         <property name="authoritiesDao" ref="authoritiesDao"/>
     </bean>
+
+    <!--For operations with goods-->
+    <bean id="articleDao"  class="com.lavida.service.dao.ArticleDao"/>
+
+    <bean id="articleService" class="com.lavida.service.ArticleService">
+        <property name="articleDao" ref="articleDao"/>
+    </bean>
+
 
 </beans>
