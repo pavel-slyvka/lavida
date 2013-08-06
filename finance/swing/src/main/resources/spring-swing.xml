@@ -22,6 +22,11 @@
 
     <bean id="mainApplicationWindow" class="com.lavida.swing.MainApplicationWindow">
         <property name="userService" ref="userService"/>
+        <property name="articleService" ref="articleService"/>
+        <property name="tableModel" ref="tableModel"/>
+    </bean>
+
+    <bean id="tableModel" class="com.lavida.swing.ArticlesTableModel">
     </bean>
 
 </beans>

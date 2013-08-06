@@ -40,6 +40,12 @@
 
     <bean id="articleService" class="com.lavida.service.ArticleService">
         <property name="articleDao" ref="articleDao"/>
+        <property name="articlesUnmarshaller" ref="articlesUnmarshaller"/>
+    </bean>
+
+    <!--Operating with Google API-->
+
+    <bean id="articlesUnmarshaller" class="com.lavida.service.google.ArticlesFromGoogleDocUnmarshaller">
     </bean>
 
 

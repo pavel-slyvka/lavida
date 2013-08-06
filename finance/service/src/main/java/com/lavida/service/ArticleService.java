@@ -1,8 +1,11 @@
 package com.lavida.service;
 
+import com.google.gdata.util.ServiceException;
 import com.lavida.service.dao.ArticleDao;
 import com.lavida.service.entity.ArticleJdo;
+import com.lavida.service.google.ArticlesFromGoogleDocUnmarshaller;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -13,6 +16,10 @@ import java.util.List;
  */
 public class ArticleService {
     private ArticleDao articleDao;
+    private ArticlesFromGoogleDocUnmarshaller articlesUnmarshaller;
+
+    public ArticleService() {
+    }
 
     public void save (ArticleJdo articleJdo) {
         articleDao.put(articleJdo);
@@ -42,6 +49,13 @@ public class ArticleService {
         throw new RuntimeException("There is no article with code: " + code + "!"); //todo create databaseException
     }
 
+    public List<ArticleJdo> loadFromGoogle (String userNameGmail, String passwordGmail) throws IOException, ServiceException {
+        return  articlesUnmarshaller.unmarshal(userNameGmail, passwordGmail);
+    }
+
+    public List<String> loadTableHeader (String userNameGmail, String passwordGmail) throws IOException, ServiceException {
+        return articlesUnmarshaller.readTableHeader(userNameGmail, passwordGmail);
+    }
 
     public ArticleDao getArticleDao() {
         return articleDao;
@@ -49,5 +63,9 @@ public class ArticleService {
 
     public void setArticleDao(ArticleDao articleDao) {
         this.articleDao = articleDao;
+    }
+
+    public void setArticlesUnmarshaller(ArticlesFromGoogleDocUnmarshaller articlesUnmarshaller) {
+        this.articlesUnmarshaller = articlesUnmarshaller;
     }
 }

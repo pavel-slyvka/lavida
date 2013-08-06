@@ -7,10 +7,13 @@ import com.lavida.service.entity.ArticleJdo;
 import com.lavida.service.entity.UserJdo;
 import com.lavida.service.google.ArticlesFromGoogleDocUnmarshaller;
 import com.lavida.service.google.MyPropertiesUtil;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import javax.swing.*;
+import javax.swing.event.TableModelListener;
+import javax.swing.table.TableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -35,6 +38,9 @@ public class MainApplicationWindow extends JFrame {
     private static final String REFRESH_BUTTON_NAME_RU = "Обновить";
 
     private UserService userService;
+    private ArticleService articleService;
+    ArticlesTableModel tableModel;
+
 
     JMenuBar menuBar;
     JDesktopPane desktopPane;
@@ -42,9 +48,12 @@ public class MainApplicationWindow extends JFrame {
     JLabel searchByNameLabel, searchByCodeLabel, searchByPriceLabel;
     JTextField searchByNameField, searchByCodeField, searchByPriceField;
     JButton clearNameButton, clearCodeButton, clearPriceButton, refreshButton;
+    JTable articlesTable;
+    JScrollPane tableScrollPane;
 
     UserJdo currentUser;
     List<ArticleJdo> articles;
+    List<String> tableHeader;
 
     private String userNameGmail;
     private String passwordGmail;
@@ -57,13 +66,13 @@ public class MainApplicationWindow extends JFrame {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-
+//      menu bar
         menuBar = new JMenuBar();
         menuBar.setBackground(Color.lightGray);
         menuBar.setPreferredSize(new Dimension(500, 25));
-
         setJMenuBar(menuBar);
 
+//      desktop pane
         desktopPane = new JDesktopPane();
         desktopPane.setBackground(Color.white);
         desktopPane.setLayout(new BorderLayout());
@@ -72,6 +81,13 @@ public class MainApplicationWindow extends JFrame {
         mainPanel = new JPanel();
         mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         mainPanel.setBackground(Color.white);
+        initTable();
+        tableModel.setTableHeader(tableHeader);
+        tableModel.setTableData(articles);
+        articlesTable = new JTable(tableModel);
+        tableScrollPane = new JScrollPane(articlesTable);
+        mainPanel.add(tableScrollPane);
+
         desktopPane.add(mainPanel, BorderLayout.CENTER);
 
 //      panel for search operations
@@ -163,10 +179,6 @@ public class MainApplicationWindow extends JFrame {
         this.currentUser = currentUser;
     }
 
-    public static void main(String[] args) {
-        MainApplicationWindow mainApplicationWindow = new MainApplicationWindow();
-    }
-
     /**
      * The ActionListener for refreshButton component.
      *
@@ -178,15 +190,17 @@ public class MainApplicationWindow extends JFrame {
                 articles = null;
             } else {
                 try {
-                    Properties properties = MyPropertiesUtil.loadProperties(filePath);
-                    userNameGmail = properties.getProperty(MyPropertiesUtil.USER_NAME);
-                    passwordGmail = properties.getProperty(MyPropertiesUtil.PASSWORD);
-                    articles = ArticlesFromGoogleDocUnmarshaller.unmarshal(userNameGmail, passwordGmail);
+                    articles = refreshArticles();
+                    tableModel.setTableData(articles);
                     saveToDatabase(articles);
-                } catch (ServiceException e1) {   //todo make error message window
-                    e1.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                } catch (ServiceException e1) {
+                    e1.printStackTrace();
+                    JOptionPane.showMessageDialog(desktopPane, e1.getMessage(),
+                            "Exception in Google service!",JOptionPane.DEFAULT_OPTION);
                 } catch (IOException e1) {
-                    e1.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                    e1.printStackTrace();
+                    JOptionPane.showMessageDialog(desktopPane, e1.getMessage(),
+                            "Failed to read property file for gmail account!", JOptionPane.DEFAULT_OPTION);
                 }
             }
 
@@ -199,16 +213,79 @@ public class MainApplicationWindow extends JFrame {
      * @param articles the {@code List<ArticleJdo>}  to save or update to database.
      */
     private void saveToDatabase (List<ArticleJdo> articles) {
-        String filePath = "spring-context.xml";
-        AbstractApplicationContext context = new ClassPathXmlApplicationContext(filePath);
-        ArticleService articleService = context.getBean("articleService", ArticleService.class);
         for (ArticleJdo articleJdo : articles) {
             articleService.update(articleJdo);
         }
     }
 
+    /**
+     * Refreshes data from google spreadsheet.
+     * @return List of ArticleJdo loaded from google spreadsheet
+     * @throws IOException
+     * @throws ServiceException
+     */
+    private List<ArticleJdo> refreshArticles () throws IOException, ServiceException {
+//        todo inject properties to articleFromGoogleDocUnmarshaller in context
+        Properties properties = MyPropertiesUtil.loadProperties(filePath);
+        userNameGmail = properties.getProperty(MyPropertiesUtil.USER_NAME);
+        passwordGmail = properties.getProperty(MyPropertiesUtil.PASSWORD);
+        return  articleService.loadFromGoogle(userNameGmail, passwordGmail);
+    }
+
+    private List<String> loadTableHeader () throws IOException, ServiceException {
+        Properties properties = MyPropertiesUtil.loadProperties(filePath);
+        userNameGmail = properties.getProperty(MyPropertiesUtil.USER_NAME);
+        passwordGmail = properties.getProperty(MyPropertiesUtil.PASSWORD);
+        return articleService.loadTableHeader(userNameGmail, passwordGmail);
+    }
+
+    private void initTable() {
+        if (articles == null) {
+            try {
+                articles = refreshArticles();   // get List<ArticlesJdo> from Google spreadsheet.
+            } catch (ServiceException e1) {
+                e1.printStackTrace();
+                JOptionPane.showMessageDialog(desktopPane, e1.getMessage(),
+                        "Exception in Google service!",JOptionPane.DEFAULT_OPTION);
+            } catch (IOException e1) {
+                e1.printStackTrace();
+                JOptionPane.showMessageDialog(desktopPane, e1.getMessage(),
+                        "Failed to read property file for gmail account!", JOptionPane.DEFAULT_OPTION);
+            }
+            if (tableHeader == null) {
+                try {
+                    tableHeader = loadTableHeader();
+                } catch (ServiceException e1) {
+                    e1.printStackTrace();
+                    JOptionPane.showMessageDialog(desktopPane, e1.getMessage(),
+                            "Exception in Google service!",JOptionPane.DEFAULT_OPTION);
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                    JOptionPane.showMessageDialog(desktopPane, e1.getMessage(),
+                            "Failed to read property file for gmail account!", JOptionPane.DEFAULT_OPTION);
+                }
+            }
+        }
+
+    }
+
     public void setUserService(UserService userService) {
         this.userService = userService;
+    }
+
+    public void setArticleService(ArticleService articleService) {
+        this.articleService = articleService;
+    }
+
+    public void setTableModel(ArticlesTableModel tableModel) {
+        this.tableModel = tableModel;
+    }
+
+    public static void main(String[] args) {
+        ApplicationContext context = new ClassPathXmlApplicationContext("spring-swing.xml");
+        MainApplicationWindow form = context.getBean(MainApplicationWindow.class);
+        form.setVisible(true);
+
     }
 }
 

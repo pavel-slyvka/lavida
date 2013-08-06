@@ -3,13 +3,13 @@ package com.lavida.service.google;
 import com.google.gdata.client.spreadsheet.FeedURLFactory;
 import com.google.gdata.client.spreadsheet.SpreadsheetService;
 import com.google.gdata.data.spreadsheet.*;
+import com.google.gdata.util.AuthenticationException;
 import com.google.gdata.util.ServiceException;
 import com.lavida.service.entity.ArticleJdo;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.List;
 
@@ -22,12 +22,10 @@ import java.util.List;
 public class ArticlesFromGoogleDocUnmarshaller {
     private static final String APPLICATION_NAME = "lavida.articles";
 
-
     public ArticlesFromGoogleDocUnmarshaller() {
     }
 
-    // todo work with Application context
-    public static List<ArticleJdo> unmarshal(String userNameGmail, String passwordGmail)
+    public  List<ArticleJdo> unmarshal(String userNameGmail, String passwordGmail)
             throws ServiceException, IOException {
         List<ArticleJdo> articles = new ArrayList<ArticleJdo>();
         SpreadsheetService service = new SpreadsheetService(APPLICATION_NAME);
@@ -119,90 +117,37 @@ public class ArticlesFromGoogleDocUnmarshaller {
             }
 
         }
-
- /*       for (CellEntry cellEntry : cellFeed.getEntries()) {   // List<CellEntry>
-            Cell cell = cellEntry.getCell();
-
-            if (cell.getRow() > 1) {  //  omit first row with table header.
-
-                cellRow = cell.getRow();
-                if (cellRow > row) {            // start of the next row
-                    row = cellRow;
-                    articles.add(articleJdo);
-                    articleJdo = new ArticleJdo();
-                }
-
-                if (cell.getCol() == 1) {
-                    articleJdo.setId(Integer.parseInt(cell.getInputValue()));
-                    continue;
-                } else if (cell.getCol() == 2) {
-                    articleJdo.setCode(cell.getInputValue());
-                    continue;
-                } else if (cell.getCol() == 3) {
-                    articleJdo.setName(cell.getInputValue());
-                    continue;
-                } else if (cell.getCol() == 4) {
-                    articleJdo.setBrand(cell.getInputValue());
-                    continue;
-                } else if (cell.getCol() == 5) {
-                    articleJdo.setQuantity(Integer.parseInt(cell.getInputValue()));
-                    continue;
-                } else if (cell.getCol() == 6) {
-                    articleJdo.setSize(cell.getInputValue());
-                    continue;
-                } else if (cell.getCol() == 7) {
-                    articleJdo.setPurchasingPriceEUR(cell.getDoubleValue());
-                    continue;
-                } else if (cell.getCol() == 8) {
-                    articleJdo.setTransportCostEUR(cell.getDoubleValue());
-                    continue;
-                } else if (cell.getCol() == 9) {
-                    articleJdo.setDeliveryDate(CalendarConverter.convertStringDateToCalendar(cell.getInputValue()));
-                    continue;
-                } else if (cell.getCol() == 10) {
-                    articleJdo.setPriceUAH(cell.getDoubleValue());
-                    continue;
-                } else if (cell.getCol() == 11) {
-                    articleJdo.setRaisedPriceUAH(cell.getDoubleValue());
-                    continue;
-                } else if (cell.getCol() == 12) {
-                    articleJdo.setActionPriceUAH(cell.getDoubleValue());
-                    continue;
-                } else if (cell.getCol() == 13) {
-                    articleJdo.setSold(cell.getInputValue());
-                    continue;
-                } else if (cell.getCol() == 14) {
-                    articleJdo.setOurs(cell.getInputValue());
-                    continue;
-                } else if (cell.getCol() == 15) {
-                    articleJdo.setSaleDate(CalendarConverter.convertStringDateToCalendar(cell.getInputValue()));
-                    continue;
-                } else if (cell.getCol() == 16) {
-                    articleJdo.setComment(cell.getInputValue());
-                    continue;
-                }
-            }
-        }
-*/
         articles.add(articleJdo);
         return articles;
     }
 
-    public static void main(String[] args) {
-        String username = "fra.prsnl@gmail.com";
-        String password = "rus42095";
+    public List<String> readTableHeader (String userNameGmail, String passwordGmail) throws ServiceException, IOException {
+        List<String> tableHeader  = new ArrayList<String>();
 
-        ArticlesFromGoogleDocUnmarshaller unmarshaller = new ArticlesFromGoogleDocUnmarshaller();
-        List<ArticleJdo> articles = null;
-        try {
-            articles = unmarshaller.unmarshal(username, password);
-        } catch (ServiceException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        } catch (IOException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        SpreadsheetService service = new SpreadsheetService(APPLICATION_NAME);
+        FeedURLFactory factory = FeedURLFactory.getDefault();
+
+        // login:
+        service.setUserCredentials(userNameGmail, passwordGmail);
+
+        // get sheets:
+        SpreadsheetFeed feed = service.getFeed(factory.getSpreadsheetsFeedUrl(), SpreadsheetFeed.class);
+        List spreadsheets = feed.getEntries();
+
+        // load first sheet:
+        SpreadsheetEntry spreadsheet = (SpreadsheetEntry) spreadsheets.get(0);
+        List worksheets = spreadsheet.getWorksheets();
+        URL cellFeedUrl = spreadsheet.getWorksheets().get(0).getCellFeedUrl();
+        CellFeed cellFeed = service.getFeed(cellFeedUrl, CellFeed.class);
+
+        int colCount = cellFeed.getColCount();
+        List<CellEntry> cellEntryList = cellFeed.getEntries();
+        Iterator<CellEntry> cellEntryIterator = cellEntryList.iterator();
+        for ( int i = 0; i < colCount; i++){
+            CellEntry cellEntry = cellEntryIterator.next();
+            Cell cell = cellEntry.getCell();
+            tableHeader.add(cell.getInputValue());
         }
-        for (ArticleJdo articleJdo : articles) {
-            System.out.println(articleJdo);
-        }
+        return tableHeader;
     }
 }
