@@ -2,6 +2,7 @@ package com.lavida.swing;
 
 import com.lavida.service.UserService;
 import com.lavida.service.entity.UserJdo;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -96,7 +97,8 @@ public class LoginForm extends JFrame {
 
 
     public static void main(String[] args) {
-        LoginForm form = new LoginForm();
+        ApplicationContext context = new ClassPathXmlApplicationContext("spring-swing.xml");
+        LoginForm form = context.getBean(LoginForm.class);
         form.setVisible(true);
     }
 

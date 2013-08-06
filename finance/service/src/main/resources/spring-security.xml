@@ -13,6 +13,7 @@
     <beans:bean id="test" class="com.lavida.service.SecurityMain"/>
 
     <beans:bean id="userDetailsManager" class="com.lavida.service.DaoUserDetailsManagerImpl">
+        <beans:property name="authenticationManager" ref="authenticationManager" />
         <beans:property name="userDao" ref="userDao" />
     </beans:bean>
 

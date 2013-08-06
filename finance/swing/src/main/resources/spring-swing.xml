@@ -9,8 +9,8 @@
        http://www.springframework.org/schema/tx  http://www.springframework.org/schema/tx/spring-tx.xsd
 
        ">
-    <import resource="spring-context.xml"/>
-    <!--<import resource="spring-security.xml"/>-->
+    <!--<import resource="classpath:spring-context.xml"/>-->
+    <import resource="classpath:spring-security.xml"/>
 
     <context:annotation-config/>
 
