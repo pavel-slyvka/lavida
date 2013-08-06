@@ -1,9 +1,21 @@
 package com.lavida.swing;
 
+import com.google.gdata.util.ServiceException;
+import com.lavida.service.ArticleService;
+import com.lavida.service.entity.ArticleJdo;
 import com.lavida.service.entity.UserJdo;
+import com.lavida.service.google.ArticlesFromGoogleDocUnmarshaller;
+import com.lavida.service.google.MyPropertiesUtil;
+import org.springframework.context.support.AbstractApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.util.*;
+import java.util.List;
 
 /**
  * MainApplicationWindow
@@ -21,6 +33,7 @@ public class MainApplicationWindow extends JFrame {
     private static final String REFRESH_PANEL_NAME_RU = "Обновления";
     private static final String REFRESH_BUTTON_NAME_RU = "Обновить";
 
+    //todo work with application context
 
     JMenuBar menuBar;
     JDesktopPane desktopPane;
@@ -30,6 +43,10 @@ public class MainApplicationWindow extends JFrame {
     JButton clearNameButton, clearCodeButton, clearPriceButton, refreshButton;
 
     UserJdo currentUser;
+    List<ArticleJdo> articles;
+    private String userNameGmail;
+    private String passwordGmail;
+    private static final String filePath ="D:/Projects/LaVida/gmail.properties";
 
     public MainApplicationWindow() {
         super(WINDOW_NAME);
@@ -123,9 +140,11 @@ public class MainApplicationWindow extends JFrame {
         refreshPanel.setLayout(new GridBagLayout());
 
         refreshButton = new JButton(REFRESH_BUTTON_NAME_RU);
+        refreshButton.addActionListener(new RefreshButtonActionListener());
         constraints.gridx = 0;
         constraints.gridy = 0;
         refreshPanel.add(refreshButton, constraints);
+
         desktopPane.add(refreshPanel, BorderLayout.WEST);
 
         getContentPane().add(desktopPane);
@@ -144,5 +163,45 @@ public class MainApplicationWindow extends JFrame {
 
     public static void main(String[] args) {
         MainApplicationWindow mainApplicationWindow = new MainApplicationWindow();
+    }
+
+    /**
+     * The ActionListener for refreshButton component.
+     *
+     */
+    private class RefreshButtonActionListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (articles != null) {
+                articles = null;
+            } else {
+                try {
+                    Properties properties = MyPropertiesUtil.loadProperties(filePath);
+                    userNameGmail = properties.getProperty(MyPropertiesUtil.USER_NAME);
+                    passwordGmail = properties.getProperty(MyPropertiesUtil.PASSWORD);
+                    articles = ArticlesFromGoogleDocUnmarshaller.unmarshal(userNameGmail, passwordGmail);
+                    saveToDatabase(articles);
+                } catch (ServiceException e1) {   //todo make error message window
+                    e1.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                } catch (IOException e1) {
+                    e1.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                }
+            }
+
+        }
+    }
+
+    /**
+     *  Saves or updates articles to the database.
+     *
+     * @param articles the {@code List<ArticleJdo>}  to save or update to database.
+     */
+    private void saveToDatabase (List<ArticleJdo> articles) {
+        String filePath = "spring-context.xml";
+        AbstractApplicationContext context = new ClassPathXmlApplicationContext(filePath);
+        ArticleService articleService = context.getBean("articleService", ArticleService.class);
+        for (ArticleJdo articleJdo : articles) {
+            articleService.update(articleJdo);
+        }
     }
 }

@@ -4,6 +4,7 @@ package com.lavida.service.entity;
 
 import javax.persistence.*;
 import java.util.Calendar;
+import java.util.Locale;
 
 /**
  * Created: 8:15 05.08.13
@@ -28,7 +29,8 @@ public class ArticleJdo {
     private double priceUAH;
     private double raisedPriceUAH;
     private double actionPriceUAH;
-    private boolean soled;
+//    private boolean soled;
+    private String sold;
     private String ours;
     @Temporal(TemporalType.DATE)
     private Calendar saleDate;
@@ -133,12 +135,12 @@ public class ArticleJdo {
         this.actionPriceUAH = actionPriceUAH;
     }
 
-    public boolean isSoled() {
-        return soled;
+    public String getSold() {
+        return sold;
     }
 
-    public void setSoled(boolean soled) {
-        this.soled = soled;
+    public void setSold(String sold) {
+        this.sold = sold;
     }
 
     public String getOurs() {
@@ -202,13 +204,17 @@ public class ArticleJdo {
                 ", size='" + size + '\'' +
                 ", purchasingPriceEUR=" + purchasingPriceEUR +
                 ", transportCostEUR=" + transportCostEUR +
-                ", deliveryDate=" + deliveryDate +
+                ", deliveryDate=" + deliveryDate.get(Calendar.MONTH) + "/" +
+                    deliveryDate.get(Calendar.DATE) + "/" + deliveryDate.get(Calendar.YEAR) +
                 ", priceUAH=" + priceUAH +
                 ", raisedPriceUAH=" + raisedPriceUAH +
                 ", actionPriceUAH=" + actionPriceUAH +
-                ", soled=" + soled +
+                ", sold= '" + sold + '\'' +
                 ", ours='" + ours + '\'' +
-                ", saleDate=" + saleDate +
+/*
+                ", saleDate=" + saleDate.get(Calendar.MONTH) + "/" +
+                    saleDate.get(Calendar.DAY_OF_MONTH) + "/" + saleDate.get(Calendar.YEAR) +
+*/
                 ", comment='" + comment + '\'' +
                 '}';
     }
