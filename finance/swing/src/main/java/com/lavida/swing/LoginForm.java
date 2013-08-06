@@ -51,6 +51,9 @@ public class LoginForm extends JFrame {
 
     public LoginForm() {
         super(LOGIN_FORM_NAME_RU);
+    }
+
+    public void init() {
         this.setBounds(200, 200, 400, 200);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(true);
@@ -78,23 +81,23 @@ public class LoginForm extends JFrame {
         credentialPanel.add(passwordLabel);
         credentialPanel.add(passwordField);
         credentialPanel.setBorder(new LineBorder(Color.ORANGE));
-        credentialPanel.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
+        credentialPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
         informPanel = new JPanel(new GridLayout(2, 1));
         informPanel.add(instructionsLabel);
         informPanel.add(errorLabel);
-        informPanel.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
+        informPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
         buttonPanel = new JPanel();
         buttonPanel.add(submitButton);
-        buttonPanel.setBorder(BorderFactory.createEmptyBorder(5,50,5,50));
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(5, 50, 5, 50));
 
         container.add(informPanel, BorderLayout.NORTH);
         container.add(credentialPanel, BorderLayout.CENTER);
         container.add(buttonPanel, BorderLayout.SOUTH);
 
-    }
 
+    }
 
     public static void main(String[] args) {
         ApplicationContext context = new ClassPathXmlApplicationContext("spring-swing.xml");
@@ -129,20 +132,21 @@ public class LoginForm extends JFrame {
         }
     }
 
-    /** Validates the input data in login form for not empty fields, correct format and existence of user
+    /**
+     * Validates the input data in login form for not empty fields, correct format and existence of user
      * in database "lavida".
      *
-     * @param login  the login text from loginField to be validated;
+     * @param login    the login text from loginField to be validated;
      * @param password the password text from passwordField to be validated;
      * @throws UserValidationException if login and/or password are null, if login and/or password
-     * don't match regular expression, if login and/or password don't match database values.
+     *                                 don't match regular expression, if login and/or password don't match database values.
      */
     private void validateCredentials(String login, String password) throws UserValidationException {
         if (login == null || login.trim().isEmpty()) {
             throw new UserValidationException(UserValidationException.NULL_PRINCIPAL_MESSAGE_RU);
         } else if (password == null || password.trim().isEmpty()) {
             throw new UserValidationException(UserValidationException.NULL_CREDENTIALS_MESSAGE_RU);
-        }else if (!login.matches(REGULAR_EXPRESSION_FOR_CREDENTIALS) || !password.matches(REGULAR_EXPRESSION_FOR_CREDENTIALS)) {
+        } else if (!login.matches(REGULAR_EXPRESSION_FOR_CREDENTIALS) || !password.matches(REGULAR_EXPRESSION_FOR_CREDENTIALS)) {
             throw new UserValidationException(UserValidationException.INCORRECT_FORMAT_MESSAGE_RU);
         }
 //        UserJdo user = userService.getByLogin(login);

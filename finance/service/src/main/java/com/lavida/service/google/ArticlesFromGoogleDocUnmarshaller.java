@@ -50,13 +50,9 @@ public class ArticlesFromGoogleDocUnmarshaller {
         int row = 2; // the current row  for creating ArticleJdo begins from 2 in the table of worksheet
         int cellRow = 0; // the row of the current cell
         List<CellEntry> cellEntryList = cellFeed.getEntries();
-        Iterator<CellEntry> cellEntryIterator = cellEntryList.iterator();
-        CellEntry cellEntry = null;
-        while (cellEntryIterator.hasNext()) {
-            cellEntry = cellEntryIterator.next();
+        for (CellEntry cellEntry : cellEntryList) {
             Cell cell = cellEntry.getCell();
-
-            if (cell.getRow() > 1) {  //  omit first row with table header.
+                        if (cell.getRow() > 1) {  //  omit first row with table header.
 
                 cellRow = cell.getRow();
                 if (cellRow > row) {            // start of the next row
@@ -115,12 +111,19 @@ public class ArticlesFromGoogleDocUnmarshaller {
                     continue;
                 }
             }
-
         }
         articles.add(articleJdo);
         return articles;
     }
 
+    /**
+     *
+     * @param userNameGmail
+     * @param passwordGmail
+     * @return
+     * @throws ServiceException
+     * @throws IOException
+     */
     public List<String> readTableHeader (String userNameGmail, String passwordGmail) throws ServiceException, IOException {
         List<String> tableHeader  = new ArrayList<String>();
 

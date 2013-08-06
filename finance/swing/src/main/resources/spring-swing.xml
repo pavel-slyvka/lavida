@@ -15,12 +15,12 @@
     <context:annotation-config/>
 
 
-    <bean id="loginForm" class="com.lavida.swing.LoginForm">
+    <bean id="loginForm" class="com.lavida.swing.LoginForm" init-method="init">
         <property name="userService" ref="userService"/>
         <property name="mainApplicationWindow" ref="mainApplicationWindow"/>
     </bean>
 
-    <bean id="mainApplicationWindow" class="com.lavida.swing.MainApplicationWindow">
+    <bean id="mainApplicationWindow" class="com.lavida.swing.MainApplicationWindow" init-method="init">
         <property name="userService" ref="userService"/>
         <property name="articleService" ref="articleService"/>
         <property name="tableModel" ref="tableModel"/>

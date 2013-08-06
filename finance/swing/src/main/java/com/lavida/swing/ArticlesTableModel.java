@@ -4,6 +4,8 @@ import com.lavida.service.ArticleService;
 import com.lavida.service.entity.ArticleJdo;
 
 import javax.swing.table.AbstractTableModel;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -31,9 +33,14 @@ public class ArticlesTableModel extends AbstractTableModel {
     public int getColumnCount() {
         return tableHeader.size();
     }
+    @Override
+    public String getColumnName(int columnIndex) {
+        return tableHeader.get(columnIndex);
+    }
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
+        SimpleDateFormat  dateFormat = new SimpleDateFormat("MM/dd/yyyy");
         ArticleJdo articleJdo = tableData.get(rowIndex);
         if (columnIndex == 0) {
             return articleJdo.getId();
@@ -52,7 +59,7 @@ public class ArticlesTableModel extends AbstractTableModel {
         } else if (columnIndex == 7) {
             return articleJdo.getTransportCostEUR();
         } else if (columnIndex == 8) {
-            return articleJdo.getDeliveryDate();
+              return (articleJdo.getDeliveryDate() == null) ? "":dateFormat.format(articleJdo.getDeliveryDate().getTime());
         } else if (columnIndex == 9) {
             return articleJdo.getPriceUAH();
         } else if (columnIndex == 10) {
@@ -64,7 +71,7 @@ public class ArticlesTableModel extends AbstractTableModel {
         } else if (columnIndex == 13) {
             return articleJdo.getOurs();
         } else if (columnIndex == 14) {
-            return articleJdo.getSaleDate();
+            return (articleJdo.getSaleDate() == null)? "" : dateFormat.format(articleJdo.getSaleDate().getTime());
         } else if (columnIndex == 15) {
             return articleJdo.getComment();
         } else return "";

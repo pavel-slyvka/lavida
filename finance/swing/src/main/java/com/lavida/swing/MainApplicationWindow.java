@@ -61,113 +61,6 @@ public class MainApplicationWindow extends JFrame {
 
     public MainApplicationWindow() {
         super(WINDOW_NAME);
-        setResizable(true);
-        setBounds(100, 100, 800, 500);
-        setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-//      menu bar
-        menuBar = new JMenuBar();
-        menuBar.setBackground(Color.lightGray);
-        menuBar.setPreferredSize(new Dimension(500, 25));
-        setJMenuBar(menuBar);
-
-//      desktop pane
-        desktopPane = new JDesktopPane();
-        desktopPane.setBackground(Color.white);
-        desktopPane.setLayout(new BorderLayout());
-
-//      main panel for table of goods
-        mainPanel = new JPanel();
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        mainPanel.setBackground(Color.white);
-        initTable();
-        tableModel.setTableHeader(tableHeader);
-        tableModel.setTableData(articles);
-        articlesTable = new JTable(tableModel);
-        tableScrollPane = new JScrollPane(articlesTable);
-        mainPanel.add(tableScrollPane);
-
-        desktopPane.add(mainPanel, BorderLayout.CENTER);
-
-//      panel for search operations
-        searchPanel = new JPanel();
-        searchPanel.setBackground(Color.lightGray);
-        searchPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(SEARCH_PANEL_NAME_RU),
-                BorderFactory.createEmptyBorder(5, 5, 5, 5)));
-        searchPanel.setOpaque(true);
-        searchPanel.setAutoscrolls(true);
-        searchPanel.setLayout(new GridBagLayout());
-        GridBagConstraints constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-
-        searchByNameLabel = new JLabel(SEARCH_BY_NAME_RU);
-        constraints.gridx = 0;
-        constraints.gridy = 0;
-        searchPanel.add(searchByNameLabel, constraints);
-
-        searchByNameField = new JTextField(25);
-        constraints.gridx = 1;
-        constraints.gridy = 0;
-        searchPanel.add(searchByNameField, constraints);
-
-        clearNameButton = new JButton(CLEAR_BUTTON_NAME_RU);
-        constraints.gridx = 2;
-        constraints.gridy = 0;
-        searchPanel.add(clearNameButton, constraints);
-
-        searchByCodeLabel = new JLabel(SEARCH_BY_CODE_RU);
-        constraints.gridx = 0;
-        constraints.gridy = 1;
-        searchPanel.add(searchByCodeLabel, constraints);
-
-        searchByCodeField = new JTextField();
-        constraints.gridx = 1;
-        constraints.gridy = 1;
-        searchPanel.add(searchByCodeField, constraints);
-
-        clearCodeButton = new JButton(CLEAR_BUTTON_NAME_RU);
-        constraints.gridx = 2;
-        constraints.gridy = 1;
-        searchPanel.add(clearCodeButton, constraints);
-
-        searchByPriceLabel = new JLabel(SEARCH_BY_PRICE_RU);
-        constraints.gridx = 0;
-        constraints.gridy = 2;
-        searchPanel.add(searchByPriceLabel, constraints);
-
-        searchByPriceField = new JTextField();
-        constraints.gridx = 1;
-        constraints.gridy = 2;
-        searchPanel.add(searchByPriceField, constraints);
-
-        clearPriceButton = new JButton(CLEAR_BUTTON_NAME_RU);
-        constraints.gridx = 2;
-        constraints.gridy = 2;
-        searchPanel.add(clearPriceButton, constraints);
-
-        desktopPane.add(searchPanel, BorderLayout.SOUTH);
-
-//      panel for refresh and save operations with data
-        refreshPanel = new JPanel();
-        refreshPanel.setBackground(Color.lightGray);
-        refreshPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(REFRESH_PANEL_NAME_RU),
-                BorderFactory.createEmptyBorder(5, 5, 5, 5)));
-        refreshPanel.setOpaque(true);
-        refreshPanel.setAutoscrolls(true);
-        refreshPanel.setLayout(new GridBagLayout());
-
-        refreshButton = new JButton(REFRESH_BUTTON_NAME_RU);
-        refreshButton.addActionListener(new RefreshButtonActionListener());
-        constraints.gridx = 0;
-        constraints.gridy = 0;
-        refreshPanel.add(refreshButton, constraints);
-
-        desktopPane.add(refreshPanel, BorderLayout.WEST);
-
-        getContentPane().add(desktopPane);
-//        setVisible(true);
-
 
     }
 
@@ -286,6 +179,117 @@ public class MainApplicationWindow extends JFrame {
         MainApplicationWindow form = context.getBean(MainApplicationWindow.class);
         form.setVisible(true);
 
+    }
+
+    public void init() {
+        setResizable(true);
+        setBounds(100, 100, 800, 500);
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+//      menu bar
+        menuBar = new JMenuBar();
+        menuBar.setBackground(Color.lightGray);
+        menuBar.setPreferredSize(new Dimension(500, 25));
+        setJMenuBar(menuBar);
+
+//      desktop pane
+        desktopPane = new JDesktopPane();
+        desktopPane.setBackground(Color.white);
+        desktopPane.setLayout(new BorderLayout());
+
+//      main panel for table of goods
+        mainPanel = new JPanel();
+//        mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        mainPanel.setBackground(Color.white);
+        mainPanel.setLayout(new BorderLayout());
+        initTable();
+        tableModel.setTableHeader(tableHeader);
+        tableModel.setTableData(articles);
+        articlesTable = new JTable(tableModel);
+        articlesTable.doLayout();
+        articlesTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        tableScrollPane = new JScrollPane(articlesTable);
+        tableScrollPane.setPreferredSize(new Dimension(1000,700));
+        mainPanel.add(tableScrollPane, BorderLayout.CENTER);
+        desktopPane.add(mainPanel, BorderLayout.CENTER);
+
+//      panel for search operations
+        searchPanel = new JPanel();
+        searchPanel.setBackground(Color.lightGray);
+        searchPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(SEARCH_PANEL_NAME_RU),
+                BorderFactory.createEmptyBorder(5, 5, 5, 5)));
+        searchPanel.setOpaque(true);
+        searchPanel.setAutoscrolls(true);
+        searchPanel.setLayout(new GridBagLayout());
+        GridBagConstraints constraints = new GridBagConstraints();
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+
+        searchByNameLabel = new JLabel(SEARCH_BY_NAME_RU);
+        constraints.gridx = 0;
+        constraints.gridy = 0;
+        searchPanel.add(searchByNameLabel, constraints);
+
+        searchByNameField = new JTextField(25);
+        constraints.gridx = 1;
+        constraints.gridy = 0;
+        searchPanel.add(searchByNameField, constraints);
+
+        clearNameButton = new JButton(CLEAR_BUTTON_NAME_RU);
+        constraints.gridx = 2;
+        constraints.gridy = 0;
+        searchPanel.add(clearNameButton, constraints);
+
+        searchByCodeLabel = new JLabel(SEARCH_BY_CODE_RU);
+        constraints.gridx = 0;
+        constraints.gridy = 1;
+        searchPanel.add(searchByCodeLabel, constraints);
+
+        searchByCodeField = new JTextField();
+        constraints.gridx = 1;
+        constraints.gridy = 1;
+        searchPanel.add(searchByCodeField, constraints);
+
+        clearCodeButton = new JButton(CLEAR_BUTTON_NAME_RU);
+        constraints.gridx = 2;
+        constraints.gridy = 1;
+        searchPanel.add(clearCodeButton, constraints);
+
+        searchByPriceLabel = new JLabel(SEARCH_BY_PRICE_RU);
+        constraints.gridx = 0;
+        constraints.gridy = 2;
+        searchPanel.add(searchByPriceLabel, constraints);
+
+        searchByPriceField = new JTextField();
+        constraints.gridx = 1;
+        constraints.gridy = 2;
+        searchPanel.add(searchByPriceField, constraints);
+
+        clearPriceButton = new JButton(CLEAR_BUTTON_NAME_RU);
+        constraints.gridx = 2;
+        constraints.gridy = 2;
+        searchPanel.add(clearPriceButton, constraints);
+
+        desktopPane.add(searchPanel, BorderLayout.SOUTH);
+
+//      panel for refresh and save operations with data
+        refreshPanel = new JPanel();
+        refreshPanel.setBackground(Color.lightGray);
+        refreshPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(REFRESH_PANEL_NAME_RU),
+                BorderFactory.createEmptyBorder(5, 5, 5, 5)));
+        refreshPanel.setOpaque(true);
+        refreshPanel.setAutoscrolls(true);
+        refreshPanel.setLayout(new GridBagLayout());
+
+        refreshButton = new JButton(REFRESH_BUTTON_NAME_RU);
+        refreshButton.addActionListener(new RefreshButtonActionListener());
+        constraints.gridx = 0;
+        constraints.gridy = 0;
+        refreshPanel.add(refreshButton, constraints);
+
+        desktopPane.add(refreshPanel, BorderLayout.WEST);
+
+        getContentPane().add(desktopPane);
     }
 }
 
