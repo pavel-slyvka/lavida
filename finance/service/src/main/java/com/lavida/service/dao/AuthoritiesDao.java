@@ -13,6 +13,7 @@ import java.util.List;
  * Time: 9:20
  * To change this template use File | Settings | File Templates.
  */
+@Deprecated // don't need because AuthoritiesJdo also out of sense.
 public class AuthoritiesDao implements Dao<AuthorityJdo> {
     @PersistenceContext
     private EntityManager entityManager;

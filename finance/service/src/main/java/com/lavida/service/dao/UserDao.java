@@ -2,8 +2,7 @@ package com.lavida.service.dao;
 
 import com.lavida.service.entity.UserJdo;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
+import javax.persistence.*;
 import java.util.List;
 
 /**
@@ -13,34 +12,28 @@ import java.util.List;
  * Time: 17:27
  * To change this template use File | Settings | File Templates.
  */
+//@NamedQueries({
+//        @NamedQuery(name = UserDao.FIND_ALL, query = "select u from UserJdo u"),
+//        @NamedQuery(name = UserDao.FIND_BY_LOGIN, query = "select u from UserJdo u where u.login = :login")
+//})
 public class UserDao implements Dao<UserJdo> {
+//    static final String FIND_ALL = "UserDao.findAll";
+//    static final String FIND_BY_LOGIN = "UserDao.findByLogin";
+    static final String FIND_BY_LOGIN = "select u from UserJdo u where u.login = :login";
+
     @PersistenceContext
     private EntityManager entityManager;
-
-    public EntityManager getEntityManager() {
-        return entityManager;
-    }
-
-    public void setEntityManager(EntityManager entityManager) {
-        this.entityManager = entityManager;
-    }
-
-    public UserJdo getUserByLogin(String login) {
-        UserJdo neededUser = null;
-        List<UserJdo> users = entityManager.createQuery("select u from UserJdo u", UserJdo.class).getResultList();
-//        List<UserJdo> users = getAll();
-        for (UserJdo user : users){
-            if (user.getLogin().equals(login)) {
-                neededUser = user;
-            }
-        }
-        return neededUser;
-    }
-
 
     @Override
     public UserJdo getById(int id) {
         return entityManager.find(UserJdo.class, id);
+    }
+
+    public UserJdo getUserByLogin(String login) {
+//        TypedQuery<UserJdo> query = entityManager.createNamedQuery(UserDao.FIND_BY_LOGIN, UserJdo.class)
+        TypedQuery<UserJdo> query = entityManager.createQuery(UserDao.FIND_BY_LOGIN, UserJdo.class)
+                .setParameter("login", login);
+        return query.getSingleResult();
     }
 
     @Override
@@ -68,5 +61,9 @@ public class UserDao implements Dao<UserJdo> {
             throw new RuntimeException("Cannot delete user[" + id + "], because it doesn't exist.");
 
         }
+    }
+
+    public void setEntityManager(EntityManager entityManager) {
+        this.entityManager = entityManager;
     }
 }

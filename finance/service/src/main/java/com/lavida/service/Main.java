@@ -1,10 +1,9 @@
 package com.lavida.service;
 
-import com.lavida.service.entity.AuthorityJdo;
-import com.lavida.service.entity.UserJdo;
-import org.springframework.context.support.AbstractApplicationContext;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.orm.jpa.JpaTransactionManager;
+
+import java.util.Arrays;
 
 /**
  * Created with IntelliJ IDEA.
@@ -16,14 +15,11 @@ import org.springframework.orm.jpa.JpaTransactionManager;
 public class Main {
 
     public static void main(String[] args) {
-        UserJdo user3 = new UserJdo("login2", "pass2", true, "name2");
-        user3.getAuthorities().add(new AuthorityJdo("ROLE_USER", user3));
-        String filePath = "spring-context.xml";
-        AbstractApplicationContext context = new ClassPathXmlApplicationContext(filePath);
-        UserService service = context.getBean("userService", UserService.class);
-//        service.save(user3);
+        ApplicationContext context = new ClassPathXmlApplicationContext("spring-security.xml");
+        UserService service = context.getBean(UserService.class);
+        service.save("login2", "pass2", true, Arrays.asList("ROLE_USER"));
 //        service.update(user2);
         System.out.println(service.getAll());
-        System.out.println(service.getByLogin("login2"));
+//        System.out.println(service.getByLogin("login2"));
     }
 }

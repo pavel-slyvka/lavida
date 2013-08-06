@@ -1,8 +1,8 @@
 package com.lavida.service.entity;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created with IntelliJ IDEA.
@@ -20,25 +20,29 @@ public class UserJdo {
     @GeneratedValue
     private int id;
 
+    @Column(length = 32)
     private String login;
 
+    @Column(length = 32)
     private String password;
 
     private boolean enabled;
 
+    @Column(length = 32)
     private String name;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user", cascade = CascadeType.ALL)
-    private List<AuthorityJdo> authorities = new ArrayList<AuthorityJdo>();
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "authority", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "authority", length = 30)
+    private Set<String> authorities = new HashSet<String>();
 
     public UserJdo() {
     }
 
-    public UserJdo(String login, String password, boolean enabled, String name) {
+    public UserJdo(String login, String password, boolean enabled) {
         this.login = login;
         this.password = password;
         this.enabled = enabled;
-        this.name = name;
     }
 
     public int getId() {
@@ -73,20 +77,20 @@ public class UserJdo {
         this.enabled = enabled;
     }
 
+    public void setAuthorities(Set<String> authorities) {
+        this.authorities = authorities;
+    }
+
+    public String[] getAuthoritiesArray() {
+        return authorities.toArray(new String[authorities.size()]);
+    }
+
     public String getName() {
         return name;
     }
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public List<AuthorityJdo> getAuthorities() {
-        return authorities;
-    }
-
-    public void setAuthorities(List<AuthorityJdo> authorities) {
-        this.authorities = authorities;
     }
 
     @Override
@@ -116,8 +120,7 @@ public class UserJdo {
                 ", login='" + login + '\'' +
                 ", password='" + password + '\'' +
                 ", enabled=" + enabled +
-                ", name='" + name + '\'' +
-                ", authoritieses=" + authorities +
+                ", authorities=" + authorities +
                 '}';
     }
 }

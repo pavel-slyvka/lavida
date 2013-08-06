@@ -1,6 +1,6 @@
 package com.lavida.service.entity;
 
-import com.lavida.service.entity.enums.Brand;
+//import com.lavida.service.entity.enums.Brand;
 
 import javax.persistence.*;
 import java.util.Calendar;

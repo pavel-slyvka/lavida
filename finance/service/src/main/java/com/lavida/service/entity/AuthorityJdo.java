@@ -9,6 +9,7 @@ import javax.persistence.*;
  * Time: 17:04
  * To change this template use File | Settings | File Templates.
  */
+@Deprecated // don't need, because authorities is @ElementCollection
 @Entity
 @Table(name = "authorities")
 public class AuthorityJdo {

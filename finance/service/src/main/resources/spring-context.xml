@@ -30,6 +30,7 @@
     <bean id="authoritiesDao" class="com.lavida.service.dao.AuthoritiesDao"/>
 
     <bean id="userService" class="com.lavida.service.UserService">
+        <property name="userDetailsManager" ref="userDetailsManager" />
         <property name="userDao" ref="userDao"/>
         <property name="authoritiesDao" ref="authoritiesDao"/>
     </bean>

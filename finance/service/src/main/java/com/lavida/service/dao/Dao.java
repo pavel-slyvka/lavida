@@ -2,6 +2,7 @@ package com.lavida.service.dao;
 
 import java.util.List;
 
+@Deprecated // because out of sense
 public interface Dao<T> {
 	T getById(int id);
 	void put(T t);
