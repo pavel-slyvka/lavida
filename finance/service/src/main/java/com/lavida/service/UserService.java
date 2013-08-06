@@ -8,7 +8,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Created with IntelliJ IDEA.
@@ -22,8 +21,8 @@ public class UserService {
     private UserDao userDao;
     private AuthoritiesDao authoritiesDao;
 
-    public void login(String username, String password) {
-        userDetailsManager.login(username, password);
+    public void login(String username, String rowPassword) {
+        userDetailsManager.login(username, rowPassword);
     }
 
     public void logout() {

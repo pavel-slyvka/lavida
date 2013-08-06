@@ -11,7 +11,7 @@ import javax.persistence.*;
  */
 @Deprecated // don't need, because authorities is @ElementCollection
 @Entity
-@Table(name = "authorities")
+@Table(name = "authority")
 public class AuthorityJdo {
 
     @Id

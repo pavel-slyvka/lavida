@@ -17,9 +17,9 @@ public class Main {
     public static void main(String[] args) {
         ApplicationContext context = new ClassPathXmlApplicationContext("spring-security.xml");
         UserService service = context.getBean(UserService.class);
-        service.save("login2", "pass2", true, Arrays.asList("ROLE_USER"));
-//        service.update(user2);
-        System.out.println(service.getAll());
-//        System.out.println(service.getByLogin("login2"));
+//        service.save("login2", "pass2", true, Arrays.asList( "ROLE_ADMIN"));
+//        service.delete(2);
+//        System.out.println(service.getAll());
+        System.out.println(service.getByLogin("login2"));
     }
 }

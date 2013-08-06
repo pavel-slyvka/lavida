@@ -2,6 +2,7 @@ package com.lavida.swing;
 
 import com.google.gdata.util.ServiceException;
 import com.lavida.service.ArticleService;
+import com.lavida.service.UserService;
 import com.lavida.service.entity.ArticleJdo;
 import com.lavida.service.entity.UserJdo;
 import com.lavida.service.google.ArticlesFromGoogleDocUnmarshaller;
@@ -33,7 +34,7 @@ public class MainApplicationWindow extends JFrame {
     private static final String REFRESH_PANEL_NAME_RU = "Обновления";
     private static final String REFRESH_BUTTON_NAME_RU = "Обновить";
 
-    //todo work with application context
+    private UserService userService;
 
     JMenuBar menuBar;
     JDesktopPane desktopPane;
@@ -44,6 +45,7 @@ public class MainApplicationWindow extends JFrame {
 
     UserJdo currentUser;
     List<ArticleJdo> articles;
+
     private String userNameGmail;
     private String passwordGmail;
     private static final String filePath ="D:/Projects/LaVida/gmail.properties";
@@ -204,4 +206,9 @@ public class MainApplicationWindow extends JFrame {
             articleService.update(articleJdo);
         }
     }
+
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
 }
+

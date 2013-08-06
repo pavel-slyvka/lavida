@@ -34,7 +34,6 @@ public class LoginForm extends JFrame {
 //    private static final String REGULAR_EXPRESSION_FOR_CREDENTIALS = "\w*\d*";
 
     private String errorMessage;
-
     private JButton submitButton;
     private JTextField loginField;
     private JPasswordField passwordField;
@@ -45,8 +44,9 @@ public class LoginForm extends JFrame {
     private JPanel informPanel;
     private JPanel credentialPanel;
     private JPanel buttonPanel;
-    private UserJdo currentUser;
+
     private MainApplicationWindow mainApplicationWindow;
+    private UserService userService;
 
     public LoginForm() {
         super(LOGIN_FORM_NAME_RU);
@@ -113,10 +113,10 @@ public class LoginForm extends JFrame {
 
             try {
                 validateCredentials(login, password);
+                userService.login(login, password);
                 loginField.setText("");
                 passwordField.setText("");
-                currentUser = getUserByLogin(login);
-                mainApplicationWindow = new MainApplicationWindow();
+                UserJdo currentUser = userService.getByLogin(login);
                 mainApplicationWindow.setVisible(true);
                 mainApplicationWindow.setCurrentUser(currentUser);
                 dispose();
@@ -143,25 +143,19 @@ public class LoginForm extends JFrame {
         }else if (!login.matches(REGULAR_EXPRESSION_FOR_CREDENTIALS) || !password.matches(REGULAR_EXPRESSION_FOR_CREDENTIALS)) {
             throw new UserValidationException(UserValidationException.INCORRECT_FORMAT_MESSAGE_RU);
         }
-        UserJdo user = getUserByLogin (login);
-
-        if (user == null) {
-            throw new UserValidationException(UserValidationException.INCORRECT_PRINCIPAL_MESSAGE_RU);
-        } else if (!user.getPassword().equals(password)) {
-            throw new UserValidationException(UserValidationException.INCORRECT_CREDENTIALS_MESSAGE_RU);
-        }
+//        UserJdo user = userService.getByLogin(login);
+//        if (user == null) {
+//            throw new UserValidationException(UserValidationException.INCORRECT_PRINCIPAL_MESSAGE_RU);
+//        }
 
     }
 
-    private UserJdo getUserByLogin(String login) {
-        String filePath = "spring-context.xml";
-        AbstractApplicationContext context = new ClassPathXmlApplicationContext(filePath);
-        UserService service = context.getBean("userService", UserService.class);
-        UserJdo user = service.getByLogin(login);
-        return user;
+
+    public void setMainApplicationWindow(MainApplicationWindow mainApplicationWindow) {
+        this.mainApplicationWindow = mainApplicationWindow;
     }
 
-    public UserJdo getCurrentUser() {
-        return currentUser;
+    public void setUserService(UserService userService) {
+        this.userService = userService;
     }
 }

@@ -36,9 +36,9 @@ public class DaoUserDetailsManagerImpl implements UserDetailsManager {
         return new Md5PasswordEncoder().encodePassword(rowPassword, saltSource.getSalt(userDetails));
     }
 
-    public void login(String username, String password) {
+    public void login(String username, String rowPassword) {
         Authentication authenticationToken = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(username, password));
+                new UsernamePasswordAuthenticationToken(username, rowPassword));
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
     }
 

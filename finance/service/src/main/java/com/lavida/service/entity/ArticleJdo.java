@@ -1,14 +1,12 @@
 package com.lavida.service.entity;
 
-//import com.lavida.service.entity.enums.Brand;
 
 import javax.persistence.*;
 import java.util.Calendar;
-import java.util.Locale;
 
 /**
  * Created: 8:15 05.08.13
- *
+ * The {@code ArticleJdo} is entity for article of goods related to database.
  * @author Ruslan
  */
 @Entity
@@ -29,7 +27,6 @@ public class ArticleJdo {
     private double priceUAH;
     private double raisedPriceUAH;
     private double actionPriceUAH;
-//    private boolean soled;
     private String sold;
     private String ours;
     @Temporal(TemporalType.DATE)

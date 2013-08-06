@@ -4,12 +4,12 @@ import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
+/** The {@code UserJdo} is entity for users of application related to database.
+ *
  * Created with IntelliJ IDEA.
  * UserJdo: Admin
  * Date: 01.08.13
  * Time: 16:46
- * To change this template use File | Settings | File Templates.
  */
 
 @Entity

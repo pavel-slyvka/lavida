@@ -28,13 +28,15 @@ public class SecurityMain {
 
     private static void login(ApplicationContext context, String username, String password) {
         AuthenticationManager authenticationManager = context.getBean(AuthenticationManager.class);
-        Authentication authenticationToken = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
+        Authentication authenticationToken = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(username, password));
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
     }
 
     public static void main(String[] args) {
         ApplicationContext context = new ClassPathXmlApplicationContext("spring-security.xml");
-        login(context, "user1", "password");
+        login(context, "user12", "password");
+//        login(context, "login1", "pass1");
         SecurityMain securityMain = context.getBean(SecurityMain.class);
         securityMain.securedMethod();
     }
