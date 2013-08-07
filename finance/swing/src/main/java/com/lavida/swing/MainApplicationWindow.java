@@ -5,18 +5,14 @@ import com.lavida.service.ArticleService;
 import com.lavida.service.UserService;
 import com.lavida.service.entity.ArticleJdo;
 import com.lavida.service.entity.UserJdo;
-import com.lavida.service.google.ArticlesFromGoogleDocUnmarshaller;
 import com.lavida.service.google.MyPropertiesUtil;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import javax.swing.*;
-import javax.swing.event.TableModelListener;
-import javax.swing.table.TableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -61,7 +57,7 @@ public class MainApplicationWindow extends JFrame {
 
     private String userNameGmail;
     private String passwordGmail;
-    private static final String filePath ="D:/Projects/LaVida/gmail.properties";
+    private static final String filePath = "gmail.properties";
 
     public MainApplicationWindow() {
         super(WINDOW_NAME);
