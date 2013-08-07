@@ -4,6 +4,7 @@ import com.google.gdata.util.ServiceException;
 import com.lavida.service.dao.ArticleDao;
 import com.lavida.service.entity.ArticleJdo;
 import com.lavida.service.google.ArticlesFromGoogleDocUnmarshaller;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.List;
@@ -20,13 +21,19 @@ public class ArticleService {
 
     public ArticleService() {
     }
-
+    @Transactional
     public void save (ArticleJdo articleJdo) {
         articleDao.put(articleJdo);
     }
 
+    @Transactional
     public void update (ArticleJdo articleJdo) {
         articleDao.update(articleJdo);
+    }
+
+    @Transactional
+    public void delete (int id) {
+        articleDao.delete(id);
     }
 
     public ArticleJdo getById (int id) {

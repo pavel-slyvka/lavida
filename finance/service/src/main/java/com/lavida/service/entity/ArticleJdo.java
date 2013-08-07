@@ -13,8 +13,7 @@ import java.util.Calendar;
 @Table(name = "goods")
 public class ArticleJdo {
     @Id
-    @GeneratedValue
-    private int id;
+    private int id; // id value must be received from google spreadsheet
     private String code;
     private String name;
     private String brand;
@@ -201,17 +200,15 @@ public class ArticleJdo {
                 ", size='" + size + '\'' +
                 ", purchasingPriceEUR=" + purchasingPriceEUR +
                 ", transportCostEUR=" + transportCostEUR +
-                ", deliveryDate=" + deliveryDate.get(Calendar.MONTH) + "/" +
-                    deliveryDate.get(Calendar.DATE) + "/" + deliveryDate.get(Calendar.YEAR) +
+                ", deliveryDate='" + ((deliveryDate == null)? null : (deliveryDate.get(Calendar.MONTH) + "/" +
+                    deliveryDate.get(Calendar.DATE) + "/" + deliveryDate.get(Calendar.YEAR))) +  '\'' +
                 ", priceUAH=" + priceUAH +
                 ", raisedPriceUAH=" + raisedPriceUAH +
                 ", actionPriceUAH=" + actionPriceUAH +
                 ", sold= '" + sold + '\'' +
                 ", ours='" + ours + '\'' +
-/*
-                ", saleDate=" + saleDate.get(Calendar.MONTH) + "/" +
-                    saleDate.get(Calendar.DAY_OF_MONTH) + "/" + saleDate.get(Calendar.YEAR) +
-*/
+                ", saleDate='" + ((saleDate == null)? null : (saleDate.get(Calendar.MONTH) + "/" +
+                    saleDate.get(Calendar.DAY_OF_MONTH) + "/" + saleDate.get(Calendar.YEAR))) +  '\'' +
                 ", comment='" + comment + '\'' +
                 '}';
     }

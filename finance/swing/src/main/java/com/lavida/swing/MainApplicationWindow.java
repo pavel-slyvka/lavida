@@ -36,6 +36,7 @@ public class MainApplicationWindow extends JFrame {
     private static final String SEARCH_PANEL_NAME_RU = "Поиск";
     private static final String REFRESH_PANEL_NAME_RU = "Обновления";
     private static final String REFRESH_BUTTON_NAME_RU = "Обновить";
+    private static final String SOLD_RU = "Продано";
 
     private UserService userService;
     private ArticleService articleService;
@@ -74,6 +75,9 @@ public class MainApplicationWindow extends JFrame {
 
     /**
      * The ActionListener for refreshButton component.
+     * When button is clicked data for ArticleJdo List loads from Google spreadsheet
+     * and saves to database, then it goes through filterSold() for deleting all sold
+     * goods and renders to the articleTable.
      *
      */
     private class RefreshButtonActionListener implements ActionListener {
@@ -84,8 +88,9 @@ public class MainApplicationWindow extends JFrame {
             } else {
                 try {
                     articles = refreshArticles();
-                    tableModel.setTableData(articles);
                     saveToDatabase(articles);
+                    articles = filterSold(articles);
+                    tableModel.setTableData(articles);
                 } catch (ServiceException e1) {
                     e1.printStackTrace();
                     JOptionPane.showMessageDialog(desktopPane, e1.getMessage(),
@@ -96,7 +101,6 @@ public class MainApplicationWindow extends JFrame {
                             "Failed to read property file for gmail account!", JOptionPane.DEFAULT_OPTION);
                 }
             }
-
         }
     }
 
@@ -136,6 +140,7 @@ public class MainApplicationWindow extends JFrame {
         if (articles == null) {
             try {
                 articles = refreshArticles();   // get List<ArticlesJdo> from Google spreadsheet.
+                articles = filterSold(articles);
             } catch (ServiceException e1) {
                 e1.printStackTrace();
                 JOptionPane.showMessageDialog(desktopPane, e1.getMessage(),
@@ -160,6 +165,16 @@ public class MainApplicationWindow extends JFrame {
             }
         }
 
+    }
+
+    private List<ArticleJdo> filterSold(List<ArticleJdo> articles) {
+        List<ArticleJdo> filteredList = new ArrayList<ArticleJdo>();
+        for (ArticleJdo article : articles) {
+            if (!SOLD_RU.equalsIgnoreCase(article.getSold())) {
+                 filteredList.add(article);
+            }
+        }
+        return filteredList;
     }
 
     public void setUserService(UserService userService) {
