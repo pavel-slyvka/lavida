@@ -121,9 +121,8 @@ public class LoginForm extends JFrame {
                 userService.login(login, password);
                 loginField.setText("");
                 passwordField.setText("");
-                UserJdo currentUser = userService.getByLogin(login);
+                mainApplicationWindow.filterByPermissions(mainApplicationWindow.articlesTable);
                 mainApplicationWindow.setVisible(true);
-                mainApplicationWindow.setCurrentUser(currentUser);
                 dispose();
             } catch (UserValidationException e1) {
                 errorMessage = e1.getMessage();

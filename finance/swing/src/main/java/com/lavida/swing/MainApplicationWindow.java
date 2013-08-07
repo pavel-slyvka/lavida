@@ -10,6 +10,9 @@ import com.lavida.service.google.MyPropertiesUtil;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import javax.swing.*;
 import javax.swing.event.TableModelListener;
@@ -177,6 +180,18 @@ public class MainApplicationWindow extends JFrame {
         return filteredList;
     }
 
+    public void filterByPermissions (JTable articlesTable) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        List<SimpleGrantedAuthority> authorities = (List<SimpleGrantedAuthority>) authentication.getAuthorities();
+        if (authorities.contains(new SimpleGrantedAuthority("ROLE_SELLER"))) {
+            articlesTable.removeColumn(articlesTable.getColumn("Закупочная цена, евро"));
+            articlesTable.removeColumn(articlesTable.getColumn("Транспортные расхды, евро"));
+            articlesTable.removeColumn(articlesTable.getColumn("Продано"));
+            articlesTable.removeColumn(articlesTable.getColumn("Своим"));
+            articlesTable.removeColumn(articlesTable.getColumn("Дата продажи"));
+        }
+    }
+
     public void setUserService(UserService userService) {
         this.userService = userService;
     }
@@ -194,6 +209,11 @@ public class MainApplicationWindow extends JFrame {
         MainApplicationWindow form = context.getBean(MainApplicationWindow.class);
         form.setVisible(true);
 
+    }
+
+    public void packTable (JTable table) {
+        table.getColumn("Наименование товара").setPreferredWidth(200);
+        table.getColumn("Наименование товара").setResizable(true);
     }
 
     public void init() {
@@ -226,6 +246,7 @@ public class MainApplicationWindow extends JFrame {
         articlesTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         tableScrollPane = new JScrollPane(articlesTable);
         tableScrollPane.setPreferredSize(new Dimension(1000,700));
+        packTable(articlesTable);
         mainPanel.add(tableScrollPane, BorderLayout.CENTER);
         desktopPane.add(mainPanel, BorderLayout.CENTER);
 

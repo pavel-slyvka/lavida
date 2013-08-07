@@ -2,10 +2,17 @@ package com.lavida.swing;
 
 import com.lavida.service.ArticleService;
 import com.lavida.service.entity.ArticleJdo;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import javax.swing.table.AbstractTableModel;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -42,37 +49,38 @@ public class ArticlesTableModel extends AbstractTableModel {
     public Object getValueAt(int rowIndex, int columnIndex) {
         SimpleDateFormat  dateFormat = new SimpleDateFormat("MM/dd/yyyy");
         ArticleJdo articleJdo = tableData.get(rowIndex);
-        if (columnIndex == 0) {
+
+        if (columnIndex == 0) {              // id
             return articleJdo.getId();
-        } else if (columnIndex == 1) {
+        } else if (columnIndex == 1) {       // Code
             return articleJdo.getCode();
-        } else if (columnIndex == 2) {
+        } else if (columnIndex == 2) {       // Name
             return articleJdo.getName();
-        } else if (columnIndex == 3) {
+        } else if (columnIndex == 3) {       // Brand
             return articleJdo.getBrand();
-        } else if (columnIndex == 4) {
+        } else if (columnIndex == 4) {       // Quantity
             return articleJdo.getQuantity();
-        } else if (columnIndex == 5) {
+        } else if (columnIndex == 5) {       // Size
             return articleJdo.getSize();
-        } else if (columnIndex == 6) {
+        } else if (columnIndex == 6) {       // purchasing price
             return articleJdo.getPurchasingPriceEUR();
-        } else if (columnIndex == 7) {
+        } else if (columnIndex == 7) {       // transport cost
             return articleJdo.getTransportCostEUR();
-        } else if (columnIndex == 8) {
+        } else if (columnIndex == 8) {       // delivery date
               return (articleJdo.getDeliveryDate() == null) ? "":dateFormat.format(articleJdo.getDeliveryDate().getTime());
-        } else if (columnIndex == 9) {
+        } else if (columnIndex == 9) {       // current price
             return articleJdo.getPriceUAH();
-        } else if (columnIndex == 10) {
+        } else if (columnIndex == 10) {      // raised price
             return articleJdo.getRaisedPriceUAH();
-        } else if (columnIndex == 11) {
+        } else if (columnIndex == 11) {      // action price
             return articleJdo.getActionPriceUAH();
-        } else if (columnIndex == 12) {
+        } else if (columnIndex == 12) {      // sold
             return articleJdo.getSold();
-        } else if (columnIndex == 13) {
+        } else if (columnIndex == 13) {      // ours
             return articleJdo.getOurs();
-        } else if (columnIndex == 14) {
+        } else if (columnIndex == 14) {      // sale date
             return (articleJdo.getSaleDate() == null)? "" : dateFormat.format(articleJdo.getSaleDate().getTime());
-        } else if (columnIndex == 15) {
+        } else if (columnIndex == 15) {      // comment
             return articleJdo.getComment();
         } else return "";
     }
