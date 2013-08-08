@@ -12,9 +12,16 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import javax.persistence.TransactionRequiredException;
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.IOException;
 import java.util.*;
 import java.util.List;
@@ -57,6 +64,7 @@ public class MainApplicationWindow extends JFrame implements MessageSourceAware 
     private JScrollPane tableScrollPane;
     private List<ArticleJdo> articles;
     private List<String> tableHeader;
+    private TableRowSorter<ArticlesTableModel> sorter;
 
     public MainApplicationWindow() {
         super(WINDOW_NAME);
@@ -90,9 +98,25 @@ public class MainApplicationWindow extends JFrame implements MessageSourceAware 
         mainPanel.setBackground(Color.white);
         mainPanel.setLayout(new BorderLayout());
         initTableModel();
+
         articlesTable = new JTable(tableModel);
         articlesTable.doLayout();
         articlesTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+//      Filtering the table
+        sorter = new TableRowSorter<ArticlesTableModel>(tableModel);
+        articlesTable.setRowSorter(sorter);
+        articlesTable.setFillsViewportHeight(true);
+        articlesTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        articlesTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                int viewRow = articlesTable.getSelectedRow();
+                if (viewRow >= 0) {
+                    int modelRow = articlesTable.convertRowIndexToModel(viewRow);
+                }
+            }
+        });
+
         tableScrollPane = new JScrollPane(articlesTable);
         tableScrollPane.setPreferredSize(new Dimension(1000, 700));
         packTable(articlesTable);
@@ -118,6 +142,23 @@ public class MainApplicationWindow extends JFrame implements MessageSourceAware 
         searchPanel.add(searchByNameLabel, constraints);
 
         searchByNameField = new JTextField(25);
+//      Filtering the articlesTable
+        searchByNameField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                filterNames();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                filterNames();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                filterNames();
+            }
+        });
         constraints.gridx = 1;
         constraints.gridy = 0;
         searchPanel.add(searchByNameField, constraints);
@@ -126,6 +167,12 @@ public class MainApplicationWindow extends JFrame implements MessageSourceAware 
                 currentLocale));
         constraints.gridx = 2;
         constraints.gridy = 0;
+        clearNameButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                searchByNameField.setText("");
+            }
+        });
         searchPanel.add(clearNameButton, constraints);
 
         searchByCodeLabel = new JLabel(messageSource.getMessage("mainApplicationWindow.label.search.by.code", null,
@@ -137,12 +184,35 @@ public class MainApplicationWindow extends JFrame implements MessageSourceAware 
         searchByCodeField = new JTextField();
         constraints.gridx = 1;
         constraints.gridy = 1;
+        searchByCodeField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                filterCodes();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                filterCodes();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                filterCodes();
+            }
+        }) ;
+
         searchPanel.add(searchByCodeField, constraints);
 
         clearCodeButton = new JButton(messageSource.getMessage("mainApplicationWindow.button.clear.title", null,
                 currentLocale));
         constraints.gridx = 2;
         constraints.gridy = 1;
+        clearCodeButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                searchByCodeField.setText("");
+            }
+        });
         searchPanel.add(clearCodeButton, constraints);
 
         searchByPriceLabel = new JLabel(messageSource.getMessage("mainApplicationWindow.label.search.by.price", null,
@@ -154,12 +224,34 @@ public class MainApplicationWindow extends JFrame implements MessageSourceAware 
         searchByPriceField = new JTextField();
         constraints.gridx = 1;
         constraints.gridy = 2;
+        searchByPriceField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                filterPrices();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                filterPrices();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                filterPrices();
+            }
+        });
         searchPanel.add(searchByPriceField, constraints);
 
         clearPriceButton = new JButton(messageSource.getMessage("mainApplicationWindow.button.clear.title", null,
                 currentLocale));
         constraints.gridx = 2;
         constraints.gridy = 2;
+        clearPriceButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                searchByPriceField.setText("");
+            }
+        });
         searchPanel.add(clearPriceButton, constraints);
 
         desktopPane.add(searchPanel, BorderLayout.SOUTH);
@@ -184,6 +276,61 @@ public class MainApplicationWindow extends JFrame implements MessageSourceAware 
         desktopPane.add(refreshPanel, BorderLayout.WEST);
 
         getContentPane().add(desktopPane);
+    }
+
+    /**
+     * Filters table by column "Names" according to expression.
+     */
+    private void filterNames() {
+        String name = messageSource.getMessage("mainApplicationWindow.table.articles.column.name", null, currentLocale);
+        int columnNameIndex = tableModel.findColumn(name);
+
+        RowFilter<ArticlesTableModel, Object> rf = null;
+        //If current expression doesn't parse, don't update.
+        try {
+            rf = RowFilter.regexFilter(searchByNameField.getText().trim(), columnNameIndex);
+        } catch (java.util.regex.PatternSyntaxException e) {
+            return;
+        }
+        sorter.setRowFilter(rf);
+    }
+
+    /**
+     * Filters table by column "Code" according to expression.
+     */
+    private void filterCodes() {
+        String code = messageSource.getMessage("mainApplicationWindow.table.articles.column.code", null, currentLocale);
+        int columnCodeIndex = tableModel.findColumn(code);
+        RowFilter<ArticlesTableModel, Object> rf = null;
+        //If current expression doesn't parse, don't update.
+        try {
+            rf = RowFilter.regexFilter(searchByCodeField.getText().trim(), columnCodeIndex);
+        } catch (java.util.regex.PatternSyntaxException e) {
+            return;
+        }
+        sorter.setRowFilter(rf);
+    }
+
+    /**
+     * Filters table by columns "*Price" according to expression.
+     */
+    private void filterPrices() {
+        String price = messageSource.getMessage("mainApplicationWindow.table.articles.column.price", null, currentLocale);
+        int columnPriceIndex = tableModel.findColumn(price);
+
+        String raisedPrice = messageSource.getMessage("mainApplicationWindow.table.articles.column.price.raised", null, currentLocale);
+        int columnRaisedPriceIndex = tableModel.findColumn(raisedPrice);
+
+        String actionPrice = messageSource.getMessage("mainApplicationWindow.table.articles.column.price.action", null, currentLocale);
+        int columnActionPrice = tableModel.findColumn(actionPrice);
+        RowFilter<ArticlesTableModel, Object> rf = null;
+        //If current expression doesn't parse, don't update.
+        try {
+            rf = RowFilter.regexFilter(searchByPriceField.getText().trim(), columnPriceIndex, columnRaisedPriceIndex, columnActionPrice);
+        } catch (java.util.regex.PatternSyntaxException e) {
+            return;
+        }
+        sorter.setRowFilter(rf);
     }
 
     /**
@@ -312,12 +459,12 @@ public class MainApplicationWindow extends JFrame implements MessageSourceAware 
             articles = loadTableData();   // get List<ArticlesJdo> from Google spreadsheet.
             articles = filterSold(articles);
         }
-    if(tableHeader == null) {
-        tableHeader = loadTableHeader();
+        if (tableHeader == null) {
+            tableHeader = loadTableHeader();
+        }
+        tableModel.setTableHeader(tableHeader);
+        tableModel.setTableData(articles);
     }
-    tableModel.setTableHeader(tableHeader);
-    tableModel.setTableData(articles);
-}
 
     /**
      * Sets preferred width to certain columns
