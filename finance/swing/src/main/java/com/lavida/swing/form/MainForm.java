@@ -1,9 +1,10 @@
-package com.lavida.swing;
+package com.lavida.swing.form;
 
 import com.google.gdata.util.ServiceException;
 import com.lavida.service.ArticleService;
 import com.lavida.service.entity.ArticleJdo;
 import com.lavida.service.utils.MyPropertiesUtil;
+import com.lavida.swing.ArticlesTableModel;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.security.core.Authentication;
@@ -27,12 +28,12 @@ import java.util.*;
 import java.util.List;
 
 /**
- * MainApplicationWindow
+ * MainForm
  * Created: 20:09 03.08.13
  *
  * @author Ruslan
  */
-public class MainApplicationWindow extends JFrame implements MessageSourceAware {
+public class MainForm extends JFrame implements MessageSourceAware {
     //    private static final String CLEAR_BUTTON_NAME_RU = "Сброс";
 //    private static final String SEARCH_BY_NAME_RU = "Наименование:";
 //    private static final String SEARCH_BY_CODE_RU = "Код:";
@@ -66,7 +67,7 @@ public class MainApplicationWindow extends JFrame implements MessageSourceAware 
     private List<String> tableHeader;
     private TableRowSorter<ArticlesTableModel> sorter;
 
-    public MainApplicationWindow() {
+    public MainForm() {
         super(WINDOW_NAME);
 
     }
