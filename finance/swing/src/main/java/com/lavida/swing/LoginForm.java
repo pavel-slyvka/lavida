@@ -12,6 +12,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.util.Locale;
 
 /**
  * LoginForm allows users to enter the program LaVida.
@@ -32,7 +33,8 @@ public class LoginForm extends JFrame implements MessageSourceAware{
 
     // Regular expression for checking input data in loginField and passwordField
     private static final String REGULAR_EXPRESSION_FOR_CREDENTIALS = "[A-Za-zА-Яа-я0-9.-_]*";
-//    private static final String REGULAR_EXPRESSION_FOR_CREDENTIALS = "\w*\d*";
+
+    private Locale currentLocale = new Locale.Builder().setLanguage("ru").setRegion("RU").setScript("Cyrl").build();
 
     private String errorMessage;
     private JButton submitButton;
@@ -68,7 +70,7 @@ public class LoginForm extends JFrame implements MessageSourceAware{
         passwordLabel = new JLabel(PASSWORD_LABEL_RU);
         loginField = new JTextField();
         passwordField = new JPasswordField();
-        submitButton = new JButton(LOGIN_BUTTON_RU);
+        submitButton = new JButton(messageSource.getMessage("loginForm.button.login.title", null, currentLocale));
         submitButton.addActionListener(new SubmitButtonEventListener());
         submitButton.setMnemonic(KeyEvent.VK_ENTER);  // Alt+Enter hot keys
         submitButton.setBackground(Color.orange);
@@ -127,7 +129,7 @@ public class LoginForm extends JFrame implements MessageSourceAware{
                 userService.login(login, password);
                 loginField.setText("");
                 passwordField.setText("");
-                mainApplicationWindow.filterByPermissions(mainApplicationWindow.articlesTable);
+                mainApplicationWindow.filterByPermissions(mainApplicationWindow.getArticlesTable());
                 mainApplicationWindow.setVisible(true);
                 dispose();
             } catch (UserValidationException e1) {

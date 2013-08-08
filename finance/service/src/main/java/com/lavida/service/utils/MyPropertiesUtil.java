@@ -26,18 +26,19 @@ public class MyPropertiesUtil {
 
     }
 
-    public static Properties loadProperties(String filePath) {
+    public static Properties loadProperties(String filePath) throws IOException {
         Properties properties = new Properties();
-        try {
             properties.load(new FileInputStream(new File(filePath)));
-        } catch (IOException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
         return properties;
     }
     public static void main(String[] args) {
         String filePath ="D:/Projects/LaVida/gmail.properties";
-        Properties properties = loadProperties(filePath);
+        Properties properties = null;
+        try {
+            properties = loadProperties(filePath);
+        } catch (IOException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
         System.out.println(USER_NAME + " = " + properties.getProperty(USER_NAME));
         System.out.println(PASSWORD + " = " + properties.getProperty(PASSWORD));
 
