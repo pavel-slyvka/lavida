@@ -1,9 +1,9 @@
 package com.lavida.swing;
 
 import com.lavida.service.UserService;
-import com.lavida.service.entity.UserJdo;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.AbstractApplicationContext;
+import org.springframework.context.MessageSource;
+import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import javax.swing.*;
@@ -21,7 +21,7 @@ import java.awt.event.KeyEvent;
  *
  * @author Ruslan
  */
-public class LoginForm extends JFrame {
+public class LoginForm extends JFrame implements MessageSourceAware{
 
     // Russian names for components.
     private static final String LOGIN_FORM_NAME_RU = "Вход в систему";
@@ -48,6 +48,7 @@ public class LoginForm extends JFrame {
 
     private MainApplicationWindow mainApplicationWindow;
     private UserService userService;
+    private MessageSource messageSource;
 
     public LoginForm() {
         super(LOGIN_FORM_NAME_RU);
@@ -103,6 +104,11 @@ public class LoginForm extends JFrame {
         ApplicationContext context = new ClassPathXmlApplicationContext("spring-swing.xml");
         LoginForm form = context.getBean(LoginForm.class);
         form.setVisible(true);
+    }
+
+    @Override
+    public void setMessageSource(MessageSource messageSource) {
+        this.messageSource = messageSource;
     }
 
     /**

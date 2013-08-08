@@ -9,21 +9,21 @@
        http://www.springframework.org/schema/tx  http://www.springframework.org/schema/tx/spring-tx.xsd
 
        ">
-    <!--<import resource="classpath:spring-context.xml"/>-->
+
     <import resource="classpath:spring-security.xml"/>
 
     <context:annotation-config/>
 
-
     <bean id="loginForm" class="com.lavida.swing.LoginForm" init-method="init">
         <property name="userService" ref="userService"/>
         <property name="mainApplicationWindow" ref="mainApplicationWindow"/>
+        <property name="messageSource" ref="messageSource"/>
     </bean>
 
     <bean id="mainApplicationWindow" class="com.lavida.swing.MainApplicationWindow" init-method="init">
-        <property name="userService" ref="userService"/>
         <property name="articleService" ref="articleService"/>
         <property name="tableModel" ref="tableModel"/>
+        <property name="messageSource" ref="messageSource"/>
     </bean>
 
     <bean id="tableModel" class="com.lavida.swing.ArticlesTableModel">

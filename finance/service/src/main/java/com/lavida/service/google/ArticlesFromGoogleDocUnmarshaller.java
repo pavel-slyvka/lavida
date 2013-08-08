@@ -3,9 +3,9 @@ package com.lavida.service.google;
 import com.google.gdata.client.spreadsheet.FeedURLFactory;
 import com.google.gdata.client.spreadsheet.SpreadsheetService;
 import com.google.gdata.data.spreadsheet.*;
-import com.google.gdata.util.AuthenticationException;
 import com.google.gdata.util.ServiceException;
 import com.lavida.service.entity.ArticleJdo;
+import com.lavida.service.utils.CalendarConverter;
 
 import java.io.IOException;
 import java.net.URL;

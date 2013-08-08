@@ -1,4 +1,4 @@
-package com.lavida.service.google;
+package com.lavida.service.utils;
 
 import java.io.*;
 import java.util.Properties;

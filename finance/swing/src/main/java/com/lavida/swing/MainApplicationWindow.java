@@ -2,11 +2,11 @@ package com.lavida.swing;
 
 import com.google.gdata.util.ServiceException;
 import com.lavida.service.ArticleService;
-import com.lavida.service.UserService;
 import com.lavida.service.entity.ArticleJdo;
-import com.lavida.service.entity.UserJdo;
-import com.lavida.service.google.MyPropertiesUtil;
+import com.lavida.service.utils.MyPropertiesUtil;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.MessageSource;
+import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -26,20 +26,24 @@ import java.util.List;
  *
  * @author Ruslan
  */
-public class MainApplicationWindow extends JFrame {
-    private static final String WINDOW_NAME = "La Vida";
-    private static final String CLEAR_BUTTON_NAME_RU = "Сброс";
-    private static final String SEARCH_BY_NAME_RU = "Наименование:";
-    private static final String SEARCH_BY_CODE_RU = "Код:";
-    private static final String SEARCH_BY_PRICE_RU = "Цена:";
-    private static final String SEARCH_PANEL_NAME_RU = "Поиск";
-    private static final String REFRESH_PANEL_NAME_RU = "Обновления";
-    private static final String REFRESH_BUTTON_NAME_RU = "Обновить";
-    private static final String SOLD_RU = "Продано";
-
-    private UserService userService;
+public class MainApplicationWindow extends JFrame implements MessageSourceAware{
     private ArticleService articleService;
-    ArticlesTableModel tableModel;
+    private MessageSource messageSource;
+    private ArticlesTableModel tableModel;
+
+    private Locale currentLocale = new Locale.Builder().setLanguage("ru").setRegion("RU").setScript("Cyrl").build();
+
+    private static final String WINDOW_NAME = "La Vida";
+//    private static final String CLEAR_BUTTON_NAME_RU = "Сброс";
+//    private static final String SEARCH_BY_NAME_RU = "Наименование:";
+//    private static final String SEARCH_BY_CODE_RU = "Код:";
+//    private static final String SEARCH_BY_PRICE_RU = "Цена:";
+
+//    private String SEARCH_PANEL_NAME_RU = messageSource.getMessage("mainApplicationWindow.panel.search.name", null, currentLocale);
+//    private static final String REFRESH_PANEL_NAME_RU = "Обновления";
+//    private static final String REFRESH_BUTTON_NAME_RU = "Обновить";
+//    private static final String SOLD_RU = "Продано";
+//    private  String SOLD_RU = messageSource.getMessage("mainApplicationWindow.filter.sold", null, currentLocale);
 
 
     JMenuBar menuBar;
@@ -51,7 +55,6 @@ public class MainApplicationWindow extends JFrame {
     JTable articlesTable;
     JScrollPane tableScrollPane;
 
-    UserJdo currentUser;
     List<ArticleJdo> articles;
     List<String> tableHeader;
 
@@ -64,12 +67,9 @@ public class MainApplicationWindow extends JFrame {
 
     }
 
-    public UserJdo getCurrentUser() {
-        return currentUser;
-    }
-
-    public void setCurrentUser(UserJdo currentUser) {
-        this.currentUser = currentUser;
+    @Override
+    public void setMessageSource(MessageSource messageSource) {
+        this.messageSource = messageSource;
     }
 
     /**
@@ -168,8 +168,9 @@ public class MainApplicationWindow extends JFrame {
 
     private List<ArticleJdo> filterSold(List<ArticleJdo> articles) {
         List<ArticleJdo> filteredList = new ArrayList<ArticleJdo>();
+        String sold = messageSource.getMessage("mainApplicationWindow.filter.sold", null, currentLocale);
         for (ArticleJdo article : articles) {
-            if (!SOLD_RU.equalsIgnoreCase(article.getSold())) {
+            if (!sold.equalsIgnoreCase(article.getSold())) {
                  filteredList.add(article);
             }
         }
@@ -188,9 +189,6 @@ public class MainApplicationWindow extends JFrame {
         }
     }
 
-    public void setUserService(UserService userService) {
-        this.userService = userService;
-    }
 
     public void setArticleService(ArticleService articleService) {
         this.articleService = articleService;
@@ -231,7 +229,6 @@ public class MainApplicationWindow extends JFrame {
 
 //      main panel for table of goods
         mainPanel = new JPanel();
-//        mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         mainPanel.setBackground(Color.white);
         mainPanel.setLayout(new BorderLayout());
         initTable();
@@ -249,7 +246,8 @@ public class MainApplicationWindow extends JFrame {
 //      panel for search operations
         searchPanel = new JPanel();
         searchPanel.setBackground(Color.lightGray);
-        searchPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(SEARCH_PANEL_NAME_RU),
+        searchPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(messageSource.
+                getMessage("mainApplicationWindow.panel.search.name", null, currentLocale)),
                 BorderFactory.createEmptyBorder(5, 5, 5, 5)));
         searchPanel.setOpaque(true);
         searchPanel.setAutoscrolls(true);
@@ -257,7 +255,8 @@ public class MainApplicationWindow extends JFrame {
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.HORIZONTAL;
 
-        searchByNameLabel = new JLabel(SEARCH_BY_NAME_RU);
+        searchByNameLabel = new JLabel(messageSource.getMessage("mainApplicationWindow.label.search.by.name", null,
+                currentLocale));
         constraints.gridx = 0;
         constraints.gridy = 0;
         searchPanel.add(searchByNameLabel, constraints);
@@ -267,12 +266,14 @@ public class MainApplicationWindow extends JFrame {
         constraints.gridy = 0;
         searchPanel.add(searchByNameField, constraints);
 
-        clearNameButton = new JButton(CLEAR_BUTTON_NAME_RU);
+        clearNameButton = new JButton(messageSource.getMessage("mainApplicationWindow.button.clear.name", null,
+                currentLocale));
         constraints.gridx = 2;
         constraints.gridy = 0;
         searchPanel.add(clearNameButton, constraints);
 
-        searchByCodeLabel = new JLabel(SEARCH_BY_CODE_RU);
+        searchByCodeLabel = new JLabel(messageSource.getMessage("mainApplicationWindow.label.search.by.code", null,
+                currentLocale));
         constraints.gridx = 0;
         constraints.gridy = 1;
         searchPanel.add(searchByCodeLabel, constraints);
@@ -282,12 +283,14 @@ public class MainApplicationWindow extends JFrame {
         constraints.gridy = 1;
         searchPanel.add(searchByCodeField, constraints);
 
-        clearCodeButton = new JButton(CLEAR_BUTTON_NAME_RU);
+        clearCodeButton = new JButton(messageSource.getMessage("mainApplicationWindow.button.clear.name", null,
+                currentLocale));
         constraints.gridx = 2;
         constraints.gridy = 1;
         searchPanel.add(clearCodeButton, constraints);
 
-        searchByPriceLabel = new JLabel(SEARCH_BY_PRICE_RU);
+        searchByPriceLabel = new JLabel(messageSource.getMessage("mainApplicationWindow.label.search.by.price", null,
+                currentLocale));
         constraints.gridx = 0;
         constraints.gridy = 2;
         searchPanel.add(searchByPriceLabel, constraints);
@@ -297,7 +300,8 @@ public class MainApplicationWindow extends JFrame {
         constraints.gridy = 2;
         searchPanel.add(searchByPriceField, constraints);
 
-        clearPriceButton = new JButton(CLEAR_BUTTON_NAME_RU);
+        clearPriceButton = new JButton(messageSource.getMessage("mainApplicationWindow.button.clear.name", null,
+                currentLocale));
         constraints.gridx = 2;
         constraints.gridy = 2;
         searchPanel.add(clearPriceButton, constraints);
@@ -307,13 +311,15 @@ public class MainApplicationWindow extends JFrame {
 //      panel for refresh and save operations with data
         refreshPanel = new JPanel();
         refreshPanel.setBackground(Color.lightGray);
-        refreshPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(REFRESH_PANEL_NAME_RU),
+        refreshPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(messageSource.
+                getMessage("mainApplicationWindow.panel.refresh.name", null, currentLocale)),
                 BorderFactory.createEmptyBorder(5, 5, 5, 5)));
         refreshPanel.setOpaque(true);
         refreshPanel.setAutoscrolls(true);
         refreshPanel.setLayout(new GridBagLayout());
 
-        refreshButton = new JButton(REFRESH_BUTTON_NAME_RU);
+        refreshButton = new JButton(messageSource.getMessage("mainApplicationWindow.button.refresh.name", null,
+                currentLocale));
         refreshButton.addActionListener(new RefreshButtonActionListener());
         constraints.gridx = 0;
         constraints.gridy = 0;
