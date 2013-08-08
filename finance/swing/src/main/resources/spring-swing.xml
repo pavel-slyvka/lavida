@@ -14,11 +14,13 @@
 
     <context:annotation-config/>
 
-    <bean id="loginForm" class="com.lavida.swing.LoginForm" init-method="init">
-        <property name="userService" ref="userService"/>
-        <property name="mainApplicationWindow" ref="mainApplicationWindow"/>
-        <property name="messageSource" ref="messageSource"/>
-    </bean>
+    <context:component-scan base-package="com.lavida.swing" />
+
+    <!--<bean id="loginForm" class="com.lavida.swing.form.LoginForm" init-method="init">-->
+        <!--<property name="userService" ref="userService"/>-->
+        <!--<property name="mainApplicationWindow" ref="mainApplicationWindow"/>-->
+        <!--<property name="messageSource" ref="messageSource"/>-->
+    <!--</bean>-->
 
     <bean id="mainApplicationWindow" class="com.lavida.swing.MainApplicationWindow" init-method="init">
         <property name="articleService" ref="articleService"/>
