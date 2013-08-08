@@ -19,6 +19,12 @@ http://java.sun.com/xml/ns/persistence ">
             <!--<property name="hibernate.hbm2ddl.auto" value="create"/>-->
             <property name="hibernate.hbm2ddl.auto" value="update"/>
             <property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect"/>
+
+            <property name="hibernate.connection.characterEncoding" value="UTF8" />
+            <property name="characterEncoding" value="UTF8" />
+            <property name="hibernate.connection.useUnicode" value="true" />
+            <property name="useUnicode" value="true" />
+
         </properties>
     </persistence-unit>
 </persistence>
