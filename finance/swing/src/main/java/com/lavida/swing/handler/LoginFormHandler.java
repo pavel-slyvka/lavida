@@ -1,7 +1,7 @@
 package com.lavida.swing.handler;
 
 import com.lavida.service.UserService;
-import com.lavida.swing.MainApplicationWindow;
+import com.lavida.swing.form.MainForm;
 import com.lavida.swing.UserValidationException;
 import com.lavida.swing.form.LoginForm;
 import org.springframework.stereotype.Component;
@@ -28,7 +28,7 @@ public class LoginFormHandler {
     private UserService userService;
 
     @Resource
-    private MainApplicationWindow mainApplicationWindow;
+    private MainForm mainForm;
 
     /**
      * EventListener for submit button checks user credentials from database "lavida".
@@ -39,8 +39,8 @@ public class LoginFormHandler {
             form.clearFields();
             validateCredentials(loginEntered, passwordEntered);
             userService.login(loginEntered, passwordEntered);
-            mainApplicationWindow.filterByPermissions(mainApplicationWindow.getArticlesTable());
-            mainApplicationWindow.setVisible(true);
+            mainForm.filterByPermissions(mainForm.getArticlesTable());
+            mainForm.setVisible(true);
             form.hideForm();
         } catch (UserValidationException e1) {
             form.showErrorMessage(e1.getMessage());
@@ -80,7 +80,7 @@ public class LoginFormHandler {
         this.form = form;
     }
 
-    public void setMainApplicationWindow(MainApplicationWindow mainApplicationWindow) {
-        this.mainApplicationWindow = mainApplicationWindow;
+    public void setMainForm(MainForm mainForm) {
+        this.mainForm = mainForm;
     }
 }
