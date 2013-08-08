@@ -26,10 +26,11 @@ public class LoginForm extends JFrame implements MessageSourceAware{
 
     // Russian names for components.
     private static final String LOGIN_FORM_NAME_RU = "Вход в систему";
-    private static final String LOGIN_BUTTON_RU = "Войти";
-    private static final String LOGIN_LABEL_RU = "Имя пользователя:";
-    private static final String PASSWORD_LABEL_RU = "Пароль:";
-    private static final String INSTRUCTION_LABEL_RU = "Введите имя пользователя и пароль!";
+
+//    private static final String LOGIN_BUTTON_RU = "Войти";
+//    private static final String LOGIN_LABEL_RU = "Имя пользователя:";
+//    private static final String PASSWORD_LABEL_RU = "Пароль:";
+//    private static final String INSTRUCTION_LABEL_RU = "Введите имя пользователя и пароль!";
 
     // Regular expression for checking input data in loginField and passwordField
     private static final String REGULAR_EXPRESSION_FOR_CREDENTIALS = "[A-Za-zА-Яа-я0-9.-_]*";
@@ -65,9 +66,9 @@ public class LoginForm extends JFrame implements MessageSourceAware{
         container.setLayout(new BorderLayout());
         container.setBackground(Color.LIGHT_GRAY);
 
-        instructionsLabel = new JLabel(INSTRUCTION_LABEL_RU);
-        loginLabel = new JLabel(LOGIN_LABEL_RU);
-        passwordLabel = new JLabel(PASSWORD_LABEL_RU);
+        instructionsLabel = new JLabel(messageSource.getMessage("loginForm.label.instruction.title", null, currentLocale));
+        loginLabel = new JLabel(messageSource.getMessage("loginForm.label.login.title", null, currentLocale));
+        passwordLabel = new JLabel(messageSource.getMessage("loginForm.label.password.title", null, currentLocale));
         loginField = new JTextField();
         passwordField = new JPasswordField();
         submitButton = new JButton(messageSource.getMessage("loginForm.button.login.title", null, currentLocale));
