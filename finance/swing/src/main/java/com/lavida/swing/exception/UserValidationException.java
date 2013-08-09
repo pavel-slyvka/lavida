@@ -1,4 +1,4 @@
-package com.lavida.swing;
+package com.lavida.swing.exception;
 
 /**
  * The {@code UserValidationException} is used in {@code LoginForm}  by {@code SubmitButtonEventListener}

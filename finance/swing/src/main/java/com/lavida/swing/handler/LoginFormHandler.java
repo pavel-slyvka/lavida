@@ -2,7 +2,7 @@ package com.lavida.swing.handler;
 
 import com.lavida.service.UserService;
 import com.lavida.swing.form.MainForm;
-import com.lavida.swing.UserValidationException;
+import com.lavida.swing.exception.UserValidationException;
 import com.lavida.swing.form.LoginForm;
 import org.springframework.stereotype.Component;
 
@@ -39,9 +39,9 @@ public class LoginFormHandler {
             form.clearFields();
             validateCredentials(loginEntered, passwordEntered);
             userService.login(loginEntered, passwordEntered);
-            mainForm.filterByPermissions(mainForm.getArticlesTable());
-            mainForm.setVisible(true);
-            form.hideForm();
+            mainForm.filterByPermissionsStub();
+            mainForm.show();
+            form.hide();
         } catch (UserValidationException e1) {
             form.showErrorMessage(e1.getMessage());
         }

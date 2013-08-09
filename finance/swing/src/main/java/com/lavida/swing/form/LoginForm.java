@@ -45,30 +45,29 @@ public class LoginForm extends AbstractForm {
     private JPanel credentialPanel;
     private JPanel buttonPanel;
 
-    public void init() {
-        this.setTitle(LOGIN_FORM_NAME_RU);
-        this.setBounds(200, 200, 400, 200);
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setResizable(true);
+    @Override
+    protected void initializeForm() {
+        super.initializeForm();
+        form.setBounds(200, 200, 400, 200);
+        form.setTitle(LOGIN_FORM_NAME_RU);
+    }
 
-        Container container = this.getContentPane();
-        container.setLayout(new BorderLayout());
-        container.setBackground(Color.LIGHT_GRAY);
-
+    @Override
+    protected void initializeComponents() {
         instructionsLabel = new JLabel(INSTRUCTION_LABEL_RU);
         loginLabel = new JLabel(LOGIN_LABEL_RU);
         passwordLabel = new JLabel(PASSWORD_LABEL_RU);
         loginField = new JTextField();
         passwordField = new JPasswordField();
         submitButton = new JButton(messageSource.getMessage("loginForm.button.login.title", null, locale));
+        submitButton.setMnemonic(KeyEvent.VK_ENTER);  // Alt+Enter hot keys
+        submitButton.setBackground(Color.orange);
         submitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 handler.submitButtonClicked(loginField.getText().trim(), new String(passwordField.getPassword()));
             }
         });
-        submitButton.setMnemonic(KeyEvent.VK_ENTER);  // Alt+Enter hot keys
-        submitButton.setBackground(Color.orange);
 
         errorLabel = new JLabel();
         errorLabel.setForeground(Color.RED);
@@ -90,9 +89,11 @@ public class LoginForm extends AbstractForm {
         buttonPanel.add(submitButton);
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(5, 50, 5, 50));
 
-        container.add(informPanel, BorderLayout.NORTH);
-        container.add(credentialPanel, BorderLayout.CENTER);
-        container.add(buttonPanel, BorderLayout.SOUTH);
+        rootContainer.setLayout(new BorderLayout());
+        rootContainer.setBackground(Color.LIGHT_GRAY);
+        rootContainer.add(informPanel, BorderLayout.NORTH);
+        rootContainer.add(credentialPanel, BorderLayout.CENTER);
+        rootContainer.add(buttonPanel, BorderLayout.SOUTH);
     }
 
     public void clearFields() {
@@ -112,6 +113,6 @@ public class LoginForm extends AbstractForm {
     public static void main(String[] args) {
         ApplicationContext context = new ClassPathXmlApplicationContext("spring-swing.xml");
         LoginForm form = context.getBean(LoginForm.class);
-        form.setVisible(true);
+        form.show();
     }
 }

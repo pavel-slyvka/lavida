@@ -1,4 +1,4 @@
-package com.lavida.swing;
+package com.lavida.swing.form.tablemodel;
 
 import com.lavida.service.ArticleService;
 import com.lavida.service.entity.ArticleJdo;
@@ -7,6 +7,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 
 import javax.swing.table.AbstractTableModel;
 import java.text.SimpleDateFormat;
@@ -23,6 +24,7 @@ import java.util.List;
  *
  * @author Ruslan
  */
+@Component
 public class ArticlesTableModel extends AbstractTableModel {
 
     private List<String> tableHeader;
