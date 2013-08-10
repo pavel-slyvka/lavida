@@ -4,6 +4,8 @@ import com.lavida.service.UserService;
 import com.lavida.swing.form.MainForm;
 import com.lavida.swing.exception.UserValidationException;
 import com.lavida.swing.form.LoginForm;
+import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -44,7 +46,12 @@ public class LoginFormHandler {
             form.hide();
         } catch (UserValidationException e1) {
             form.showErrorMessage(e1.getMessage());
+        } catch (BadCredentialsException e) {
+            form.showErrorMessage(e.getMessage());
+        } catch (AuthenticationServiceException e) {
+            form.showErrorMessage(e.getMessage());
         }
+
 
     }
 
