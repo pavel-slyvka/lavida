@@ -21,6 +21,7 @@ public class ArticleService {
 
     public ArticleService() {
     }
+
     @Transactional
     public void save (ArticleJdo articleJdo) {
         articleDao.put(articleJdo);
@@ -29,6 +30,14 @@ public class ArticleService {
     @Transactional
     public void update (ArticleJdo articleJdo) {
         articleDao.update(articleJdo);
+    }
+
+//    @Transactional    // todo may be make transactional
+    public void update(List<ArticleJdo> articles) {
+        for (ArticleJdo articleJdo : articles) {
+            update(articleJdo);
+//            articleDao.update(articleJdo);
+        }
     }
 
     @Transactional

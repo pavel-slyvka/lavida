@@ -86,9 +86,7 @@ public class MainForm extends AbstractForm {
         mainPanel.setBackground(Color.white);
         mainPanel.setLayout(new BorderLayout());
 
-        handler.initTableModel();
-        tableModel.setTableHeader(handler.getTableHeader());
-        tableModel.setTableData(handler.getArticles());
+        handler.initTableModel(tableModel);
 
         articlesTable = new JTable(tableModel);
         articlesTable.doLayout();
@@ -330,11 +328,11 @@ public class MainForm extends AbstractForm {
     }
 
     public void showErrorMessageByException(Exception e) {
-        if (IllegalArgumentException.class == e.getClass()) {
+        if (IllegalArgumentException.class == e.getClass()) {   // todo don't need
             showMessage("mainForm.exception.message.dialog.title",
                     "mainForm.exception.illegal.argument.save.to.database");
 
-        } else if (TransactionRequiredException.class == e.getClass()) {
+        } else if (TransactionRequiredException.class == e.getClass()) {    // todo don't need
             showMessage("mainForm.exception.message.dialog.title",
                     "mainForm.exception.transaction.required.save.to.database");
 
