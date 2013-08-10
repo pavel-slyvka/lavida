@@ -57,6 +57,9 @@ public abstract class AbstractForm implements MessageSourceAware {
         form.dispose();
     }
 
+    public void update() {
+        form.repaint();
+    }
     @Override
     public void setMessageSource(MessageSource messageSource) {
         this.messageSource = messageSource;

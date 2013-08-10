@@ -61,6 +61,7 @@ public class MainFormHandler {
             List<ArticleJdo> articles = articleService.loadFromGoogle(userNameGmail, passwordGmail);
             articleService.update(articles);
             initTableModel(tableModel);
+            form.update();    // repaint MainForm in some time
 
         } catch (IOException e) {
             form.showMessage("mainForm.exception.message.dialog.title",
