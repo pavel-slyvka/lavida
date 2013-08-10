@@ -25,7 +25,7 @@ public class ArticlesFromGoogleDocUnmarshaller {
     public ArticlesFromGoogleDocUnmarshaller() {
     }
 
-    public  List<ArticleJdo> unmarshal(String userNameGmail, String passwordGmail)
+    public List<ArticleJdo> unmarshal(String userNameGmail, String passwordGmail)
             throws ServiceException, IOException {
         List<ArticleJdo> articles = new ArrayList<ArticleJdo>();
         SpreadsheetService service = new SpreadsheetService(APPLICATION_NAME);
@@ -52,17 +52,16 @@ public class ArticlesFromGoogleDocUnmarshaller {
         List<CellEntry> cellEntryList = cellFeed.getEntries();
         for (CellEntry cellEntry : cellEntryList) {
             Cell cell = cellEntry.getCell();
-                        if (cell.getRow() > 1) {  //  omit first row with table header.
-
+            articleJdo.setId(cell.getRow());  // the id of articleJdo to the database is the number of row in worksheet
+            if (cell.getRow() > 1) {  //  omit first row with table header.
                 cellRow = cell.getRow();
                 if (cellRow > row) {            // start of the next row
                     row = cellRow;
                     articles.add(articleJdo);
                     articleJdo = new ArticleJdo();
                 }
-
                 if (cell.getCol() == 1) {
-                    articleJdo.setId(Integer.parseInt(cell.getInputValue()));
+//                    articleJdo.setId(Integer.parseInt(cell.getInputValue()));
                     continue;
                 } else if (cell.getCol() == 2) {
                     articleJdo.setCode(cell.getInputValue());
@@ -80,22 +79,22 @@ public class ArticlesFromGoogleDocUnmarshaller {
                     articleJdo.setSize(cell.getInputValue());
                     continue;
                 } else if (cell.getCol() == 7) {
-                    articleJdo.setPurchasingPriceEUR(cell.getDoubleValue());
+                    articleJdo.setPurchasingPriceEUR(Double.parseDouble(cell.getInputValue()));
                     continue;
                 } else if (cell.getCol() == 8) {
-                    articleJdo.setTransportCostEUR(cell.getDoubleValue());
+                    articleJdo.setTransportCostEUR(Double.parseDouble(cell.getInputValue()));
                     continue;
                 } else if (cell.getCol() == 9) {
                     articleJdo.setDeliveryDate(CalendarConverter.convertStringDateToCalendar(cell.getInputValue()));
                     continue;
                 } else if (cell.getCol() == 10) {
-                    articleJdo.setPriceUAH(cell.getDoubleValue());
+                    articleJdo.setPriceUAH(Double.parseDouble(cell.getInputValue()));
                     continue;
                 } else if (cell.getCol() == 11) {
-                    articleJdo.setRaisedPriceUAH(cell.getDoubleValue());
+                    articleJdo.setRaisedPriceUAH(Double.parseDouble(cell.getInputValue()));
                     continue;
                 } else if (cell.getCol() == 12) {
-                    articleJdo.setActionPriceUAH(cell.getDoubleValue());
+                    articleJdo.setActionPriceUAH(Double.parseDouble(cell.getInputValue()));
                     continue;
                 } else if (cell.getCol() == 13) {
                     articleJdo.setSold(cell.getInputValue());
@@ -117,15 +116,14 @@ public class ArticlesFromGoogleDocUnmarshaller {
     }
 
     /**
-     *
      * @param userNameGmail
      * @param passwordGmail
      * @return
      * @throws ServiceException
      * @throws IOException
      */
-    public List<String> readTableHeader (String userNameGmail, String passwordGmail) throws ServiceException, IOException {
-        List<String> tableHeader  = new ArrayList<String>();
+    public List<String> readTableHeader(String userNameGmail, String passwordGmail) throws ServiceException, IOException {
+        List<String> tableHeader = new ArrayList<String>();
 
         SpreadsheetService service = new SpreadsheetService(APPLICATION_NAME);
         FeedURLFactory factory = FeedURLFactory.getDefault();
@@ -146,7 +144,7 @@ public class ArticlesFromGoogleDocUnmarshaller {
         int colCount = cellFeed.getColCount();
         List<CellEntry> cellEntryList = cellFeed.getEntries();
         Iterator<CellEntry> cellEntryIterator = cellEntryList.iterator();
-        for ( int i = 0; i < colCount; i++){
+        for (int i = 0; i < colCount; i++) {
             CellEntry cellEntry = cellEntryIterator.next();
             Cell cell = cellEntry.getCell();
             tableHeader.add(cell.getInputValue());

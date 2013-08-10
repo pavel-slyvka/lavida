@@ -13,7 +13,7 @@ import java.util.Calendar;
 @Table(name = "goods")
 public class ArticleJdo {
     @Id
-    private int id; // id value must be received from google spreadsheet
+    private int id;
     private String code;
     private String name;
     private String brand;
@@ -170,22 +170,51 @@ public class ArticleJdo {
 
         ArticleJdo that = (ArticleJdo) o;
 
+        if (Double.compare(that.actionPriceUAH, actionPriceUAH) != 0) return false;
         if (id != that.id) return false;
+        if (Double.compare(that.priceUAH, priceUAH) != 0) return false;
+        if (Double.compare(that.purchasingPriceEUR, purchasingPriceEUR) != 0) return false;
+        if (quantity != that.quantity) return false;
+        if (Double.compare(that.raisedPriceUAH, raisedPriceUAH) != 0) return false;
+        if (Double.compare(that.transportCostEUR, transportCostEUR) != 0) return false;
         if (brand != null ? !brand.equals(that.brand) : that.brand != null) return false;
         if (code != null ? !code.equals(that.code) : that.code != null) return false;
+        if (comment != null ? !comment.equals(that.comment) : that.comment != null) return false;
+        if (deliveryDate != null ? !deliveryDate.equals(that.deliveryDate) : that.deliveryDate != null) return false;
         if (!name.equals(that.name)) return false;
+        if (ours != null ? !ours.equals(that.ours) : that.ours != null) return false;
+        if (saleDate != null ? !saleDate.equals(that.saleDate) : that.saleDate != null) return false;
         if (size != null ? !size.equals(that.size) : that.size != null) return false;
+        if (sold != null ? !sold.equals(that.sold) : that.sold != null) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = id;
+        int result;
+        long temp;
+        result = id;
         result = 31 * result + (code != null ? code.hashCode() : 0);
         result = 31 * result + name.hashCode();
         result = 31 * result + (brand != null ? brand.hashCode() : 0);
+        result = 31 * result + quantity;
         result = 31 * result + (size != null ? size.hashCode() : 0);
+        temp = Double.doubleToLongBits(purchasingPriceEUR);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits(transportCostEUR);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + (deliveryDate != null ? deliveryDate.hashCode() : 0);
+        temp = Double.doubleToLongBits(priceUAH);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits(raisedPriceUAH);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits(actionPriceUAH);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + (sold != null ? sold.hashCode() : 0);
+        result = 31 * result + (ours != null ? ours.hashCode() : 0);
+        result = 31 * result + (saleDate != null ? saleDate.hashCode() : 0);
+        result = 31 * result + (comment != null ? comment.hashCode() : 0);
         return result;
     }
 

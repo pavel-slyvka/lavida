@@ -32,7 +32,7 @@ public class ArticleService {
         articleDao.update(articleJdo);
     }
 
-//    @Transactional    // todo may be make transactional
+    @Transactional    // todo may be make transactional
     public void update(List<ArticleJdo> articles) {
         for (ArticleJdo articleJdo : articles) {
             update(articleJdo);
