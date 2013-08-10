@@ -12,6 +12,10 @@ import java.util.List;
  * @author Ruslan
  */
 public class ArticleDao implements Dao<ArticleJdo> {
+    public static final String SELECT_ALL_QUERY = "select a from ArticleJdo a";
+    public static final String SELECT_NOT_SOLD_QUERY = "select a from ArticleJdo a where a.sold IS NULL";
+    public static final String SELECT_SOLD_QUERY = "select a from ArticleJdo a where a.sold IS NOT NULL";
+
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -32,7 +36,15 @@ public class ArticleDao implements Dao<ArticleJdo> {
 
     @Override
     public List<ArticleJdo> getAll() {
-        return entityManager.createQuery("select a from ArticleJdo a", ArticleJdo.class).getResultList();
+        return entityManager.createQuery(SELECT_ALL_QUERY, ArticleJdo.class).getResultList();
+    }
+
+    public List<ArticleJdo> getNotSold() {
+        return entityManager.createQuery(SELECT_NOT_SOLD_QUERY, ArticleJdo.class).getResultList();
+    }
+
+    public List<ArticleJdo> getSold() {
+        return entityManager.createQuery(SELECT_SOLD_QUERY, ArticleJdo.class).getResultList();
     }
 
     @Override

@@ -64,6 +64,14 @@ public class ArticleService {
         return articlesUnmarshaller.readTableHeader(userNameGmail, passwordGmail);
     }
 
+    public List<ArticleJdo> getNotSoldArticles() {
+        return articleDao.getNotSold();
+    }
+
+    public List<ArticleJdo> getSoldArticles() {
+        return articleDao.getSold();
+    }
+
     public ArticleDao getArticleDao() {
         return articleDao;
     }
