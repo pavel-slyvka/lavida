@@ -6,6 +6,7 @@ import com.google.gdata.data.spreadsheet.*;
 import com.google.gdata.util.ServiceException;
 import com.lavida.service.entity.ArticleJdo;
 import com.lavida.service.utils.CalendarConverter;
+import com.lavida.service.utils.NormalFormatter;
 
 import java.io.IOException;
 import java.net.URL;
@@ -79,22 +80,22 @@ public class ArticlesFromGoogleDocUnmarshaller {
                     articleJdo.setSize(cell.getInputValue());
                     continue;
                 } else if (cell.getCol() == 7) {
-                    articleJdo.setPurchasingPriceEUR(Double.parseDouble(cell.getInputValue()));
+                    articleJdo.setPurchasingPriceEUR(NormalFormatter.doubleNormalize(cell.getInputValue()));
                     continue;
                 } else if (cell.getCol() == 8) {
-                    articleJdo.setTransportCostEUR(Double.parseDouble(cell.getInputValue()));
+                    articleJdo.setTransportCostEUR(NormalFormatter.doubleNormalize(cell.getInputValue()));
                     continue;
                 } else if (cell.getCol() == 9) {
                     articleJdo.setDeliveryDate(CalendarConverter.convertStringDateToCalendar(cell.getInputValue()));
                     continue;
                 } else if (cell.getCol() == 10) {
-                    articleJdo.setPriceUAH(Double.parseDouble(cell.getInputValue()));
+                    articleJdo.setPriceUAH(NormalFormatter.doubleNormalize(cell.getInputValue()));
                     continue;
                 } else if (cell.getCol() == 11) {
-                    articleJdo.setRaisedPriceUAH(Double.parseDouble(cell.getInputValue()));
+                    articleJdo.setRaisedPriceUAH(NormalFormatter.doubleNormalize(cell.getInputValue()));
                     continue;
                 } else if (cell.getCol() == 12) {
-                    articleJdo.setActionPriceUAH(Double.parseDouble(cell.getInputValue()));
+                    articleJdo.setActionPriceUAH(NormalFormatter.doubleNormalize(cell.getInputValue()));
                     continue;
                 } else if (cell.getCol() == 13) {
                     articleJdo.setSold(cell.getInputValue());
