@@ -13,6 +13,12 @@
     <bean id="entityManagerFactory"
           class="org.springframework.orm.jpa.LocalEntityManagerFactoryBean">
         <property name="persistenceUnitName" value="lavida"/>
+        <property name="jpaProperties">
+            <props>
+                <prop key="javax.persistence.jdbc.user">root</prop>
+                <prop key="javax.persistence.jdbc.password">winner</prop>
+            </props>
+        </property>
     </bean>
 
     <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">

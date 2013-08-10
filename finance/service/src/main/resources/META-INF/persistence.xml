@@ -15,8 +15,6 @@ http://java.sun.com/xml/ns/persistence ">
                       value="com.mysql.jdbc.Driver" />
             <property name="javax.persistence.jdbc.url"
                       value="jdbc:mysql://localhost:3306/lavida" />
-            <property name="javax.persistence.jdbc.user" value="root" />
-            <property name="javax.persistence.jdbc.password" value="winner" />
             <!--<property name="hibernate.hbm2ddl.auto" value="create"/>-->
             <property name="hibernate.hbm2ddl.auto" value="update"/>
             <property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect"/>
