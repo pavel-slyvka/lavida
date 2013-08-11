@@ -49,8 +49,8 @@ public class UserService {
     }
 
     @Transactional
-    public void save(String username, String rawPassword, boolean enabled, List<String> authorities) {
-        UserJdo userJdo = new UserJdo(username, "", true);
+    public void save(String username, String rawPassword, boolean enabled, List<String> authorities, String email) {
+        UserJdo userJdo = new UserJdo(username, "", true, email);
         userJdo.setPassword(userDetailsManager.encodePassword(username, rawPassword));
         userJdo.setAuthorities(new HashSet<String>(authorities));
         userDao.put(userJdo);
@@ -89,10 +89,10 @@ public class UserService {
     public static void main(String[] args) {
         ApplicationContext context = new ClassPathXmlApplicationContext("spring-security.xml");
         UserService service = context.getBean(UserService.class);
-        service.save("seller", "seller", true, Arrays.asList("ROLE_SELLER"));
-        service.save("manager", "manager", true, Arrays.asList("ROLE_MANAGER"));
-        service.save("owner", "owner", true, Arrays.asList("ROLE_OWNER"));
-        service.save("admin", "admin", true, Arrays.asList("ROLE_ADMIN"));
+//        service.save("seller", "seller", true, Arrays.asList("ROLE_SELLER"), "fra.prsnl@i.ua");
+//        service.save("manager", "manager", true, Arrays.asList("ROLE_MANAGER"));
+//        service.save("owner", "owner", true, Arrays.asList("ROLE_OWNER"));
+//        service.save("admin", "admin", true, Arrays.asList("ROLE_ADMIN"));
         System.out.println(service.getAll());
 //        System.out.println(service.getByLogin("login2"));
 

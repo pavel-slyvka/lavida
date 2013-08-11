@@ -44,10 +44,11 @@ public class UserJdo {
     public UserJdo() {
     }
 
-    public UserJdo(String login, String password, boolean enabled) {
+    public UserJdo(String login, String password, boolean enabled, String email) {
         this.login = login;
         this.password = password;
         this.enabled = enabled;
+        this.email = email;
     }
 
     public int getId() {
