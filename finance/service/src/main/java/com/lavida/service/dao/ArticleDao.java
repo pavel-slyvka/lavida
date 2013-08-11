@@ -12,7 +12,7 @@ import java.util.List;
  * @author Ruslan
  */
 @Repository
-public class ArticleDao extends GenericDao<ArticleJdo> {
+public class ArticleDao extends AbstractDao<ArticleJdo> {
 
     public List<ArticleJdo> getNotSold() {
         return entityManager.createNamedQuery(ArticleJdo.FIND_NOT_SOLD, ArticleJdo.class).getResultList();

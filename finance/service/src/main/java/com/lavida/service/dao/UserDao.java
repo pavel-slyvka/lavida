@@ -15,7 +15,7 @@ import javax.persistence.TypedQuery;
  * To change this template use File | Settings | File Templates.
  */
 @Repository
-public class UserDao extends GenericDao<UserJdo> {
+public class UserDao extends AbstractDao<UserJdo> {
 
     public UserJdo getUserByLogin(String login) {
         TypedQuery<UserJdo> query = entityManager.createNamedQuery(UserJdo.FIND_BY_LOGIN, UserJdo.class)
