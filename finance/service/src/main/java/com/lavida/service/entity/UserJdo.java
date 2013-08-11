@@ -4,8 +4,9 @@ import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
-/** The {@code UserJdo} is entity for users of application related to database.
- *
+/**
+ * The {@code UserJdo} is entity for users of application related to database.
+ * <p/>
  * Created with IntelliJ IDEA.
  * UserJdo: Admin
  * Date: 01.08.13
@@ -14,25 +15,29 @@ import java.util.Set;
 
 @Entity
 @Table(name = "users")
+@NamedQueries({
+        @NamedQuery(name = UserJdo.FIND_BY_LOGIN, query = "select u from UserJdo u where u.login = :login")
+})
 public class UserJdo {
+    public static final String FIND_BY_LOGIN = "UserJdo.findByLogin";
 
     @Id
     @GeneratedValue
     private int id;
 
-    @Column(length = 32)
+    @Column(unique = true, length = 32)
     private String login;
 
     @Column(length = 32)
     private String password;
 
+    @Column(length = 254)
+    private String email;
+
     private boolean enabled;
 
-    @Column(length = 32)
-    private String name;
-
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "authority", joinColumns = @JoinColumn(name = "user_id"))
+    @CollectionTable(name = "authorities", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "authority", length = 30)
     private Set<String> authorities = new HashSet<String>();
 
@@ -85,12 +90,16 @@ public class UserJdo {
         return authorities.toArray(new String[authorities.size()]);
     }
 
-    public String getName() {
-        return name;
+    public String getEmail() {
+        return email;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public Set<String> getAuthorities() {
+        return authorities;
     }
 
     @Override
@@ -119,6 +128,7 @@ public class UserJdo {
                 "id=" + id +
                 ", login='" + login + '\'' +
                 ", password='" + password + '\'' +
+                ", email='" + email + '\'' +
                 ", enabled=" + enabled +
                 ", authorities=" + authorities +
                 '}';

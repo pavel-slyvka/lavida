@@ -7,11 +7,19 @@ import java.util.Calendar;
 /**
  * Created: 8:15 05.08.13
  * The {@code ArticleJdo} is entity for article of goods related to database.
+ *
  * @author Ruslan
  */
 @Entity
 @Table(name = "goods")
+@NamedQueries({
+        @NamedQuery(name = ArticleJdo.FIND_NOT_SOLD, query = "select a from ArticleJdo a where a.sold IS NULL"),
+        @NamedQuery(name = ArticleJdo.FIND_SOLD, query = "select a from ArticleJdo a where a.sold IS NOT NULL")
+})
 public class ArticleJdo {
+    public static final String FIND_NOT_SOLD = "ArticleJdo.findSold";
+    public static final String FIND_SOLD = "ArticleJdo.findNotSold";
+
     @Id
     private int id;
     private String code;
@@ -229,15 +237,15 @@ public class ArticleJdo {
                 ", size='" + size + '\'' +
                 ", purchasingPriceEUR=" + purchasingPriceEUR +
                 ", transportCostEUR=" + transportCostEUR +
-                ", deliveryDate='" + ((deliveryDate == null)? null : (deliveryDate.get(Calendar.MONTH) + "/" +
-                    deliveryDate.get(Calendar.DATE) + "/" + deliveryDate.get(Calendar.YEAR))) +  '\'' +
+                ", deliveryDate='" + ((deliveryDate == null) ? null : (deliveryDate.get(Calendar.MONTH) + "/" +
+                deliveryDate.get(Calendar.DATE) + "/" + deliveryDate.get(Calendar.YEAR))) + '\'' +
                 ", priceUAH=" + priceUAH +
                 ", raisedPriceUAH=" + raisedPriceUAH +
                 ", actionPriceUAH=" + actionPriceUAH +
                 ", sold= '" + sold + '\'' +
                 ", ours='" + ours + '\'' +
-                ", saleDate='" + ((saleDate == null)? null : (saleDate.get(Calendar.MONTH) + "/" +
-                    saleDate.get(Calendar.DAY_OF_MONTH) + "/" + saleDate.get(Calendar.YEAR))) +  '\'' +
+                ", saleDate='" + ((saleDate == null) ? null : (saleDate.get(Calendar.MONTH) + "/" +
+                saleDate.get(Calendar.DAY_OF_MONTH) + "/" + saleDate.get(Calendar.YEAR))) + '\'' +
                 ", comment='" + comment + '\'' +
                 '}';
     }

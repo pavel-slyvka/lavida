@@ -42,20 +42,20 @@ public class ArticleService {
 
     @Transactional
     public void delete (int id) {
-        articleDao.delete(id);
+        articleDao.delete(ArticleJdo.class, id);
     }
 
     public ArticleJdo getById (int id) {
-        return articleDao.getById(id);
+        return articleDao.getById(ArticleJdo.class, id);
     }
 
     public List<ArticleJdo> getAll () {
-        return  articleDao.getAll();
+        return  articleDao.getAll(ArticleJdo.class);
     }
 
     public ArticleJdo getByCode (String code) {
         ArticleJdo neededArticle = null;
-        List<ArticleJdo> articles = articleDao.getAll();
+        List<ArticleJdo> articles = articleDao.getAll(ArticleJdo.class);
         for (ArticleJdo articleJdo : articles) {
             if (articleJdo.getCode().equals(code)) {
                 neededArticle = articleJdo;

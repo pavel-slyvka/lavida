@@ -17,14 +17,6 @@ public class Main {
 
     public static void main(String[] args) {
         ApplicationContext context = new ClassPathXmlApplicationContext("spring-security.xml");
-        UserService service = context.getBean(UserService.class);
-        service.save("login1", "pass1", true, Arrays.asList( "ROLE_SELLER"));
-        service.save("login2", "pass2", true, Arrays.asList( "ROLE_MANAGER"));
-        service.save("login4", "pass4", true, Arrays.asList( "ROLE_OWNER"));
-        service.save("login5", "pass5", true, Arrays.asList( "ROLE_ADMIN"));
-        System.out.println(service.getAll());
-//        System.out.println(service.getByLogin("login2"));
-
         ArticleService articleService = context.getBean(ArticleService.class);
         ArticleJdo articleJdo = new ArticleJdo();
         articleJdo.setName("Мак");

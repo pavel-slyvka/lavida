@@ -1,11 +1,12 @@
 package com.lavida.service;
 
-import com.lavida.service.dao.AuthoritiesDao;
 import com.lavida.service.dao.UserDao;
-import com.lavida.service.entity.AuthorityJdo;
 import com.lavida.service.entity.UserJdo;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
@@ -19,7 +20,6 @@ import java.util.List;
 public class UserService {
     private DaoUserDetailsManagerImpl userDetailsManager;
     private UserDao userDao;
-    private AuthoritiesDao authoritiesDao;
 
     public void login(String username, String rowPassword) {
         userDetailsManager.login(username, rowPassword);
@@ -30,11 +30,11 @@ public class UserService {
     }
 
     public List<UserJdo> getAll() {
-        return userDao.getAll();
+        return userDao.getAll(UserJdo.class);
     }
 
     public void getById(int id) {
-        userDao.getById(id);
+        userDao.getById(UserJdo.class, id);
     }
 
     public UserJdo getByLogin(String login) {
@@ -47,20 +47,6 @@ public class UserService {
         userJdo.setPassword(userDetailsManager.encodePassword(username, rawPassword));
         userJdo.setAuthorities(new HashSet<String>(authorities));
         userDao.put(userJdo);
-    }
-
-    @Transactional
-    @Deprecated // never used
-    public void assignAuthorityUpdate(UserJdo userJdo, AuthorityJdo authorities) {
-        userDao.update(userJdo);
-        authoritiesDao.put(authorities);
-    }
-
-    @Transactional
-    @Deprecated // never used
-    public void assignAuthoritySave(UserJdo userJdo, AuthorityJdo authorities) {
-        userDao.put(userJdo);
-        authoritiesDao.put(authorities);
     }
 
     @Transactional
@@ -77,7 +63,7 @@ public class UserService {
 
     @Transactional
     public void delete(int id) {
-        userDao.delete(id);
+        userDao.delete(UserJdo.class, id);
     }
 
     public UserDao getUserDao() {
@@ -89,15 +75,19 @@ public class UserService {
         this.userDao = userDao;
     }
 
-    public AuthoritiesDao getAuthoritiesDao() {
-        return authoritiesDao;
-    }
-
-    public void setAuthoritiesDao(AuthoritiesDao authoritiesDao) {
-        this.authoritiesDao = authoritiesDao;
-    }
-
     public void setUserDetailsManager(DaoUserDetailsManagerImpl userDetailsManager) {
         this.userDetailsManager = userDetailsManager;
+    }
+
+    public static void main(String[] args) {
+        ApplicationContext context = new ClassPathXmlApplicationContext("spring-security.xml");
+        UserService service = context.getBean(UserService.class);
+        service.save("seller", "seller", true, Arrays.asList("ROLE_SELLER"));
+        service.save("manager", "manager", true, Arrays.asList("ROLE_MANAGER"));
+        service.save("owner", "owner", true, Arrays.asList("ROLE_OWNER"));
+        service.save("admin", "admin", true, Arrays.asList("ROLE_ADMIN"));
+        System.out.println(service.getAll());
+//        System.out.println(service.getByLogin("login2"));
+
     }
 }
