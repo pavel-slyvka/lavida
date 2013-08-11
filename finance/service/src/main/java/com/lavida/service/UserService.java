@@ -4,8 +4,10 @@ import com.lavida.service.dao.UserDao;
 import com.lavida.service.entity.UserJdo;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -17,8 +19,13 @@ import java.util.List;
  * Time: 18:11
  * To change this template use File | Settings | File Templates.
  */
+@Service
 public class UserService {
+
+    @Resource
     private DaoUserDetailsManagerImpl userDetailsManager;
+
+    @Resource
     private UserDao userDao;
 
     public void login(String username, String rowPassword) {

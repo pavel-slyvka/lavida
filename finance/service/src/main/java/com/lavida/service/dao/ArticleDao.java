@@ -1,6 +1,7 @@
 package com.lavida.service.dao;
 
 import com.lavida.service.entity.ArticleJdo;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
@@ -10,6 +11,7 @@ import java.util.List;
  *
  * @author Ruslan
  */
+@Repository
 public class ArticleDao extends GenericDao<ArticleJdo> {
 
     public List<ArticleJdo> getNotSold() {

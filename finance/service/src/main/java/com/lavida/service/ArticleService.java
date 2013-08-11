@@ -4,8 +4,10 @@ import com.google.gdata.util.ServiceException;
 import com.lavida.service.dao.ArticleDao;
 import com.lavida.service.entity.ArticleJdo;
 import com.lavida.service.google.ArticlesFromGoogleDocUnmarshaller;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.List;
 
@@ -15,8 +17,13 @@ import java.util.List;
  *
  * @author Ruslan
  */
+@Service
 public class ArticleService {
+
+    @Resource
     private ArticleDao articleDao;
+
+    @Resource
     private ArticlesFromGoogleDocUnmarshaller articlesUnmarshaller;
 
     public ArticleService() {

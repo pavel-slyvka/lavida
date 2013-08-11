@@ -3,6 +3,7 @@ package com.lavida.service.dao;
 import com.lavida.service.entity.UserJdo;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.stereotype.Repository;
 
 import javax.persistence.TypedQuery;
 
@@ -13,6 +14,7 @@ import javax.persistence.TypedQuery;
  * Time: 17:27
  * To change this template use File | Settings | File Templates.
  */
+@Repository
 public class UserDao extends GenericDao<UserJdo> {
 
     public UserJdo getUserByLogin(String login) {

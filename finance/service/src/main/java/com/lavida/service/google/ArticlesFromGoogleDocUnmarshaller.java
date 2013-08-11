@@ -7,6 +7,7 @@ import com.google.gdata.util.ServiceException;
 import com.lavida.service.entity.ArticleJdo;
 import com.lavida.service.utils.CalendarConverter;
 import com.lavida.service.utils.NormalFormatter;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.net.URL;
@@ -20,6 +21,7 @@ import java.util.List;
  *
  * @author Ruslan
  */
+@Component
 public class ArticlesFromGoogleDocUnmarshaller {
     private static final String APPLICATION_NAME = "lavida.articles";
 

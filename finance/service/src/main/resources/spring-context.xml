@@ -7,8 +7,7 @@
        http://www.springframework.org/schema/context  http://www.springframework.org/schema/context/spring-context.xsd
        http://www.springframework.org/schema/tx  http://www.springframework.org/schema/tx/spring-tx.xsd">
 
-    <context:component-scan base-package="com.lavida.service"/>
-
+    <!-- JPA part: -->
     <bean class="com.lavida.service.DecryptPropertyConfigurer">
         <property name="location" value="classpath:db.creds.props"/>
     </bean>
@@ -29,33 +28,12 @@
         <property name="entityManagerFactory" ref="entityManagerFactory" />
     </bean>
 
-    <context:annotation-config/>
-
     <tx:annotation-driven transaction-manager="transactionManager"/>
 
-    <!--For operations with users-->
-    <bean id="userDao" class="com.lavida.service.dao.UserDao">
-    </bean>
+    <!-- Services part: -->
+    <context:component-scan base-package="com.lavida.service"/>
 
-    <bean id="userService" class="com.lavida.service.UserService">
-        <property name="userDetailsManager" ref="userDetailsManager"/>
-        <property name="userDao" ref="userDao"/>
-    </bean>
-
-    <!--For operations with goods-->
-    <bean id="articleDao" class="com.lavida.service.dao.ArticleDao"/>
-
-    <bean id="articleService" class="com.lavida.service.ArticleService">
-        <property name="articleDao" ref="articleDao"/>
-        <property name="articlesUnmarshaller" ref="articlesUnmarshaller"/>
-    </bean>
-
-    <!--Operating with Google API-->
-
-    <bean id="articlesUnmarshaller" class="com.lavida.service.google.ArticlesFromGoogleDocUnmarshaller">
-    </bean>
-
-    <!--Internationalization-->
+    <context:annotation-config/>
 
     <bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
         <property name="basename">
