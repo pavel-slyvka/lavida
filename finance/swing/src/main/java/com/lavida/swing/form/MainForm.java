@@ -1,6 +1,5 @@
 package com.lavida.swing.form;
 
-import com.google.gdata.util.ServiceException;
 import com.lavida.swing.form.tablemodel.ArticlesTableModel;
 import com.lavida.swing.handler.MainFormHandler;
 import org.springframework.security.core.Authentication;
@@ -8,7 +7,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import javax.annotation.Resource;
-import javax.persistence.TransactionRequiredException;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -18,7 +16,6 @@ import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 
@@ -116,7 +113,7 @@ public class MainForm extends AbstractForm {
         searchPanel = new JPanel();
         searchPanel.setBackground(Color.lightGray);
         searchPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(messageSource.
-                getMessage("mainForm.panel.search.title", null, locale)),
+                getMessage("mainForm.panel.search.title", null, localeHolder.getLocale())),
                 BorderFactory.createEmptyBorder(5, 5, 5, 5)));
         searchPanel.setOpaque(true);
         searchPanel.setAutoscrolls(true);
@@ -125,7 +122,7 @@ public class MainForm extends AbstractForm {
         constraints.fill = GridBagConstraints.HORIZONTAL;
 
         searchByNameLabel = new JLabel(messageSource.getMessage("mainForm.label.search.by.title", null,
-                locale));
+                localeHolder.getLocale()));
         constraints.gridx = 0;
         constraints.gridy = 0;
         searchPanel.add(searchByNameLabel, constraints);
@@ -153,7 +150,7 @@ public class MainForm extends AbstractForm {
         searchPanel.add(searchByNameField, constraints);
 
         clearNameButton = new JButton(messageSource.getMessage("mainForm.button.clear.title", null,
-                locale));
+                localeHolder.getLocale()));
         constraints.gridx = 2;
         constraints.gridy = 0;
         clearNameButton.addActionListener(new ActionListener() {
@@ -165,7 +162,7 @@ public class MainForm extends AbstractForm {
         searchPanel.add(clearNameButton, constraints);
 
         searchByCodeLabel = new JLabel(messageSource.getMessage("mainForm.label.search.by.code", null,
-                locale));
+                localeHolder.getLocale()));
         constraints.gridx = 0;
         constraints.gridy = 1;
         searchPanel.add(searchByCodeLabel, constraints);
@@ -193,7 +190,7 @@ public class MainForm extends AbstractForm {
         searchPanel.add(searchByCodeField, constraints);
 
         clearCodeButton = new JButton(messageSource.getMessage("mainForm.button.clear.title", null,
-                locale));
+                localeHolder.getLocale()));
         constraints.gridx = 2;
         constraints.gridy = 1;
         clearCodeButton.addActionListener(new ActionListener() {
@@ -205,7 +202,7 @@ public class MainForm extends AbstractForm {
         searchPanel.add(clearCodeButton, constraints);
 
         searchByPriceLabel = new JLabel(messageSource.getMessage("mainForm.label.search.by.price", null,
-                locale));
+                localeHolder.getLocale()));
         constraints.gridx = 0;
         constraints.gridy = 2;
         searchPanel.add(searchByPriceLabel, constraints);
@@ -232,7 +229,7 @@ public class MainForm extends AbstractForm {
         searchPanel.add(searchByPriceField, constraints);
 
         clearPriceButton = new JButton(messageSource.getMessage("mainForm.button.clear.title", null,
-                locale));
+                localeHolder.getLocale()));
         constraints.gridx = 2;
         constraints.gridy = 2;
         clearPriceButton.addActionListener(new ActionListener() {
@@ -249,14 +246,14 @@ public class MainForm extends AbstractForm {
         refreshPanel = new JPanel();
         refreshPanel.setBackground(Color.lightGray);
         refreshPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(messageSource.
-                getMessage("mainForm.panel.refresh.title", null, locale)),
+                getMessage("mainForm.panel.refresh.title", null, localeHolder.getLocale())),
                 BorderFactory.createEmptyBorder(5, 5, 5, 5)));
         refreshPanel.setOpaque(true);
         refreshPanel.setAutoscrolls(true);
         refreshPanel.setLayout(new GridBagLayout());
 
         refreshButton = new JButton(messageSource.getMessage("mainForm.button.refresh.title", null,
-                locale));
+                localeHolder.getLocale()));
         refreshButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -276,7 +273,7 @@ public class MainForm extends AbstractForm {
      * Filters table by column "Names" according to expression.
      */
     private void filterNames() {
-        String name = messageSource.getMessage("mainForm.table.articles.column.name", null, locale);
+        String name = messageSource.getMessage("mainForm.table.articles.column.name", null, localeHolder.getLocale());
         int columnNameIndex = tableModel.findColumn(name);
 
         RowFilter<ArticlesTableModel, Object> rf = null;
@@ -293,7 +290,7 @@ public class MainForm extends AbstractForm {
      * Filters table by column "Code" according to expression.
      */
     private void filterCodes() {
-        String code = messageSource.getMessage("mainForm.table.articles.column.code", null, locale);
+        String code = messageSource.getMessage("mainForm.table.articles.column.code", null, localeHolder.getLocale());
         int columnCodeIndex = tableModel.findColumn(code);
         RowFilter<ArticlesTableModel, Object> rf = null;
         //If current expression doesn't parse, don't update.
@@ -309,13 +306,13 @@ public class MainForm extends AbstractForm {
      * Filters table by columns "*Price" according to expression.
      */
     private void filterPrices() {
-        String price = messageSource.getMessage("mainForm.table.articles.column.price", null, locale);
+        String price = messageSource.getMessage("mainForm.table.articles.column.price", null, localeHolder.getLocale());
         int columnPriceIndex = tableModel.findColumn(price);
 
-        String raisedPrice = messageSource.getMessage("mainForm.table.articles.column.price.raised", null, locale);
+        String raisedPrice = messageSource.getMessage("mainForm.table.articles.column.price.raised", null, localeHolder.getLocale());
         int columnRaisedPriceIndex = tableModel.findColumn(raisedPrice);
 
-        String actionPrice = messageSource.getMessage("mainForm.table.articles.column.price.action", null, locale);
+        String actionPrice = messageSource.getMessage("mainForm.table.articles.column.price.action", null, localeHolder.getLocale());
         int columnActionPrice = tableModel.findColumn(actionPrice);
         RowFilter<ArticlesTableModel, Object> rf = null;
         //If current expression doesn't parse, don't update.
@@ -327,25 +324,6 @@ public class MainForm extends AbstractForm {
         sorter.setRowFilter(rf);
     }
 
-    public void showErrorMessageByException(Exception e) {
-        if (IllegalArgumentException.class == e.getClass()) {   // todo don't need
-            showMessage("mainForm.exception.message.dialog.title",
-                    "mainForm.exception.illegal.argument.save.to.database");
-
-        } else if (TransactionRequiredException.class == e.getClass()) {    // todo don't need
-            showMessage("mainForm.exception.message.dialog.title",
-                    "mainForm.exception.transaction.required.save.to.database");
-
-        } else if (IOException.class == e.getClass()) {
-            showMessage("mainForm.exception.message.dialog.title",
-                    "mainForm.exception.io.load.google.spreadsheet.table.data");
-
-        } else if (ServiceException.class == e.getClass()) {
-            showMessage("mainForm.exception.message.dialog.title",
-                    "mainForm.exception.service.load.google.spreadsheet.table.data");
-        }
-    }
-
     /**
      * Sets preferred width to certain columns
      *
@@ -353,7 +331,7 @@ public class MainForm extends AbstractForm {
      */
     public void packTable(JTable table) {
         table.getColumn(messageSource.getMessage("mainForm.table.articles.column.name", null,
-                locale)).setPreferredWidth(250);
+                localeHolder.getLocale())).setPreferredWidth(250);
 //        table.getColumn(messageSource.getMessage("mainForm.table.articles.column.name", null,
 //        currentLocale)).setResizable(true);
     }
@@ -361,6 +339,7 @@ public class MainForm extends AbstractForm {
     public void filterByPermissionsStub() { // todo changeme!!!
         filterByPermissions(articlesTable);
     }
+
     /**
      * Filters the JTable by permissions of roles (ROLE_SELLER). It removes certain columns.
      *
@@ -372,19 +351,19 @@ public class MainForm extends AbstractForm {
         String seller = messageSource.getMessage("lavida.authority.seller", null, Locale.US);
         if (authorities.contains(new SimpleGrantedAuthority(seller))) {
             articlesTable.removeColumn(articlesTable.getColumn(messageSource.
-                    getMessage("mainForm.table.articles.column.purchasing.price", null, locale)));
+                    getMessage("mainForm.table.articles.column.purchasing.price", null, localeHolder.getLocale())));
             articlesTable.removeColumn(articlesTable.getColumn(messageSource.
-                    getMessage("mainForm.table.articles.column.transport.cost", null, locale)));
+                    getMessage("mainForm.table.articles.column.transport.cost", null, localeHolder.getLocale())));
             articlesTable.removeColumn(articlesTable.getColumn(messageSource.
-                    getMessage("mainForm.table.articles.column.sold", null, locale)));
+                    getMessage("mainForm.table.articles.column.sold", null, localeHolder.getLocale())));
             articlesTable.removeColumn(articlesTable.getColumn(messageSource.
-                    getMessage("mainForm.table.articles.column.ours", null, locale)));
+                    getMessage("mainForm.table.articles.column.ours", null, localeHolder.getLocale())));
             articlesTable.removeColumn(articlesTable.getColumn(messageSource.
-                    getMessage("mainForm.table.articles.column.sale.date", null, locale)));
+                    getMessage("mainForm.table.articles.column.sale.date", null, localeHolder.getLocale())));
         }
     }
 
     public String getSoldMessage() {
-        return messageSource.getMessage("mainForm.filter.sold", null, locale);
+        return messageSource.getMessage("mainForm.filter.sold", null, localeHolder.getLocale());
     }
 }

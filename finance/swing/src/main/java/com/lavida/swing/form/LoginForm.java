@@ -59,7 +59,7 @@ public class LoginForm extends AbstractForm {
         passwordLabel = new JLabel(PASSWORD_LABEL_RU);
         loginField = new JTextField();
         passwordField = new JPasswordField();
-        submitButton = new JButton(messageSource.getMessage("loginForm.button.login.title", null, locale));
+        submitButton = new JButton(messageSource.getMessage("loginForm.button.login.title", null, localeHolder.getLocale()));
         submitButton.setMnemonic(KeyEvent.VK_ENTER);  // Alt+Enter hot keys
         submitButton.setBackground(Color.orange);
         submitButton.addActionListener(new ActionListener() {

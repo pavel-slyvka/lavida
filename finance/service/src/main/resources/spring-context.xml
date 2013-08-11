@@ -25,7 +25,7 @@
     </bean>
 
     <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
-        <property name="entityManagerFactory" ref="entityManagerFactory" />
+        <property name="entityManagerFactory" ref="entityManagerFactory"/>
     </bean>
 
     <tx:annotation-driven transaction-manager="transactionManager"/>
@@ -36,8 +36,11 @@
     <context:annotation-config/>
 
     <bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
-        <property name="basename">
-            <value>locale/messages</value>
+        <property name="basenames">
+            <list>
+                <value>locale/messages</value>
+                <value>locale/errors</value>
+            </list>
         </property>
         <property name="fileEncodings" value="UTF-8"/>
         <property name="defaultEncoding" value="UTF-8"/>
@@ -45,8 +48,8 @@
 
     <!--E-mail-->
     <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
-        <property name="host" value="smtp.gmail.com" />
-        <property name="port" value="587" />
+        <property name="host" value="smtp.gmail.com"/>
+        <property name="port" value="587"/>
         <property name="javaMailProperties">
             <props>
                 <prop key="mail.smtp.auth">true</prop>

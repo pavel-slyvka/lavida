@@ -4,14 +4,13 @@ import com.google.gdata.util.ServiceException;
 import com.lavida.service.ArticleService;
 import com.lavida.service.entity.ArticleJdo;
 import com.lavida.service.utils.MyPropertiesUtil;
+import com.lavida.swing.exception.LavidaSwingRuntimeException;
 import com.lavida.swing.form.MainForm;
 import com.lavida.swing.form.tablemodel.ArticlesTableModel;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import javax.persistence.TransactionRequiredException;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -44,9 +43,9 @@ public class MainFormHandler {
             tableModel.setTableData(articleService.getNotSoldArticles());
 
         } catch (IOException e) {
-            form.showErrorMessageByException(e);
+            throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.GOOGLE_IO_EXCEPTION, e, form);
         } catch (ServiceException e) {
-            form.showErrorMessageByException(e);
+            throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.GOOGLE_SERVICE_EXCEPTION, e, form);
         }
     }
 
@@ -64,11 +63,9 @@ public class MainFormHandler {
             form.update();    // repaint MainForm in some time
 
         } catch (IOException e) {
-            form.showMessage("mainForm.exception.message.dialog.title",
-                    "mainForm.exception.io.load.google.spreadsheet.table.data");
+            throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.GOOGLE_IO_EXCEPTION, e, form);
         } catch (ServiceException e) {
-            form.showMessage("mainForm.exception.message.dialog.title",
-                    "mainForm.exception.service.load.google.spreadsheet.table.data");
+            throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.GOOGLE_SERVICE_EXCEPTION, e, form);
         }
     }
 

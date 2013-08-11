@@ -1,5 +1,6 @@
 package com.lavida.swing.form;
 
+import com.lavida.swing.LocaleHolder;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 
@@ -7,7 +8,6 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.swing.*;
 import java.awt.*;
-import java.util.Locale;
 
 /**
  * AbstractForm
@@ -23,7 +23,8 @@ public abstract class AbstractForm implements MessageSourceAware {
     @Resource
     protected MessageSource messageSource;
 
-    protected Locale locale = new Locale.Builder().setLanguage("ru").setRegion("RU").setScript("Cyrl").build();
+    @Resource
+    protected LocaleHolder localeHolder;
 
     @PostConstruct
     public void init() {
@@ -44,8 +45,8 @@ public abstract class AbstractForm implements MessageSourceAware {
 
     public void showMessage(String titleKey, String messageKey) {
         JOptionPane.showMessageDialog(form,
-                messageSource.getMessage(messageKey, null, locale),
-                messageSource.getMessage(titleKey, null, locale),
+                messageSource.getMessage(messageKey, null, localeHolder.getLocale()),
+                messageSource.getMessage(titleKey, null, localeHolder.getLocale()),
                 JOptionPane.DEFAULT_OPTION);
     }
 
@@ -60,6 +61,11 @@ public abstract class AbstractForm implements MessageSourceAware {
     public void update() {
         form.repaint();
     }
+
+    public JFrame getForm() {
+        return form;
+    }
+
     @Override
     public void setMessageSource(MessageSource messageSource) {
         this.messageSource = messageSource;
