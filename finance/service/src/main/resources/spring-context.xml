@@ -62,10 +62,10 @@
 
     <bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
         <property name="basename">
-            <value>locale\messages</value>
+            <value>locale/messages</value>
         </property>
-        <property name="fileEncodings" value="Cp1251"/>
-        <property name="defaultEncoding" value="Cp1251"/>
+        <property name="fileEncodings" value="UTF-8"/>
+        <property name="defaultEncoding" value="UTF-8"/>
     </bean>
 
 
