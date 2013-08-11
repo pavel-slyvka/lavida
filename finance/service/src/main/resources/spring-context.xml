@@ -20,6 +20,7 @@
             <props>
                 <prop key="javax.persistence.jdbc.user">${db.username}</prop>
                 <prop key="javax.persistence.jdbc.password">${db.password}</prop>
+                <prop key="javax.persistence.jdbc.url">${db.url}</prop>
             </props>
         </property>
     </bean>
