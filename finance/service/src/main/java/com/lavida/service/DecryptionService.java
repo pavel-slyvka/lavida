@@ -5,6 +5,7 @@ import sun.misc.BASE64Decoder;
 
 import javax.annotation.PostConstruct;
 import javax.crypto.Cipher;
+import java.security.Key;
 import java.security.KeyFactory;
 import java.security.PrivateKey;
 import java.security.spec.EncodedKeySpec;
@@ -29,16 +30,15 @@ public class DecryptionService {
     public static final String ALGORITHM = "RSA";
 
     private BASE64Decoder base64Decoder;
-    private PrivateKey key;
     private Cipher cipher;
 
     @PostConstruct
     public void init() {
         try {
             base64Decoder = new BASE64Decoder();
-            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+            KeyFactory keyFactory = KeyFactory.getInstance(ALGORITHM);
             EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(new BASE64Decoder().decodeBuffer(KEY));
-            key = keyFactory.generatePrivate(keySpec);
+            Key key = keyFactory.generatePrivate(keySpec);
             cipher = Cipher.getInstance(ALGORITHM);
             cipher.init(Cipher.DECRYPT_MODE, key);
 

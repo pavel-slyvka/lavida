@@ -6,6 +6,7 @@ import sun.misc.BASE64Encoder;
 
 import javax.annotation.PostConstruct;
 import javax.crypto.Cipher;
+import java.security.Key;
 import java.security.KeyFactory;
 import java.security.PublicKey;
 import java.security.spec.EncodedKeySpec;
@@ -25,7 +26,6 @@ public class EncryptionService {
     public static final String ALGORITHM = "RSA";
 
     private BASE64Encoder base64Encoder;
-    private PublicKey key;
     private Cipher cipher;
 
     @PostConstruct
@@ -34,7 +34,7 @@ public class EncryptionService {
             base64Encoder = new BASE64Encoder();
             KeyFactory keyFactory = KeyFactory.getInstance(ALGORITHM);
             EncodedKeySpec keySpec = new X509EncodedKeySpec(new BASE64Decoder().decodeBuffer(KEY));
-            key = keyFactory.generatePublic(keySpec);
+            Key key = keyFactory.generatePublic(keySpec);
             cipher = Cipher.getInstance(ALGORITHM);
             cipher.init(Cipher.ENCRYPT_MODE, key);
 
