@@ -10,6 +10,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import javax.persistence.TransactionRequiredException;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.NoSuchElementException;
@@ -21,7 +22,7 @@ import java.util.Scanner;
  * @author Ruslan
  */
 @Service
-public class UserRegisterService {
+public class UserRegister {
     protected Locale locale = new Locale.Builder().setLanguage("ru").setRegion("RU").setScript("Cyrl").build();
 
     @Resource
@@ -62,10 +63,14 @@ public class UserRegisterService {
      *                                  container-managed entity manager of type
      *                                  <code>PersistenceContextType.TRANSACTION</code> and there is
      *                                  no transaction
+     * @throws org.springframework.mail.MailParseException
+     *                                  in case of failure when parsing the message
+     * @throws org.springframework.mail.MailAuthenticationException
+     *                                  in case of authentication failure
+     * @throws org.springframework.mail.MailSendException
+     *                                  in case of failure when sending the message
      */
-    public void registerUser()
-//            throws NoSuchElementException, IllegalStateException, IllegalArgumentException, TransactionRequiredException
-    {
+    public void registerUser() {
         String login, password, role, emailTo;
         Settings settings = settingsService.getSettings();
         String emailFrom = settings.getEmail();
@@ -115,7 +120,7 @@ public class UserRegisterService {
 
     public static void main(String[] args) {
         ApplicationContext context = new ClassPathXmlApplicationContext("spring-security.xml");
-        UserRegisterService registerService = context.getBean(UserRegisterService.class);
-        registerService.registerUser();
+        UserRegister register = context.getBean(UserRegister.class);
+        register.registerUser();
     }
 }

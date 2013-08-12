@@ -49,7 +49,7 @@ public class EmailSender {
      * @throws org.springframework.mail.MailSendException
      * in case of failure when sending the message
      */
-    public void sendMail(String from, String to, String subject, String content) throws MailException {
+    public void sendMail(String from, String to, String subject, String content) {
         Settings settings = settingsService.getSettings();
 
         SimpleMailMessage message = new SimpleMailMessage(simpleMailMessage);
