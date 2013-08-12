@@ -4,6 +4,8 @@ import com.google.gdata.util.ServiceException;
 import com.lavida.service.dao.ArticleDao;
 import com.lavida.service.entity.ArticleJdo;
 import com.lavida.service.google.ArticlesFromGoogleDocUnmarshaller;
+import com.lavida.service.settings.Settings;
+import com.lavida.service.settings.SettingsHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +27,9 @@ public class ArticleService {
 
     @Resource
     private ArticlesFromGoogleDocUnmarshaller articlesUnmarshaller;
+
+    @Resource
+    private SettingsHolder settingsHolder;
 
     public ArticleService() {
     }
@@ -72,12 +77,14 @@ public class ArticleService {
         throw new RuntimeException("There is no article with code: " + code + "!"); //todo create databaseException
     }
 
-    public List<ArticleJdo> loadFromGoogle (String userNameGmail, String passwordGmail) throws IOException, ServiceException {
-        return  articlesUnmarshaller.unmarshal(userNameGmail, passwordGmail);
+    public List<ArticleJdo> loadFromGoogle() throws IOException, ServiceException {
+        Settings settings = settingsHolder.getSettings();
+        return  articlesUnmarshaller.unmarshal(settings.getRemoteUser(), settings.getRemotePass());
     }
 
-    public List<String> loadTableHeader (String userNameGmail, String passwordGmail) throws IOException, ServiceException {
-        return articlesUnmarshaller.readTableHeader(userNameGmail, passwordGmail);
+    public List<String> loadTableHeader() throws IOException, ServiceException {
+        Settings settings = settingsHolder.getSettings();
+        return articlesUnmarshaller.readTableHeader(settings.getRemoteUser(), settings.getRemotePass());
     }
 
     public List<ArticleJdo> getNotSoldArticles() {

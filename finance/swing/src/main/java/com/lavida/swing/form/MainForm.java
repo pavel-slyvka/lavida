@@ -58,7 +58,6 @@ public class MainForm extends AbstractForm {
 
     @Override
     protected void initializeComponents() {
-        handler.loadGoogleAccountCredentials();
 
 //      menu bar
         jMenuBar = new JMenuBar();
