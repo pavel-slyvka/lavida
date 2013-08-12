@@ -10,7 +10,6 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import javax.persistence.TransactionRequiredException;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.NoSuchElementException;
@@ -18,7 +17,7 @@ import java.util.Scanner;
 
 /**
  * Created: 0:06 11.08.13
- *
+ * The UserRegister is a job for registering new users from console.
  * @author Ruslan
  */
 @Service
@@ -75,31 +74,31 @@ public class UserRegister {
         Settings settings = settingsService.getSettings();
         String emailFrom = settings.getEmail();
 
-        String emailSubject = messageSource.getMessage("service.user.register.email.subject", null, locale);
-        String dear = messageSource.getMessage("service.user.register.email.dear", null, locale);
-        String yourPassword = messageSource.getMessage("service.user.register.email.password", null, locale);
+        String emailSubject = messageSource.getMessage("job.user.register.email.subject", null, locale);
+        String dear = messageSource.getMessage("job.user.register.email.dear", null, locale);
+        String yourPassword = messageSource.getMessage("job.user.register.email.password", null, locale);
 
         Scanner scanner = new Scanner(System.in);
-        System.out.println(messageSource.getMessage("service.user.register.enter.username", null, locale));
+        System.out.println(messageSource.getMessage("job.user.register.enter.username", null, locale));
         login = scanner.next();
-        System.out.println(messageSource.getMessage("service.user.register.enter.email", null, locale));
+        System.out.println(messageSource.getMessage("job.user.register.enter.email", null, locale));
         emailTo = scanner.next();
         while (true) {
-            System.out.println(messageSource.getMessage("service.user.register.enter.password", null, locale));
+            System.out.println(messageSource.getMessage("job.user.register.enter.password", null, locale));
             String password1 = scanner.next();
-            System.out.println(messageSource.getMessage("service.user.register.confirm.password", null, locale));
+            System.out.println(messageSource.getMessage("job.user.register.confirm.password", null, locale));
             String password2 = scanner.next();
             if (password1.equals(password2)) {
                 password = password1;
-                System.out.println(messageSource.getMessage("service.user.register.password.confirmed", null, locale));
+                System.out.println(messageSource.getMessage("job.user.register.password.confirmed", null, locale));
                 break;
             } else {
-                System.out.println(messageSource.getMessage("service.user.register.enter.password.error", null, locale));
+                System.out.println(messageSource.getMessage("job.user.register.enter.password.error", null, locale));
             }
         }
 
         while (true) {
-            System.out.println(messageSource.getMessage("service.user.register.enter.role", null, locale));
+            System.out.println(messageSource.getMessage("job.user.register.enter.role", null, locale));
             int roleNumber = scanner.nextInt();
             if (roleNumber == 1) {
                 role = messageSource.getMessage("lavida.authority.seller", null, Locale.US);
@@ -108,14 +107,14 @@ public class UserRegister {
                 role = messageSource.getMessage("lavida.authority.manager", null, Locale.US);
                 break;
             } else {
-                System.out.println(messageSource.getMessage("service.user.register.enter.role.error", null, locale));
+                System.out.println(messageSource.getMessage("job.user.register.enter.role.error", null, locale));
             }
         }
 
         userService.save(login, password, true, Arrays.asList(role), emailTo);
         emailSender.sendMail(emailFrom, emailTo, emailSubject,
                 (dear + login + yourPassword + password + "\'."));
-        System.out.println(messageSource.getMessage("service.user.register.password.sent", null, locale));
+        System.out.println(messageSource.getMessage("job.user.register.password.sent", null, locale));
     }
 
     public static void main(String[] args) {

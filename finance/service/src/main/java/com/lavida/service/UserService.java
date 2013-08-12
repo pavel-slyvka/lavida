@@ -57,6 +57,12 @@ public class UserService {
     }
 
     @Transactional
+    public void updatePassword(UserJdo userJdo, String newRawPassword) {
+        userJdo.setPassword(userDetailsManager.encodePassword(userJdo.getLogin(), newRawPassword));
+        userDao.update(userJdo);
+    }
+
+    @Transactional
     @Deprecated // must not work with UserJdo
     public void save(UserJdo userJdo) {
         userDao.put(userJdo);
