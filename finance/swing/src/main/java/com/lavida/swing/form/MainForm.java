@@ -38,10 +38,10 @@ public class MainForm extends AbstractForm {
 
     private JMenuBar jMenuBar;
     private JDesktopPane desktopPane;
-    private JPanel mainPanel, operationPanel, searchPanel, refreshPanel;
+    private JPanel mainPanel, operationPanel, searchPanel, refreshPanel, westPanel;
     private JLabel searchByNameLabel, searchByCodeLabel, searchByPriceLabel;
     private JTextField searchByNameField, searchByCodeField, searchByPriceField;
-    private JButton clearNameButton, clearCodeButton, clearPriceButton, refreshButton;
+    private JButton clearNameButton, clearCodeButton, clearPriceButton, refreshButton, recommitButton, sellButton, returnButton;
     private JTable articlesTable;
     private JScrollPane tableScrollPane;
     private TableRowSorter<ArticlesTableModel> sorter;
@@ -239,7 +239,7 @@ public class MainForm extends AbstractForm {
         refreshPanel.setBackground(Color.lightGray);
         refreshPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(messageSource.
                 getMessage("mainForm.panel.refresh.title", null, localeHolder.getLocale())),
-                BorderFactory.createEmptyBorder(5, 5, 5, 5)));
+                BorderFactory.createEmptyBorder(25, 5, 25, 5)));
         refreshPanel.setOpaque(true);
         refreshPanel.setAutoscrolls(true);
         refreshPanel.setLayout(new GridBagLayout());
@@ -257,7 +257,45 @@ public class MainForm extends AbstractForm {
         constraints.gridy = 0;
         refreshPanel.add(refreshButton, constraints);
 
-        desktopPane.add(refreshPanel, BorderLayout.WEST);
+        recommitButton = new JButton(messageSource.getMessage("mainForm.button.recommit.title", null, localeHolder.getLocale()));
+        recommitButton.setMnemonic(KeyEvent.VK_K); // Alt + K hot keys
+        constraints.gridx = 0;
+        constraints.gridy = 1;
+        refreshPanel.add(recommitButton, constraints);
+
+//        operation panel for selling and returning goods.
+        operationPanel = new JPanel();
+        operationPanel.setBackground(Color.lightGray);
+        operationPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(messageSource.
+                getMessage("mainForm.panel.operation.title", null, localeHolder.getLocale())),
+                BorderFactory.createEmptyBorder(15, 5, 15, 5)));
+        operationPanel.setOpaque(true);
+        operationPanel.setAutoscrolls(true);
+        operationPanel.setLayout(new GridBagLayout());
+
+        sellButton = new JButton(messageSource.getMessage("mainForm.button.sell.title", null, localeHolder.getLocale()));
+        sellButton.setMnemonic(KeyEvent.VK_S); // Alt + S hot keys
+        constraints.gridx = 0;
+        constraints.gridy = 0;
+        operationPanel.add(sellButton, constraints);
+
+        returnButton = new JButton(messageSource.getMessage("mainForm.button.return.title", null, localeHolder.getLocale()));
+        returnButton.setMnemonic(KeyEvent.VK_R); // Alt + R hot keys
+        constraints.gridx = 0;
+        constraints.gridy = 1;
+        operationPanel.add(returnButton, constraints);
+
+        westPanel = new JPanel();
+        westPanel.setLayout(new GridBagLayout());
+        westPanel.setBorder(BorderFactory.createEmptyBorder(25, 5, 25, 5));
+        westPanel.setBackground(Color.lightGray);
+        constraints.gridx = 0;
+        constraints.gridy = 0;
+        westPanel.add(refreshPanel, constraints);
+        constraints.gridx = 0;
+        constraints.gridy = 1;
+        westPanel.add(operationPanel, constraints);
+        desktopPane.add(westPanel, BorderLayout.WEST);
 
         rootContainer.add(desktopPane);
     }

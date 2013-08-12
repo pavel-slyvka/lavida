@@ -78,6 +78,7 @@ public class MainFormHandler {
      * Loads properties
      */
     public void loadGoogleAccountCredentials() {
+
         this.userNameGmail = settingsService.getSettings().getRemoteUser();
         this.passwordGmail = settingsService.getSettings().getRemotePass();
 //        Properties properties = null;

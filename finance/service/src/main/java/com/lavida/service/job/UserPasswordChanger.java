@@ -11,7 +11,6 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import javax.persistence.NoResultException;
 import java.util.Locale;
 import java.util.Scanner;
 
@@ -74,7 +73,7 @@ public class UserPasswordChanger {
      *
      */
     public void changePassword() {
-        String login, password, role, emailTo;
+        String login, password, emailTo;
         Settings settings = settingsService.getSettings();
         String emailFrom = settings.getEmail();
 
@@ -83,7 +82,7 @@ public class UserPasswordChanger {
         String yourPassword = messageSource.getMessage("job.user.change.password.email.password", null, locale);
 
         Scanner scanner = new Scanner(System.in);
-        UserJdo currentUser = null;
+        UserJdo currentUser;
         while (true) {
             System.out.println(messageSource.getMessage("job.user.register.enter.username", null, locale));
             login = scanner.next();
