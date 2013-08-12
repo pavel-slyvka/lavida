@@ -16,6 +16,7 @@ import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.util.List;
 import java.util.Locale;
 
@@ -27,15 +28,6 @@ import java.util.Locale;
  */
 @org.springframework.stereotype.Component
 public class MainForm extends AbstractForm {
-    //    private static final String CLEAR_BUTTON_NAME_RU = "Сброс";
-//    private static final String SEARCH_BY_NAME_RU = "Наименование:";
-//    private static final String SEARCH_BY_CODE_RU = "Код:";
-//    private String SEARCH_PANEL_NAME_RU = messageSource.getMessage("mainForm.panel.search.name", null, currentLocale);
-//    private static final String REFRESH_PANEL_NAME_RU = "Обновления";
-//    private static final String REFRESH_BUTTON_NAME_RU = "Обновить";
-//    private static final String SOLD_RU = "Продано";
-//    private static final String SEARCH_BY_PRICE_RU = "Цена:";
-//    private  String SOLD_RU = messageSource.getMessage("mainForm.filter.sold", null, currentLocale);
     private static final String WINDOW_NAME = "La Vida";
 
     @Resource
@@ -254,6 +246,7 @@ public class MainForm extends AbstractForm {
 
         refreshButton = new JButton(messageSource.getMessage("mainForm.button.refresh.title", null,
                 localeHolder.getLocale()));
+        refreshButton.setMnemonic(KeyEvent.VK_T);  // Alt+T hot keys
         refreshButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

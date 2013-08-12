@@ -26,10 +26,6 @@ public class LoginForm extends AbstractForm {
 
     // Russian names for components.
     private static final String LOGIN_FORM_NAME_RU = "Вход в систему";
-    private static final String LOGIN_BUTTON_RU = "Войти";
-    private static final String LOGIN_LABEL_RU = "Имя пользователя:";
-    private static final String PASSWORD_LABEL_RU = "Пароль:";
-    private static final String INSTRUCTION_LABEL_RU = "Введите имя пользователя и пароль!";
 
     @Resource
     private LoginFormHandler handler;
@@ -54,9 +50,9 @@ public class LoginForm extends AbstractForm {
 
     @Override
     protected void initializeComponents() {
-        instructionsLabel = new JLabel(INSTRUCTION_LABEL_RU);
-        loginLabel = new JLabel(LOGIN_LABEL_RU);
-        passwordLabel = new JLabel(PASSWORD_LABEL_RU);
+        instructionsLabel = new JLabel(messageSource.getMessage("loginForm.label.instruction.title", null, localeHolder.getLocale()));
+        loginLabel = new JLabel(messageSource.getMessage("loginForm.label.login.title", null, localeHolder.getLocale()));
+        passwordLabel = new JLabel(messageSource.getMessage("loginForm.label.password.title", null, localeHolder.getLocale()));
         loginField = new JTextField();
         passwordField = new JPasswordField();
         submitButton = new JButton(messageSource.getMessage("loginForm.button.login.title", null, localeHolder.getLocale()));
