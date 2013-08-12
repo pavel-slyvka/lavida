@@ -7,6 +7,7 @@ import com.lavida.service.settings.SettingsService;
 import com.lavida.service.utils.MyPropertiesUtil;
 import com.lavida.swing.exception.LavidaSwingRuntimeException;
 import com.lavida.swing.form.MainForm;
+import com.lavida.swing.form.SellForm;
 import com.lavida.swing.form.tablemodel.ArticlesTableModel;
 import org.springframework.stereotype.Component;
 
@@ -28,6 +29,9 @@ public class MainFormHandler {
 
     @Resource
     private MainForm form;
+
+    @Resource
+    private SellForm sellForm;
 
     @Resource
     private ArticleService articleService;
