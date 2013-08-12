@@ -2,6 +2,7 @@ package com.lavida.swing.form;
 
 import com.lavida.swing.form.tablemodel.ArticlesTableModel;
 import com.lavida.swing.handler.MainFormHandler;
+import com.lavida.swing.handler.SellFormHandler;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -275,6 +276,12 @@ public class MainForm extends AbstractForm {
 
         sellButton = new JButton(messageSource.getMessage("mainForm.button.sell.title", null, localeHolder.getLocale()));
         sellButton.setMnemonic(KeyEvent.VK_S); // Alt + S hot keys
+        sellButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handler.sellButtonClicked(tableModel);
+            }
+        });
         constraints.gridx = 0;
         constraints.gridy = 0;
         operationPanel.add(sellButton, constraints);
@@ -397,4 +404,7 @@ public class MainForm extends AbstractForm {
     public String getSoldMessage() {
         return messageSource.getMessage("mainForm.filter.sold", null, localeHolder.getLocale());
     }
+
+
 }
+

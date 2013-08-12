@@ -94,6 +94,10 @@ public class MainFormHandler {
 
     }
 
+    public void sellButtonClicked(ArticlesTableModel tableModel) {
+
+    }
+
     public void setForm(MainForm form) {
         this.form = form;
     }
