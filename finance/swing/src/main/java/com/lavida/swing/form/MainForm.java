@@ -2,7 +2,6 @@ package com.lavida.swing.form;
 
 import com.lavida.swing.form.tablemodel.ArticlesTableModel;
 import com.lavida.swing.handler.MainFormHandler;
-import com.lavida.swing.handler.SellFormHandler;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -29,7 +28,6 @@ import java.util.Locale;
  */
 @org.springframework.stereotype.Component
 public class MainForm extends AbstractForm {
-    private static final String WINDOW_NAME = "La Vida";
 
     @Resource
     private MainFormHandler handler;
@@ -50,7 +48,7 @@ public class MainForm extends AbstractForm {
     @Override
     protected void initializeForm() {
         super.initializeForm();
-        form.setTitle(WINDOW_NAME);
+        form.setTitle(messageSource.getMessage("mainForm.form.title", null, localeHolder.getLocale()));
         form.setResizable(true);
         form.setBounds(100, 100, 800, 500);
         form.setLocationRelativeTo(null);

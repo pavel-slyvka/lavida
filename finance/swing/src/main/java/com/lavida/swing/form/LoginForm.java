@@ -24,9 +24,6 @@ import java.awt.event.KeyEvent;
 @Component
 public class LoginForm extends AbstractForm {
 
-    // Russian names for components.
-    private static final String LOGIN_FORM_NAME_RU = "Вход в систему";
-
     @Resource
     private LoginFormHandler handler;
 
@@ -45,7 +42,7 @@ public class LoginForm extends AbstractForm {
     protected void initializeForm() {
         super.initializeForm();
         form.setBounds(200, 200, 400, 200);
-        form.setTitle(LOGIN_FORM_NAME_RU);
+        form.setTitle(messageSource.getMessage("loginForm.form.title", null, localeHolder.getLocale()));
     }
 
     @Override
