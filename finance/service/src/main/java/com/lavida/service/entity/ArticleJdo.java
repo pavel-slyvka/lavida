@@ -1,6 +1,8 @@
 package com.lavida.service.entity;
 
 
+import com.lavida.service.google.SpreadsheetColumn;
+
 import javax.persistence.*;
 import java.util.Calendar;
 
@@ -22,22 +24,48 @@ public class ArticleJdo {
 
     @Id
     private int id;
+
+    @SpreadsheetColumn(sheetColumn = "code", titleKey = "mainForm.table.articles.column.code.title")
     private String code;
+
+    @SpreadsheetColumn(sheetColumn = "name", titleKey = "mainForm.table.articles.column.name.title")
     private String name;
+
+    @SpreadsheetColumn(sheetColumn = "brand")
     private String brand;
+
     private int quantity;
+
+    @SpreadsheetColumn(sheetColumn = "size")
     private String size;
+
+    @SpreadsheetColumn(sheetColumn = "purchasePriceEur")
     private double purchasingPriceEUR;
+
     private double transportCostEUR;
+
+    @SpreadsheetColumn(sheetColumn = "purchaseDate")
     @Temporal(TemporalType.DATE)
     private Calendar deliveryDate;
+
+    @SpreadsheetColumn(sheetColumn = "sellPrice")
     private double priceUAH;
+
     private double raisedPriceUAH;
+
     private double actionPriceUAH;
+
+    @SpreadsheetColumn(sheetColumn = "sold")
     private String sold;
+
+    @SpreadsheetColumn(sheetColumn = "sellMarker")
     private String ours;
+
+    @SpreadsheetColumn(sheetColumn = "sellDate")
     @Temporal(TemporalType.DATE)
     private Calendar saleDate;
+
+    @SpreadsheetColumn(sheetColumn = "comment")
     private String comment;
 
     public ArticleJdo() {

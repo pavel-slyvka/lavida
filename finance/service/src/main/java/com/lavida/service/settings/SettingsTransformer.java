@@ -55,7 +55,7 @@ public class SettingsTransformer {
                             } else if (Double.class == field.getType()) {
                                 field.set(settings, Double.parseDouble(value));
                             } else if (Character.class == field.getType()) {
-                                field.set(settings, Character.valueOf(value.charAt(0)));
+                                field.set(settings, value.charAt(0));
                             } else if (Long.class == field.getType()) {
                                 field.set(settings, Long.parseLong(value));
                             } else {

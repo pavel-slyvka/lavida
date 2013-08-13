@@ -332,7 +332,7 @@ public class MainForm extends AbstractForm {
      * Filters table by column "Code" according to expression.
      */
     private void filterCodes() {
-        String code = messageSource.getMessage("mainForm.table.articles.column.code", null, localeHolder.getLocale());
+        String code = messageSource.getMessage("mainForm.table.articles.column.code", null, localeHolder.getLocale());  // todo change this shit
         int columnCodeIndex = tableModel.findColumn(code);
         RowFilter<ArticlesTableModel, Object> rf = null;
         //If current expression doesn't parse, don't update.

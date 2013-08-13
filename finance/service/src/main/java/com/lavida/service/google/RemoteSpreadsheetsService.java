@@ -8,14 +8,13 @@ import com.google.gdata.util.ServiceException;
 import com.lavida.service.entity.ArticleJdo;
 import com.lavida.service.settings.Settings;
 import com.lavida.service.settings.SettingsHolder;
+import com.lavida.service.utils.CalendarConverter;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created: 12:43 05.08.13
@@ -33,9 +32,113 @@ public class RemoteSpreadsheetsService {
     @Resource
     private SpreadsheetArticleTransformer spreadsheetArticleTransformer;
 
+    private Map<Integer, String> transformCellsToHeaders(List<Cell> cells) {
+        Map<Integer, String> headers = new HashMap<Integer, String>(cells.size());
+        for (Cell cell : cells) {
+            headers.put(cell.getCol(), cell.getValue());
+        }
+        return headers;
+    }
+
+    private double fixIfNeedAndParseDouble(String doubleString) {
+        return Double.parseDouble(doubleString.replace(" ", "").replace(",", "."));
+    }
+
+    private ArticleJdo transformCellsToArticleJdo(List<Cell> cells, Map<Integer, String> headers) {
+        ArticleJdo articleJdo = new ArticleJdo();
+        for (Cell cell : cells) {
+            if (headers.containsKey(cell.getCol())) {
+                String header = headers.get(cell.getCol());
+                try {
+                    for (java.lang.reflect.Field field : ArticleJdo.class.getDeclaredFields()) {
+                        SpreadsheetColumn spreadsheetColumn = field.getAnnotation(SpreadsheetColumn.class);
+                        if (spreadsheetColumn != null && header.equals(spreadsheetColumn.sheetColumn())) {
+                            String value = cell.getValue();
+                            field.setAccessible(true);
+                            if (int.class == field.getType()) {
+                                field.setInt(articleJdo, Integer.parseInt(value));
+                            } else if (boolean.class == field.getType()) {
+                                field.setBoolean(articleJdo, Boolean.parseBoolean(value));
+                            } else if (double.class == field.getType()) {
+                                field.setDouble(articleJdo, fixIfNeedAndParseDouble(value));
+                            } else if (char.class == field.getType()) {
+                                field.setChar(articleJdo, value.charAt(0));
+                            } else if (long.class == field.getType()) {
+                                field.setLong(articleJdo, Long.parseLong(value));
+                            } else if (Integer.class == field.getType()) {
+                                field.set(articleJdo, Integer.parseInt(value));
+                            } else if (Boolean.class == field.getType()) {
+                                field.set(articleJdo, Boolean.parseBoolean(value));
+                            } else if (Double.class == field.getType()) {
+                                field.set(articleJdo, fixIfNeedAndParseDouble(value));
+                            } else if (Character.class == field.getType()) {
+                                field.set(articleJdo, value.charAt(0));
+                            } else if (Long.class == field.getType()) {
+                                field.set(articleJdo, Long.parseLong(value));
+                            } else if (Calendar.class == field.getType()) {
+                                field.set(articleJdo, CalendarConverter.convertStringDateToCalendar(value));
+                            } else {
+                                field.set(articleJdo, value);
+                            }
+                            break;
+                        }
+                    }
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();    // todo log the error.
+                }
+            }
+        }
+        return articleJdo;
+    }
+
     public List<ArticleJdo> loadArticles() throws ServiceException, IOException {
         CellFeed cellFeed = getCellFeedFromGoogle();
-        return spreadsheetArticleTransformer.transformCellFeedToArticleJdoList(cellFeed);
+
+        CellEntriesIterator cellEntriesIterator = new CellEntriesIterator(cellFeed.getEntries());
+        Map<Integer, String> headers = transformCellsToHeaders(cellEntriesIterator.getNextLine());
+        Map<Integer, String> headersTitle = transformCellsToHeaders(cellEntriesIterator.getNextLine());
+
+        List<ArticleJdo> articles = new ArrayList<ArticleJdo>();
+        while (cellEntriesIterator.hasNext()) {
+            ArticleJdo articleJdo = transformCellsToArticleJdo(cellEntriesIterator.getNextLine(), headers);
+            articles.add(articleJdo);
+        }
+        return articles;
+//        return spreadsheetArticleTransformer.transformCellFeedToArticleJdoList(cellFeed);
+    }
+
+    private class CellEntriesIterator {
+        private List<CellEntry> cellEntries;
+        private Iterator<CellEntry> cellEntryIterator;
+        private Cell lastNotHandledCell;
+
+        public CellEntriesIterator(List<CellEntry> cellEntries) {
+            this.cellEntries = cellEntries;
+        }
+
+        public List<Cell> getNextLine() {
+            if (cellEntryIterator == null) {
+                cellEntryIterator = cellEntries.iterator();
+            }
+            List<Cell> cells = new ArrayList<Cell>();
+            if (lastNotHandledCell != null) {
+                cells.add(lastNotHandledCell);
+                lastNotHandledCell = null;
+            }
+            while (cellEntryIterator.hasNext()) {
+                CellEntry cellEntry = cellEntryIterator.next();
+                if (cellEntry.getCell().getCol() == 1) {
+                    lastNotHandledCell = cellEntry.getCell();
+                    break;
+                }
+                cells.add(cellEntry.getCell());
+            }
+            return cells;
+        }
+
+        public boolean hasNext() {
+            return (cellEntryIterator == null && !cellEntries.isEmpty()) || lastNotHandledCell != null;
+        }
     }
 
     /**
@@ -43,6 +146,7 @@ public class RemoteSpreadsheetsService {
      * @throws ServiceException
      * @throws IOException
      */
+    @Deprecated
     public List<String> readTableHeader() throws ServiceException, IOException {
         CellFeed cellFeed = getCellFeedFromGoogle();
 

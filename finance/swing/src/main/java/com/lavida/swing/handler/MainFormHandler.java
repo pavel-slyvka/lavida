@@ -14,7 +14,6 @@ import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import javax.swing.*;
 import java.io.IOException;
 import java.util.List;
 
@@ -51,15 +50,15 @@ public class MainFormHandler {
      * Sets table header and data to articlesTableModel received from google spreadsheet.
      */
     public void initTableModel(ArticlesTableModel tableModel) {
-        try {
-            tableModel.setTableHeader(articleService.loadTableHeadersFromRemoteServer()); //todo change
+//        try {
+            tableModel.initHeaderFieldAndTitles(messageSource, localeHolder.getLocale());
             tableModel.setTableData(articleService.getNotSoldArticles());
-
-        } catch (IOException e) {
-            throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.GOOGLE_IO_EXCEPTION, e, form);
-        } catch (ServiceException e) {
-            throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.GOOGLE_SERVICE_EXCEPTION, e, form);
-        }
+        // todo review try catches
+//        } catch (IOException e) {
+//            throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.GOOGLE_IO_EXCEPTION, e, form);
+//        } catch (ServiceException e) {
+//            throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.GOOGLE_SERVICE_EXCEPTION, e, form);
+//        }
     }
 
     /**

@@ -4,12 +4,16 @@ import com.google.gdata.util.ServiceException;
 import com.lavida.service.dao.ArticleDao;
 import com.lavida.service.entity.ArticleJdo;
 import com.lavida.service.google.RemoteSpreadsheetsService;
+import com.lavida.service.google.SpreadsheetColumn;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * The {@code ArticleService} is a service for ArticleJdo to work with database.
@@ -25,6 +29,11 @@ public class ArticleService {
 
     @Resource
     private RemoteSpreadsheetsService remoteService;
+
+    @Resource
+    private MessageSource messageSource;
+
+    private Locale locale = new Locale.Builder().setLanguage("ru").setRegion("RU").setScript("Cyrl").build();   // todo get from holder.
 
     public ArticleService() {
     }
@@ -76,8 +85,21 @@ public class ArticleService {
         return remoteService.loadArticles();
     }
 
-    public List<String> loadTableHeadersFromRemoteServer() throws IOException, ServiceException {
-        return remoteService.readTableHeader();
+    @Deprecated
+    public List<String> getTableHeaders() throws IOException, ServiceException {
+        List<String> headers = new ArrayList<String>();
+        for (java.lang.reflect.Field field : ArticleJdo.class.getDeclaredFields()) {
+            SpreadsheetColumn spreadsheetColumn = field.getAnnotation(SpreadsheetColumn.class);
+            if (spreadsheetColumn != null) {
+                field.setAccessible(true);
+                if (spreadsheetColumn.titleKey().isEmpty()) {
+                    headers.add(field.getName());
+                } else {
+                    headers.add(messageSource.getMessage(spreadsheetColumn.titleKey(), null, locale));
+                }
+            }
+        }
+        return headers;
     }
 
     public List<ArticleJdo> getNotSoldArticles() {
