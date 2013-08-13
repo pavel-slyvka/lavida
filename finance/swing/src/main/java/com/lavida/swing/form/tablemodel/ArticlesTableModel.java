@@ -102,4 +102,14 @@ public class ArticlesTableModel extends AbstractTableModel {
     public void setTableData(List<ArticleJdo> tableData) {
         this.tableData = tableData;
     }
+
+    public void updateArticle(ArticleJdo newArticleJdo) {
+        List<ArticleJdo> articles = getTableData();
+        for(ArticleJdo articleJdo : articles) {
+            if(articleJdo.getId() == newArticleJdo.getId()) {
+                articles.remove(articleJdo);
+                break;
+            }
+        }
+    }
 }

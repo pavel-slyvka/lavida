@@ -13,7 +13,7 @@ http://java.sun.com/xml/ns/persistence ">
         <properties>
             <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver" />
             <!--<property name="hibernate.hbm2ddl.auto" value="create"/>-->
-            <property name="hibernate.hbm2ddl.auto" value="update"/>
+            <property name="hibernate.hbm2ddl.auto"  value="update"/>
             <property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect"/>
 
             <property name="hibernate.connection.characterEncoding" value="UTF8" />

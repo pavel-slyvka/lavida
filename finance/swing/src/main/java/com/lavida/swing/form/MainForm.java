@@ -91,7 +91,8 @@ public class MainForm extends AbstractForm {
             @Override
             public void valueChanged(ListSelectionEvent e) {
                 int viewRow = articlesTable.getSelectedRow();
-                selectedRow = articlesTable.convertRowIndexToModel(viewRow);
+                selectedRow = viewRow;
+//                selectedRow = articlesTable.convertRowIndexToModel(viewRow);
 //                if (viewRow >= 0) {
 //                    selectedRow = articlesTable.convertRowIndexToModel(viewRow);
 //                }
@@ -409,6 +410,10 @@ public class MainForm extends AbstractForm {
 
     public int getSelectedRow() {
         return selectedRow;
+    }
+
+    public ArticlesTableModel getTableModel() {
+        return tableModel;
     }
 }
 

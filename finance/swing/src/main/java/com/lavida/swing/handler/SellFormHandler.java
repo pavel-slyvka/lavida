@@ -8,6 +8,7 @@ import com.lavida.service.entity.SoldArticleJdo;
 import com.lavida.service.transformer.ArticlesTransformer;
 import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.form.SellForm;
+import com.lavida.swing.form.tablemodel.ArticlesTableModel;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.stereotype.Component;
@@ -37,25 +38,11 @@ public class SellFormHandler implements MessageSourceAware {
     @Resource
     private ArticleService articleService;
 
-    /**
-     * Determines current price of the article to be sold.
-     *
-     * @param soldArticleJdo the article to be sold;
-     * @return double value of current prise.
-     */
-    public double currentPrice(SoldArticleJdo soldArticleJdo) {
-        if (soldArticleJdo.getActionPriceUAH() > 0) {
-            return soldArticleJdo.getActionPriceUAH();
-        } else {
-            return soldArticleJdo.getPriceUAH();
-        }
-    }
 
     /**
      * Performs selling operation.
      */
-    public void sell() {
-       SoldArticleJdo soldArticleJdo = form.getSoldArticleJdo();
+    public void sell(ArticlesTableModel tableModel, SoldArticleJdo soldArticleJdo) {
         soldArticleJdo.setSaleDate(Calendar.getInstance());
         soldArticleJdo.setSold(messageSource.getMessage("sellForm.button.sell.clicked.sold", null,
                 localeHolder.getLocale()));
@@ -74,7 +61,7 @@ public class SellFormHandler implements MessageSourceAware {
         soldArticleJdo.setOurs(ours);
         ArticleJdo articleJdo = articlesTransformer.toArticleJdo(soldArticleJdo);
         articleService.update(articleJdo);
-
+        tableModel.updateArticle(articleJdo);
         try{
             articleService.updateToSpreadsheet(articleJdo);
 

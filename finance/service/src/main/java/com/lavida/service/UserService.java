@@ -95,7 +95,7 @@ public class UserService {
     public static void main(String[] args) {
         ApplicationContext context = new ClassPathXmlApplicationContext("spring-security.xml");
         UserService service = context.getBean(UserService.class);
-//        service.save("seller", "seller", true, Arrays.asList("ROLE_SELLER"), "fra.prsnl@i.ua");
+        service.save("seller", "seller", true, Arrays.asList("ROLE_SELLER"), "fra.prsnl@i.ua");
 //        service.save("manager", "manager", true, Arrays.asList("ROLE_MANAGER"));
 //        service.save("owner", "owner", true, Arrays.asList("ROLE_OWNER"));
 //        service.save("admin", "admin", true, Arrays.asList("ROLE_ADMIN"));
