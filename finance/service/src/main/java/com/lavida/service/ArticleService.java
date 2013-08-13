@@ -3,9 +3,7 @@ package com.lavida.service;
 import com.google.gdata.util.ServiceException;
 import com.lavida.service.dao.ArticleDao;
 import com.lavida.service.entity.ArticleJdo;
-import com.lavida.service.google.ArticlesFromGoogleDocUnmarshaller;
-import com.lavida.service.settings.Settings;
-import com.lavida.service.settings.SettingsHolder;
+import com.lavida.service.google.RemoteSpreadsheetsService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,10 +24,7 @@ public class ArticleService {
     private ArticleDao articleDao;
 
     @Resource
-    private ArticlesFromGoogleDocUnmarshaller articlesUnmarshaller;
-
-    @Resource
-    private SettingsHolder settingsHolder;
+    private RemoteSpreadsheetsService remoteService;
 
     public ArticleService() {
     }
@@ -77,14 +72,12 @@ public class ArticleService {
         throw new RuntimeException("There is no article with code: " + code + "!"); //todo create databaseException
     }
 
-    public List<ArticleJdo> loadFromGoogle() throws IOException, ServiceException {
-        Settings settings = settingsHolder.getSettings();
-        return  articlesUnmarshaller.unmarshal(settings.getRemoteUser(), settings.getRemotePass());
+    public List<ArticleJdo> loadArticlesFromRemoteServer() throws IOException, ServiceException {
+        return remoteService.loadArticles();
     }
 
-    public List<String> loadTableHeader() throws IOException, ServiceException {
-        Settings settings = settingsHolder.getSettings();
-        return articlesUnmarshaller.readTableHeader(settings.getRemoteUser(), settings.getRemotePass());
+    public List<String> loadTableHeadersFromRemoteServer() throws IOException, ServiceException {
+        return remoteService.readTableHeader();
     }
 
     public List<ArticleJdo> getNotSoldArticles() {
@@ -103,7 +96,7 @@ public class ArticleService {
         this.articleDao = articleDao;
     }
 
-    public void setArticlesUnmarshaller(ArticlesFromGoogleDocUnmarshaller articlesUnmarshaller) {
-        this.articlesUnmarshaller = articlesUnmarshaller;
+    public void setRemoteService(RemoteSpreadsheetsService remoteService) {
+        this.remoteService = remoteService;
     }
 }

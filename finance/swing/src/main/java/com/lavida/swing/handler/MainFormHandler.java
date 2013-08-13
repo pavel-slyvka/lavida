@@ -37,7 +37,7 @@ public class MainFormHandler {
      */
     public void initTableModel(ArticlesTableModel tableModel) {
         try {
-            tableModel.setTableHeader(articleService.loadTableHeader()); //todo change
+            tableModel.setTableHeader(articleService.loadTableHeadersFromRemoteServer()); //todo change
             tableModel.setTableData(articleService.getNotSoldArticles());
 
         } catch (IOException e) {
@@ -55,7 +55,7 @@ public class MainFormHandler {
      */
     public void refreshButtonClicked(ArticlesTableModel tableModel) {
         try {
-            List<ArticleJdo> articles = articleService.loadFromGoogle();
+            List<ArticleJdo> articles = articleService.loadArticlesFromRemoteServer();
             articleService.update(articles);
             initTableModel(tableModel);
             form.update();    // repaint MainForm in some time
