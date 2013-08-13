@@ -102,4 +102,8 @@ public class RemoteSpreadsheetsService {
         URL worksheetUrl = getWorksheetUrl(spreadsheet, settings.getWorksheetNumber());
         return spreadsheetService.getFeed(worksheetUrl, CellFeed.class);
     }
+
+    public void updateArticle(ArticleJdo articleJdo) {
+//       todo updateArticle to spreadsheet
+    }
 }

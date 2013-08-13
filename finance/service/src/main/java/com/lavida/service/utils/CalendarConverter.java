@@ -1,6 +1,7 @@
 package com.lavida.service.utils;
 
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -13,21 +14,31 @@ import java.util.Locale;
  */
 public class CalendarConverter {
 
-        public static Calendar convertStringDateToCalendar(String strDate) {
-            Calendar cal = null;
+    public static Calendar convertStringDateToCalendar(String strDate) {
+        Calendar cal = null;
 
-            if (strDate != null) {
-                try {
-                    DateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
-                    Date date = formatter.parse(strDate);
-                    cal = Calendar.getInstance();
-                    cal.setTime(date );
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+        if (strDate != null) {
+            try {
+                DateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
+                Date date = formatter.parse(strDate);
+                cal = Calendar.getInstance();
+                cal.setTime(date);
+            } catch (ParseException e) {
+                e.printStackTrace();
+                throw new RuntimeException("Не верный формат даты!");  // todo exception
             }
-
-            return cal;
         }
 
+        return cal;
     }
+
+    public static String convertCalendarToString (Calendar calendar) {
+        String date = null;
+        if (calendar != null) {
+                DateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
+                date = formatter.format(calendar.getTime());
+        }
+
+        return date;
+    }
+}

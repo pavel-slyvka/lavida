@@ -23,7 +23,8 @@ import java.util.Scanner;
 @Service
 public class UserRegister {
     protected Locale locale = new Locale.Builder().setLanguage("ru").setRegion("RU").setScript("Cyrl").build();
-
+    public static final String ROLE_SELLER = "ROLE_SELLER";
+    public static final String ROLE_MANAGER = "ROLE_MANAGER";
     @Resource
     private UserService userService;
     @Resource
@@ -101,10 +102,10 @@ public class UserRegister {
             System.out.println(messageSource.getMessage("job.user.register.enter.role", null, locale));
             int roleNumber = scanner.nextInt();
             if (roleNumber == 1) {
-                role = messageSource.getMessage("lavida.authority.seller", null, Locale.US);
+                role = ROLE_SELLER;
                 break;
             } else if (roleNumber == 2) {
-                role = messageSource.getMessage("lavida.authority.manager", null, Locale.US);
+                role = ROLE_MANAGER;
                 break;
             } else {
                 System.out.println(messageSource.getMessage("job.user.register.enter.role.error", null, locale));

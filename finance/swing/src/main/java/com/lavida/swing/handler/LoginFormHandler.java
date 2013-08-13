@@ -51,8 +51,6 @@ public class LoginFormHandler {
         } catch (AuthenticationServiceException e) {
             form.showErrorMessage(e.getMessage());
         }
-
-
     }
 
     /**

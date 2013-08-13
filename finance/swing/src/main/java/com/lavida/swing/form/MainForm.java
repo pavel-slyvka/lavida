@@ -28,6 +28,8 @@ import java.util.Locale;
  */
 @org.springframework.stereotype.Component
 public class MainForm extends AbstractForm {
+    public static final String ROLE_SELLER = "ROLE_SELLER";
+
 
     @Resource
     private MainFormHandler handler;
@@ -44,6 +46,7 @@ public class MainForm extends AbstractForm {
     private JTable articlesTable;
     private JScrollPane tableScrollPane;
     private TableRowSorter<ArticlesTableModel> sorter;
+    private int selectedRow;
 
     @Override
     protected void initializeForm() {
@@ -82,16 +85,19 @@ public class MainForm extends AbstractForm {
         sorter = new TableRowSorter<ArticlesTableModel>(tableModel);
         articlesTable.setRowSorter(sorter);
         articlesTable.setFillsViewportHeight(true);
-        articlesTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        articlesTable.setRowSelectionAllowed(true);
+        articlesTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         articlesTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
                 int viewRow = articlesTable.getSelectedRow();
-                if (viewRow >= 0) {
-                    int modelRow = articlesTable.convertRowIndexToModel(viewRow);
-                }
+                selectedRow = articlesTable.convertRowIndexToModel(viewRow);
+//                if (viewRow >= 0) {
+//                    selectedRow = articlesTable.convertRowIndexToModel(viewRow);
+//                }
             }
         });
+
 
         tableScrollPane = new JScrollPane(articlesTable);
         tableScrollPane.setPreferredSize(new Dimension(1000, 700));
@@ -276,7 +282,7 @@ public class MainForm extends AbstractForm {
         sellButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                handler.sellButtonClicked(tableModel);
+                handler.sellButtonClicked(tableModel, selectedRow);
             }
         });
         constraints.gridx = 0;
@@ -383,8 +389,7 @@ public class MainForm extends AbstractForm {
     public void filterByPermissions(JTable articlesTable) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         List<SimpleGrantedAuthority> authorities = (List<SimpleGrantedAuthority>) authentication.getAuthorities();
-        String seller = messageSource.getMessage("lavida.authority.seller", null, Locale.US);
-        if (authorities.contains(new SimpleGrantedAuthority(seller))) {
+        if (authorities.contains(new SimpleGrantedAuthority(ROLE_SELLER))) {
             articlesTable.removeColumn(articlesTable.getColumn(messageSource.
                     getMessage("mainForm.table.articles.column.purchasing.price", null, localeHolder.getLocale())));
             articlesTable.removeColumn(articlesTable.getColumn(messageSource.
@@ -402,6 +407,8 @@ public class MainForm extends AbstractForm {
         return messageSource.getMessage("mainForm.filter.sold", null, localeHolder.getLocale());
     }
 
-
+    public int getSelectedRow() {
+        return selectedRow;
+    }
 }
 

@@ -8,6 +8,7 @@ http://java.sun.com/xml/ns/persistence ">
         <class>com.lavida.service.entity.UserJdo</class>
         <class>com.lavida.service.entity.ArticleJdo</class>
         <class>com.lavida.service.entity.SettingsJdo</class>
+        <class>com.lavida.service.entity.SoldArticleJdo</class>
 
         <properties>
             <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver" />

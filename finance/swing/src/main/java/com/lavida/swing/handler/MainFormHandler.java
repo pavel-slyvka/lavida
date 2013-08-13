@@ -3,6 +3,8 @@ package com.lavida.swing.handler;
 import com.google.gdata.util.ServiceException;
 import com.lavida.service.ArticleService;
 import com.lavida.service.entity.ArticleJdo;
+import com.lavida.service.entity.SoldArticleJdo;
+import com.lavida.service.transformer.ArticlesTransformer;
 import com.lavida.swing.exception.LavidaSwingRuntimeException;
 import com.lavida.swing.form.MainForm;
 import com.lavida.swing.form.SellForm;
@@ -31,6 +33,11 @@ public class MainFormHandler {
 
     @Resource
     private ArticleService articleService;
+    @Resource
+    private ArticlesTransformer articlesTransformer;
+
+    private SoldArticleJdo soldArticleJdo;
+
 
     /**
      * Sets table header and data to articlesTableModel received from google spreadsheet.
@@ -67,8 +74,21 @@ public class MainFormHandler {
         }
     }
 
-    public void sellButtonClicked(ArticlesTableModel tableModel) {
-
+    public void sellButtonClicked(ArticlesTableModel tableModel, int selectedRow) {
+        List<ArticleJdo> articles = tableModel.getTableData();
+        int articleId = (Integer)tableModel.getValueAt(selectedRow, 0);
+        for (ArticleJdo articleJdo : articles) {
+            if (articleJdo.getId() == articleId) {
+                this.soldArticleJdo = articlesTransformer.toSoldArticleJdo(articleJdo);
+            }
+        }
+        if (this.soldArticleJdo == null) {
+            form.showMessage("mainForm.exception.message.dialog.title","mainForm.handler.sold.article.not.chosen");
+        } else {
+            sellForm.show();
+            sellForm.setSoldArticleJdo(soldArticleJdo);
+            form.getForm().setVisible(false);
+        }
     }
 
     public void setForm(MainForm form) {
@@ -77,5 +97,16 @@ public class MainFormHandler {
 
     public void setArticleService(ArticleService articleService) {
         this.articleService = articleService;
+    }
+    public void setSellForm(SellForm sellForm) {
+        this.sellForm = sellForm;
+    }
+
+    public SoldArticleJdo getSoldArticleJdo() {
+        return soldArticleJdo;
+    }
+
+    public void setArticlesTransformer(ArticlesTransformer articlesTransformer) {
+        this.articlesTransformer = articlesTransformer;
     }
 }

@@ -87,10 +87,11 @@ public class ArticleService {
     public List<ArticleJdo> getSoldArticles() {
         return articleDao.getSold();
     }
-
-    public ArticleDao getArticleDao() {
-        return articleDao;
+    @Transactional
+    public void updateToSpreadsheet(ArticleJdo articleJdo) throws IOException, ServiceException {
+        remoteService.updateArticle(articleJdo);
     }
+
 
     public void setArticleDao(ArticleDao articleDao) {
         this.articleDao = articleDao;
