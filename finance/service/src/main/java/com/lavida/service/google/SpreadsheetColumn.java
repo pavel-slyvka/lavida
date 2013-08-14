@@ -16,4 +16,8 @@ public @interface SpreadsheetColumn {
     String sheetColumn();
 
     String titleKey() default "";
+
+    boolean show() default true;
+
+    String showDatePattern() default "dd.MM.yyyy";
 }

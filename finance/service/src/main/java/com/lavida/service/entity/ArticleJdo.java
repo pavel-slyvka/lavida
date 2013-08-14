@@ -31,41 +31,41 @@ public class ArticleJdo {
     @SpreadsheetColumn(sheetColumn = "name", titleKey = "mainForm.table.articles.column.name.title")
     private String name;
 
-    @SpreadsheetColumn(sheetColumn = "brand")
+    @SpreadsheetColumn(sheetColumn = "brand", titleKey = "mainForm.table.articles.column.brand.title")
     private String brand;
 
     private int quantity;
 
-    @SpreadsheetColumn(sheetColumn = "size")
+    @SpreadsheetColumn(sheetColumn = "size", titleKey = "mainForm.table.articles.column.size.title")
     private String size;
 
-    @SpreadsheetColumn(sheetColumn = "purchasePriceEur")
+    @SpreadsheetColumn(sheetColumn = "purchasePriceEur", titleKey = "mainForm.table.articles.column.purchase.price.eur.title")
     private double purchasingPriceEUR;
 
     private double transportCostEUR;
 
-    @SpreadsheetColumn(sheetColumn = "purchaseDate")
+    @SpreadsheetColumn(sheetColumn = "purchaseDate", titleKey = "mainForm.table.articles.column.purchase.date.title")
     @Temporal(TemporalType.DATE)
     private Calendar deliveryDate;
 
-    @SpreadsheetColumn(sheetColumn = "sellPrice")
+    @SpreadsheetColumn(sheetColumn = "sellPrice", titleKey = "mainForm.table.articles.column.sell.price.uah.title")
     private double priceUAH;
 
     private double raisedPriceUAH;
 
     private double actionPriceUAH;
 
-    @SpreadsheetColumn(sheetColumn = "sold")
+    @SpreadsheetColumn(sheetColumn = "sold", show = false)
     private String sold;
 
-    @SpreadsheetColumn(sheetColumn = "sellMarker")
+    @SpreadsheetColumn(sheetColumn = "sellMarker", titleKey = "mainForm.table.articles.column.sell.marker.title")
     private String ours;
 
-    @SpreadsheetColumn(sheetColumn = "sellDate")
+    @SpreadsheetColumn(sheetColumn = "sellDate", titleKey = "mainForm.table.articles.column.sell.date.title")
     @Temporal(TemporalType.DATE)
     private Calendar saleDate;
 
-    @SpreadsheetColumn(sheetColumn = "comment")
+    @SpreadsheetColumn(sheetColumn = "comment", titleKey = "mainForm.table.articles.column.comment.title")
     private String comment;
 
     public ArticleJdo() {
