@@ -7,11 +7,14 @@ import javax.annotation.Resource;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -39,6 +42,7 @@ public class MainForm extends AbstractForm {
     private JTable articlesTable;
     private JScrollPane tableScrollPane;
     private TableRowSorter<ArticlesTableModel> sorter;
+    private int selectedRow;
 
     @Override
     protected void initializeForm() {
@@ -75,22 +79,20 @@ public class MainForm extends AbstractForm {
         articlesTable.doLayout();
         articlesTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 //      Filtering the table
-        sorter = new TableRowSorter<ArticlesTableModel>(tableModel);
-        articlesTable.setRowSorter(sorter);
         articlesTable.setFillsViewportHeight(true);
         articlesTable.setRowSelectionAllowed(true);
         articlesTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-//        articlesTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-//            @Override
-//            public void valueChanged(ListSelectionEvent e) {
-//                int viewRow = articlesTable.getSelectedRow();
+        articlesTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                int viewRow = articlesTable.getSelectedRow();
 //                selectedRow = viewRow;
-////                selectedRow = articlesTable.convertRowIndexToModel(viewRow);
-////                if (viewRow >= 0) {
-////                    selectedRow = articlesTable.convertRowIndexToModel(viewRow);
-////                }
-//            }
-//        });
+//                selectedRow = articlesTable.convertRowIndexToModel(viewRow);
+                if (viewRow >= 0) {
+                    selectedRow = articlesTable.convertRowIndexToModel(viewRow);
+                }
+            }
+        });
 
         tableScrollPane = new JScrollPane(articlesTable);
         tableScrollPane.setPreferredSize(new Dimension(1000, 700));
@@ -121,17 +123,17 @@ public class MainForm extends AbstractForm {
         searchByNameField.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
-                filterNames();
+                allFilter();
             }
 
             @Override
             public void removeUpdate(DocumentEvent e) {
-                filterNames();
+                allFilter();
             }
 
             @Override
             public void changedUpdate(DocumentEvent e) {
-                filterNames();
+                allFilter();
             }
         });
         constraints.gridx = 1;
@@ -162,17 +164,17 @@ public class MainForm extends AbstractForm {
         searchByCodeField.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
-                filterCodes();
+                allFilter();
             }
 
             @Override
             public void removeUpdate(DocumentEvent e) {
-                filterCodes();
+                allFilter();
             }
 
             @Override
             public void changedUpdate(DocumentEvent e) {
-                filterCodes();
+                allFilter();
             }
         });
 
@@ -202,17 +204,17 @@ public class MainForm extends AbstractForm {
         searchByPriceField.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
-                filterPrices();
+                allFilter();
             }
 
             @Override
             public void removeUpdate(DocumentEvent e) {
-                filterPrices();
+                allFilter();
             }
 
             @Override
             public void changedUpdate(DocumentEvent e) {
-                filterPrices();
+                allFilter();
             }
         });
         searchPanel.add(searchByPriceField, constraints);
@@ -275,7 +277,7 @@ public class MainForm extends AbstractForm {
         sellButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                handler.sellButtonClicked(tableModel, articlesTable.getSelectedRow());
+                handler.sellButtonClicked(tableModel, selectedRow);
             }
         });
         constraints.gridx = 0;
@@ -304,59 +306,39 @@ public class MainForm extends AbstractForm {
     }
 
     /**
-     * Filters table by column "Names" according to expression.
+     * Filters table by name, by code, by price.
      */
-    private void filterNames() {
+    private void allFilter() {
+        List<RowFilter<ArticlesTableModel, Object>> andFilters = new ArrayList<RowFilter<ArticlesTableModel, Object>>();
         String name = messageSource.getMessage("mainForm.table.articles.column.name", null, localeHolder.getLocale());
         int columnNameIndex = tableModel.findColumn(name);
 
-        RowFilter<ArticlesTableModel, Object> rf = null;
-        //If current expression doesn't parse, don't update.
-        try {
-            rf = RowFilter.regexFilter(searchByNameField.getText().trim(), columnNameIndex);
-        } catch (java.util.regex.PatternSyntaxException e) {
-            return;
-        }
-        sorter.setRowFilter(rf);
-    }
+        RowFilter<ArticlesTableModel, Object> namesFilter = RowFilter.regexFilter(
+                ("(?iu)" + searchByNameField.getText().trim()), columnNameIndex);
 
-    /**
-     * Filters table by column "Code" according to expression.
-     */
-    private void filterCodes() {
         String code = messageSource.getMessage("mainForm.table.articles.column.code", null, localeHolder.getLocale());  // todo change this shit
         int columnCodeIndex = tableModel.findColumn(code);
-        RowFilter<ArticlesTableModel, Object> rf = null;
-        //If current expression doesn't parse, don't update.
-        try {
-            rf = RowFilter.regexFilter(searchByCodeField.getText().trim(), columnCodeIndex);
-        } catch (java.util.regex.PatternSyntaxException e) {
-            return;
-        }
-        sorter.setRowFilter(rf);
-    }
+        RowFilter<ArticlesTableModel, Object> codeFilter = RowFilter.regexFilter(
+                searchByCodeField.getText().trim(), columnCodeIndex);
 
-    /**
-     * Filters table by columns "*Price" according to expression.
-     */
-    private void filterPrices() {
-        String price = messageSource.getMessage("mainForm.table.articles.column.price", null, localeHolder.getLocale());
+        String price = messageSource.getMessage("mainForm.table.articles.column.sell.price.uah.title", null, localeHolder.getLocale());
         int columnPriceIndex = tableModel.findColumn(price);
 
-        String raisedPrice = messageSource.getMessage("mainForm.table.articles.column.price.raised", null, localeHolder.getLocale());
-        int columnRaisedPriceIndex = tableModel.findColumn(raisedPrice);
-
-        String actionPrice = messageSource.getMessage("mainForm.table.articles.column.price.action", null, localeHolder.getLocale());
-        int columnActionPrice = tableModel.findColumn(actionPrice);
-        RowFilter<ArticlesTableModel, Object> rf = null;
-        //If current expression doesn't parse, don't update.
-        try {
-            rf = RowFilter.regexFilter(searchByPriceField.getText().trim(), columnPriceIndex, columnRaisedPriceIndex, columnActionPrice);
-        } catch (java.util.regex.PatternSyntaxException e) {
-            return;
+        RowFilter<ArticlesTableModel, Object> priceFilter;
+        if (searchByPriceField.getText().length() > 0) {
+            Double number = Double.parseDouble(searchByPriceField.getText());
+            priceFilter = RowFilter.numberFilter(RowFilter.ComparisonType.EQUAL, number, columnPriceIndex);
+            andFilters.add(priceFilter);
         }
-        sorter.setRowFilter(rf);
+
+        andFilters.add(namesFilter);
+        andFilters.add(codeFilter);
+
+        sorter = new TableRowSorter<ArticlesTableModel>(tableModel);
+        sorter.setRowFilter(RowFilter.andFilter(andFilters));
+        articlesTable.setRowSorter(sorter);
     }
+
 
     /**
      * Sets preferred width to certain columns
@@ -366,8 +348,6 @@ public class MainForm extends AbstractForm {
     public void packTable(JTable table) {
         table.getColumn(messageSource.getMessage("mainForm.table.articles.column.name.title", null,
                 localeHolder.getLocale())).setPreferredWidth(250);
-//        table.getColumn(messageSource.getMessage("mainForm.table.articles.column.name", null,
-//        currentLocale)).setResizable(true);
     }
 
     /**
@@ -384,6 +364,10 @@ public class MainForm extends AbstractForm {
 
     public String getSoldMessage() {
         return messageSource.getMessage("mainForm.filter.sold", null, localeHolder.getLocale());
+    }
+
+    public int getSelectedRow() {
+        return selectedRow;
     }
 
     public ArticlesTableModel getTableModel() {

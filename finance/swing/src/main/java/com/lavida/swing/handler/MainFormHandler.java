@@ -40,14 +40,10 @@ public class MainFormHandler {
     @Resource
     private ArticlesTransformer articlesTransformer;
 
-    @Resource
-    private MessageSource messageSource;
 
     @Resource
     protected LocaleHolder localeHolder;
 
-    @Resource
-    private UserService userService;
 
     private SoldArticleJdo soldArticleJdo;
 
@@ -124,10 +120,6 @@ public class MainFormHandler {
 
     public void setArticlesTransformer(ArticlesTransformer articlesTransformer) {
         this.articlesTransformer = articlesTransformer;
-    }
-
-    public void setMessageSource(MessageSource messageSource) {
-        this.messageSource = messageSource;
     }
 
     public void setLocaleHolder(LocaleHolder localeHolder) {
