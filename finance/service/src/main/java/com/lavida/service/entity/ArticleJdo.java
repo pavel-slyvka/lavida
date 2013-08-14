@@ -39,10 +39,10 @@ public class ArticleJdo {
     @SpreadsheetColumn(sheetColumn = "size", titleKey = "mainForm.table.articles.column.size.title")
     private String size;
 
-    @SpreadsheetColumn(sheetColumn = "purchasePriceEur", titleKey = "mainForm.table.articles.column.purchase.price.eur.title")
+    @SpreadsheetColumn(sheetColumn = "purchasePriceEur", titleKey = "mainForm.table.articles.column.purchase.price.eur.title", forbiddenRoles = "ROLE_SELLER")
     private double purchasingPriceEUR;
 
-    private double transportCostEUR;
+    private double transportCostEUR;// , forbiddenRoles = "ROLE_SELLER"
 
     @SpreadsheetColumn(sheetColumn = "purchaseDate", titleKey = "mainForm.table.articles.column.purchase.date.title")
     @Temporal(TemporalType.DATE)

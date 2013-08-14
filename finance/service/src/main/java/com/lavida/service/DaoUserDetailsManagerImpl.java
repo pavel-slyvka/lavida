@@ -9,12 +9,14 @@ import org.springframework.security.authentication.encoding.Md5PasswordEncoder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.provisioning.UserDetailsManager;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -44,6 +46,16 @@ public class DaoUserDetailsManagerImpl implements UserDetailsManager {
 
     public void logout() {
         SecurityContextHolder.getContext().setAuthentication(null);
+    }
+
+    public List<String> getRoles() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        List<SimpleGrantedAuthority> authorities = (List<SimpleGrantedAuthority>) authentication.getAuthorities();
+        List<String> roles = new ArrayList<String>(authorities.size());
+        for (SimpleGrantedAuthority authority : authorities) {
+            roles.add(authority.getAuthority());
+        }
+        return roles;
     }
 
     @Override

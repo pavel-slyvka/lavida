@@ -2,9 +2,6 @@ package com.lavida.swing.form;
 
 import com.lavida.swing.form.tablemodel.ArticlesTableModel;
 import com.lavida.swing.handler.MainFormHandler;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 import javax.annotation.Resource;
 import javax.swing.*;
@@ -18,7 +15,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * MainForm
@@ -29,7 +25,6 @@ import java.util.Locale;
 @org.springframework.stereotype.Component
 public class MainForm extends AbstractForm {
     public static final String ROLE_SELLER = "ROLE_SELLER";
-
 
     @Resource
     private MainFormHandler handler;
@@ -76,7 +71,8 @@ public class MainForm extends AbstractForm {
         mainPanel.setBackground(Color.white);
         mainPanel.setLayout(new BorderLayout());
 
-        handler.initTableModel(tableModel);
+        tableModel.initHeaderFieldAndTitles(messageSource, localeHolder.getLocale());
+        handler.initTableModelWithData(tableModel);
 
         articlesTable = new JTable(tableModel);
         articlesTable.doLayout();
@@ -98,7 +94,6 @@ public class MainForm extends AbstractForm {
 //                }
             }
         });
-
 
         tableScrollPane = new JScrollPane(articlesTable);
         tableScrollPane.setPreferredSize(new Dimension(1000, 700));
@@ -372,35 +367,21 @@ public class MainForm extends AbstractForm {
      * @param table JTable to be changed
      */
     public void packTable(JTable table) {
-        table.getColumn(messageSource.getMessage("mainForm.table.articles.column.name", null,
+        table.getColumn(messageSource.getMessage("mainForm.table.articles.column.name.title", null,
                 localeHolder.getLocale())).setPreferredWidth(250);
 //        table.getColumn(messageSource.getMessage("mainForm.table.articles.column.name", null,
 //        currentLocale)).setResizable(true);
     }
 
-    public void filterByPermissionsStub() { // todo changeme!!!
-        filterByPermissions(articlesTable);
-    }
-
     /**
      * Filters the JTable by permissions of roles (ROLE_SELLER). It removes certain columns.
      *
-     * @param articlesTable the JTable to be filtered
+     * @param userRoles
      */
-    public void filterByPermissions(JTable articlesTable) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        List<SimpleGrantedAuthority> authorities = (List<SimpleGrantedAuthority>) authentication.getAuthorities();
-        if (authorities.contains(new SimpleGrantedAuthority(ROLE_SELLER))) {
-            articlesTable.removeColumn(articlesTable.getColumn(messageSource.
-                    getMessage("mainForm.table.articles.column.purchasing.price", null, localeHolder.getLocale())));
-            articlesTable.removeColumn(articlesTable.getColumn(messageSource.
-                    getMessage("mainForm.table.articles.column.transport.cost", null, localeHolder.getLocale())));
-            articlesTable.removeColumn(articlesTable.getColumn(messageSource.
-                    getMessage("mainForm.table.articles.column.sold", null, localeHolder.getLocale())));
-            articlesTable.removeColumn(articlesTable.getColumn(messageSource.
-                    getMessage("mainForm.table.articles.column.ours", null, localeHolder.getLocale())));
-            articlesTable.removeColumn(articlesTable.getColumn(messageSource.
-                    getMessage("mainForm.table.articles.column.sale.date", null, localeHolder.getLocale())));
+    public void filterTableByRoles(List<String> userRoles) {
+        List<String> forbiddenHeaders = tableModel.getForbiddenHeadersToShow(messageSource, localeHolder.getLocale(), userRoles);
+        for (String forbiddenHeader : forbiddenHeaders) {
+            articlesTable.removeColumn(articlesTable.getColumn(forbiddenHeader));
         }
     }
 

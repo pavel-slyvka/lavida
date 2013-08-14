@@ -36,6 +36,10 @@ public class UserService {
         userDetailsManager.logout();
     }
 
+    public List<String> getCurrentUserRoles() {
+        return userDetailsManager.getRoles();
+    }
+
     public List<UserJdo> getAll() {
         return userDao.getAll(UserJdo.class);
     }

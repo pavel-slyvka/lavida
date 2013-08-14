@@ -21,9 +21,9 @@ import java.util.*;
 @Component
 public class ArticlesTableModel extends AbstractTableModel {
 
-    private List<String> headerTitles;
+    private List<String> headerTitles = new ArrayList<String>();
+    private List<ArticleJdo> tableData = new ArrayList<ArticleJdo>();
     private List<String> articleFieldsSequence;
-    private List<ArticleJdo> tableData;
     private Map<Integer, SimpleDateFormat> columnIndexToDateFormat;
 
     public ArticlesTableModel() {
@@ -72,7 +72,7 @@ public class ArticlesTableModel extends AbstractTableModel {
         this.columnIndexToDateFormat = new HashMap<Integer, SimpleDateFormat>();
         for (Field field : ArticleJdo.class.getDeclaredFields()) {
             SpreadsheetColumn spreadsheetColumn = field.getAnnotation(SpreadsheetColumn.class);
-            if (spreadsheetColumn != null && spreadsheetColumn.show()) {
+            if (spreadsheetColumn != null) {
                 field.setAccessible(true);
                 this.articleFieldsSequence.add(field.getName());
                 if (spreadsheetColumn.titleKey().isEmpty()) {
@@ -86,6 +86,32 @@ public class ArticlesTableModel extends AbstractTableModel {
                 }
             }
         }
+    }
+
+    public List<String> getForbiddenHeadersToShow(MessageSource messageSource, Locale locale, List<String> userRoles) {
+        List<String> forbiddenHeaders = new ArrayList<String>();
+        for (Field field : ArticleJdo.class.getDeclaredFields()) {
+            SpreadsheetColumn spreadsheetColumn = field.getAnnotation(SpreadsheetColumn.class);
+            if (spreadsheetColumn != null) {
+                if (!spreadsheetColumn.show() || isForbidden(userRoles, spreadsheetColumn.forbiddenRoles())) {
+                    forbiddenHeaders.add(spreadsheetColumn.titleKey().isEmpty() ? field.getName()
+                            : messageSource.getMessage(spreadsheetColumn.titleKey(), null, locale));
+                }
+            }
+        }
+        return forbiddenHeaders;
+    }
+
+    private boolean isForbidden(List<String> userRoles, String forbiddenRoles) {
+        if (!forbiddenRoles.isEmpty()) {
+            String[] forbiddenRolesArray = forbiddenRoles.split(",");
+            for (String forbiddenRole : forbiddenRolesArray) {
+                if (userRoles.contains(forbiddenRole.trim())) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     public List<ArticleJdo> getTableData() {

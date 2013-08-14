@@ -20,4 +20,6 @@ public @interface SpreadsheetColumn {
     boolean show() default true;
 
     String showDatePattern() default "dd.MM.yyyy";
+
+    String forbiddenRoles() default "";
 }

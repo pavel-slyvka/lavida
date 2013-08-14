@@ -15,6 +15,7 @@ import java.util.List;
  * Created by Pavel on 13.08.13.
  */
 @Component
+@Deprecated
 public class SpreadsheetArticleTransformer {
 
     public List<ArticleJdo> transformCellFeedToArticleJdoList(CellFeed cellFeed) {

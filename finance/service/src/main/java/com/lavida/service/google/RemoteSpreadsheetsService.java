@@ -29,9 +29,6 @@ public class RemoteSpreadsheetsService {
     @Resource
     private SettingsHolder settingsHolder;
 
-    @Resource
-    private SpreadsheetArticleTransformer spreadsheetArticleTransformer;
-
     private Map<Integer, String> transformCellsToHeaders(List<Cell> cells) {
         Map<Integer, String> headers = new HashMap<Integer, String>(cells.size());
         for (Cell cell : cells) {
@@ -104,7 +101,6 @@ public class RemoteSpreadsheetsService {
             articles.add(articleJdo);
         }
         return articles;
-//        return spreadsheetArticleTransformer.transformCellFeedToArticleJdoList(cellFeed);
     }
 
     private class CellEntriesIterator {
@@ -139,27 +135,6 @@ public class RemoteSpreadsheetsService {
         public boolean hasNext() {
             return (cellEntryIterator == null && !cellEntries.isEmpty()) || lastNotHandledCell != null;
         }
-    }
-
-    /**
-     * @return
-     * @throws ServiceException
-     * @throws IOException
-     */
-    @Deprecated
-    public List<String> readTableHeader() throws ServiceException, IOException {
-        CellFeed cellFeed = getCellFeedFromGoogle();
-
-        List<String> tableHeader = new ArrayList<String>();
-        int colCount = cellFeed.getColCount();
-        List<CellEntry> cellEntryList = cellFeed.getEntries();
-        Iterator<CellEntry> cellEntryIterator = cellEntryList.iterator();
-        for (int i = 0; i < colCount; i++) {
-            CellEntry cellEntry = cellEntryIterator.next();
-            Cell cell = cellEntry.getCell();
-            tableHeader.add(cell.getInputValue());
-        }
-        return tableHeader;
     }
 
     private SpreadsheetService createSpreadsheetService() {

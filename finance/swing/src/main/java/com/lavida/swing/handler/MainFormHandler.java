@@ -2,6 +2,7 @@ package com.lavida.swing.handler;
 
 import com.google.gdata.util.ServiceException;
 import com.lavida.service.ArticleService;
+import com.lavida.service.UserService;
 import com.lavida.service.entity.ArticleJdo;
 import com.lavida.service.entity.SoldArticleJdo;
 import com.lavida.service.transformer.ArticlesTransformer;
@@ -35,13 +36,18 @@ public class MainFormHandler {
 
     @Resource
     private ArticleService articleService;
+
     @Resource
     private ArticlesTransformer articlesTransformer;
+
     @Resource
     private MessageSource messageSource;
+
     @Resource
     protected LocaleHolder localeHolder;
 
+    @Resource
+    private UserService userService;
 
     private SoldArticleJdo soldArticleJdo;
 
@@ -49,16 +55,8 @@ public class MainFormHandler {
     /**
      * Sets table header and data to articlesTableModel received from google spreadsheet.
      */
-    public void initTableModel(ArticlesTableModel tableModel) {
-//        try {
-            tableModel.initHeaderFieldAndTitles(messageSource, localeHolder.getLocale());
-            tableModel.setTableData(articleService.getNotSoldArticles());
-        // todo review try catches
-//        } catch (IOException e) {
-//            throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.GOOGLE_IO_EXCEPTION, e, form);
-//        } catch (ServiceException e) {
-//            throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.GOOGLE_SERVICE_EXCEPTION, e, form);
-//        }
+    public void initTableModelWithData(ArticlesTableModel tableModel) {
+        tableModel.setTableData(articleService.getNotSoldArticles());
     }
 
     /**
@@ -71,7 +69,7 @@ public class MainFormHandler {
         try {
             List<ArticleJdo> articles = articleService.loadArticlesFromRemoteServer();
             articleService.update(articles);
-            initTableModel(tableModel);
+            initTableModelWithData(tableModel);
             form.update();    // repaint MainForm in some time
 
         } catch (IOException e) {
@@ -83,17 +81,17 @@ public class MainFormHandler {
 
     public void sellButtonClicked(ArticlesTableModel tableModel, int selectedRow) {
         List<ArticleJdo> articles = tableModel.getTableData();
-        int articleId = (Integer)tableModel.getValueAt(selectedRow, 0);
+        int articleId = (Integer) tableModel.getValueAt(selectedRow, 0);
         for (ArticleJdo articleJdo : articles) {
             if (articleJdo.getId() == articleId) {
                 this.soldArticleJdo = articlesTransformer.toSoldArticleJdo(articleJdo);
             }
         }
         if (this.soldArticleJdo == null) {
-            form.showMessage("mainForm.exception.message.dialog.title","mainForm.handler.sold.article.not.chosen");
+            form.showMessage("mainForm.exception.message.dialog.title", "mainForm.handler.sold.article.not.chosen");
         } else {
             sellForm.getCodeLabel().setText(messageSource.getMessage("sellForm.label.code.title", null, localeHolder.getLocale())
-                    + ((soldArticleJdo.getCode() == null)? null : soldArticleJdo.getCode()));
+                    + ((soldArticleJdo.getCode() == null) ? null : soldArticleJdo.getCode()));
             sellForm.getNameLabel().setText(messageSource.getMessage("sellForm.label.name.title", null, localeHolder.getLocale())
                     + ((soldArticleJdo.getName() == null) ? null : soldArticleJdo.getName()));
             sellForm.getPriceLabel().setText(messageSource.getMessage("sellForm.label.price.title",
@@ -138,6 +136,7 @@ public class MainFormHandler {
     public void setArticleService(ArticleService articleService) {
         this.articleService = articleService;
     }
+
     public void setSellForm(SellForm sellForm) {
         this.sellForm = sellForm;
     }
