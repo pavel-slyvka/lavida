@@ -16,6 +16,7 @@ import java.util.List;
  * @author Ruslan
  */
 @Service
+@Deprecated
 public class SoldArticleService {
     @Resource
     private SoldArticleDao soldArticleDao;

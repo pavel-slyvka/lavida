@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 
 @Component
+@Deprecated
 public class ArticlesTransformer {
     /**
      * transforms ArticleJdo to SoldArticleJdo.

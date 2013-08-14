@@ -46,7 +46,7 @@ public class ArticlesTableModel extends AbstractTableModel {
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        ArticleJdo articleJdo = tableData.get(rowIndex);
+        ArticleJdo articleJdo = getArticleJdoByRowIndex(rowIndex);
 
         try {
             Field field = ArticleJdo.class.getDeclaredField(articleFieldsSequence.get(columnIndex));
@@ -64,6 +64,10 @@ public class ArticlesTableModel extends AbstractTableModel {
             e.printStackTrace();    // todo
         }
         throw new RuntimeException("Something wrong!");
+    }
+
+    public ArticleJdo getArticleJdoByRowIndex(int rowIndex) {
+        return tableData.get(rowIndex);
     }
 
     public void initHeaderFieldAndTitles(MessageSource messageSource, Locale locale) {
@@ -122,11 +126,10 @@ public class ArticlesTableModel extends AbstractTableModel {
         this.tableData = tableData;
     }
 
-    public void updateArticle(ArticleJdo newArticleJdo) {
-        List<ArticleJdo> articles = getTableData();
-        for (ArticleJdo articleJdo : articles) {
-            if (articleJdo.getId() == newArticleJdo.getId()) {
-                articles.remove(articleJdo);
+    public void removeArticle(ArticleJdo removingArticleJdo) {
+        for (ArticleJdo articleJdo : tableData) {
+            if (articleJdo.getId() == removingArticleJdo.getId()) {
+                tableData.remove(articleJdo);
                 break;
             }
         }

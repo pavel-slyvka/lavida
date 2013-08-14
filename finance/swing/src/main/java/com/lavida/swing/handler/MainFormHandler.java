@@ -80,37 +80,13 @@ public class MainFormHandler {
     }
 
     public void sellButtonClicked(ArticlesTableModel tableModel, int selectedRow) {
-        List<ArticleJdo> articles = tableModel.getTableData();
-        int articleId = (Integer) tableModel.getValueAt(selectedRow, 0);
-        for (ArticleJdo articleJdo : articles) {
-            if (articleJdo.getId() == articleId) {
-                this.soldArticleJdo = articlesTransformer.toSoldArticleJdo(articleJdo);
-            }
-        }
-        if (this.soldArticleJdo == null) {
-            form.showMessage("mainForm.exception.message.dialog.title", "mainForm.handler.sold.article.not.chosen");
-        } else {
-            sellForm.getCodeLabel().setText(messageSource.getMessage("sellForm.label.code.title", null, localeHolder.getLocale())
-                    + ((soldArticleJdo.getCode() == null) ? null : soldArticleJdo.getCode()));
-            sellForm.getNameLabel().setText(messageSource.getMessage("sellForm.label.name.title", null, localeHolder.getLocale())
-                    + ((soldArticleJdo.getName() == null) ? null : soldArticleJdo.getName()));
-            sellForm.getPriceLabel().setText(messageSource.getMessage("sellForm.label.price.title",
-                    null, localeHolder.getLocale()) + currentPrice(soldArticleJdo));
-            sellForm.getCommentLabel().setText(messageSource.getMessage("sellForm.label.comment.title",
-                    null, localeHolder.getLocale()));
-
-            sellForm.getOursCheckBox().setText(messageSource.getMessage("sellForm.checkBox.ours.text", null,
-                    localeHolder.getLocale()));
-            sellForm.getOursCheckBox().setActionCommand(messageSource.getMessage("sellForm.checkBox.ours.text", null,
-                    localeHolder.getLocale()));
-            sellForm.getPresentCheckBox().setText(messageSource.getMessage("sellForm.checkBox.present.text", null,
-                    localeHolder.getLocale()));
-            sellForm.getPresentCheckBox().setActionCommand(messageSource.getMessage("sellForm.checkBox.present.text", null,
-                    localeHolder.getLocale()));
-
+        if (selectedRow >= 0) {
+            ArticleJdo articleJdo = tableModel.getArticleJdoByRowIndex(selectedRow);
+            sellForm.initWithArticleJdo(articleJdo);
             sellForm.show();
-            sellForm.setSoldArticleJdo(soldArticleJdo);
-            form.getForm().setVisible(false);
+
+        } else {
+            form.showMessage("mainForm.exception.message.dialog.title", "mainForm.handler.sold.article.not.chosen");
         }
     }
 
@@ -120,6 +96,7 @@ public class MainFormHandler {
      * @param soldArticleJdo the article to be sold;
      * @return double value of current prise.
      */
+    @Deprecated
     public double currentPrice(SoldArticleJdo soldArticleJdo) {
         if (soldArticleJdo.getActionPriceUAH() > 0) {
             return soldArticleJdo.getActionPriceUAH();

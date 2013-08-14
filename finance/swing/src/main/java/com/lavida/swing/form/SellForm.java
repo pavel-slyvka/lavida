@@ -1,6 +1,6 @@
 package com.lavida.swing.form;
 
-import com.lavida.service.entity.SoldArticleJdo;
+import com.lavida.service.entity.ArticleJdo;
 import com.lavida.swing.form.tablemodel.ArticlesTableModel;
 import com.lavida.swing.handler.SellFormHandler;
 import org.springframework.context.MessageSource;
@@ -20,15 +20,22 @@ import java.awt.event.ActionListener;
  */
 @Component
 public class SellForm extends AbstractForm {
+
     @Resource
     private SellFormHandler handler;
+
     @Resource
     private MainForm mainForm;
+
     @Resource
     protected MessageSource messageSource;
 
+    @Resource
+    private ArticlesTableModel tableModel;
 
-    private SoldArticleJdo soldArticleJdo;
+    private ArticleJdo articleJdo;
+
+//    private SoldArticleJdo soldArticleJdo;
 
     private JPanel buttonPanel, inputPanel, oursPanel, commentPanel;
     private JLabel codeLabel, nameLabel, priceLabel, commentLabel;
@@ -44,6 +51,22 @@ public class SellForm extends AbstractForm {
         form.setResizable(true);
         form.setBounds(100, 100, 800, 500);
         form.setLocationRelativeTo(null);
+    }
+
+    public void initWithArticleJdo(ArticleJdo articleJdo) {
+        this.articleJdo = articleJdo;
+        codeLabel.setText(messageSource.getMessage("sellForm.label.code.title", null, localeHolder.getLocale())
+                + articleJdo.getCode());
+        nameLabel.setText(messageSource.getMessage("sellForm.label.name.title", null, localeHolder.getLocale())
+                + articleJdo.getName());
+        priceLabel.setText(messageSource.getMessage("sellForm.label.price.title", null, localeHolder.getLocale())
+                + articleJdo.getPriceUAH());
+        commentLabel.setText(messageSource.getMessage("sellForm.label.comment.title", null, localeHolder.getLocale()));
+
+        oursCheckBox.setText(messageSource.getMessage("sellForm.checkBox.ours.text", null, localeHolder.getLocale()));
+        oursCheckBox.setActionCommand(messageSource.getMessage("sellForm.checkBox.ours.text", null, localeHolder.getLocale()));
+        presentCheckBox.setText(messageSource.getMessage("sellForm.checkBox.present.text", null, localeHolder.getLocale()));
+        presentCheckBox.setActionCommand(messageSource.getMessage("sellForm.checkBox.present.text", null, localeHolder.getLocale()));
     }
 
     @Override
@@ -105,21 +128,11 @@ public class SellForm extends AbstractForm {
         sellButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                ArticlesTableModel tableModel = mainForm.getTableModel();
-                handler.sell(tableModel, soldArticleJdo);
-                codeLabel.setText(messageSource.getMessage("sellForm.label.code.title", null, localeHolder.getLocale()));
-                nameLabel.setText(messageSource.getMessage("sellForm.label.name.title", null, localeHolder.getLocale()));
-                priceLabel.setText(messageSource.getMessage("sellForm.label.price.title", null, localeHolder.getLocale()));
-                commentField.setText("");
-
-                hide();
-                mainForm.form.setVisible(true);
-                mainForm.update();
+                handler.sell(articleJdo, tableModel);
             }
         });
 
-        cancelButton = new JButton(messageSource.getMessage("sellForm.button.cancel.title", null,
-                localeHolder.getLocale()));
+        cancelButton = new JButton(messageSource.getMessage("sellForm.button.cancel.title", null, localeHolder.getLocale()));
         cancelButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -131,24 +144,14 @@ public class SellForm extends AbstractForm {
         buttonPanel.add(sellButton);
         buttonPanel.add(cancelButton);
         rootContainer.add(buttonPanel, BorderLayout.SOUTH);
-
     }
-
 
     public void setHandler(SellFormHandler handler) {
         this.handler = handler;
     }
 
-    public void setSoldArticleJdo(SoldArticleJdo articleJdo) {
-        this.soldArticleJdo = articleJdo;
-    }
-
     public void setMainForm(MainForm mainForm) {
         this.mainForm = mainForm;
-    }
-
-    public SoldArticleJdo getSoldArticleJdo() {
-        return soldArticleJdo;
     }
 
     public JPanel getButtonPanel() {

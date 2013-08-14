@@ -7,8 +7,6 @@ import javax.annotation.Resource;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -41,7 +39,6 @@ public class MainForm extends AbstractForm {
     private JTable articlesTable;
     private JScrollPane tableScrollPane;
     private TableRowSorter<ArticlesTableModel> sorter;
-    private int selectedRow;
 
     @Override
     protected void initializeForm() {
@@ -83,17 +80,17 @@ public class MainForm extends AbstractForm {
         articlesTable.setFillsViewportHeight(true);
         articlesTable.setRowSelectionAllowed(true);
         articlesTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        articlesTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-            @Override
-            public void valueChanged(ListSelectionEvent e) {
-                int viewRow = articlesTable.getSelectedRow();
-                selectedRow = viewRow;
-//                selectedRow = articlesTable.convertRowIndexToModel(viewRow);
-//                if (viewRow >= 0) {
-//                    selectedRow = articlesTable.convertRowIndexToModel(viewRow);
-//                }
-            }
-        });
+//        articlesTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+//            @Override
+//            public void valueChanged(ListSelectionEvent e) {
+//                int viewRow = articlesTable.getSelectedRow();
+//                selectedRow = viewRow;
+////                selectedRow = articlesTable.convertRowIndexToModel(viewRow);
+////                if (viewRow >= 0) {
+////                    selectedRow = articlesTable.convertRowIndexToModel(viewRow);
+////                }
+//            }
+//        });
 
         tableScrollPane = new JScrollPane(articlesTable);
         tableScrollPane.setPreferredSize(new Dimension(1000, 700));
@@ -278,7 +275,7 @@ public class MainForm extends AbstractForm {
         sellButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                handler.sellButtonClicked(tableModel, selectedRow);
+                handler.sellButtonClicked(tableModel, articlesTable.getSelectedRow());
             }
         });
         constraints.gridx = 0;
@@ -387,10 +384,6 @@ public class MainForm extends AbstractForm {
 
     public String getSoldMessage() {
         return messageSource.getMessage("mainForm.filter.sold", null, localeHolder.getLocale());
-    }
-
-    public int getSelectedRow() {
-        return selectedRow;
     }
 
     public ArticlesTableModel getTableModel() {
