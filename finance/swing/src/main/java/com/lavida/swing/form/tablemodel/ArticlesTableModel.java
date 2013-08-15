@@ -1,7 +1,7 @@
 package com.lavida.swing.form.tablemodel;
 
+import com.lavida.service.ViewColumn;
 import com.lavida.service.entity.ArticleJdo;
-import com.lavida.service.remote.SpreadsheetColumn;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
@@ -75,18 +75,18 @@ public class ArticlesTableModel extends AbstractTableModel {
         this.headerTitles = new ArrayList<String>();
         this.columnIndexToDateFormat = new HashMap<Integer, SimpleDateFormat>();
         for (Field field : ArticleJdo.class.getDeclaredFields()) {
-            SpreadsheetColumn spreadsheetColumn = field.getAnnotation(SpreadsheetColumn.class);
-            if (spreadsheetColumn != null) {
+            ViewColumn viewColumn = field.getAnnotation(ViewColumn.class);
+            if (viewColumn != null) {
                 field.setAccessible(true);
                 this.articleFieldsSequence.add(field.getName());
-                if (spreadsheetColumn.titleKey().isEmpty()) {
+                if (viewColumn.titleKey().isEmpty()) {
                     this.headerTitles.add(field.getName());
                 } else {
-                    this.headerTitles.add(messageSource.getMessage(spreadsheetColumn.titleKey(), null, locale));
+                    this.headerTitles.add(messageSource.getMessage(viewColumn.titleKey(), null, locale));
                 }
                 if (field.getType() == Calendar.class) {
                     this.columnIndexToDateFormat.put(headerTitles.size() - 1,
-                            new SimpleDateFormat(spreadsheetColumn.showDatePattern()));
+                            new SimpleDateFormat(viewColumn.datePattern()));
                 }
             }
         }
@@ -95,11 +95,11 @@ public class ArticlesTableModel extends AbstractTableModel {
     public List<String> getForbiddenHeadersToShow(MessageSource messageSource, Locale locale, List<String> userRoles) {
         List<String> forbiddenHeaders = new ArrayList<String>();
         for (Field field : ArticleJdo.class.getDeclaredFields()) {
-            SpreadsheetColumn spreadsheetColumn = field.getAnnotation(SpreadsheetColumn.class);
-            if (spreadsheetColumn != null) {
-                if (!spreadsheetColumn.show() || isForbidden(userRoles, spreadsheetColumn.forbiddenRoles())) {
-                    forbiddenHeaders.add(spreadsheetColumn.titleKey().isEmpty() ? field.getName()
-                            : messageSource.getMessage(spreadsheetColumn.titleKey(), null, locale));
+            ViewColumn viewColumn = field.getAnnotation(ViewColumn.class);
+            if (viewColumn != null) {
+                if (!viewColumn.show() || isForbidden(userRoles, viewColumn.forbiddenRoles())) {
+                    forbiddenHeaders.add(viewColumn.titleKey().isEmpty() ? field.getName()
+                            : messageSource.getMessage(viewColumn.titleKey(), null, locale));
                 }
             }
         }

@@ -40,7 +40,7 @@ public class GoogleCellsTransformer {
                 try {
                     for (java.lang.reflect.Field field : ArticleJdo.class.getDeclaredFields()) {
                         SpreadsheetColumn spreadsheetColumn = field.getAnnotation(SpreadsheetColumn.class);
-                        if (spreadsheetColumn != null && header.equals(spreadsheetColumn.sheetColumn())) {
+                        if (spreadsheetColumn != null && header.equals(spreadsheetColumn.column())) {
                             String value = cell.getValue();
                             field.setAccessible(true);
                             if (int.class == field.getType()) {
@@ -111,7 +111,7 @@ public class GoogleCellsTransformer {
 
                 for (Field field : ArticleJdo.class.getDeclaredFields()) {
                     SpreadsheetColumn spreadsheetColumn = field.getAnnotation(SpreadsheetColumn.class);
-                    if (spreadsheetColumn != null && spreadsheetColumn.sheetColumn().equals(googleHeader)) {
+                    if (spreadsheetColumn != null && spreadsheetColumn.column().equals(googleHeader)) {
                         field.setAccessible(true);
                         String oldCellValue = oldCellEntry.getCell().getValue();
                         String newCellValue = articleFieldValueToString(field.get(articleJdo), spreadsheetColumn);
@@ -131,7 +131,7 @@ public class GoogleCellsTransformer {
 
     private String articleFieldValueToString(Object fieldValue, SpreadsheetColumn spreadsheetColumn) {
         if (fieldValue instanceof Calendar) {
-            return new SimpleDateFormat(spreadsheetColumn.sheetDatePattern()).format(((Calendar) fieldValue).getTime());
+            return new SimpleDateFormat(spreadsheetColumn.datePattern()).format(((Calendar) fieldValue).getTime());
 
         } else if (fieldValue instanceof Double) {
             String value = fieldValue.toString();

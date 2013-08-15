@@ -89,13 +89,13 @@ public class ArticleService {
     public List<String> getTableHeaders() throws IOException, ServiceException {
         List<String> headers = new ArrayList<String>();
         for (java.lang.reflect.Field field : ArticleJdo.class.getDeclaredFields()) {
-            SpreadsheetColumn spreadsheetColumn = field.getAnnotation(SpreadsheetColumn.class);
-            if (spreadsheetColumn != null) {
+            ViewColumn viewColumn = field.getAnnotation(ViewColumn.class);
+            if (viewColumn != null) {
                 field.setAccessible(true);
-                if (spreadsheetColumn.titleKey().isEmpty()) {
+                if (viewColumn.titleKey().isEmpty()) {
                     headers.add(field.getName());
                 } else {
-                    headers.add(messageSource.getMessage(spreadsheetColumn.titleKey(), null, locale));
+                    headers.add(messageSource.getMessage(viewColumn.titleKey(), null, locale));
                 }
             }
         }

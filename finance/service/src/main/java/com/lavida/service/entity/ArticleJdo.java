@@ -1,6 +1,7 @@
 package com.lavida.service.entity;
 
 
+import com.lavida.service.ViewColumn;
 import com.lavida.service.remote.SpreadsheetColumn;
 
 import javax.persistence.*;
@@ -28,47 +29,58 @@ public class ArticleJdo {
 
     private int spreadsheetRow;
 
-    @SpreadsheetColumn(sheetColumn = "code", titleKey = "mainForm.table.articles.column.code.title")
+    @SpreadsheetColumn(column = "code")
+    @ViewColumn(titleKey = "mainForm.table.articles.column.code.title")
     private String code;
 
-    @SpreadsheetColumn(sheetColumn = "name", titleKey = "mainForm.table.articles.column.name.title")
+    @SpreadsheetColumn(column = "name")
+    @ViewColumn(titleKey = "mainForm.table.articles.column.name.title")
     private String name;
 
-    @SpreadsheetColumn(sheetColumn = "brand", titleKey = "mainForm.table.articles.column.brand.title")
+    @SpreadsheetColumn(column = "brand")
+    @ViewColumn(titleKey = "mainForm.table.articles.column.brand.title")
     private String brand;
 
     private int quantity;
 
-    @SpreadsheetColumn(sheetColumn = "size", titleKey = "mainForm.table.articles.column.size.title")
+    @SpreadsheetColumn(column = "size")
+    @ViewColumn(titleKey = "mainForm.table.articles.column.size.title")
     private String size;
 
-    @SpreadsheetColumn(sheetColumn = "purchasePriceEur", titleKey = "mainForm.table.articles.column.purchase.price.eur.title", forbiddenRoles = "ROLE_SELLER")
+    @SpreadsheetColumn(column = "purchasePriceEur")
+    @ViewColumn(titleKey = "mainForm.table.articles.column.purchase.price.eur.title", forbiddenRoles = "ROLE_SELLER")
     private double purchasingPriceEUR;
 
     private double transportCostEUR;// , forbiddenRoles = "ROLE_SELLER"
 
-    @SpreadsheetColumn(sheetColumn = "purchaseDate", titleKey = "mainForm.table.articles.column.purchase.date.title")
+    @SpreadsheetColumn(column = "purchaseDate")
+    @ViewColumn(titleKey = "mainForm.table.articles.column.purchase.date.title")
     @Temporal(TemporalType.DATE)
     private Calendar deliveryDate;
 
-    @SpreadsheetColumn(sheetColumn = "sellPrice", titleKey = "mainForm.table.articles.column.sell.price.uah.title")
+    @SpreadsheetColumn(column = "sellPrice")
+    @ViewColumn(titleKey = "mainForm.table.articles.column.sell.price.uah.title")
     private double priceUAH;
 
     private double raisedPriceUAH;
 
     private double actionPriceUAH;
 
-    @SpreadsheetColumn(sheetColumn = "sold", show = false)
+    @SpreadsheetColumn(column = "sold")
+    @ViewColumn(show = false)
     private String sold;
 
-    @SpreadsheetColumn(sheetColumn = "sellMarker", titleKey = "mainForm.table.articles.column.sell.marker.title")
+    @SpreadsheetColumn(column = "sellMarker")
+    @ViewColumn(titleKey = "mainForm.table.articles.column.sell.marker.title")
     private String ours;
 
-    @SpreadsheetColumn(sheetColumn = "sellDate", titleKey = "mainForm.table.articles.column.sell.date.title")
+    @SpreadsheetColumn(column = "sellDate")
+    @ViewColumn(titleKey = "mainForm.table.articles.column.sell.date.title")
     @Temporal(TemporalType.DATE)
     private Calendar saleDate;
 
-    @SpreadsheetColumn(sheetColumn = "comment", titleKey = "mainForm.table.articles.column.comment.title")
+    @SpreadsheetColumn(column = "comment")
+    @ViewColumn(titleKey = "mainForm.table.articles.column.comment.title")
     private String comment;
 
     public ArticleJdo() {

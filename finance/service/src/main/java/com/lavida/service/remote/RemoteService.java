@@ -58,9 +58,9 @@ public class RemoteService {
 
         // take articles feed and check (by code and size) if all correct
         CellFeed articleFeed = spreadsheetWorker.getRow(articleJdo.getSpreadsheetRow());
-        String codeColumnHeader = ReflectionUtils.getFieldAnnotation(ArticleJdo.class, "code", SpreadsheetColumn.class).sheetColumn();
+        String codeColumnHeader = ReflectionUtils.getFieldAnnotation(ArticleJdo.class, "code", SpreadsheetColumn.class).column();
         String codeColumnValue = cellsTransformer.cellToValue(articleFeed, headers, codeColumnHeader);
-        String sizeColumnHeader = ReflectionUtils.getFieldAnnotation(ArticleJdo.class, "size", SpreadsheetColumn.class).sheetColumn();
+        String sizeColumnHeader = ReflectionUtils.getFieldAnnotation(ArticleJdo.class, "size", SpreadsheetColumn.class).column();
         String sizeColumnValue = cellsTransformer.cellToValue(articleFeed, headers, sizeColumnHeader);
 
         if (codeColumnValue != null && codeColumnValue.equals(articleJdo.getCode())

@@ -13,15 +13,7 @@ import java.lang.annotation.RetentionPolicy;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface SpreadsheetColumn {
 
-    String sheetColumn();
+    String column();
 
-    String sheetDatePattern() default "M/d/yyyy";
-
-    String titleKey() default "";
-
-    boolean show() default true;
-
-    String showDatePattern() default "dd.MM.yyyy";
-
-    String forbiddenRoles() default "";
+    String datePattern() default "M/d/yyyy";
 }
