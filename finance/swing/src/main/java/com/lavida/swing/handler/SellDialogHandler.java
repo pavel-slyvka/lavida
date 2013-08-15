@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.Calendar;
-import java.util.Date;
 
 /**
  * Created: 12:04 12.08.13
@@ -32,12 +31,6 @@ public class SellDialogHandler implements MessageSourceAware {
 
     @Resource
     protected LocaleHolder localeHolder;
-
-//    @Resource
-//    private ArticlesTransformer articlesTransformer;
-//
-//    @Resource
-//    private SoldArticleService soldArticleService;
 
     @Resource
     private ArticleService articleService;
@@ -58,8 +51,7 @@ public class SellDialogHandler implements MessageSourceAware {
     /**
      * Performs selling operation.
      *
-     * @param articleJdo
-//     * @param articlesTableModel
+     * @param articleJdo //     * @param articlesTableModel
      */
     public void sell(ArticleJdo articleJdo) {
         articleJdo.setSaleDate(Calendar.getInstance());
@@ -127,14 +119,6 @@ public class SellDialogHandler implements MessageSourceAware {
     public void setLocaleHolder(LocaleHolder localeHolder) {
         this.localeHolder = localeHolder;
     }
-
-//    public void setArticlesTransformer(ArticlesTransformer articlesTransformer) {
-//        this.articlesTransformer = articlesTransformer;
-//    }
-//
-//    public void setSoldArticleService(SoldArticleService soldArticleService) {
-//        this.soldArticleService = soldArticleService;
-//    }
 
     public void setArticleService(ArticleService articleService) {
         this.articleService = articleService;

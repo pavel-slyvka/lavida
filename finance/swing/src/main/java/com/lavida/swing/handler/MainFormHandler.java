@@ -3,8 +3,6 @@ package com.lavida.swing.handler;
 import com.google.gdata.util.ServiceException;
 import com.lavida.service.ArticleService;
 import com.lavida.service.entity.ArticleJdo;
-import com.lavida.service.entity.SoldArticleJdo;
-import com.lavida.service.transformer.ArticlesTransformer;
 import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.dialog.SellDialog;
 import com.lavida.swing.exception.LavidaSwingRuntimeException;
@@ -36,15 +34,9 @@ public class MainFormHandler {
     private ArticleService articleService;
 
     @Resource
-    private ArticlesTransformer articlesTransformer;
-
-
-    @Resource
     protected LocaleHolder localeHolder;
 
     private ArticleJdo selectedArticle;
-
-
 
 
     /**
@@ -88,22 +80,6 @@ public class MainFormHandler {
         }
     }
 
-    /**
-     * Determines current price of the article to be sold.
-     *
-     * @param soldArticleJdo the article to be sold;
-     * @return double value of current prise.
-     */
-    @Deprecated
-    public double currentPrice(SoldArticleJdo soldArticleJdo) {
-        if (soldArticleJdo.getActionPriceUAH() > 0) {
-            return soldArticleJdo.getActionPriceUAH();
-        } else {
-            return soldArticleJdo.getPriceUAH();
-        }
-    }
-
-
     public void setForm(MainForm form) {
         this.form = form;
     }
@@ -114,11 +90,6 @@ public class MainFormHandler {
 
     public void setSellDialog(SellDialog sellDialog) {
         this.sellDialog = sellDialog;
-    }
-
-
-    public void setArticlesTransformer(ArticlesTransformer articlesTransformer) {
-        this.articlesTransformer = articlesTransformer;
     }
 
     public void setLocaleHolder(LocaleHolder localeHolder) {

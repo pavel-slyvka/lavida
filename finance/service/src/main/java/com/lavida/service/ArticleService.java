@@ -3,7 +3,6 @@ package com.lavida.service;
 import com.google.gdata.util.ServiceException;
 import com.lavida.service.dao.ArticleDao;
 import com.lavida.service.entity.ArticleJdo;
-import com.lavida.service.remote.SpreadsheetColumn;
 import com.lavida.service.remote.RemoteService;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
@@ -11,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -39,12 +37,12 @@ public class ArticleService {
     }
 
     @Transactional
-    public void save (ArticleJdo articleJdo) {
+    public void save(ArticleJdo articleJdo) {
         articleDao.put(articleJdo);
     }
 
     @Transactional
-    public void update (ArticleJdo articleJdo) {
+    public void update(ArticleJdo articleJdo) {
         articleDao.update(articleJdo);
     }
 
@@ -57,19 +55,19 @@ public class ArticleService {
     }
 
     @Transactional
-    public void delete (int id) {
+    public void delete(int id) {
         articleDao.delete(ArticleJdo.class, id);
     }
 
-    public ArticleJdo getById (int id) {
+    public ArticleJdo getById(int id) {
         return articleDao.getById(ArticleJdo.class, id);
     }
 
-    public List<ArticleJdo> getAll () {
-        return  articleDao.getAll(ArticleJdo.class);
+    public List<ArticleJdo> getAll() {
+        return articleDao.getAll(ArticleJdo.class);
     }
 
-    public ArticleJdo getByCode (String code) {
+    public ArticleJdo getByCode(String code) {
         ArticleJdo neededArticle = null;
         List<ArticleJdo> articles = articleDao.getAll(ArticleJdo.class);
         for (ArticleJdo articleJdo : articles) {
@@ -83,23 +81,6 @@ public class ArticleService {
 
     public List<ArticleJdo> loadArticlesFromRemoteServer() throws IOException, ServiceException {
         return remoteService.loadArticles();
-    }
-
-    @Deprecated
-    public List<String> getTableHeaders() throws IOException, ServiceException {
-        List<String> headers = new ArrayList<String>();
-        for (java.lang.reflect.Field field : ArticleJdo.class.getDeclaredFields()) {
-            ViewColumn viewColumn = field.getAnnotation(ViewColumn.class);
-            if (viewColumn != null) {
-                field.setAccessible(true);
-                if (viewColumn.titleKey().isEmpty()) {
-                    headers.add(field.getName());
-                } else {
-                    headers.add(messageSource.getMessage(viewColumn.titleKey(), null, locale));
-                }
-            }
-        }
-        return headers;
     }
 
     public List<ArticleJdo> getNotSoldArticles() {
