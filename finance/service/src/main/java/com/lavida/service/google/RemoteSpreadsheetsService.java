@@ -73,7 +73,7 @@ public class RemoteSpreadsheetsService {
                             } else if (Long.class == field.getType()) {
                                 field.set(articleJdo, Long.parseLong(value));
                             } else if (Calendar.class == field.getType()) {
-                                field.set(articleJdo, CalendarConverter.convertStringDateToCalendar(value));
+                                field.set(articleJdo, CalendarConverter.convertStringToCalendar(value));
                             } else {
                                 field.set(articleJdo, value);
                             }

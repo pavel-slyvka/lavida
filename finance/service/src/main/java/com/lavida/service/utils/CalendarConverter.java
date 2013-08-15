@@ -14,7 +14,7 @@ import java.util.Locale;
  */
 public class CalendarConverter {
 
-    public static Calendar convertStringDateToCalendar(String strDate) {
+    public static Calendar convertStringToCalendar(String strDate) {
         Calendar cal = null;
 
         if (strDate != null) {

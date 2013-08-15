@@ -59,7 +59,7 @@ public class SpreadsheetArticleTransformer {
                     articleJdo.setTransportCostEUR(NormalFormatter.doubleNormalize(cell.getInputValue()));
                     continue;
                 } else if (cell.getCol() == 9) {
-                    articleJdo.setDeliveryDate(CalendarConverter.convertStringDateToCalendar(cell.getInputValue()));
+                    articleJdo.setDeliveryDate(CalendarConverter.convertStringToCalendar(cell.getInputValue()));
                     continue;
                 } else if (cell.getCol() == 10) {
                     articleJdo.setPriceUAH(NormalFormatter.doubleNormalize(cell.getInputValue()));
@@ -77,7 +77,7 @@ public class SpreadsheetArticleTransformer {
                     articleJdo.setOurs(cell.getInputValue());
                     continue;
                 } else if (cell.getCol() == 15) {
-                    articleJdo.setSaleDate(CalendarConverter.convertStringDateToCalendar(cell.getInputValue()));
+                    articleJdo.setSaleDate(CalendarConverter.convertStringToCalendar(cell.getInputValue()));
                     continue;
                 } else if (cell.getCol() == 16) {
                     articleJdo.setComment(cell.getInputValue());
