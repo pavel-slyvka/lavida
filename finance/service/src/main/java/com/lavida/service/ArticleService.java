@@ -3,8 +3,8 @@ package com.lavida.service;
 import com.google.gdata.util.ServiceException;
 import com.lavida.service.dao.ArticleDao;
 import com.lavida.service.entity.ArticleJdo;
-import com.lavida.service.google.RemoteSpreadsheetsService;
-import com.lavida.service.google.SpreadsheetColumn;
+import com.lavida.service.remote.SpreadsheetColumn;
+import com.lavida.service.remote.RemoteService;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +28,7 @@ public class ArticleService {
     private ArticleDao articleDao;
 
     @Resource
-    private RemoteSpreadsheetsService remoteService;
+    private RemoteService remoteService;
 
     @Resource
     private MessageSource messageSource;
@@ -119,7 +119,7 @@ public class ArticleService {
         this.articleDao = articleDao;
     }
 
-    public void setRemoteService(RemoteSpreadsheetsService remoteService) {
+    public void setRemoteService(RemoteService remoteService) {
         this.remoteService = remoteService;
     }
 }

@@ -1,4 +1,4 @@
-package com.lavida.service.google;
+package com.lavida.service.remote;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -14,6 +14,8 @@ import java.lang.annotation.RetentionPolicy;
 public @interface SpreadsheetColumn {
 
     String sheetColumn();
+
+    String sheetDatePattern() default "M/d/yyyy";
 
     String titleKey() default "";
 

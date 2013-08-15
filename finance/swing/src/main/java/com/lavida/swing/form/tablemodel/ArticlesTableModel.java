@@ -1,7 +1,7 @@
 package com.lavida.swing.form.tablemodel;
 
 import com.lavida.service.entity.ArticleJdo;
-import com.lavida.service.google.SpreadsheetColumn;
+import com.lavida.service.remote.SpreadsheetColumn;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
@@ -53,7 +53,7 @@ public class ArticlesTableModel extends AbstractTableModel {
             field.setAccessible(true);
             Object value = field.get(articleJdo);
             if (value instanceof Calendar) {
-                return columnIndexToDateFormat.get(columnIndex).format(((Calendar)value).getTime());
+                return columnIndexToDateFormat.get(columnIndex).format(((Calendar) value).getTime());
 
             } else {
                 return value;

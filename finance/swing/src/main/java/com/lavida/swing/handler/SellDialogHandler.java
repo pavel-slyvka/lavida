@@ -84,7 +84,7 @@ public class SellDialogHandler implements MessageSourceAware {
             articleService.updateToSpreadsheet(articleJdo);
         } catch (Throwable e) {        // todo change to Custom exception
             e.printStackTrace();
-            articleJdo.setPostponedOperationDate(Calendar.getInstance().getTime());
+//            articleJdo.setPostponedOperationDate(Calendar.getInstance().getTime());
             dialog.showMessage("mainForm.exception.message.dialog.title", "sellDialog.handler.sold.article.not.saved.to.worksheet");
         }
 
