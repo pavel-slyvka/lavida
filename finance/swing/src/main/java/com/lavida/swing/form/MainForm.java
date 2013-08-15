@@ -81,7 +81,7 @@ public class MainForm extends AbstractForm {
 //      Filtering the table
         articlesTable.setFillsViewportHeight(true);
         articlesTable.setRowSelectionAllowed(true);
-//        articlesTable.setCellSelectionEnabled(true); // solution for copying one cell from table
+        articlesTable.setCellSelectionEnabled(true); // solution for copying one cell from table
         articlesTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         articlesTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             @Override
