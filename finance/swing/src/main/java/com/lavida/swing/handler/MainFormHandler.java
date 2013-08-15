@@ -2,16 +2,14 @@ package com.lavida.swing.handler;
 
 import com.google.gdata.util.ServiceException;
 import com.lavida.service.ArticleService;
-import com.lavida.service.UserService;
 import com.lavida.service.entity.ArticleJdo;
 import com.lavida.service.entity.SoldArticleJdo;
 import com.lavida.service.transformer.ArticlesTransformer;
 import com.lavida.swing.LocaleHolder;
+import com.lavida.swing.dialog.SellDialog;
 import com.lavida.swing.exception.LavidaSwingRuntimeException;
 import com.lavida.swing.form.MainForm;
-import com.lavida.swing.form.SellForm;
 import com.lavida.swing.form.tablemodel.ArticlesTableModel;
-import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -32,7 +30,7 @@ public class MainFormHandler {
     private MainForm form;
 
     @Resource
-    private SellForm sellForm;
+    private SellDialog sellDialog;
 
     @Resource
     private ArticleService articleService;
@@ -44,8 +42,9 @@ public class MainFormHandler {
     @Resource
     protected LocaleHolder localeHolder;
 
+    private ArticleJdo selectedArticle;
 
-    private SoldArticleJdo soldArticleJdo;
+
 
 
     /**
@@ -75,11 +74,14 @@ public class MainFormHandler {
         }
     }
 
-    public void sellButtonClicked(ArticlesTableModel tableModel, int selectedRow) {
-        if (selectedRow >= 0) {
-            ArticleJdo articleJdo = tableModel.getArticleJdoByRowIndex(selectedRow);
-            sellForm.initWithArticleJdo(articleJdo);
-            sellForm.show();
+    public void initArticleChoice(ArticleJdo articleJdo) {
+        this.selectedArticle = articleJdo;
+    }
+
+    public void sellButtonClicked() {
+        if (selectedArticle != null) {
+            sellDialog.initWithArticleJdo(selectedArticle);
+            sellDialog.show();
 
         } else {
             form.showMessage("mainForm.exception.message.dialog.title", "mainForm.handler.sold.article.not.chosen");
@@ -110,13 +112,10 @@ public class MainFormHandler {
         this.articleService = articleService;
     }
 
-    public void setSellForm(SellForm sellForm) {
-        this.sellForm = sellForm;
+    public void setSellDialog(SellDialog sellDialog) {
+        this.sellDialog = sellDialog;
     }
 
-    public SoldArticleJdo getSoldArticleJdo() {
-        return soldArticleJdo;
-    }
 
     public void setArticlesTransformer(ArticlesTransformer articlesTransformer) {
         this.articlesTransformer = articlesTransformer;

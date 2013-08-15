@@ -164,7 +164,8 @@ public class RemoteSpreadsheetsService {
                 // todo add strange log
             }
         }
-        throw new RuntimeException("No spreadsheet found with name");   // todo change exception
+        throw new RuntimeException("No spreadsheet found with name");
+        // todo change exception
     }
 
     private URL getWorksheetUrl(SpreadsheetEntry spreadsheet, int worksheetNumber) throws IOException, ServiceException {
@@ -183,6 +184,9 @@ public class RemoteSpreadsheetsService {
     }
 
     public void updateArticle(ArticleJdo articleJdo) {
+        if ( articleJdo.getId() % 2 == 0) {
+            throw new RuntimeException("Google is not available yet!");
+        }
 //       todo updateArticle to spreadsheet
     }
 }

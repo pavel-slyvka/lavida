@@ -37,8 +37,6 @@ public abstract class AbstractForm implements MessageSourceAware {
     protected void initializeForm() {
         form.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         form.setResizable(false);
-//        form.setBounds(200, 200, 400, 200);
-//        form.setTitle(LOGIN_FORM_NAME_RU);
     }
 
     protected abstract void initializeComponents();
