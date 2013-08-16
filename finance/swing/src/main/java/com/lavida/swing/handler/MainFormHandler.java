@@ -103,15 +103,29 @@ public class MainFormHandler {
                 try {
                     articleService.updateToSpreadsheet(articleJdo);
                     articleJdo.setPostponedOperationDate(null);
+                    showPostponedOperationsMessage();
                 } catch (IOException e) {
                     e.printStackTrace();
                     form.showMessage("mainForm.exception.message.dialog.title", "sellDialog.handler.sold.article.not.saved.to.worksheet");
-
+                    showPostponedOperationsMessage();
                 } catch (ServiceException e) {
                     form.showMessage("mainForm.exception.message.dialog.title", "sellDialog.handler.sold.article.not.saved.to.worksheet");
                     e.printStackTrace();
+                    showPostponedOperationsMessage();
+
                 }
             }
         }
+    }
+
+    public void showPostponedOperationsMessage() {
+        int count = 0;
+        List<ArticleJdo> articles = articleService. getAll();
+        for (ArticleJdo articleJdo : articles) {
+            if (articleJdo.getPostponedOperationDate() != null) {
+                ++ count;
+            }
+        }
+        form.getPostponedMessage().setText(count + "!");
     }
 }

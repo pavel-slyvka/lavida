@@ -40,6 +40,9 @@ public class SellDialogHandler implements MessageSourceAware {
     private MainForm mainForm;
 
     @Resource
+    private MainFormHandler mainFormHandler;
+
+    @Resource
     private ArticlesTableModel tableModel;
 
     @Resource
@@ -67,6 +70,7 @@ public class SellDialogHandler implements MessageSourceAware {
             e.printStackTrace();
             articleJdo.setPostponedOperationDate(new Date());
             articleService.update(articleJdo);
+            mainFormHandler.showPostponedOperationsMessage();
             dialog.showMessage("mainForm.exception.message.dialog.title", "sellDialog.handler.sold.article.not.saved.to.worksheet");
         }
 
@@ -122,4 +126,11 @@ public class SellDialogHandler implements MessageSourceAware {
         this.tableModel = tableModel;
     }
 
+    public void setMainFormHandler(MainFormHandler mainFormHandler) {
+        this.mainFormHandler = mainFormHandler;
+    }
+
+    public void setExchangerHolder(ExchangerHolder exchangerHolder) {
+        this.exchangerHolder = exchangerHolder;
+    }
 }

@@ -6,6 +6,7 @@ import com.lavida.swing.handler.MainFormHandler;
 
 import javax.annotation.Resource;
 import javax.swing.*;
+import javax.swing.border.BevelBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
@@ -43,6 +44,8 @@ public class MainForm extends AbstractForm {
     private JTable articlesTable;
     private JScrollPane tableScrollPane;
     private TableRowSorter<ArticlesTableModel> sorter;
+    private JPanel statusBarPanel, postponedPanel;
+    private JLabel postponedOperations, postponedMessage;
 
     @Override
     protected void initializeForm() {
@@ -55,7 +58,7 @@ public class MainForm extends AbstractForm {
 
     @Override
     protected void initializeComponents() {
-
+        rootContainer.setLayout(new BorderLayout());
 //      menu bar
         jMenuBar = new JMenuBar();
         jMenuBar.setBackground(Color.lightGray);
@@ -313,7 +316,23 @@ public class MainForm extends AbstractForm {
         westPanel.add(operationPanel, constraints);
         desktopPane.add(westPanel, BorderLayout.WEST);
 
-        rootContainer.add(desktopPane);
+        rootContainer.add(desktopPane, BorderLayout.CENTER);
+
+//        Status bar panel
+        statusBarPanel = new JPanel();
+        statusBarPanel.setLayout(new FlowLayout());
+        statusBarPanel.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.GRAY, Color.DARK_GRAY));
+        postponedPanel = new JPanel();
+        postponedPanel.setLayout(new FlowLayout());
+        postponedOperations = new JLabel();
+        postponedOperations.setText(messageSource.getMessage(
+                "mainForm.panel.statusBar.postponed.operations.label.title", null, localeHolder.getLocale()));
+        postponedMessage = new JLabel();
+        postponedPanel.add(postponedOperations);
+        postponedPanel.add(postponedMessage);
+        statusBarPanel.add(postponedPanel);
+
+        rootContainer.add(statusBarPanel, BorderLayout.SOUTH);
     }
 
     /**
@@ -379,6 +398,10 @@ public class MainForm extends AbstractForm {
 
     public ArticlesTableModel getTableModel() {
         return tableModel;
+    }
+
+    public JLabel getPostponedMessage() {
+        return postponedMessage;
     }
 }
 
