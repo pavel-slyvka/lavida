@@ -25,7 +25,6 @@ import java.util.List;
  */
 @org.springframework.stereotype.Component
 public class MainForm extends AbstractForm {
-    public static final String ROLE_SELLER = "ROLE_SELLER";
 
     @Resource
     private MainFormHandler handler;
@@ -37,7 +36,7 @@ public class MainForm extends AbstractForm {
     private JPanel mainPanel, operationPanel, searchPanel, refreshPanel, westPanel;
     private JLabel searchByNameLabel, searchByCodeLabel, searchByPriceLabel;
     private JTextField searchByNameField, searchByCodeField, searchByPriceField;
-    private JButton clearNameButton, clearCodeButton, clearPriceButton, refreshButton, recommitButton, sellButton, returnButton;
+    private JButton clearNameButton, clearSearchButton, clearPriceButton, refreshButton, recommitButton, sellButton, returnButton;
     private JTable articlesTable;
     private JScrollPane tableScrollPane;
     private TableRowSorter<ArticlesTableModel> sorter;
@@ -88,14 +87,12 @@ public class MainForm extends AbstractForm {
             @Override
             public void valueChanged(ListSelectionEvent e) {
                 if (e.getValueIsAdjusting()) return;
-                ListSelectionModel listSelectionModel = (ListSelectionModel)e.getSource();
-                if (listSelectionModel.isSelectionEmpty()) {
-                    showMessage("mainForm.exception.message.dialog.title", "mainForm.handler.sold.article.not.chosen");
-                } else {
+                ListSelectionModel listSelectionModel = (ListSelectionModel) e.getSource();
+                if (!listSelectionModel.isSelectionEmpty()) {
                     int viewRow = listSelectionModel.getMinSelectionIndex();
                     int selectedRow = articlesTable.convertRowIndexToModel(viewRow);
                     ArticleJdo selectedArticle = tableModel.getArticleJdoByRowIndex(selectedRow);
-                    handler.initArticleChoice(selectedArticle);
+                    tableModel.setSelectedArticle(selectedArticle);
                 }
             }
         });
@@ -146,17 +143,17 @@ public class MainForm extends AbstractForm {
         constraints.gridy = 0;
         searchPanel.add(searchByNameField, constraints);
 
-        clearNameButton = new JButton(messageSource.getMessage("mainForm.button.clear.title", null,
-                localeHolder.getLocale()));
-        constraints.gridx = 2;
-        constraints.gridy = 0;
-        clearNameButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                searchByNameField.setText("");
-            }
-        });
-        searchPanel.add(clearNameButton, constraints);
+//        clearNameButton = new JButton(messageSource.getMessage("mainForm.button.clear.title", null,
+//                localeHolder.getLocale()));
+//        constraints.gridx = 2;
+//        constraints.gridy = 0;
+//        clearNameButton.addActionListener(new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                searchByNameField.setText("");
+//            }
+//        });
+//        searchPanel.add(clearNameButton, constraints);
 
         searchByCodeLabel = new JLabel(messageSource.getMessage("mainForm.label.search.by.code", null,
                 localeHolder.getLocale()));
@@ -186,17 +183,19 @@ public class MainForm extends AbstractForm {
 
         searchPanel.add(searchByCodeField, constraints);
 
-        clearCodeButton = new JButton(messageSource.getMessage("mainForm.button.clear.title", null,
+        clearSearchButton = new JButton(messageSource.getMessage("mainForm.button.clear.title", null,
                 localeHolder.getLocale()));
         constraints.gridx = 2;
         constraints.gridy = 1;
-        clearCodeButton.addActionListener(new ActionListener() {
+        clearSearchButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 searchByCodeField.setText("");
+                searchByNameField.setText("");
+                searchByPriceField.setText("");
             }
         });
-        searchPanel.add(clearCodeButton, constraints);
+        searchPanel.add(clearSearchButton, constraints);
 
         searchByPriceLabel = new JLabel(messageSource.getMessage("mainForm.label.search.by.price", null,
                 localeHolder.getLocale()));
@@ -225,20 +224,22 @@ public class MainForm extends AbstractForm {
         });
         searchPanel.add(searchByPriceField, constraints);
 
-        clearPriceButton = new JButton(messageSource.getMessage("mainForm.button.clear.title", null,
-                localeHolder.getLocale()));
-        constraints.gridx = 2;
-        constraints.gridy = 2;
-        clearPriceButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                searchByPriceField.setText("");
-            }
-        });
-        searchPanel.add(clearPriceButton, constraints);
-
+//        clearPriceButton = new JButton(messageSource.getMessage("mainForm.button.clear.title", null,
+//                localeHolder.getLocale()));
+//        constraints.gridx = 2;
+//        constraints.gridy = 2;
+//        clearPriceButton.addActionListener(new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                searchByPriceField.setText("");
+//            }
+//        });
+//        searchPanel.add(clearPriceButton, constraints);
+//
         desktopPane.add(searchPanel, BorderLayout.SOUTH);
+        rootContainer.add(desktopPane, BorderLayout.CENTER);
 
+//        west panel for buttons
 //      panel for refresh and save operations with data
         refreshPanel = new JPanel();
         refreshPanel.setBackground(Color.lightGray);
@@ -312,9 +313,8 @@ public class MainForm extends AbstractForm {
         constraints.gridx = 0;
         constraints.gridy = 1;
         westPanel.add(operationPanel, constraints);
-        desktopPane.add(westPanel, BorderLayout.WEST);
+        rootContainer.add(westPanel, BorderLayout.WEST);
 
-        rootContainer.add(desktopPane, BorderLayout.CENTER);
 
 //        Status bar panel
         statusBarPanel = new JPanel();
@@ -325,26 +325,10 @@ public class MainForm extends AbstractForm {
         postponedOperations = new JLabel();
         postponedOperations.setText(messageSource.getMessage(
                 "mainForm.panel.statusBar.postponed.operations.label.title", null, localeHolder.getLocale()));
-        postponedOperations.addMouseListener(new MouseListener() {
+        postponedOperations.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 handler.showPostponedOperationsMessage();
-            }
-            @Override
-            public void mousePressed(MouseEvent e) {
-                //To change body of implemented methods use File | Settings | File Templates.
-            }
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                //To change body of implemented methods use File | Settings | File Templates.
-            }
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                //To change body of implemented methods use File | Settings | File Templates.
-            }
-            @Override
-            public void mouseExited(MouseEvent e) {
-                //To change body of implemented methods use File | Settings | File Templates.
             }
         });
 
@@ -423,6 +407,10 @@ public class MainForm extends AbstractForm {
 
     public JLabel getPostponedMessage() {
         return postponedMessage;
+    }
+
+    public MainFormHandler getHandler() {
+        return handler;
     }
 }
 

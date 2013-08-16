@@ -23,6 +23,7 @@ public class ArticlesTableModel extends AbstractTableModel {
     private List<ArticleJdo> tableData = new ArrayList<ArticleJdo>();
     private List<String> articleFieldsSequence;
     private Map<Integer, SimpleDateFormat> columnIndexToDateFormat;
+    private ArticleJdo selectedArticle;
 
     public ArticlesTableModel() {
     }
@@ -131,5 +132,13 @@ public class ArticlesTableModel extends AbstractTableModel {
                 break;
             }
         }
+    }
+
+    public void setSelectedArticle(ArticleJdo selectedArticle) {
+        this.selectedArticle = selectedArticle;
+    }
+
+    public ArticleJdo getSelectedArticle() {
+        return selectedArticle;
     }
 }

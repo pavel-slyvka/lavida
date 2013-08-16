@@ -36,7 +36,6 @@ public class MainFormHandler {
     @Resource
     protected LocaleHolder localeHolder;
 
-    private ArticleJdo selectedArticle;
 
 
     /**
@@ -66,13 +65,11 @@ public class MainFormHandler {
         }
     }
 
-    public void initArticleChoice(ArticleJdo articleJdo) {
-        this.selectedArticle = articleJdo;
-    }
 
     public void sellButtonClicked() {
-        if (selectedArticle != null) {
-            sellDialog.initWithArticleJdo(selectedArticle);
+
+        if (form.getTableModel().getSelectedArticle() != null) {
+            sellDialog.initWithArticleJdo(form.getTableModel().getSelectedArticle());
             sellDialog.show();
 
         } else {
