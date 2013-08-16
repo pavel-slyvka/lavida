@@ -30,7 +30,6 @@ public class MainForm extends AbstractForm {
     @Resource
     private MainFormHandler handler;
 
-    @Resource
     private ArticlesTableModel tableModel;
 
     private JMenuBar jMenuBar;
@@ -73,6 +72,7 @@ public class MainForm extends AbstractForm {
         mainPanel.setBackground(Color.white);
         mainPanel.setLayout(new BorderLayout());
 
+        tableModel = new ArticlesTableModel();
         tableModel.initHeaderFieldAndTitles(messageSource, localeHolder.getLocale());
         handler.initTableModelWithData(tableModel);
 

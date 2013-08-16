@@ -6,7 +6,6 @@ import com.lavida.swing.ExchangerHolder;
 import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.dialog.SellDialog;
 import com.lavida.swing.form.MainForm;
-import com.lavida.swing.form.tablemodel.ArticlesTableModel;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.stereotype.Component;
@@ -43,9 +42,6 @@ public class SellDialogHandler implements MessageSourceAware {
     private MainFormHandler mainFormHandler;
 
     @Resource
-    private ArticlesTableModel tableModel;
-
-    @Resource
     private ExchangerHolder exchangerHolder;
 
     private double sellingPrice;
@@ -62,7 +58,7 @@ public class SellDialogHandler implements MessageSourceAware {
         articleJdo.setSold(messageSource.getMessage("sellDialog.button.sell.clicked.sold", null, localeHolder.getLocale()));
         articleJdo.setComment(dialog.getCommentTextArea().getText());
         articleService.update(articleJdo);
-        tableModel.removeArticle(articleJdo);
+        mainForm.getTableModel().removeArticle(articleJdo);
 
         try {
             articleService.updateToSpreadsheet(articleJdo);
@@ -120,10 +116,6 @@ public class SellDialogHandler implements MessageSourceAware {
 
     public void setMainForm(MainForm mainForm) {
         this.mainForm = mainForm;
-    }
-
-    public void setTableModel(ArticlesTableModel tableModel) {
-        this.tableModel = tableModel;
     }
 
     public void setMainFormHandler(MainFormHandler mainFormHandler) {

@@ -3,7 +3,6 @@ package com.lavida.swing.form.tablemodel;
 import com.lavida.service.ViewColumn;
 import com.lavida.service.entity.ArticleJdo;
 import org.springframework.context.MessageSource;
-import org.springframework.stereotype.Component;
 
 import javax.swing.table.AbstractTableModel;
 import java.lang.reflect.Field;
@@ -18,7 +17,6 @@ import java.util.*;
  *
  * @author Ruslan
  */
-@Component
 public class ArticlesTableModel extends AbstractTableModel {
 
     private List<String> headerTitles = new ArrayList<String>();
