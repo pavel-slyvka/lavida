@@ -95,4 +95,23 @@ public class MainFormHandler {
     public void setLocaleHolder(LocaleHolder localeHolder) {
         this.localeHolder = localeHolder;
     }
+
+    public void recommitButtonClicked() {
+        List<ArticleJdo> articles = articleService.getAll();
+        for (ArticleJdo articleJdo : articles) {
+            if (articleJdo.getPostponedOperationDate() != null) {
+                try {
+                    articleService.updateToSpreadsheet(articleJdo);
+                    articleJdo.setPostponedOperationDate(null);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    form.showMessage("mainForm.exception.message.dialog.title", "sellDialog.handler.sold.article.not.saved.to.worksheet");
+
+                } catch (ServiceException e) {
+                    form.showMessage("mainForm.exception.message.dialog.title", "sellDialog.handler.sold.article.not.saved.to.worksheet");
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 }

@@ -263,6 +263,12 @@ public class MainForm extends AbstractForm {
 
         recommitButton = new JButton(messageSource.getMessage("mainForm.button.recommit.title", null, localeHolder.getLocale()));
         recommitButton.setMnemonic(KeyEvent.VK_K); // Alt + K hot keys
+        recommitButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handler.recommitButtonClicked();
+            }
+        });
         constraints.gridx = 0;
         constraints.gridy = 1;
         refreshPanel.add(recommitButton, constraints);
