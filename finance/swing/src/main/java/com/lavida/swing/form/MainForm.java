@@ -1,20 +1,14 @@
 package com.lavida.swing.form;
 
-import com.lavida.service.entity.ArticleJdo;
+import com.lavida.swing.form.component.ArticleTableComponent;
 import com.lavida.swing.form.tablemodel.ArticlesTableModel;
 import com.lavida.swing.handler.MainFormHandler;
 
 import javax.annotation.Resource;
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -33,15 +27,12 @@ public class MainForm extends AbstractForm {
 
     private JMenuBar jMenuBar;
     private JDesktopPane desktopPane;
-    private JPanel mainPanel, operationPanel, searchPanel, refreshPanel, westPanel;
-    private JLabel searchByNameLabel, searchByCodeLabel, searchByPriceLabel;
-    private JTextField searchByNameField, searchByCodeField, searchByPriceField;
-    private JButton clearNameButton, clearSearchButton, clearPriceButton, refreshButton, recommitButton, sellButton, returnButton;
-    private JTable articlesTable;
-    private JScrollPane tableScrollPane;
-    private TableRowSorter<ArticlesTableModel> sorter;
+    private JPanel operationPanel, refreshPanel, westPanel;
+    private JButton refreshButton, recommitButton, sellButton, returnButton;
     private JPanel statusBarPanel, postponedPanel;
     private JLabel postponedOperations, postponedMessage;
+
+    private ArticleTableComponent articleTableComponent = new ArticleTableComponent();
 
     @Override
     protected void initializeForm() {
@@ -67,176 +58,16 @@ public class MainForm extends AbstractForm {
         desktopPane.setLayout(new BorderLayout());
 
 //      main panel for table of goods
-        mainPanel = new JPanel();
-        mainPanel.setBackground(Color.white);
-        mainPanel.setLayout(new BorderLayout());
-
         tableModel = new ArticlesTableModel();
         tableModel.initHeaderFieldAndTitles(messageSource, localeHolder.getLocale());
         handler.initTableModelWithData(tableModel);
 
-        articlesTable = new JTable(tableModel);
-        articlesTable.doLayout();
-        articlesTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-//      Filtering the table
-        articlesTable.setFillsViewportHeight(true);
-        articlesTable.setRowSelectionAllowed(true);
-        articlesTable.setCellSelectionEnabled(true); // solution for copying one cell from table
-        articlesTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        articlesTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-            @Override
-            public void valueChanged(ListSelectionEvent e) {
-                if (e.getValueIsAdjusting()) return;
-                ListSelectionModel listSelectionModel = (ListSelectionModel) e.getSource();
-                if (!listSelectionModel.isSelectionEmpty()) {
-                    int viewRow = listSelectionModel.getMinSelectionIndex();
-                    int selectedRow = articlesTable.convertRowIndexToModel(viewRow);
-                    ArticleJdo selectedArticle = tableModel.getArticleJdoByRowIndex(selectedRow);
-                    tableModel.setSelectedArticle(selectedArticle);
-                }
-            }
-        });
-
-        tableScrollPane = new JScrollPane(articlesTable);
-        tableScrollPane.setPreferredSize(new Dimension(1000, 700));
-        packTable(articlesTable);
-        mainPanel.add(tableScrollPane, BorderLayout.CENTER);
-        desktopPane.add(mainPanel, BorderLayout.CENTER);
+        articleTableComponent.initializeComponents(tableModel, messageSource, localeHolder);
+        desktopPane.add(articleTableComponent.getMainPanel(), BorderLayout.CENTER);
 
 //      panel for search operations
-        searchPanel = new JPanel();
-        searchPanel.setBackground(Color.lightGray);
-        searchPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(messageSource.
-                getMessage("mainForm.panel.search.title", null, localeHolder.getLocale())),
-                BorderFactory.createEmptyBorder(5, 5, 5, 5)));
-        searchPanel.setOpaque(true);
-        searchPanel.setAutoscrolls(true);
-        searchPanel.setLayout(new GridBagLayout());
-        GridBagConstraints constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.HORIZONTAL;
+        desktopPane.add(articleTableComponent.getArticleFiltersComponent().getSearchPanel(), BorderLayout.SOUTH);
 
-        searchByNameLabel = new JLabel(messageSource.getMessage("mainForm.label.search.by.title", null,
-                localeHolder.getLocale()));
-        constraints.gridx = 0;
-        constraints.gridy = 0;
-        searchPanel.add(searchByNameLabel, constraints);
-
-        searchByNameField = new JTextField(25);
-//      Filtering the articlesTable
-        searchByNameField.getDocument().addDocumentListener(new DocumentListener() {
-            @Override
-            public void insertUpdate(DocumentEvent e) {
-                allFilter();
-            }
-
-            @Override
-            public void removeUpdate(DocumentEvent e) {
-                allFilter();
-            }
-
-            @Override
-            public void changedUpdate(DocumentEvent e) {
-                allFilter();
-            }
-        });
-        constraints.gridx = 1;
-        constraints.gridy = 0;
-        searchPanel.add(searchByNameField, constraints);
-
-//        clearNameButton = new JButton(messageSource.getMessage("mainForm.button.clear.title", null,
-//                localeHolder.getLocale()));
-//        constraints.gridx = 2;
-//        constraints.gridy = 0;
-//        clearNameButton.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                searchByNameField.setText("");
-//            }
-//        });
-//        searchPanel.add(clearNameButton, constraints);
-
-        searchByCodeLabel = new JLabel(messageSource.getMessage("mainForm.label.search.by.code", null,
-                localeHolder.getLocale()));
-        constraints.gridx = 0;
-        constraints.gridy = 1;
-        searchPanel.add(searchByCodeLabel, constraints);
-
-        searchByCodeField = new JTextField();
-        constraints.gridx = 1;
-        constraints.gridy = 1;
-        searchByCodeField.getDocument().addDocumentListener(new DocumentListener() {
-            @Override
-            public void insertUpdate(DocumentEvent e) {
-                allFilter();
-            }
-
-            @Override
-            public void removeUpdate(DocumentEvent e) {
-                allFilter();
-            }
-
-            @Override
-            public void changedUpdate(DocumentEvent e) {
-                allFilter();
-            }
-        });
-
-        searchPanel.add(searchByCodeField, constraints);
-
-        clearSearchButton = new JButton(messageSource.getMessage("mainForm.button.clear.title", null,
-                localeHolder.getLocale()));
-        constraints.gridx = 2;
-        constraints.gridy = 1;
-        clearSearchButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                searchByCodeField.setText("");
-                searchByNameField.setText("");
-                searchByPriceField.setText("");
-            }
-        });
-        searchPanel.add(clearSearchButton, constraints);
-
-        searchByPriceLabel = new JLabel(messageSource.getMessage("mainForm.label.search.by.price", null,
-                localeHolder.getLocale()));
-        constraints.gridx = 0;
-        constraints.gridy = 2;
-        searchPanel.add(searchByPriceLabel, constraints);
-
-        searchByPriceField = new JTextField();
-        constraints.gridx = 1;
-        constraints.gridy = 2;
-        searchByPriceField.getDocument().addDocumentListener(new DocumentListener() {
-            @Override
-            public void insertUpdate(DocumentEvent e) {
-                allFilter();
-            }
-
-            @Override
-            public void removeUpdate(DocumentEvent e) {
-                allFilter();
-            }
-
-            @Override
-            public void changedUpdate(DocumentEvent e) {
-                allFilter();
-            }
-        });
-        searchPanel.add(searchByPriceField, constraints);
-
-//        clearPriceButton = new JButton(messageSource.getMessage("mainForm.button.clear.title", null,
-//                localeHolder.getLocale()));
-//        constraints.gridx = 2;
-//        constraints.gridy = 2;
-//        clearPriceButton.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                searchByPriceField.setText("");
-//            }
-//        });
-//        searchPanel.add(clearPriceButton, constraints);
-//
-        desktopPane.add(searchPanel, BorderLayout.SOUTH);
         rootContainer.add(desktopPane, BorderLayout.CENTER);
 
 //        west panel for buttons
@@ -259,6 +90,9 @@ public class MainForm extends AbstractForm {
                 handler.refreshButtonClicked(tableModel);
             }
         });
+
+        GridBagConstraints constraints = new GridBagConstraints();
+        constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.gridx = 0;
         constraints.gridy = 0;
         refreshPanel.add(refreshButton, constraints);
@@ -341,64 +175,12 @@ public class MainForm extends AbstractForm {
     }
 
     /**
-     * Filters table by name, by code, by price.
-     */
-    private void allFilter() {
-        List<RowFilter<ArticlesTableModel, Object>> andFilters = new ArrayList<RowFilter<ArticlesTableModel, Object>>();
-        String name = messageSource.getMessage("mainForm.table.articles.column.name", null, localeHolder.getLocale());
-        int columnNameIndex = tableModel.findColumn(name);
-
-        RowFilter<ArticlesTableModel, Object> namesFilter = RowFilter.regexFilter(
-                ("(?iu)" + searchByNameField.getText().trim()), columnNameIndex);
-
-        String code = messageSource.getMessage("mainForm.table.articles.column.code", null, localeHolder.getLocale());  // todo change this shit
-        int columnCodeIndex = tableModel.findColumn(code);
-        RowFilter<ArticlesTableModel, Object> codeFilter = RowFilter.regexFilter(
-                searchByCodeField.getText().trim(), columnCodeIndex);
-
-        String price = messageSource.getMessage("mainForm.table.articles.column.sell.price.uah.title", null, localeHolder.getLocale());
-        int columnPriceIndex = tableModel.findColumn(price);
-
-        RowFilter<ArticlesTableModel, Object> priceFilter;
-        if (searchByPriceField.getText().length() > 0) {
-            Double number = Double.parseDouble(searchByPriceField.getText());
-            priceFilter = RowFilter.numberFilter(RowFilter.ComparisonType.EQUAL, number, columnPriceIndex);
-            andFilters.add(priceFilter);
-        }
-
-        andFilters.add(namesFilter);
-        andFilters.add(codeFilter);
-
-        sorter = new TableRowSorter<ArticlesTableModel>(tableModel);
-        sorter.setRowFilter(RowFilter.andFilter(andFilters));
-        articlesTable.setRowSorter(sorter);
-    }
-
-
-    /**
-     * Sets preferred width to certain columns
-     *
-     * @param table JTable to be changed
-     */
-    public void packTable(JTable table) {
-        table.getColumn(messageSource.getMessage("mainForm.table.articles.column.name.title", null,
-                localeHolder.getLocale())).setPreferredWidth(250);
-    }
-
-    /**
      * Filters the JTable by permissions of roles (ROLE_SELLER). It removes certain columns.
      *
      * @param userRoles
      */
     public void filterTableByRoles(List<String> userRoles) {
-        List<String> forbiddenHeaders = tableModel.getForbiddenHeadersToShow(messageSource, localeHolder.getLocale(), userRoles);
-        for (String forbiddenHeader : forbiddenHeaders) {
-            articlesTable.removeColumn(articlesTable.getColumn(forbiddenHeader));
-        }
-    }
-
-    public String getSoldMessage() {
-        return messageSource.getMessage("mainForm.filter.sold", null, localeHolder.getLocale());
+        articleTableComponent.filterTableByRoles(userRoles);
     }
 
     public ArticlesTableModel getTableModel() {

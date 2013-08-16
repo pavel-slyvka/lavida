@@ -1,83 +1,41 @@
-package com.lavida.swing.form;
+package com.lavida.swing.form.component;
 
-import com.lavida.service.entity.ArticleJdo;
 import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.form.tablemodel.ArticlesTableModel;
 import org.springframework.context.MessageSource;
 
-import javax.annotation.Resource;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.*;
+import java.util.ArrayList;
 
 /**
- * Created: 15:48 16.08.13
+ * ArticleFiltersComponent
+ * Created: 20:09 16.08.13
  *
- * @author Ruslan
+ * @author Pavel
  */
-public class CommonForm {
-
-    @Resource
+public class ArticleFiltersComponent {
+    private MessageSource messageSource;
+    private LocaleHolder localeHolder;
     private ArticlesTableModel tableModel;
 
-    @Resource
-    protected MessageSource messageSource;
-
-    @Resource
-    protected LocaleHolder localeHolder;
-
+    private JPanel searchPanel;
     private JLabel searchByNameLabel, searchByCodeLabel, searchByPriceLabel;
     private JTextField searchByNameField, searchByCodeField, searchByPriceField;
     private JButton clearSearchButton;
-    private JTable articlesTable;
-    private JScrollPane tableScrollPane;
     private TableRowSorter<ArticlesTableModel> sorter;
-    private JPanel searchPanel;
-    private JPanel mainPanel;
 
+    public void initializeComponents(ArticlesTableModel tableModel, MessageSource messageSource, LocaleHolder localeHolder) {
+        this.tableModel = tableModel;
+        this.messageSource = messageSource;
+        this.localeHolder = localeHolder;
 
-    public void intitComponents() {
-
-        mainPanel = new JPanel();
-        mainPanel.setBackground(Color.white);
-        mainPanel.setLayout(new BorderLayout());
-
-//        tableModel.initHeaderFieldAndTitles(messageSource, localeHolder.getLocale());
-//        handler.initTableModelWithData(tableModel);
-
-        articlesTable = new JTable(tableModel);
-        articlesTable.doLayout();
-        articlesTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-//      Filtering the table
-        articlesTable.setFillsViewportHeight(true);
-        articlesTable.setRowSelectionAllowed(true);
-        articlesTable.setCellSelectionEnabled(true); // solution for copying one cell from table
-        articlesTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        articlesTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-            @Override
-            public void valueChanged(ListSelectionEvent e) {
-                if (e.getValueIsAdjusting()) return;
-                ListSelectionModel listSelectionModel = (ListSelectionModel) e.getSource();
-                if (!listSelectionModel.isSelectionEmpty()) {
-                    int viewRow = listSelectionModel.getMinSelectionIndex();
-                    int selectedRow = articlesTable.convertRowIndexToModel(viewRow);
-                    ArticleJdo selectedArticle = tableModel.getArticleJdoByRowIndex(selectedRow);
-                    tableModel.setSelectedArticle(selectedArticle);
-                }
-            }
-        });
-
-        tableScrollPane = new JScrollPane(articlesTable);
-        tableScrollPane.setPreferredSize(new Dimension(1000, 700));
-        packTable(articlesTable);
-        mainPanel.add(tableScrollPane, BorderLayout.CENTER);
+        FilterElementsListener filterElementsListener = new FilterElementsListener();
 
 //      panel for search operations
         searchPanel = new JPanel();
@@ -98,26 +56,22 @@ public class CommonForm {
         searchPanel.add(searchByNameLabel, constraints);
 
         searchByNameField = new JTextField(25);
-//      Filtering the articlesTable
-        searchByNameField.getDocument().addDocumentListener(new DocumentListener() {
-            @Override
-            public void insertUpdate(DocumentEvent e) {
-                allFilter();
-            }
-
-            @Override
-            public void removeUpdate(DocumentEvent e) {
-                allFilter();
-            }
-
-            @Override
-            public void changedUpdate(DocumentEvent e) {
-                allFilter();
-            }
-        });
+        searchByNameField.getDocument().addDocumentListener(filterElementsListener);
         constraints.gridx = 1;
         constraints.gridy = 0;
         searchPanel.add(searchByNameField, constraints);
+
+//        clearNameButton = new JButton(messageSource.getMessage("mainForm.button.clear.title", null,
+//                localeHolder.getLocale()));
+//        constraints.gridx = 2;
+//        constraints.gridy = 0;
+//        clearNameButton.addActionListener(new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                searchByNameField.setText("");
+//            }
+//        });
+//        searchPanel.add(clearNameButton, constraints);
 
         searchByCodeLabel = new JLabel(messageSource.getMessage("mainForm.label.search.by.code", null,
                 localeHolder.getLocale()));
@@ -128,22 +82,7 @@ public class CommonForm {
         searchByCodeField = new JTextField();
         constraints.gridx = 1;
         constraints.gridy = 1;
-        searchByCodeField.getDocument().addDocumentListener(new DocumentListener() {
-            @Override
-            public void insertUpdate(DocumentEvent e) {
-                allFilter();
-            }
-
-            @Override
-            public void removeUpdate(DocumentEvent e) {
-                allFilter();
-            }
-
-            @Override
-            public void changedUpdate(DocumentEvent e) {
-                allFilter();
-            }
-        });
+        searchByCodeField.getDocument().addDocumentListener(filterElementsListener);
 
         searchPanel.add(searchByCodeField, constraints);
 
@@ -170,33 +109,27 @@ public class CommonForm {
         searchByPriceField = new JTextField();
         constraints.gridx = 1;
         constraints.gridy = 2;
-        searchByPriceField.getDocument().addDocumentListener(new DocumentListener() {
-            @Override
-            public void insertUpdate(DocumentEvent e) {
-                allFilter();
-            }
-
-            @Override
-            public void removeUpdate(DocumentEvent e) {
-                allFilter();
-            }
-
-            @Override
-            public void changedUpdate(DocumentEvent e) {
-                allFilter();
-            }
-        });
+        searchByPriceField.getDocument().addDocumentListener(filterElementsListener);
         searchPanel.add(searchByPriceField, constraints);
+
+        sorter = new TableRowSorter<ArticlesTableModel>(tableModel);
     }
 
-    /**
-     * Sets preferred width to certain columns
-     *
-     * @param table JTable to be changed
-     */
-    public void packTable(JTable table) {
-        table.getColumn(messageSource.getMessage("mainForm.table.articles.column.name.title", null,
-                localeHolder.getLocale())).setPreferredWidth(250);
+    class FilterElementsListener implements DocumentListener {
+        @Override
+        public void insertUpdate(DocumentEvent e) {
+            allFilter();
+        }
+
+        @Override
+        public void removeUpdate(DocumentEvent e) {
+            allFilter();
+        }
+
+        @Override
+        public void changedUpdate(DocumentEvent e) {
+            allFilter();
+        }
     }
 
     /**
@@ -228,21 +161,14 @@ public class CommonForm {
         andFilters.add(namesFilter);
         andFilters.add(codeFilter);
 
-        sorter = new TableRowSorter<ArticlesTableModel>(tableModel);
         sorter.setRowFilter(RowFilter.andFilter(andFilters));
-        articlesTable.setRowSorter(sorter);
     }
 
-
-    public void setTableModel(ArticlesTableModel tableModel) {
-        this.tableModel = tableModel;
+    public JPanel getSearchPanel() {
+        return searchPanel;
     }
 
-    public void setMessageSource(MessageSource messageSource) {
-        this.messageSource = messageSource;
-    }
-
-    public void setLocaleHolder(LocaleHolder localeHolder) {
-        this.localeHolder = localeHolder;
+    public TableRowSorter<ArticlesTableModel> getSorter() {
+        return sorter;
     }
 }
