@@ -13,9 +13,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
+import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -327,6 +325,29 @@ public class MainForm extends AbstractForm {
         postponedOperations = new JLabel();
         postponedOperations.setText(messageSource.getMessage(
                 "mainForm.panel.statusBar.postponed.operations.label.title", null, localeHolder.getLocale()));
+        postponedOperations.addMouseListener(new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                handler.showPostponedOperationsMessage();
+            }
+            @Override
+            public void mousePressed(MouseEvent e) {
+                //To change body of implemented methods use File | Settings | File Templates.
+            }
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                //To change body of implemented methods use File | Settings | File Templates.
+            }
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                //To change body of implemented methods use File | Settings | File Templates.
+            }
+            @Override
+            public void mouseExited(MouseEvent e) {
+                //To change body of implemented methods use File | Settings | File Templates.
+            }
+        });
+
         postponedMessage = new JLabel();
         postponedPanel.add(postponedOperations);
         postponedPanel.add(postponedMessage);
