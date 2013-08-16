@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.Calendar;
+import java.util.Date;
 
 /**
  * Created: 12:04 12.08.13
@@ -57,18 +58,6 @@ public class SellDialogHandler implements MessageSourceAware {
         articleJdo.setSaleDate(Calendar.getInstance());
         articleJdo.setSold(messageSource.getMessage("sellDialog.button.sell.clicked.sold", null, localeHolder.getLocale()));
         articleJdo.setComment(dialog.getCommentTextArea().getText());
-
-//        String ours = null;
-//        if (dialog.getOursButtonGroup().getSelection() != null) {
-//            ours = dialog.getOursButtonGroup().getSelection().getActionCommand();
-//            if (ours.equalsIgnoreCase(messageSource.getMessage("sellDialog.checkBox.ours.text", null, localeHolder.getLocale()))) {
-//                articleJdo.setPriceUAH(exchangeEurToUah(articleJdo.getPurchasingPriceEUR()));
-//            } else if (ours.equalsIgnoreCase(messageSource.getMessage("sellForm.checkBox.present.text", null, localeHolder.getLocale()))) {
-//                articleJdo.setPriceUAH(0);
-//            }
-//        }
-//        articleJdo.setOurs(ours);
-
         articleService.update(articleJdo);
         tableModel.removeArticle(articleJdo);
 
@@ -76,7 +65,8 @@ public class SellDialogHandler implements MessageSourceAware {
             articleService.updateToSpreadsheet(articleJdo);
         } catch (Throwable e) {        // todo change to Custom exception
             e.printStackTrace();
-//            articleJdo.setPostponedOperationDate(Calendar.getInstance().getTime());
+            articleJdo.setPostponedOperationDate(new Date());
+            articleService.update(articleJdo);
             dialog.showMessage("mainForm.exception.message.dialog.title", "sellDialog.handler.sold.article.not.saved.to.worksheet");
         }
 

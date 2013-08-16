@@ -3,9 +3,12 @@ package com.lavida.service.entity;
 
 import com.lavida.service.ViewColumn;
 import com.lavida.service.remote.SpreadsheetColumn;
+import com.lavida.service.utils.CalendarConverter;
+import com.lavida.service.utils.DateConverter;
 
 import javax.persistence.*;
 import java.util.Calendar;
+import java.util.Date;
 
 /**
  * Created: 8:15 05.08.13
@@ -24,7 +27,7 @@ public class ArticleJdo {
     public static final String FIND_SOLD = "ArticleJdo.findNotSold";
 
     @Id
-    @GeneratedValue
+    @GeneratedValue (strategy = GenerationType.IDENTITY)
     private int id;
 
     private int spreadsheetRow;
@@ -82,6 +85,14 @@ public class ArticleJdo {
     @SpreadsheetColumn(column = "comment")
     @ViewColumn(titleKey = "mainForm.table.articles.column.comment.title")
     private String comment;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date postponedOperationDate;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date refundDate;
+
+    private String financialTags;
 
     public ArticleJdo() {
     }
@@ -222,6 +233,32 @@ public class ArticleJdo {
         this.comment = comment;
     }
 
+
+    public Date getPostponedOperationDate() {
+        return postponedOperationDate;
+    }
+
+    public void setPostponedOperationDate(Date postponedOperationDate) {
+        this.postponedOperationDate = postponedOperationDate;
+    }
+
+    public Date getRefundDate() {
+        return refundDate;
+    }
+
+    public void setRefundDate(Date refundDate) {
+        this.refundDate = refundDate;
+    }
+
+    public String getFinancialTags() {
+        return financialTags;
+    }
+
+    public void setFinancialTags(String financialTags) {
+        this.financialTags = financialTags;
+    }
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -288,16 +325,17 @@ public class ArticleJdo {
                 ", size='" + size + '\'' +
                 ", purchasingPriceEUR=" + purchasingPriceEUR +
                 ", transportCostEUR=" + transportCostEUR +
-                ", deliveryDate='" + ((deliveryDate == null) ? null : (deliveryDate.get(Calendar.MONTH) + "/" +
-                deliveryDate.get(Calendar.DATE) + "/" + deliveryDate.get(Calendar.YEAR))) + '\'' +
+                ", deliveryDate=" + CalendarConverter.convertCalendarToString(deliveryDate) +
                 ", priceUAH=" + priceUAH +
                 ", raisedPriceUAH=" + raisedPriceUAH +
                 ", actionPriceUAH=" + actionPriceUAH +
-                ", sold= '" + sold + '\'' +
+                ", sold='" + sold + '\'' +
                 ", ours='" + ours + '\'' +
-                ", saleDate='" + ((saleDate == null) ? null : (saleDate.get(Calendar.MONTH) + "/" +
-                saleDate.get(Calendar.DAY_OF_MONTH) + "/" + saleDate.get(Calendar.YEAR))) + '\'' +
+                ", saleDate=" + CalendarConverter.convertCalendarToString(saleDate) +
                 ", comment='" + comment + '\'' +
+                ", postponedOperationDate=" + DateConverter.convertDateToString(postponedOperationDate) +
+                ", refundDate=" + DateConverter.convertDateToString(refundDate) +
+                ", financialTags='" + financialTags + '\'' +
                 '}';
     }
 }
