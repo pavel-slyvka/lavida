@@ -67,8 +67,8 @@ public class RemoteService {
                 && sizeColumnValue != null && sizeColumnValue.equals(articleJdo.getSize())) {
 
             List<CellEntry> cellEntriesForUpdate = cellsTransformer.articleToCellEntriesForUpdate(articleJdo, headers, articleFeed);
-            spreadsheetWorker.updateCells(cellEntriesForUpdate);
-
+//            spreadsheetWorker.updateCells(cellEntriesForUpdate);
+            spreadsheetWorker.updateArticleRow(articleJdo, headers);
         } else {
             // todo make find.
             throw new RuntimeException("Wrong article to spreadsheet mapping!");

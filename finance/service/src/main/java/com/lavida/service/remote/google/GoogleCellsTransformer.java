@@ -6,9 +6,11 @@ import com.google.gdata.data.spreadsheet.CellFeed;
 import com.lavida.service.entity.ArticleJdo;
 import com.lavida.service.remote.SpreadsheetColumn;
 import com.lavida.service.utils.CalendarConverter;
+import com.lavida.service.utils.DateConverter;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -65,6 +67,8 @@ public class GoogleCellsTransformer {
                                 field.set(articleJdo, Long.parseLong(value));
                             } else if (Calendar.class == field.getType()) {
                                 field.set(articleJdo, CalendarConverter.convertStringToCalendar(value));
+                            } else if (Date.class == field.getType()) {
+                                field.set(articleJdo, DateConverter.convertStringToDate(value));
                             } else {
                                 field.set(articleJdo, value);
                             }
@@ -73,6 +77,8 @@ public class GoogleCellsTransformer {
                     }
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();    // todo log the error.
+                } catch (ParseException e) {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
                 }
             }
         }

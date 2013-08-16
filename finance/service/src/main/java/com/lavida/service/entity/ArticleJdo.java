@@ -44,6 +44,8 @@ public class ArticleJdo {
     @ViewColumn(titleKey = "mainForm.table.articles.column.brand.title")
     private String brand;
 
+    @SpreadsheetColumn(column = "quantity")
+    @ViewColumn(titleKey = "mainForm.table.articles.column.quantity.title")
     private int quantity;
 
     @SpreadsheetColumn(column = "size")
@@ -54,6 +56,8 @@ public class ArticleJdo {
     @ViewColumn(titleKey = "mainForm.table.articles.column.purchase.price.eur.title", forbiddenRoles = "ROLE_SELLER")
     private double purchasingPriceEUR;
 
+    @SpreadsheetColumn(column = "transportCostEur")
+    @ViewColumn(titleKey = "mainForm.table.articles.column.transport.cost.eur.title", forbiddenRoles = "ROLE_SELLER")
     private double transportCostEUR;// , forbiddenRoles = "ROLE_SELLER"
 
     @SpreadsheetColumn(column = "purchaseDate")
@@ -65,8 +69,12 @@ public class ArticleJdo {
     @ViewColumn(titleKey = "mainForm.table.articles.column.sell.price.uah.title")
     private double priceUAH;
 
+    @SpreadsheetColumn(column = "raisedPriceUah")
+    @ViewColumn(titleKey = "mainForm.table.articles.column.raised.price.uah.title", forbiddenRoles = "ROLE_SELLER")
     private double raisedPriceUAH;
 
+    @SpreadsheetColumn(column = "actionPriceUah")
+    @ViewColumn(titleKey = "mainForm.table.articles.column.action.price.uah.title", forbiddenRoles = "ROLE_SELLER")
     private double actionPriceUAH;
 
     @SpreadsheetColumn(column = "sold")
@@ -89,9 +97,13 @@ public class ArticleJdo {
     @Temporal(TemporalType.TIMESTAMP)
     private Date postponedOperationDate;
 
+    @SpreadsheetColumn(column = "refund")
+    @ViewColumn(titleKey = "mainForm.table.articles.column.refund.title", forbiddenRoles = "ROLE_SELLER")
     @Temporal(TemporalType.TIMESTAMP)
     private Date refundDate;
 
+    @SpreadsheetColumn(column = "tags")
+    @ViewColumn(titleKey = "mainForm.table.articles.column.tags.title", forbiddenRoles = "ROLE_SELLER")
     private String financialTags;
 
     public ArticleJdo() {
