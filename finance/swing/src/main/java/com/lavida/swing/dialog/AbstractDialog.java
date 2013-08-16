@@ -79,4 +79,16 @@ public abstract class AbstractDialog implements MessageSourceAware {
     public void setMainForm(MainForm mainForm) {
         this.mainForm = mainForm;
     }
+
+    public MessageSource getMessageSource() {
+        return messageSource;
+    }
+
+    public LocaleHolder getLocaleHolder() {
+        return localeHolder;
+    }
+
+    public MainForm getMainForm() {
+        return mainForm;
+    }
 }

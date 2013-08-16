@@ -2,6 +2,7 @@ package com.lavida.swing.dialog;
 
 import com.lavida.service.entity.ArticleJdo;
 import com.lavida.swing.ExchangerHolder;
+import com.lavida.swing.form.tablemodel.ArticlesTableModel;
 import com.lavida.swing.handler.SellDialogHandler;
 import org.springframework.stereotype.Component;
 
@@ -21,24 +22,20 @@ import java.awt.event.ItemListener;
  * @author Ruslan
  */
 @Component
-public class SellDialog extends AbstractDialog{
+public class SellDialog extends AbstractDialog {
 
     @Resource
     private SellDialogHandler handler;
     @Resource
     private ExchangerHolder exchangerHolder;
 
-    private double sellingPrice;
-    private double startPrice;
-
-    private ArticleJdo articleJdo;
 
 //    private SoldArticleJdo soldArticleJdo;
 
     private JPanel buttonPanel, inputPanel, oursPanel, commentPanel;
     private JLabel codeLabel, nameLabel, brandLabel, sizeLabel, priceLabel, commentLabel,
-            codeField,nameField, brandField, sizeField, priceField;
-//    private JTextField commentField;
+            codeField, nameField, brandField, sizeField, priceField;
+    //    private JTextField commentField;
     private JTextArea commentTextArea;
     private JButton sellButton, cancelButton;
     private JCheckBox oursCheckBox, presentCheckBox;
@@ -55,18 +52,20 @@ public class SellDialog extends AbstractDialog{
     }
 
     public void initWithArticleJdo(ArticleJdo articleJdo) {
-        this.articleJdo = articleJdo;
-        startPrice = articleJdo.getPriceUAH();
-        codeField.setText(this.articleJdo.getCode());
-        nameField.setText(this.articleJdo.getName());
-         brandField.setText(this.articleJdo.getBrand());
-        sizeField.setText(this.articleJdo.getSize());
-        priceField.setText(String.valueOf(this.articleJdo.getPriceUAH()));
+        codeField.setText(articleJdo.getCode());
+        nameField.setText(articleJdo.getName());
+        brandField.setText(articleJdo.getBrand());
+        sizeField.setText(articleJdo.getSize());
+        priceField.setText(String.valueOf(articleJdo.getPriceUAH()));
     }
 
 
     @Override
     protected void initializeComponents() {
+
+//        double startPrice = articleJdo.getPriceUAH();
+//        double sellingPrice;
+
         rootContainer.setBackground(Color.LIGHT_GRAY);
         rootContainer.setLayout(new BorderLayout());
 //      input panel
@@ -154,35 +153,29 @@ public class SellDialog extends AbstractDialog{
         oursCheckBox.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent e) {
-                JCheckBox source = (JCheckBox)e.getSource();
+                JCheckBox source = (JCheckBox) e.getSource();
                 int state = e.getStateChange();
-                if (state == ItemEvent.SELECTED){
-                    articleJdo.setOurs(source.getActionCommand());
-                    oursCheckBoxSelected();
+                if (state == ItemEvent.SELECTED) {
+                    handler.oursCheckBoxSelected();
                 } else if (state == ItemEvent.DESELECTED) {
-                    articleJdo.setOurs("");
-                   checkBoxDeSelected();
+                    handler.checkBoxDeSelected();
                 }
-
             }
         });
 
         presentCheckBox.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent e) {
-                JCheckBox source = (JCheckBox)e.getSource();
+                JCheckBox source = (JCheckBox) e.getSource();
                 int state = e.getStateChange();
-                if (state == ItemEvent.SELECTED){
-                    articleJdo.setOurs(source.getActionCommand());
-                    presentCheckBoxSelected();
+                if (state == ItemEvent.SELECTED) {
+                    handler.presentCheckBoxSelected();
                 } else if (state == ItemEvent.DESELECTED) {
-                    articleJdo.setOurs("");
-                    checkBoxDeSelected();
+                    handler.checkBoxDeSelected();
                 }
             }
         });
-//        oursButtonGroup.add(oursCheckBox);
-//        oursButtonGroup.add(presentCheckBox);
+
         oursPanel.add(oursCheckBox);
         oursPanel.add(presentCheckBox);
         inputPanel.add(oursPanel, constraints);
@@ -209,6 +202,7 @@ public class SellDialog extends AbstractDialog{
         sellButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                ArticleJdo articleJdo = mainForm.getTableModel().getSelectedArticle();
                 handler.sell(articleJdo);
             }
         });
@@ -218,7 +212,6 @@ public class SellDialog extends AbstractDialog{
             @Override
             public void actionPerformed(ActionEvent e) {
                 commentTextArea.setText("");
-//                oursButtonGroup.clearSelection();
                 oursCheckBox.setSelected(false);
                 presentCheckBox.setSelected(false);
                 hide();
@@ -234,33 +227,8 @@ public class SellDialog extends AbstractDialog{
     }
 
 
-    private double exchangeEurToUah(double priceEur) {
-        double priceUah = priceEur * exchangerHolder.getSellRateEUR();
-        return priceUah;
-    }
-
-    public void oursCheckBoxSelected() {
-        sellingPrice = (exchangeEurToUah(articleJdo.getPurchasingPriceEUR()));
-        getPriceField().setText(String.valueOf(sellingPrice));
-        articleJdo.setPriceUAH(sellingPrice);
-    }
-    public void checkBoxDeSelected() {
-        getPriceField().setText(String.valueOf(startPrice));
-        articleJdo.setPriceUAH(sellingPrice);
-    }
-
-    public void presentCheckBoxSelected () {
-        sellingPrice = 0;
-        getPriceField().setText(String.valueOf(sellingPrice));
-        articleJdo.setPriceUAH(sellingPrice);
-    }
-
     public void setHandler(SellDialogHandler handler) {
         this.handler = handler;
-    }
-
-    public ArticleJdo getArticleJdo() {
-        return articleJdo;
     }
 
     public JPanel getButtonPanel() {
@@ -270,6 +238,7 @@ public class SellDialog extends AbstractDialog{
     public JPanel getInputPanel() {
         return inputPanel;
     }
+
 
     public JPanel getOursPanel() {
         return oursPanel;
@@ -350,4 +319,5 @@ public class SellDialog extends AbstractDialog{
     public void setExchangerHolder(ExchangerHolder exchangerHolder) {
         this.exchangerHolder = exchangerHolder;
     }
+
 }

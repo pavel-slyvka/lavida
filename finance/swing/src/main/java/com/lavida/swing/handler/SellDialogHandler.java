@@ -6,6 +6,7 @@ import com.lavida.swing.ExchangerHolder;
 import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.dialog.SellDialog;
 import com.lavida.swing.form.MainForm;
+import com.lavida.swing.form.tablemodel.ArticlesTableModel;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.stereotype.Component;
@@ -35,17 +36,15 @@ public class SellDialogHandler implements MessageSourceAware {
     @Resource
     private ArticleService articleService;
 
-    @Resource
-    private MainForm mainForm;
 
-    @Resource
-    private MainFormHandler mainFormHandler;
+//    @Resource
+//    private MainFormHandler mainFormHandler;
 
     @Resource
     private ExchangerHolder exchangerHolder;
 
-    private double sellingPrice;
-    private double startPrice;
+//    private double sellingPrice;
+//    private double startPrice;
 
 
     /**
@@ -56,9 +55,16 @@ public class SellDialogHandler implements MessageSourceAware {
     public void sell(ArticleJdo articleJdo) {
         articleJdo.setSaleDate(Calendar.getInstance());
         articleJdo.setSold(messageSource.getMessage("sellDialog.button.sell.clicked.sold", null, localeHolder.getLocale()));
-        articleJdo.setComment(dialog.getCommentTextArea().getText());
+        articleJdo.setComment(articleJdo.getComment() + "; " + dialog.getCommentTextArea().getText());
+        if ( dialog.getOursCheckBox().isSelected()) {
+            articleJdo.setPriceUAH(exchangeEurToUah(articleJdo.getPurchasingPriceEUR()));
+            articleJdo.setOurs(dialog.getOursCheckBox().getActionCommand());
+        } else if (dialog.getPresentCheckBox().isSelected()) {
+            articleJdo.setPriceUAH(0);
+            articleJdo.setOurs(dialog.getPresentCheckBox().getActionCommand());
+        }
         articleService.update(articleJdo);
-        mainForm.getTableModel().removeArticle(articleJdo);
+        dialog.getMainForm().getTableModel().removeArticle(articleJdo);
 
         try {
             articleService.updateToSpreadsheet(articleJdo);
@@ -66,36 +72,34 @@ public class SellDialogHandler implements MessageSourceAware {
             e.printStackTrace();
             articleJdo.setPostponedOperationDate(new Date());
             articleService.update(articleJdo);
-            mainFormHandler.showPostponedOperationsMessage();
+            dialog.getMainForm().getHandler().showPostponedOperationsMessage();
             dialog.showMessage("mainForm.exception.message.dialog.title", "sellDialog.handler.sold.article.not.saved.to.worksheet");
         }
 
         dialog.hide();
-        mainForm.update();
-        mainForm.show();
+        dialog.getMainForm().update();
+        dialog.getMainForm().show();
     }
 
-/*
     private double exchangeEurToUah(double priceEur) {
         double priceUah = priceEur * exchangerHolder.getSellRateEUR();
         return priceUah;
     }
 
-    public void oursCheckBoxSelected(ArticleJdo articleJdo) {
-        sellingPrice = (exchangeEurToUah(articleJdo.getPurchasingPriceEUR()));
+    public void oursCheckBoxSelected() {
+        ArticleJdo articleJdo = dialog.getMainForm().getTableModel().getSelectedArticle();
+        double sellingPrice = (exchangeEurToUah(articleJdo.getPurchasingPriceEUR()));
         dialog.getPriceField().setText(String.valueOf(sellingPrice));
-        articleJdo.setPriceUAH(sellingPrice);
-    }
-    public void oursCheckBoxDeSelected(ArticleJdo articleJdo) {
-
     }
 
-    public void presentCheckBoxSelected (ArticleJdo articleJdo) {
-        sellingPrice = 0;
-        dialog.getPriceField().setText(String.valueOf(sellingPrice));
-        articleJdo.setPriceUAH(sellingPrice);
+    public void checkBoxDeSelected() {
+        ArticleJdo articleJdo = dialog.getMainForm().getTableModel().getSelectedArticle();
+        dialog.getPriceField().setText(String.valueOf(articleJdo.getPriceUAH()));
     }
-*/
+
+    public void presentCheckBoxSelected() {
+        dialog.getPriceField().setText(String.valueOf(0));
+    }
 
     @Override
     public void setMessageSource(MessageSource messageSource) {
@@ -112,14 +116,6 @@ public class SellDialogHandler implements MessageSourceAware {
 
     public void setArticleService(ArticleService articleService) {
         this.articleService = articleService;
-    }
-
-    public void setMainForm(MainForm mainForm) {
-        this.mainForm = mainForm;
-    }
-
-    public void setMainFormHandler(MainFormHandler mainFormHandler) {
-        this.mainFormHandler = mainFormHandler;
     }
 
     public void setExchangerHolder(ExchangerHolder exchangerHolder) {
