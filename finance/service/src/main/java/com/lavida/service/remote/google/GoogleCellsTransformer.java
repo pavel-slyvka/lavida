@@ -86,19 +86,22 @@ public class GoogleCellsTransformer {
     }
 
     public String cellToValue(CellFeed cellFeed, Map<Integer, String> googleHeadersMap, String googleHeader) {
-        Integer cellColumn = null;
-        for (Map.Entry<Integer, String> googleHeadersMapEntry : googleHeadersMap.entrySet()) {
-            if (googleHeadersMapEntry.getValue() != null && googleHeadersMapEntry.getValue().equals(googleHeader)) {
-                cellColumn = googleHeadersMapEntry.getKey();
-                break;
-            }
-        }
+        Integer cellColumn = getHeaderColumnNumber(googleHeadersMap, googleHeader);
         if (cellColumn != null) {
             List<CellEntry> cellEntries = cellFeed.getEntries();
             for (CellEntry cellEntry : cellEntries) {
                 if (cellEntry.getCell().getCol() == cellColumn) {
                     return cellEntry.getCell().getValue();
                 }
+            }
+        }
+        return null;
+    }
+
+    private Integer getHeaderColumnNumber(Map<Integer, String> googleHeadersMap, String googleHeader) {
+        for (Map.Entry<Integer, String> googleHeadersMapEntry : googleHeadersMap.entrySet()) {
+            if (googleHeadersMapEntry.getValue() != null && googleHeadersMapEntry.getValue().equals(googleHeader)) {
+                return googleHeadersMapEntry.getKey();
             }
         }
         return null;
@@ -112,19 +115,30 @@ public class GoogleCellsTransformer {
         try {
             List<CellEntry> cellEntriesForUpdate = new ArrayList<CellEntry>();
             List<CellEntry> oldCellEntries = oldArticleFeed.getEntries();
-            for (CellEntry oldCellEntry : oldCellEntries) {
-                String googleHeader = headers.get(oldCellEntry.getCell().getCol());
-
-                for (Field field : ArticleJdo.class.getDeclaredFields()) {
-                    SpreadsheetColumn spreadsheetColumn = field.getAnnotation(SpreadsheetColumn.class);
-                    if (spreadsheetColumn != null && spreadsheetColumn.column().equals(googleHeader)) {
-                        field.setAccessible(true);
-                        String oldCellValue = oldCellEntry.getCell().getValue();
-                        String newCellValue = articleFieldValueToString(field.get(articleJdo), spreadsheetColumn);
-                        if (!oldCellValue.equals(newCellValue)) {
-                            cellEntriesForUpdate.add(new CellEntry(
-                                    oldCellEntry.getCell().getRow(), oldCellEntry.getCell().getCol(), newCellValue));
+            l:
+            for (Field field : ArticleJdo.class.getDeclaredFields()) {
+                SpreadsheetColumn spreadsheetColumn = field.getAnnotation(SpreadsheetColumn.class);
+                if (spreadsheetColumn != null) {
+                    for (CellEntry oldCellEntry : oldCellEntries) {
+                        String googleHeader = headers.get(oldCellEntry.getCell().getCol());
+                        if (spreadsheetColumn.column().equals(googleHeader)) {
+                            field.setAccessible(true);
+                            String oldCellValue = oldCellEntry.getCell().getValue();
+                            String newCellValue = articleFieldValueToString(field.get(articleJdo), spreadsheetColumn);
+                            if (!oldCellValue.equals(newCellValue)) {
+                                cellEntriesForUpdate.add(new CellEntry(
+                                        oldCellEntry.getCell().getRow(), oldCellEntry.getCell().getCol(), newCellValue));
+                            }
+                            continue l;
                         }
+                    }
+                    Integer cellCol = getHeaderColumnNumber(headers, spreadsheetColumn.column());
+                    if (cellCol != null) {
+                        field.setAccessible(true);
+                        String newCellValue = articleFieldValueToString(field.get(articleJdo), spreadsheetColumn);
+                        cellEntriesForUpdate.add(new CellEntry(articleJdo.getSpreadsheetRow(), cellCol, newCellValue));
+                    } else {
+                        // todo log that found SpreadsheetColumn column which don't have a mapping in the spreadsheet!
                     }
                 }
             }
@@ -136,7 +150,10 @@ public class GoogleCellsTransformer {
     }
 
     private String articleFieldValueToString(Object fieldValue, SpreadsheetColumn spreadsheetColumn) {
-        if (fieldValue instanceof Calendar) {
+        if (fieldValue == null) {
+            return "";
+
+        } else if (fieldValue instanceof Calendar) {
             return new SimpleDateFormat(spreadsheetColumn.datePattern()).format(((Calendar) fieldValue).getTime());
 
         } else if (fieldValue instanceof Double) {
