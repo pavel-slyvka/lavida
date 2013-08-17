@@ -10,6 +10,7 @@ import com.lavida.service.remote.google.GoogleSpreadsheetWorker;
 import com.lavida.service.settings.SettingsHolder;
 import com.lavida.utils.ReflectionUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.io.IOException;
@@ -62,15 +63,32 @@ public class RemoteService {
         String codeColumnValue = cellsTransformer.cellToValue(articleFeed, headers, codeColumnHeader);
         String sizeColumnHeader = ReflectionUtils.getFieldAnnotation(ArticleJdo.class, "size", SpreadsheetColumn.class).column();
         String sizeColumnValue = cellsTransformer.cellToValue(articleFeed, headers, sizeColumnHeader);
+        String soldColumnHeader = ReflectionUtils.getFieldAnnotation(ArticleJdo.class, "sold", SpreadsheetColumn.class).column();
+        String soldColumnValue = cellsTransformer.cellToValue(articleFeed, headers, soldColumnHeader);
 
-        if (codeColumnValue != null && codeColumnValue.equals(articleJdo.getCode())
-                && sizeColumnValue != null && sizeColumnValue.equals(articleJdo.getSize())) {
+        // ArticleJdo.spreadsheetRow has incorrect value -> search for correct
+        if (codeColumnValue == null || !codeColumnValue.equals(articleJdo.getCode())
+                || sizeColumnValue == null || !sizeColumnValue.equals(articleJdo.getSize())
+                || soldColumnValue != null && !StringUtils.isEmpty(soldColumnValue)) {
+            Integer newSpreadsheetRowIndex = null;
+            List<ArticleJdo> realArticles = loadArticles();
+            for (ArticleJdo realArticleJdo : realArticles) {
+                if (realArticleJdo.getCode() != null && realArticleJdo.getCode().equals(articleJdo.getCode())
+                        && realArticleJdo.getSize() != null && realArticleJdo.getSize().equals(articleJdo.getSize())
+                        && StringUtils.isEmpty(realArticleJdo.getSold())) {
+                    newSpreadsheetRowIndex = realArticleJdo.getSpreadsheetRow();
+                }
+            }
+            if (newSpreadsheetRowIndex != null) {
+                articleJdo.setSpreadsheetRow(newSpreadsheetRowIndex);
 
-            List<CellEntry> cellEntriesForUpdate = cellsTransformer.articleToCellEntriesForUpdate(articleJdo, headers, articleFeed);
-            spreadsheetWorker.saveOrUpdateCells(cellEntriesForUpdate);
-        } else {
-            // todo make find.
-            throw new RuntimeException("Wrong article to spreadsheet mapping!");
+            } else {
+                throw new RuntimeException("Updating article doesn't exist anymore!");
+            }
         }
+
+        // transform and update.
+        List<CellEntry> cellEntriesForUpdate = cellsTransformer.articleToCellEntriesForUpdate(articleJdo, headers, articleFeed);
+        spreadsheetWorker.saveOrUpdateCells(cellEntriesForUpdate);
     }
 }
