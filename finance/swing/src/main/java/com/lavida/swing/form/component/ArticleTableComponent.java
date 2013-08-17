@@ -87,7 +87,7 @@ public class ArticleTableComponent {
      */
     private void packTable(JTable table) {
 //        table.getColumn(messageSource.getMessage("mainForm.table.articles.column.name.title", null,
-//                localeHolder.getLocale())).setPreferredWidth(250);
+//                localeHolder.getLocale())).setPreferredWidth(250);    // todo review and fix
     }
 
     public JPanel getMainPanel() {

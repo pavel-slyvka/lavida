@@ -10,6 +10,8 @@ import com.google.gdata.data.spreadsheet.SpreadsheetFeed;
 import com.google.gdata.util.AuthenticationException;
 import com.google.gdata.util.ServiceException;
 import com.lavida.service.settings.Settings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URL;
@@ -22,6 +24,7 @@ import java.util.List;
  * @author Pavel
  */
 public class GoogleSpreadsheetWorker {
+    private static final Logger logger = LoggerFactory.getLogger(GoogleSpreadsheetWorker.class);
     private static final String APPLICATION_NAME = "LA VIDA Finance.";
 
     private SpreadsheetService spreadsheetService = new SpreadsheetService(APPLICATION_NAME);
@@ -77,7 +80,7 @@ public class GoogleSpreadsheetWorker {
                 }
 
             } else {
-                // todo add strange log
+                logger.warn("Found spreadsheet which is not SpreadsheetEntry instance: " + spreadsheetObject);
             }
         }
         throw new RuntimeException("No spreadsheet found with name");

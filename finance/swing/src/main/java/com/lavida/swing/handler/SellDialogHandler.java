@@ -7,7 +7,6 @@ import com.lavida.swing.dialog.SellDialog;
 import com.lavida.swing.service.ArticleServiceSwingWrapper;
 import com.lavida.swing.service.ArticlesTableModel;
 import org.springframework.context.MessageSource;
-import org.springframework.context.MessageSourceAware;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -21,7 +20,7 @@ import java.util.Date;
  * @author Ruslan
  */
 @Component
-public class SellDialogHandler implements MessageSourceAware {
+public class SellDialogHandler {
 
     @Resource
     private SellDialog dialog;
@@ -61,7 +60,7 @@ public class SellDialogHandler implements MessageSourceAware {
 
         try {
             articleServiceSwingWrapper.updateToSpreadsheet(articleJdo);
-        } catch (Throwable e) {        // todo change to Custom exception
+        } catch (Exception e) {        // todo change to Custom exception
             e.printStackTrace();
             articleJdo.setPostponedOperationDate(new Date());
             dialog.getMainForm().getHandler().showPostponedOperationsMessage();
@@ -74,8 +73,7 @@ public class SellDialogHandler implements MessageSourceAware {
     }
 
     private double exchangeEurToUah(double priceEur) {
-        double priceUah = priceEur * exchangerHolder.getSellRateEUR();
-        return priceUah;
+        return priceEur * exchangerHolder.getSellRateEUR();
     }
 
     public void oursCheckBoxSelected() {
@@ -91,26 +89,5 @@ public class SellDialogHandler implements MessageSourceAware {
 
     public void presentCheckBoxSelected() {
         dialog.getPriceField().setText(String.valueOf(0));
-    }
-
-    @Override
-    public void setMessageSource(MessageSource messageSource) {
-        this.messageSource = messageSource;
-    }
-
-    public void setDialog(SellDialog dialog) {
-        this.dialog = dialog;
-    }
-
-    public void setLocaleHolder(LocaleHolder localeHolder) {
-        this.localeHolder = localeHolder;
-    }
-
-    public void setArticleServiceSwingWrapper(ArticleServiceSwingWrapper articleServiceSwingWrapper) {
-        this.articleServiceSwingWrapper = articleServiceSwingWrapper;
-    }
-
-    public void setExchangerHolder(ExchangerHolder exchangerHolder) {
-        this.exchangerHolder = exchangerHolder;
     }
 }

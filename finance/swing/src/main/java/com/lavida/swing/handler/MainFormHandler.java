@@ -101,20 +101,4 @@ public class MainFormHandler {
         }
         form.getPostponedMessage().setText(count + "!");
     }
-
-    public void setForm(MainForm form) {
-        this.form = form;
-    }
-
-    public void setArticleServiceSwingWrapper(ArticleServiceSwingWrapper articleServiceSwingWrapper) {
-        this.articleServiceSwingWrapper = articleServiceSwingWrapper;
-    }
-
-    public void setSellDialog(SellDialog sellDialog) {
-        this.sellDialog = sellDialog;
-    }
-
-    public void setLocaleHolder(LocaleHolder localeHolder) {
-        this.localeHolder = localeHolder;
-    }
 }

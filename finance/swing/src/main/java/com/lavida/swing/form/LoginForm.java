@@ -99,10 +99,6 @@ public class LoginForm extends AbstractForm {
         errorLabel.setText(errorMessage);
     }
 
-    public void setHandler(LoginFormHandler handler) {
-        this.handler = handler;
-    }
-
     public static void main(String[] args) {
         ApplicationContext context = new ClassPathXmlApplicationContext("spring-swing.xml");
         LoginForm form = context.getBean(LoginForm.class);

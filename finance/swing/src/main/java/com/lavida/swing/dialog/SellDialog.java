@@ -33,12 +33,9 @@ public class SellDialog extends AbstractDialog {
     @Resource(name = "notSoldArticleTableModel")
     private ArticlesTableModel tableModel;
 
-//    private SoldArticleJdo soldArticleJdo;
-
     private JPanel buttonPanel, inputPanel, oursPanel, commentPanel;
     private JLabel codeLabel, nameLabel, brandLabel, sizeLabel, priceLabel, commentLabel,
             codeField, nameField, brandField, sizeField, priceField;
-    //    private JTextField commentField;
     private JTextArea commentTextArea;
     private JButton sellButton, cancelButton;
     private JCheckBox oursCheckBox, presentCheckBox;
@@ -228,69 +225,6 @@ public class SellDialog extends AbstractDialog {
 
 
     }
-
-
-    public void setHandler(SellDialogHandler handler) {
-        this.handler = handler;
-    }
-
-    public JPanel getButtonPanel() {
-        return buttonPanel;
-    }
-
-    public JPanel getInputPanel() {
-        return inputPanel;
-    }
-
-
-    public JPanel getOursPanel() {
-        return oursPanel;
-    }
-
-    public JPanel getCommentPanel() {
-        return commentPanel;
-    }
-
-    public JLabel getCodeLabel() {
-        return codeLabel;
-    }
-
-    public JLabel getNameLabel() {
-        return nameLabel;
-    }
-
-    public JLabel getPriceLabel() {
-        return priceLabel;
-    }
-
-    public JLabel getCommentLabel() {
-        return commentLabel;
-    }
-
-    public JLabel getBrandLabel() {
-        return brandLabel;
-    }
-
-    public JLabel getSizeLabel() {
-        return sizeLabel;
-    }
-
-    public JLabel getCodeField() {
-        return codeField;
-    }
-
-    public JLabel getNameField() {
-        return nameField;
-    }
-
-    public JLabel getBrandField() {
-        return brandField;
-    }
-
-    public JLabel getSizeField() {
-        return sizeField;
-    }
-
     public JLabel getPriceField() {
         return priceField;
     }
@@ -298,15 +232,6 @@ public class SellDialog extends AbstractDialog {
     public JTextArea getCommentTextArea() {
         return commentTextArea;
     }
-
-    public JButton getSellButton() {
-        return sellButton;
-    }
-
-    public JButton getCancelButton() {
-        return cancelButton;
-    }
-
     public JCheckBox getOursCheckBox() {
         return oursCheckBox;
     }
@@ -314,13 +239,4 @@ public class SellDialog extends AbstractDialog {
     public JCheckBox getPresentCheckBox() {
         return presentCheckBox;
     }
-
-    public ButtonGroup getOursButtonGroup() {
-        return oursButtonGroup;
-    }
-
-    public void setExchangerHolder(ExchangerHolder exchangerHolder) {
-        this.exchangerHolder = exchangerHolder;
-    }
-
 }

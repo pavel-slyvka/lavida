@@ -70,14 +70,6 @@ public class SettingsService {
         return null;
     }
 
-    public void setSettingsDao(GenericDao<SettingsJdo> settingsDao) {
-        this.settingsDao = settingsDao;
-    }
-
-    public void setSettingsTransformer(SettingsTransformer settingsTransformer) {
-        this.settingsTransformer = settingsTransformer;
-    }
-
     public static void main(String[] args) {
         Settings settings = new Settings();
 //        settings.setRemoteUser("remoteUser1");

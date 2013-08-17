@@ -24,7 +24,7 @@ import java.util.*;
  */
 @Component
 public class GoogleCellsTransformer {
-    private Logger logger = LoggerFactory.getLogger(GoogleCellsTransformer.class);
+    private static final Logger logger = LoggerFactory.getLogger(GoogleCellsTransformer.class);
 
     public Map<Integer, String> cellsToColNumsAndItsValueMap(List<Cell> cells) {
         Map<Integer, String> headers = new HashMap<Integer, String>(cells.size());

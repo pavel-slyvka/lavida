@@ -68,22 +68,6 @@ public abstract class AbstractDialog implements MessageSourceAware {
         this.localeHolder = localeHolder;
     }
 
-    public JDialog getDialog() {
-        return dialog;
-    }
-
-    public Container getRootContainer() {
-        return rootContainer;
-    }
-
-    public void setMainForm(MainForm mainForm) {
-        this.mainForm = mainForm;
-    }
-
-    public MessageSource getMessageSource() {
-        return messageSource;
-    }
-
     public LocaleHolder getLocaleHolder() {
         return localeHolder;
     }

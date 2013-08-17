@@ -6,6 +6,8 @@ import com.lavida.service.dao.ArticleDao;
 import com.lavida.service.entity.ArticleJdo;
 import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.event.ArticleUpdateEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.MessageSource;
 
@@ -25,6 +27,7 @@ import java.util.*;
  * @author Ruslan
  */
 public class ArticlesTableModel extends AbstractTableModel implements ApplicationListener<ArticleUpdateEvent> {
+    private static final Logger logger = LoggerFactory.getLogger(ArticlesTableModel.class);
 
     private List<String> headerTitles = new ArrayList<String>();
     private List<String> articleFieldsSequence;
@@ -92,12 +95,11 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
             } else {
                 return value;
             }
-        } catch (NoSuchFieldException e) {
-            e.printStackTrace();    // todo
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();    // todo
+
+        } catch (Exception e) {
+            logger.warn(e.getMessage(), e);
+            throw new RuntimeException(e);
         }
-        throw new RuntimeException("Something wrong!");
     }
 
     public ArticleJdo getArticleJdoByRowIndex(int rowIndex) {
@@ -163,9 +165,5 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
 
     public void setQueryName(String queryName) {
         this.queryName = queryName;
-    }
-
-    public void setArticleDao(ArticleDao articleDao) {
-        this.articleDao = articleDao;
     }
 }

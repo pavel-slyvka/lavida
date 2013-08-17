@@ -25,8 +25,4 @@ public class SettingsHolder {
         }
         return settings;
     }
-
-    public void setSettingsService(SettingsService settingsService) {
-        this.settingsService = settingsService;
-    }
 }

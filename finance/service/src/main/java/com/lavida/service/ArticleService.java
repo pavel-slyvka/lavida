@@ -40,7 +40,6 @@ public class ArticleService {
     public void update(List<ArticleJdo> articles) {
         for (ArticleJdo articleJdo : articles) {
             update(articleJdo);
-//            articleDao.update(articleJdo);
         }
     }
 

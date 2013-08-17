@@ -22,7 +22,7 @@ import java.util.List;
  */
 @Component
 public class SettingsTransformer {
-    private Logger logger = LoggerFactory.getLogger(SettingsTransformer.class);
+    private static final Logger logger = LoggerFactory.getLogger(SettingsTransformer.class);
 
     @Resource
     private DecryptionService decryptionService;
@@ -95,13 +95,5 @@ public class SettingsTransformer {
             }
         }
         return settingsJdos;
-    }
-
-    public void setDecryptionService(DecryptionService decryptionService) {
-        this.decryptionService = decryptionService;
-    }
-
-    public void setEncryptionService(EncryptionService encryptionService) {
-        this.encryptionService = encryptionService;
     }
 }

@@ -52,8 +52,4 @@ public class ArticleServiceSwingWrapper implements ApplicationContextAware {
     public void updateToSpreadsheet(ArticleJdo articleJdo) throws IOException, ServiceException {
         articleService.updateToSpreadsheet(articleJdo);
     }
-
-    public void setArticleService(ArticleService articleService) {
-        this.articleService = articleService;
-    }
 }

@@ -1,7 +1,5 @@
 package com.lavida.service.dao;
 
-import org.springframework.stereotype.Repository;
-
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.List;
@@ -37,9 +35,5 @@ public abstract class AbstractDao<T> {
     public void delete(Class<T> clazz, int id) {
         T deletingJdo = entityManager.find(clazz, id);
         entityManager.remove(deletingJdo);
-    }
-
-    public void setEntityManager(EntityManager entityManager) {
-        this.entityManager = entityManager;
     }
 }

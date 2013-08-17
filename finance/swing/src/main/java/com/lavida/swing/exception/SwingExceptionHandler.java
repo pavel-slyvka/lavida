@@ -19,7 +19,7 @@ import javax.swing.*;
  */
 @Component
 public class SwingExceptionHandler implements Thread.UncaughtExceptionHandler {
-    private Logger logger = LoggerFactory.getLogger(SwingExceptionHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(SwingExceptionHandler.class);
 
     @Resource
     private MessageSource messageSource;

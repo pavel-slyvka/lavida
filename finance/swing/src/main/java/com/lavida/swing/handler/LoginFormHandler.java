@@ -76,16 +76,4 @@ public class LoginFormHandler {
 //        }
 
     }
-
-    public void setUserService(UserService userService) {
-        this.userService = userService;
-    }
-
-    public void setForm(LoginForm form) {
-        this.form = form;
-    }
-
-    public void setMainForm(MainForm mainForm) {
-        this.mainForm = mainForm;
-    }
 }
