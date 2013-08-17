@@ -64,7 +64,7 @@ public class MainForm extends AbstractForm {
         desktopPane.add(articleTableComponent.getMainPanel(), BorderLayout.CENTER);
 
 //      panel for search operations
-        desktopPane.add(articleTableComponent.getArticleFiltersComponent().getSearchPanel(), BorderLayout.SOUTH);
+        desktopPane.add(articleTableComponent.getArticleFiltersComponent().getFiltersPanel(), BorderLayout.SOUTH);
 
         rootContainer.add(desktopPane, BorderLayout.CENTER);
 

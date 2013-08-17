@@ -1,6 +1,8 @@
 package com.lavida.service.entity;
 
 
+import com.lavida.service.FilterColumn;
+import com.lavida.service.FilterType;
 import com.lavida.service.ViewColumn;
 import com.lavida.service.remote.SpreadsheetColumn;
 import com.lavida.service.utils.CalendarConverter;
@@ -34,14 +36,17 @@ public class ArticleJdo {
 
     @SpreadsheetColumn(column = "code")
     @ViewColumn(titleKey = "mainForm.table.articles.column.code.title")
+    @FilterColumn(labelKey = "mainForm.label.search.by.code", orderForSell = 2)
     private String code;
 
     @SpreadsheetColumn(column = "name")
     @ViewColumn(titleKey = "mainForm.table.articles.column.name.title")
+    @FilterColumn(type = FilterType.PART_TEXT, labelKey = "mainForm.label.search.by.title", orderForSell = 1)
     private String name;
 
     @SpreadsheetColumn(column = "brand")
     @ViewColumn(titleKey = "mainForm.table.articles.column.brand.title")
+    @FilterColumn(labelKey = "mainForm.label.search.by.title", showForSell = false)
     private String brand;
 
     @SpreadsheetColumn(column = "quantity")
@@ -67,6 +72,7 @@ public class ArticleJdo {
 
     @SpreadsheetColumn(column = "sellPrice")
     @ViewColumn(titleKey = "mainForm.table.articles.column.sell.price.uah.title")
+    @FilterColumn(type = FilterType.NUMBER, labelKey = "mainForm.label.search.by.price", showForSold = false)
     private double priceUAH;
 
     @SpreadsheetColumn(column = "raisedPriceUah")

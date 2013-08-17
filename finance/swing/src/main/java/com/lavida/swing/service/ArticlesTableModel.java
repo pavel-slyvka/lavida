@@ -1,5 +1,6 @@
 package com.lavida.swing.service;
 
+import com.lavida.service.FiltersPurpose;
 import com.lavida.service.ViewColumn;
 import com.lavida.service.dao.ArticleDao;
 import com.lavida.service.entity.ArticleJdo;
@@ -52,6 +53,14 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
             tableData = articleDao.get(queryName);
         }
         return tableData;
+    }
+
+    public FiltersPurpose getFiltersPurpose() {
+        if (ArticleJdo.FIND_SOLD.equals(queryName)) {
+            return FiltersPurpose.SOLD_PRODUCTS;
+        } else {
+            return FiltersPurpose.SELL_PRODUCTS;
+        }
     }
 
     @Override

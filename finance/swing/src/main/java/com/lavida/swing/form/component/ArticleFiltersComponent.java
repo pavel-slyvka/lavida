@@ -1,5 +1,10 @@
 package com.lavida.swing.form.component;
 
+import com.lavida.service.FilterColumn;
+import com.lavida.service.FilterType;
+import com.lavida.service.FiltersPurpose;
+import com.lavida.service.ViewColumn;
+import com.lavida.service.entity.ArticleJdo;
 import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.service.ArticlesTableModel;
 import org.springframework.context.MessageSource;
@@ -11,7 +16,9 @@ import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
+import java.lang.reflect.Field;
+import java.util.*;
+import java.util.List;
 
 /**
  * ArticleFiltersComponent
@@ -20,152 +27,152 @@ import java.util.ArrayList;
  * @author Pavel
  */
 public class ArticleFiltersComponent {
-    private MessageSource messageSource;
-    private LocaleHolder localeHolder;
     private ArticlesTableModel tableModel;
-
-    private JPanel searchPanel;
-    private JLabel searchByNameLabel, searchByCodeLabel, searchByPriceLabel;
-    private JTextField searchByNameField, searchByCodeField, searchByPriceField;
-    private JButton clearSearchButton;
+    private List<FilterUnit> filters;
+    private JPanel filtersPanel;
     private TableRowSorter<ArticlesTableModel> sorter;
 
     public void initializeComponents(ArticlesTableModel tableModel, MessageSource messageSource, LocaleHolder localeHolder) {
         this.tableModel = tableModel;
-        this.messageSource = messageSource;
-        this.localeHolder = localeHolder;
+        this.filters = new ArrayList<FilterUnit>();
+        FiltersPurpose filtersPurpose = tableModel.getFiltersPurpose();
 
         FilterElementsListener filterElementsListener = new FilterElementsListener();
 
 //      panel for search operations
-        searchPanel = new JPanel();
-        searchPanel.setBackground(Color.lightGray);
-        searchPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(messageSource.
+        filtersPanel = new JPanel();
+        filtersPanel.setBackground(Color.lightGray);
+        filtersPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(messageSource.
                 getMessage("mainForm.panel.search.title", null, localeHolder.getLocale())),
                 BorderFactory.createEmptyBorder(5, 5, 5, 5)));
-        searchPanel.setOpaque(true);
-        searchPanel.setAutoscrolls(true);
-        searchPanel.setLayout(new GridBagLayout());
+        filtersPanel.setOpaque(true);
+        filtersPanel.setAutoscrolls(true);
+        filtersPanel.setLayout(new GridBagLayout());
+
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.HORIZONTAL;
 
-        searchByNameLabel = new JLabel(messageSource.getMessage("mainForm.label.search.by.title", null,
-                localeHolder.getLocale()));
-        constraints.gridx = 0;
-        constraints.gridy = 0;
-        searchPanel.add(searchByNameLabel, constraints);
+        boolean sellPurpose = FiltersPurpose.SELL_PRODUCTS == filtersPurpose;
+        boolean soldPurpose = FiltersPurpose.SOLD_PRODUCTS == filtersPurpose;
+        for (Field field : ArticleJdo.class.getDeclaredFields()) {
+            FilterColumn filterColumn = field.getAnnotation(FilterColumn.class);
+            if (filterColumn != null) {
+                if (sellPurpose && filterColumn.showForSell() || soldPurpose && filterColumn.showForSold()) {
+                    FilterUnit filterUnit = new FilterUnit();
+                    filterUnit.order = sellPurpose ? filterColumn.orderForSell() : filterColumn.orderForSold();
+                    filterUnit.order = filterUnit.order == 0 ? Integer.MAX_VALUE : filterUnit.order;
+                    filterUnit.filterType = filterColumn.type();
+                    filterUnit.columnTitle = getColumnTitle(field, messageSource, localeHolder);
 
-        searchByNameField = new JTextField(25);
-        searchByNameField.getDocument().addDocumentListener(filterElementsListener);
-        constraints.gridx = 1;
-        constraints.gridy = 0;
-        searchPanel.add(searchByNameField, constraints);
+                    if (!filterColumn.labelKey().isEmpty()) {
+                        filterUnit.label = new JLabel(messageSource.getMessage(filterColumn.labelKey(), null, localeHolder.getLocale()));
+                    }
 
-//        clearNameButton = new JButton(messageSource.getMessage("mainForm.button.clear.title", null,
-//                localeHolder.getLocale()));
-//        constraints.gridx = 2;
-//        constraints.gridy = 0;
-//        clearNameButton.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                searchByNameField.setText("");
-//            }
-//        });
-//        searchPanel.add(clearNameButton, constraints);
+                    filterUnit.textField = new JTextField(filterColumn.editSize());
+                    filterUnit.textField.getDocument().addDocumentListener(filterElementsListener);
+                    filters.add(filterUnit);
+                }
+            }
+        }
+        Collections.sort(filters, new Comparator<FilterUnit>() {
+            @Override
+            public int compare(FilterUnit filterUnit1, FilterUnit filterUnit2) {
+                return filterUnit1.order - filterUnit2.order;
+            }
+        });
+        for (int i = 0; i<filters.size(); ++i) {
+            constraints.gridx = 0;
+            constraints.gridy = i;
+            filtersPanel.add(filters.get(i).label, constraints);
+            constraints.gridx = 1;
+            constraints.gridy = i;
+            filtersPanel.add(filters.get(i).textField, constraints);
+        }
 
-        searchByCodeLabel = new JLabel(messageSource.getMessage("mainForm.label.search.by.code", null,
-                localeHolder.getLocale()));
-        constraints.gridx = 0;
-        constraints.gridy = 1;
-        searchPanel.add(searchByCodeLabel, constraints);
-
-        searchByCodeField = new JTextField();
-        constraints.gridx = 1;
-        constraints.gridy = 1;
-        searchByCodeField.getDocument().addDocumentListener(filterElementsListener);
-
-        searchPanel.add(searchByCodeField, constraints);
-
-        clearSearchButton = new JButton(messageSource.getMessage("mainForm.button.clear.title", null,
-                localeHolder.getLocale()));
+        JButton clearSearchButton = new JButton(messageSource.getMessage("mainForm.button.clear.title", null, localeHolder.getLocale()));
         constraints.gridx = 2;
         constraints.gridy = 1;
         clearSearchButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                searchByCodeField.setText("");
-                searchByNameField.setText("");
-                searchByPriceField.setText("");
+                for (FilterUnit filterUnit : filters) {
+                    filterUnit.textField.setText("");
+                }
             }
         });
-        searchPanel.add(clearSearchButton, constraints);
-
-        searchByPriceLabel = new JLabel(messageSource.getMessage("mainForm.label.search.by.price", null,
-                localeHolder.getLocale()));
-        constraints.gridx = 0;
-        constraints.gridy = 2;
-        searchPanel.add(searchByPriceLabel, constraints);
-
-        searchByPriceField = new JTextField();
-        constraints.gridx = 1;
-        constraints.gridy = 2;
-        searchByPriceField.getDocument().addDocumentListener(filterElementsListener);
-        searchPanel.add(searchByPriceField, constraints);
-
+        filtersPanel.add(clearSearchButton, constraints);
         sorter = new TableRowSorter<ArticlesTableModel>(tableModel);
     }
 
-    class FilterElementsListener implements DocumentListener {
-        @Override
-        public void insertUpdate(DocumentEvent e) {
-            allFilter();
-        }
-
-        @Override
-        public void removeUpdate(DocumentEvent e) {
-            allFilter();
-        }
-
-        @Override
-        public void changedUpdate(DocumentEvent e) {
-            allFilter();
-        }
+    public String getColumnTitle(Field field, MessageSource messageSource, LocaleHolder localeHolder) {
+        ViewColumn viewColumn = field.getAnnotation(ViewColumn.class);
+        return viewColumn != null ? messageSource.getMessage(viewColumn.titleKey(), null, localeHolder.getLocale()) : field.getName();
     }
 
     /**
      * Filters table by name, by code, by price.
      */
-    private void allFilter() {
-        java.util.List<RowFilter<ArticlesTableModel, Object>> andFilters = new ArrayList<RowFilter<ArticlesTableModel, Object>>();
-        String name = messageSource.getMessage("mainForm.table.articles.column.name", null, localeHolder.getLocale());
-        int columnNameIndex = tableModel.findColumn(name);
+    private void applyFilters() {
+        List<RowFilter<ArticlesTableModel, Object>> andFilters = new ArrayList<RowFilter<ArticlesTableModel, Object>>();
+        for (FilterUnit filterUnit : filters) {
+            int columnIndex = tableModel.findColumn(filterUnit.columnTitle);
 
-        RowFilter<ArticlesTableModel, Object> namesFilter = RowFilter.regexFilter(
-                ("(?iu)" + searchByNameField.getText().trim()), columnNameIndex);
-
-        String code = messageSource.getMessage("mainForm.table.articles.column.code", null, localeHolder.getLocale());  // todo change this shit
-        int columnCodeIndex = tableModel.findColumn(code);
-        RowFilter<ArticlesTableModel, Object> codeFilter = RowFilter.regexFilter(
-                searchByCodeField.getText().trim(), columnCodeIndex);
-
-        String price = messageSource.getMessage("mainForm.table.articles.column.sell.price.uah.title", null, localeHolder.getLocale());
-        int columnPriceIndex = tableModel.findColumn(price);
-
-        RowFilter<ArticlesTableModel, Object> priceFilter;
-        if (searchByPriceField.getText().length() > 0) {
-            Double number = Double.parseDouble(searchByPriceField.getText());
-            priceFilter = RowFilter.numberFilter(RowFilter.ComparisonType.EQUAL, number, columnPriceIndex);
-            andFilters.add(priceFilter);
+            RowFilter<ArticlesTableModel, Object> filter = null;
+            if (FilterType.PART_TEXT == filterUnit.filterType) {
+                filter = RowFilter.regexFilter(("(?iu)" + filterUnit.textField.getText().trim()), columnIndex);
+            } else if (FilterType.FULL_TEXT == filterUnit.filterType) {
+                filter = RowFilter.regexFilter(filterUnit.textField.getText().trim(), columnIndex);
+            } else if (FilterType.NUMBER == filterUnit.filterType) {
+                if (filterUnit.textField.getText().length() > 0) {
+                    Double number = Double.parseDouble(filterUnit.textField.getText());
+                    filter = RowFilter.numberFilter(RowFilter.ComparisonType.EQUAL, number, columnIndex);
+                }
+            }
+            if (filter != null) {
+                andFilters.add(filter);
+            }
+            sorter.setRowFilter(RowFilter.andFilter(andFilters));
         }
-
-        andFilters.add(namesFilter);
-        andFilters.add(codeFilter);
-
-        sorter.setRowFilter(RowFilter.andFilter(andFilters));
     }
 
-    public JPanel getSearchPanel() {
-        return searchPanel;
+    class FilterUnit {
+        public JTextField textField;
+        public JLabel label;
+        public FilterType filterType;
+        public String columnTitle;
+        public int order;
+
+        @Override
+        public String toString() {
+            return "FilterUnit{" +
+                    "textField=" + textField +
+                    ", label=" + label +
+                    ", filterType=" + filterType +
+                    ", columnTitle='" + columnTitle + '\'' +
+                    ", order=" + order +
+                    '}';
+        }
+    }
+
+    class FilterElementsListener implements DocumentListener {
+        @Override
+        public void insertUpdate(DocumentEvent e) {
+            applyFilters();
+        }
+
+        @Override
+        public void removeUpdate(DocumentEvent e) {
+            applyFilters();
+        }
+
+        @Override
+        public void changedUpdate(DocumentEvent e) {
+            applyFilters();
+        }
+    }
+
+    public JPanel getFiltersPanel() {
+        return filtersPanel;
     }
 
     public TableRowSorter<ArticlesTableModel> getSorter() {
