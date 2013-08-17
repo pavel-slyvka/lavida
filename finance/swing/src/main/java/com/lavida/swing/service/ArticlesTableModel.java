@@ -1,9 +1,15 @@
-package com.lavida.swing.form.tablemodel;
+package com.lavida.swing.service;
 
 import com.lavida.service.ViewColumn;
+import com.lavida.service.dao.ArticleDao;
 import com.lavida.service.entity.ArticleJdo;
+import com.lavida.swing.LocaleHolder;
+import com.lavida.swing.event.ArticleUpdateEvent;
+import org.springframework.context.ApplicationListener;
 import org.springframework.context.MessageSource;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import javax.swing.table.AbstractTableModel;
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
@@ -17,20 +23,40 @@ import java.util.*;
  *
  * @author Ruslan
  */
-public class ArticlesTableModel extends AbstractTableModel {
+public class ArticlesTableModel extends AbstractTableModel implements ApplicationListener<ArticleUpdateEvent> {
 
     private List<String> headerTitles = new ArrayList<String>();
-    private List<ArticleJdo> tableData = new ArrayList<ArticleJdo>();
     private List<String> articleFieldsSequence;
     private Map<Integer, SimpleDateFormat> columnIndexToDateFormat;
     private ArticleJdo selectedArticle;
 
-    public ArticlesTableModel() {
+    @Resource
+    private ArticleDao articleDao;
+
+    @Resource
+    private MessageSource messageSource;
+
+    @Resource
+    private LocaleHolder localeHolder;
+
+    private String queryName;
+    private List<ArticleJdo> tableData;
+
+    @Override
+    public void onApplicationEvent(ArticleUpdateEvent event) {
+        tableData = articleDao.get(queryName);
+    }
+
+    public List<ArticleJdo> getTableData() {
+        if (tableData == null) {
+            tableData = articleDao.get(queryName);
+        }
+        return tableData;
     }
 
     @Override
     public int getRowCount() {
-        return tableData.size();
+        return getTableData().size();
     }
 
     @Override
@@ -66,10 +92,11 @@ public class ArticlesTableModel extends AbstractTableModel {
     }
 
     public ArticleJdo getArticleJdoByRowIndex(int rowIndex) {
-        return tableData.get(rowIndex);
+        return getTableData().get(rowIndex);
     }
 
-    public void initHeaderFieldAndTitles(MessageSource messageSource, Locale locale) {
+    @PostConstruct
+    public void initHeaderFieldAndTitles() {
         this.articleFieldsSequence = new ArrayList<String>();
         this.headerTitles = new ArrayList<String>();
         this.columnIndexToDateFormat = new HashMap<Integer, SimpleDateFormat>();
@@ -81,7 +108,7 @@ public class ArticlesTableModel extends AbstractTableModel {
                 if (viewColumn.titleKey().isEmpty()) {
                     this.headerTitles.add(field.getName());
                 } else {
-                    this.headerTitles.add(messageSource.getMessage(viewColumn.titleKey(), null, locale));
+                    this.headerTitles.add(messageSource.getMessage(viewColumn.titleKey(), null, localeHolder.getLocale()));
                 }
                 if (field.getType() == Calendar.class) {
                     this.columnIndexToDateFormat.put(headerTitles.size() - 1,
@@ -117,28 +144,19 @@ public class ArticlesTableModel extends AbstractTableModel {
         return false;
     }
 
-    public List<ArticleJdo> getTableData() {
-        return tableData;
-    }
-
-    public void setTableData(List<ArticleJdo> tableData) {
-        this.tableData = tableData;
-    }
-
-    public void removeArticle(ArticleJdo removingArticleJdo) {
-        for (ArticleJdo articleJdo : tableData) {
-            if (articleJdo.getId() == removingArticleJdo.getId()) {
-                tableData.remove(articleJdo);
-                break;
-            }
-        }
-    }
-
     public void setSelectedArticle(ArticleJdo selectedArticle) {
         this.selectedArticle = selectedArticle;
     }
 
     public ArticleJdo getSelectedArticle() {
         return selectedArticle;
+    }
+
+    public void setQueryName(String queryName) {
+        this.queryName = queryName;
+    }
+
+    public void setArticleDao(ArticleDao articleDao) {
+        this.articleDao = articleDao;
     }
 }

@@ -1,8 +1,9 @@
 package com.lavida.swing.form;
 
 import com.lavida.swing.form.component.ArticleTableComponent;
-import com.lavida.swing.form.tablemodel.ArticlesTableModel;
 import com.lavida.swing.handler.MainFormHandler;
+import com.lavida.swing.service.ArticlesTableModel;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import javax.swing.*;
@@ -17,12 +18,13 @@ import java.util.List;
  *
  * @author Ruslan
  */
-@org.springframework.stereotype.Component
+@Component
 public class MainForm extends AbstractForm {
 
     @Resource
     private MainFormHandler handler;
 
+    @Resource(name = "notSoldArticleTableModel")
     private ArticlesTableModel tableModel;
 
     private JMenuBar jMenuBar;
@@ -58,10 +60,6 @@ public class MainForm extends AbstractForm {
         desktopPane.setLayout(new BorderLayout());
 
 //      main panel for table of goods
-        tableModel = new ArticlesTableModel();
-        tableModel.initHeaderFieldAndTitles(messageSource, localeHolder.getLocale());
-        handler.initTableModelWithData(tableModel);
-
         articleTableComponent.initializeComponents(tableModel, messageSource, localeHolder);
         desktopPane.add(articleTableComponent.getMainPanel(), BorderLayout.CENTER);
 
@@ -87,7 +85,7 @@ public class MainForm extends AbstractForm {
         refreshButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                handler.refreshButtonClicked(tableModel);
+                handler.refreshButtonClicked();
             }
         });
 
@@ -181,10 +179,6 @@ public class MainForm extends AbstractForm {
      */
     public void filterTableByRoles(List<String> userRoles) {
         articleTableComponent.filterTableByRoles(userRoles);
-    }
-
-    public ArticlesTableModel getTableModel() {
-        return tableModel;
     }
 
     public JLabel getPostponedMessage() {

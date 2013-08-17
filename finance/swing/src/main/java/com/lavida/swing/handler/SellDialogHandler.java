@@ -1,12 +1,11 @@
 package com.lavida.swing.handler;
 
-import com.lavida.service.ArticleService;
 import com.lavida.service.entity.ArticleJdo;
 import com.lavida.swing.ExchangerHolder;
 import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.dialog.SellDialog;
-import com.lavida.swing.form.MainForm;
-import com.lavida.swing.form.tablemodel.ArticlesTableModel;
+import com.lavida.swing.service.ArticleServiceSwingWrapper;
+import com.lavida.swing.service.ArticlesTableModel;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.stereotype.Component;
@@ -34,18 +33,13 @@ public class SellDialogHandler implements MessageSourceAware {
     protected LocaleHolder localeHolder;
 
     @Resource
-    private ArticleService articleService;
+    private ArticleServiceSwingWrapper articleServiceSwingWrapper;
 
-
-//    @Resource
-//    private MainFormHandler mainFormHandler;
+    @Resource(name = "notSoldArticleTableModel")
+    private ArticlesTableModel tableModel;
 
     @Resource
     private ExchangerHolder exchangerHolder;
-
-//    private double sellingPrice;
-//    private double startPrice;
-
 
     /**
      * Performs selling operation.
@@ -56,22 +50,20 @@ public class SellDialogHandler implements MessageSourceAware {
         articleJdo.setSaleDate(Calendar.getInstance());
         articleJdo.setSold(messageSource.getMessage("sellDialog.button.sell.clicked.sold", null, localeHolder.getLocale()));
         articleJdo.setComment(articleJdo.getComment() + "; " + dialog.getCommentTextArea().getText());
-        if ( dialog.getOursCheckBox().isSelected()) {
+        if (dialog.getOursCheckBox().isSelected()) {
             articleJdo.setPriceUAH(exchangeEurToUah(articleJdo.getPurchasingPriceEUR()));
             articleJdo.setOurs(dialog.getOursCheckBox().getActionCommand());
         } else if (dialog.getPresentCheckBox().isSelected()) {
             articleJdo.setPriceUAH(0);
             articleJdo.setOurs(dialog.getPresentCheckBox().getActionCommand());
         }
-        articleService.update(articleJdo);
-        dialog.getMainForm().getTableModel().removeArticle(articleJdo);
+        articleServiceSwingWrapper.update(articleJdo);
 
         try {
-            articleService.updateToSpreadsheet(articleJdo);
+            articleServiceSwingWrapper.updateToSpreadsheet(articleJdo);
         } catch (Throwable e) {        // todo change to Custom exception
             e.printStackTrace();
             articleJdo.setPostponedOperationDate(new Date());
-            articleService.update(articleJdo);
             dialog.getMainForm().getHandler().showPostponedOperationsMessage();
             dialog.showMessage("mainForm.exception.message.dialog.title", "sellDialog.handler.sold.article.not.saved.to.worksheet");
         }
@@ -87,13 +79,13 @@ public class SellDialogHandler implements MessageSourceAware {
     }
 
     public void oursCheckBoxSelected() {
-        ArticleJdo articleJdo = dialog.getMainForm().getTableModel().getSelectedArticle();
+        ArticleJdo articleJdo = tableModel.getSelectedArticle();
         double sellingPrice = (exchangeEurToUah(articleJdo.getPurchasingPriceEUR()));
         dialog.getPriceField().setText(String.valueOf(sellingPrice));
     }
 
     public void checkBoxDeSelected() {
-        ArticleJdo articleJdo = dialog.getMainForm().getTableModel().getSelectedArticle();
+        ArticleJdo articleJdo = tableModel.getSelectedArticle();
         dialog.getPriceField().setText(String.valueOf(articleJdo.getPriceUAH()));
     }
 
@@ -114,8 +106,8 @@ public class SellDialogHandler implements MessageSourceAware {
         this.localeHolder = localeHolder;
     }
 
-    public void setArticleService(ArticleService articleService) {
-        this.articleService = articleService;
+    public void setArticleServiceSwingWrapper(ArticleServiceSwingWrapper articleServiceSwingWrapper) {
+        this.articleServiceSwingWrapper = articleServiceSwingWrapper;
     }
 
     public void setExchangerHolder(ExchangerHolder exchangerHolder) {

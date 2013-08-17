@@ -4,14 +4,12 @@ import com.google.gdata.util.ServiceException;
 import com.lavida.service.dao.ArticleDao;
 import com.lavida.service.entity.ArticleJdo;
 import com.lavida.service.remote.RemoteService;
-import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * The {@code ArticleService} is a service for ArticleJdo to work with database.
@@ -27,14 +25,6 @@ public class ArticleService {
 
     @Resource
     private RemoteService remoteService;
-
-    @Resource
-    private MessageSource messageSource;
-
-    private Locale locale = new Locale.Builder().setLanguage("ru").setRegion("RU").setScript("Cyrl").build();   // todo get from holder.
-
-    public ArticleService() {
-    }
 
     @Transactional
     public void save(ArticleJdo articleJdo) {
@@ -83,18 +73,9 @@ public class ArticleService {
         return remoteService.loadArticles();
     }
 
-    public List<ArticleJdo> getNotSoldArticles() {
-        return articleDao.getNotSold();
-    }
-
-    public List<ArticleJdo> getSoldArticles() {
-        return articleDao.getSold();
-    }
-
     public void updateToSpreadsheet(ArticleJdo articleJdo) throws IOException, ServiceException {
         remoteService.updateArticle(articleJdo);
     }
-
 
     public void setArticleDao(ArticleDao articleDao) {
         this.articleDao = articleDao;

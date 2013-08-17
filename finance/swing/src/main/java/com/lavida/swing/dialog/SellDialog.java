@@ -2,8 +2,8 @@ package com.lavida.swing.dialog;
 
 import com.lavida.service.entity.ArticleJdo;
 import com.lavida.swing.ExchangerHolder;
-import com.lavida.swing.form.tablemodel.ArticlesTableModel;
 import com.lavida.swing.handler.SellDialogHandler;
+import com.lavida.swing.service.ArticlesTableModel;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -26,9 +26,12 @@ public class SellDialog extends AbstractDialog {
 
     @Resource
     private SellDialogHandler handler;
+
     @Resource
     private ExchangerHolder exchangerHolder;
 
+    @Resource(name = "notSoldArticleTableModel")
+    private ArticlesTableModel tableModel;
 
 //    private SoldArticleJdo soldArticleJdo;
 
@@ -202,7 +205,7 @@ public class SellDialog extends AbstractDialog {
         sellButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                ArticleJdo articleJdo = mainForm.getTableModel().getSelectedArticle();
+                ArticleJdo articleJdo = tableModel.getSelectedArticle();
                 handler.sell(articleJdo);
             }
         });

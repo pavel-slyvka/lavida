@@ -2,7 +2,7 @@ package com.lavida.swing.form.component;
 
 import com.lavida.service.entity.ArticleJdo;
 import com.lavida.swing.LocaleHolder;
-import com.lavida.swing.form.tablemodel.ArticlesTableModel;
+import com.lavida.swing.service.ArticlesTableModel;
 import org.springframework.context.MessageSource;
 
 import javax.swing.*;

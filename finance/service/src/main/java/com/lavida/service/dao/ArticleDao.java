@@ -14,11 +14,7 @@ import java.util.List;
 @Repository
 public class ArticleDao extends AbstractDao<ArticleJdo> {
 
-    public List<ArticleJdo> getNotSold() {
-        return entityManager.createNamedQuery(ArticleJdo.FIND_NOT_SOLD, ArticleJdo.class).getResultList();
-    }
-
-    public List<ArticleJdo> getSold() {
-        return entityManager.createNamedQuery(ArticleJdo.FIND_SOLD, ArticleJdo.class).getResultList();
+    public List<ArticleJdo> get(String queryName) {
+        return entityManager.createNamedQuery(queryName, ArticleJdo.class).getResultList();
     }
 }

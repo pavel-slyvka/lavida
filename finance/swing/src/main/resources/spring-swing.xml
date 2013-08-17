@@ -2,8 +2,9 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:util="http://www.springframework.org/schema/util"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-       http://www.springframework.org/schema/context  http://www.springframework.org/schema/context/spring-context.xsd"
+       http://www.springframework.org/schema/context  http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd"
 
        default-lazy-init="true">
 
@@ -13,4 +14,13 @@
 
     <context:component-scan base-package="com.lavida.swing"/>
 
+    <util:constant id="ArticleJdo.FIND_NOT_SOLD" static-field="com.lavida.service.entity.ArticleJdo.FIND_NOT_SOLD" />
+    <util:constant id="ArticleJdo.FIND_SOLD" static-field="com.lavida.service.entity.ArticleJdo.FIND_SOLD" />
+
+    <bean id="notSoldArticleTableModel" class="com.lavida.swing.service.ArticlesTableModel">
+        <property name="queryName" ref="ArticleJdo.FIND_NOT_SOLD" />
+    </bean>
+    <bean id="soldArticleTableModel" class="com.lavida.swing.service.ArticlesTableModel">
+        <property name="queryName" ref="ArticleJdo.FIND_SOLD" />
+    </bean>
 </beans>

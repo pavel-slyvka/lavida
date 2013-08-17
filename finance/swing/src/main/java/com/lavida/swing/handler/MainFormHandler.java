@@ -1,13 +1,13 @@
 package com.lavida.swing.handler;
 
 import com.google.gdata.util.ServiceException;
-import com.lavida.service.ArticleService;
 import com.lavida.service.entity.ArticleJdo;
 import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.dialog.SellDialog;
 import com.lavida.swing.exception.LavidaSwingRuntimeException;
 import com.lavida.swing.form.MainForm;
-import com.lavida.swing.form.tablemodel.ArticlesTableModel;
+import com.lavida.swing.service.ArticleServiceSwingWrapper;
+import com.lavida.swing.service.ArticlesTableModel;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -31,19 +31,13 @@ public class MainFormHandler {
     private SellDialog sellDialog;
 
     @Resource
-    private ArticleService articleService;
+    private ArticleServiceSwingWrapper articleServiceSwingWrapper;
 
     @Resource
     protected LocaleHolder localeHolder;
 
-
-
-    /**
-     * Sets table header and data to articlesTableModel received from google spreadsheet.
-     */
-    public void initTableModelWithData(ArticlesTableModel tableModel) {
-        tableModel.setTableData(articleService.getNotSoldArticles());
-    }
+    @Resource(name = "notSoldArticleTableModel")
+    private ArticlesTableModel tableModel;
 
     /**
      * The ActionListener for refreshButton component.
@@ -51,11 +45,10 @@ public class MainFormHandler {
      * and saves to database, then it goes through filterSold() for deleting all sold
      * goods and renders to the articleTable.
      */
-    public void refreshButtonClicked(ArticlesTableModel tableModel) {
+    public void refreshButtonClicked() {
         try {
-            List<ArticleJdo> articles = articleService.loadArticlesFromRemoteServer();
-            articleService.update(articles);
-            initTableModelWithData(tableModel);
+            List<ArticleJdo> articles = articleServiceSwingWrapper.loadArticlesFromRemoteServer();
+            articleServiceSwingWrapper.update(articles);
             form.update();    // repaint MainForm in some time
 
         } catch (IOException e) {
@@ -67,9 +60,8 @@ public class MainFormHandler {
 
 
     public void sellButtonClicked() {
-
-        if (form.getTableModel().getSelectedArticle() != null) {
-            sellDialog.initWithArticleJdo(form.getTableModel().getSelectedArticle());
+        if (tableModel.getSelectedArticle() != null) {
+            sellDialog.initWithArticleJdo(tableModel.getSelectedArticle());
             sellDialog.show();
 
         } else {
@@ -77,28 +69,12 @@ public class MainFormHandler {
         }
     }
 
-    public void setForm(MainForm form) {
-        this.form = form;
-    }
-
-    public void setArticleService(ArticleService articleService) {
-        this.articleService = articleService;
-    }
-
-    public void setSellDialog(SellDialog sellDialog) {
-        this.sellDialog = sellDialog;
-    }
-
-    public void setLocaleHolder(LocaleHolder localeHolder) {
-        this.localeHolder = localeHolder;
-    }
-
     public void recommitButtonClicked() {
-        List<ArticleJdo> articles = articleService.getAll();
+        List<ArticleJdo> articles = articleServiceSwingWrapper.getAll();
         for (ArticleJdo articleJdo : articles) {
             if (articleJdo.getPostponedOperationDate() != null) {
                 try {
-                    articleService.updateToSpreadsheet(articleJdo);
+                    articleServiceSwingWrapper.updateToSpreadsheet(articleJdo);
                     articleJdo.setPostponedOperationDate(null);
                     showPostponedOperationsMessage();
                 } catch (IOException e) {
@@ -117,12 +93,28 @@ public class MainFormHandler {
 
     public void showPostponedOperationsMessage() {
         int count = 0;
-        List<ArticleJdo> articles = articleService. getAll();
+        List<ArticleJdo> articles = articleServiceSwingWrapper.getAll();
         for (ArticleJdo articleJdo : articles) {
             if (articleJdo.getPostponedOperationDate() != null) {
-                ++ count;
+                ++count;
             }
         }
         form.getPostponedMessage().setText(count + "!");
+    }
+
+    public void setForm(MainForm form) {
+        this.form = form;
+    }
+
+    public void setArticleServiceSwingWrapper(ArticleServiceSwingWrapper articleServiceSwingWrapper) {
+        this.articleServiceSwingWrapper = articleServiceSwingWrapper;
+    }
+
+    public void setSellDialog(SellDialog sellDialog) {
+        this.sellDialog = sellDialog;
+    }
+
+    public void setLocaleHolder(LocaleHolder localeHolder) {
+        this.localeHolder = localeHolder;
     }
 }
