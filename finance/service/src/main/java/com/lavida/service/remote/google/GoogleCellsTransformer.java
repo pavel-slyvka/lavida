@@ -7,6 +7,8 @@ import com.lavida.service.entity.ArticleJdo;
 import com.lavida.service.remote.SpreadsheetColumn;
 import com.lavida.service.utils.CalendarConverter;
 import com.lavida.service.utils.DateConverter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
@@ -22,6 +24,7 @@ import java.util.*;
  */
 @Component
 public class GoogleCellsTransformer {
+    private Logger logger = LoggerFactory.getLogger(GoogleCellsTransformer.class);
 
     public Map<Integer, String> cellsToColNumsAndItsValueMap(List<Cell> cells) {
         Map<Integer, String> headers = new HashMap<Integer, String>(cells.size());
@@ -76,9 +79,9 @@ public class GoogleCellsTransformer {
                         }
                     }
                 } catch (IllegalAccessException e) {
-                    e.printStackTrace();    // todo log the error.
+                    logger.warn(e.getMessage(), e);
                 } catch (ParseException e) {
-                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                    logger.warn(e.getMessage(), e);
                 }
             }
         }
@@ -138,7 +141,7 @@ public class GoogleCellsTransformer {
                         String newCellValue = articleFieldValueToString(field.get(articleJdo), spreadsheetColumn);
                         cellEntriesForUpdate.add(new CellEntry(articleJdo.getSpreadsheetRow(), cellCol, newCellValue));
                     } else {
-                        // todo log that found SpreadsheetColumn column which don't have a mapping in the spreadsheet!
+                        logger.warn(String.format("Found SpreadsheetColumn '%s' which don't have a mapping in the spreadsheet!", spreadsheetColumn.column()));
                     }
                 }
             }

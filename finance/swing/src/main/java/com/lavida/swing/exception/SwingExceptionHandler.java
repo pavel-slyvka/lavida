@@ -1,6 +1,8 @@
 package com.lavida.swing.exception;
 
 import com.lavida.swing.LocaleHolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
@@ -17,6 +19,7 @@ import javax.swing.*;
  */
 @Component
 public class SwingExceptionHandler implements Thread.UncaughtExceptionHandler {
+    private Logger logger = LoggerFactory.getLogger(SwingExceptionHandler.class);
 
     @Resource
     private MessageSource messageSource;
@@ -31,6 +34,7 @@ public class SwingExceptionHandler implements Thread.UncaughtExceptionHandler {
 
     @Override
     public void uncaughtException(Thread t, Throwable e) {
+        logger.error(e.getMessage(), e);
         if (e instanceof LavidaSwingRuntimeException) {
             handleLavidaSwingRuntimeException((LavidaSwingRuntimeException) e);
         } else if (e instanceof RuntimeException) {
@@ -41,8 +45,6 @@ public class SwingExceptionHandler implements Thread.UncaughtExceptionHandler {
     }
 
     private void handleError(Throwable e) {
-        // todo add log message
-        e.printStackTrace();
         JOptionPane.showMessageDialog(null,
                 messageSource.getMessage("error.unknown.error.message", null, localeHolder.getLocale()),
                 messageSource.getMessage("mainForm.exception.message.dialog.title", null, localeHolder.getLocale()),
@@ -51,8 +53,6 @@ public class SwingExceptionHandler implements Thread.UncaughtExceptionHandler {
     }
 
     private void handleRuntimeException(RuntimeException e) {
-        // todo add log message
-        e.printStackTrace();
         JOptionPane.showMessageDialog(null,
                 messageSource.getMessage("error.unknown.exception.message", null, localeHolder.getLocale()),
                 messageSource.getMessage("mainForm.exception.message.dialog.title", null, localeHolder.getLocale()),
@@ -78,7 +78,6 @@ public class SwingExceptionHandler implements Thread.UncaughtExceptionHandler {
                 messageKey = "mainForm.exception.service.load.google.spreadsheet.table.data";
                 break;
         }
-        // todo add log message
         JOptionPane.showMessageDialog(e.getForm().getForm(),
                 messageSource.getMessage(messageKey, null, localeHolder.getLocale()),
                 messageSource.getMessage(titleKey, null, localeHolder.getLocale()),

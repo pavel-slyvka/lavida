@@ -3,6 +3,8 @@ package com.lavida.service.settings;
 import com.lavida.service.DecryptionService;
 import com.lavida.service.EncryptionService;
 import com.lavida.service.entity.SettingsJdo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -20,6 +22,7 @@ import java.util.List;
  */
 @Component
 public class SettingsTransformer {
+    private Logger logger = LoggerFactory.getLogger(SettingsTransformer.class);
 
     @Resource
     private DecryptionService decryptionService;
@@ -64,7 +67,7 @@ public class SettingsTransformer {
                         }
                     }
                 } catch (IllegalAccessException e) {
-                    e.printStackTrace();    // todo log the error.
+                    logger.warn(e.getMessage(), e);
                 }
             }
         }
@@ -88,7 +91,7 @@ public class SettingsTransformer {
                     settingsJdos.add(new SettingsJdo(settingsMapping.value(), value));
                 }
             } catch (IllegalAccessException e) {
-                e.printStackTrace();    // todo log the error
+                logger.warn(e.getMessage(), e);
             }
         }
         return settingsJdos;
