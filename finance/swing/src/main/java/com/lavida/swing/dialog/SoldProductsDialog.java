@@ -11,6 +11,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.*;
 
 /**
@@ -32,6 +34,7 @@ public class SoldProductsDialog extends AbstractDialog {
     private JDesktopPane desktopPane;
     private JPanel  westPanel, southPanel;
     private JButton refundButton, cancelButton;
+    private JCheckBox currentDateCheckBox;
 
     @Override
     protected void initializeForm() {
@@ -57,6 +60,28 @@ public class SoldProductsDialog extends AbstractDialog {
         desktopPane.add(articleTableComponent.getMainPanel(), BorderLayout.CENTER);
 
 //      panel for search operations
+
+        currentDateCheckBox = new JCheckBox();
+        currentDateCheckBox.setText(messageSource.getMessage("dialog.sold.products.checkBox.current.date.title",
+                null, localeHolder.getLocale()));
+        currentDateCheckBox.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                int state = e.getStateChange();
+                if (state == ItemEvent.SELECTED) {
+                    handler.currentDateCheckBoxSelected();
+                } else if (state == ItemEvent.DESELECTED) {
+                    handler.currentDateCheckBoxDeSelected();
+                }
+
+            }
+        });
+        GridBagConstraints constraints = new GridBagConstraints();
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.gridx = 2;
+        constraints.gridy = 3;
+        articleTableComponent.getArticleFiltersComponent().getFiltersPanel().add(currentDateCheckBox, constraints);
+
         desktopPane.add(articleTableComponent.getArticleFiltersComponent().getFiltersPanel(), BorderLayout.SOUTH);
 
         rootContainer.add(desktopPane, BorderLayout.CENTER);
@@ -79,6 +104,22 @@ public class SoldProductsDialog extends AbstractDialog {
 
         rootContainer.add(westPanel, BorderLayout.WEST);
 
+//        south panel for buttons
+        southPanel = new JPanel();
+        southPanel.setBackground(Color.lightGray);
+        southPanel.setLayout(new GridLayout(1,1));
+
+        cancelButton = new JButton();
+        cancelButton.setText(messageSource.getMessage("sellDialog.button.cancel.title", null, localeHolder.getLocale()));
+        cancelButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handler.cancelButtonClicked();
+            }
+        });
+        southPanel.add(cancelButton);
+
+        rootContainer.add(southPanel, BorderLayout.SOUTH);
     }
 
     /**
@@ -91,4 +132,39 @@ public class SoldProductsDialog extends AbstractDialog {
     }
 
 
+    public ArticlesTableModel getTableModel() {
+        return tableModel;
+    }
+
+    public SoldProductsDialogHandler getHandler() {
+        return handler;
+    }
+
+    public ArticleTableComponent getArticleTableComponent() {
+        return articleTableComponent;
+    }
+
+    public JDesktopPane getDesktopPane() {
+        return desktopPane;
+    }
+
+    public JPanel getWestPanel() {
+        return westPanel;
+    }
+
+    public JPanel getSouthPanel() {
+        return southPanel;
+    }
+
+    public JButton getRefundButton() {
+        return refundButton;
+    }
+
+    public JButton getCancelButton() {
+        return cancelButton;
+    }
+
+    public JCheckBox getCurrentDateCheckBox() {
+        return currentDateCheckBox;
+    }
 }

@@ -154,7 +154,7 @@ public class ArticleFiltersComponent {
         }
     }
 
-    class FilterUnit {
+    public class FilterUnit {
         public JTextField textField;
         public JLabel label;
         public FilterType filterType;
@@ -196,5 +196,9 @@ public class ArticleFiltersComponent {
 
     public TableRowSorter<ArticlesTableModel> getSorter() {
         return sorter;
+    }
+
+    public List<FilterUnit> getFilters() {
+        return filters;
     }
 }
