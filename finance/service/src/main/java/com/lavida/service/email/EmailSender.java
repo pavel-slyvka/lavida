@@ -19,7 +19,7 @@ public class EmailSender {
     @Resource
     private JavaMailSenderImpl mailSender;
 
-    @Resource
+    @Resource(name = "customeMailMessage")
     private SimpleMailMessage simpleMailMessage;
 
     @Resource

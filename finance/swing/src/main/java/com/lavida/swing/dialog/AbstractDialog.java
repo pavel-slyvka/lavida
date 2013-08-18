@@ -68,10 +68,6 @@ public abstract class AbstractDialog implements MessageSourceAware {
         this.localeHolder = localeHolder;
     }
 
-    public LocaleHolder getLocaleHolder() {
-        return localeHolder;
-    }
-
     public MainForm getMainForm() {
         return mainForm;
     }

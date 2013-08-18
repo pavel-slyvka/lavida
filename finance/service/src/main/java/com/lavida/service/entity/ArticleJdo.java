@@ -57,29 +57,31 @@ public class ArticleJdo {
     @ViewColumn(titleKey = "mainForm.table.articles.column.size.title")
     private String size;
 
-    @SpreadsheetColumn(column = "purchasePriceEur")
+    @SpreadsheetColumn(column = "purchasingPriceEUR")
     @ViewColumn(titleKey = "mainForm.table.articles.column.purchase.price.eur.title", forbiddenRoles = "ROLE_SELLER")
     private double purchasingPriceEUR;
 
-    @SpreadsheetColumn(column = "transportCostEur")
+    @SpreadsheetColumn(column = "transportCostEUR")
     @ViewColumn(titleKey = "mainForm.table.articles.column.transport.cost.eur.title", forbiddenRoles = "ROLE_SELLER")
     private double transportCostEUR;// , forbiddenRoles = "ROLE_SELLER"
 
-    @SpreadsheetColumn(column = "purchaseDate")
+    @SpreadsheetColumn(column = "deliveryDate")
+//    @SpreadsheetColumn(column = "purchaseDate")
     @ViewColumn(titleKey = "mainForm.table.articles.column.purchase.date.title")
     @Temporal(TemporalType.DATE)
     private Calendar deliveryDate;
 
-    @SpreadsheetColumn(column = "sellPrice")
+    @SpreadsheetColumn(column = "priceUAH")
+//    @SpreadsheetColumn(column = "sellPrice")
     @ViewColumn(titleKey = "mainForm.table.articles.column.sell.price.uah.title")
     @FilterColumn(type = FilterType.NUMBER, labelKey = "mainForm.label.search.by.price", showForSold = false)
     private double priceUAH;
 
-    @SpreadsheetColumn(column = "raisedPriceUah")
+    @SpreadsheetColumn(column = "raisedPriceUAH")
     @ViewColumn(titleKey = "mainForm.table.articles.column.raised.price.uah.title", forbiddenRoles = "ROLE_SELLER")
     private double raisedPriceUAH;
 
-    @SpreadsheetColumn(column = "actionPriceUah")
+    @SpreadsheetColumn(column = "actionPriceUAH")
     @ViewColumn(titleKey = "mainForm.table.articles.column.action.price.uah.title", forbiddenRoles = "ROLE_SELLER")
     private double actionPriceUAH;
 
@@ -87,11 +89,12 @@ public class ArticleJdo {
     @ViewColumn(show = false)
     private String sold;
 
-    @SpreadsheetColumn(column = "sellMarker")
+    @SpreadsheetColumn(column = "ours")
+//    @SpreadsheetColumn(column = "sellMarker")
     @ViewColumn(titleKey = "mainForm.table.articles.column.sell.marker.title")
     private String ours;
 
-    @SpreadsheetColumn(column = "sellDate")
+    @SpreadsheetColumn(column = "saleDate")
     @ViewColumn(titleKey = "mainForm.table.articles.column.sell.date.title")
     @Temporal(TemporalType.DATE)
     private Calendar saleDate;
@@ -103,12 +106,12 @@ public class ArticleJdo {
     @Temporal(TemporalType.TIMESTAMP)
     private Date postponedOperationDate;
 
-    @SpreadsheetColumn(column = "refund")
+    @SpreadsheetColumn(column = "refundDate")
     @ViewColumn(titleKey = "mainForm.table.articles.column.refund.title", forbiddenRoles = "ROLE_SELLER")
     @Temporal(TemporalType.TIMESTAMP)
     private Date refundDate;
 
-    @SpreadsheetColumn(column = "tags")
+    @SpreadsheetColumn(column = "financialTags")
     @ViewColumn(titleKey = "mainForm.table.articles.column.tags.title", forbiddenRoles = "ROLE_SELLER")
     private String financialTags;
 
