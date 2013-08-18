@@ -45,6 +45,7 @@ public class LoginForm extends AbstractForm {
         form.setTitle(messageSource.getMessage("loginForm.form.title", null, localeHolder.getLocale()));
     }
 
+
     @Override
     protected void initializeComponents() {
         instructionsLabel = new JLabel(messageSource.getMessage("loginForm.label.instruction.title", null, localeHolder.getLocale()));
