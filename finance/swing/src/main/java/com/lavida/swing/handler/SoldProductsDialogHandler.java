@@ -11,6 +11,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 
@@ -49,7 +50,8 @@ public class SoldProductsDialogHandler {
     }
 
     public void currentDateCheckBoxSelected() {
-        String currentDate = CalendarConverter.convertCalendarToString(Calendar.getInstance());
+//        String currentDate = CalendarConverter.convertCalendarToString(Calendar.getInstance());
+        String currentDate = new SimpleDateFormat("dd.MM.yyyy").format(Calendar.getInstance().getTime());
 
         List<ArticleFiltersComponent.FilterUnit> filters = soldProductsDialog.getArticleTableComponent().
                 getArticleFiltersComponent().getFilters();
