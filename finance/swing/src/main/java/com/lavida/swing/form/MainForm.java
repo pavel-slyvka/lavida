@@ -30,7 +30,7 @@ public class MainForm extends AbstractForm {
     private JMenuBar jMenuBar;
     private JDesktopPane desktopPane;
     private JPanel operationPanel, refreshPanel, westPanel;
-    private JButton refreshButton, recommitButton, sellButton, returnButton;
+    private JButton refreshButton, recommitButton, sellButton, showSoldProductsButton;
     private JPanel statusBarPanel, postponedPanel;
     private JLabel postponedOperations, postponedMessage;
 
@@ -129,11 +129,17 @@ public class MainForm extends AbstractForm {
         constraints.gridy = 0;
         operationPanel.add(sellButton, constraints);
 
-        returnButton = new JButton(messageSource.getMessage("mainForm.button.return.title", null, localeHolder.getLocale()));
-        returnButton.setMnemonic(KeyEvent.VK_R); // Alt + R hot keys
+        showSoldProductsButton = new JButton(messageSource.getMessage("mainForm.button.show.sold.products.title", null, localeHolder.getLocale()));
+        showSoldProductsButton.setMnemonic(KeyEvent.VK_X); // Alt + X hot keys
+        showSoldProductsButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handler.showSoldProductsButtonClicked();
+            }
+        });
         constraints.gridx = 0;
         constraints.gridy = 1;
-        operationPanel.add(returnButton, constraints);
+        operationPanel.add(showSoldProductsButton, constraints);
 
         westPanel = new JPanel();
         westPanel.setLayout(new GridBagLayout());

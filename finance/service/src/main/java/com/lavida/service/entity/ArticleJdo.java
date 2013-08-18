@@ -107,7 +107,7 @@ public class ArticleJdo {
     private Date postponedOperationDate;
 
     @SpreadsheetColumn(column = "refundDate")
-    @ViewColumn(titleKey = "mainForm.table.articles.column.refund.title", forbiddenRoles = "ROLE_SELLER")
+    @ViewColumn(titleKey = "mainForm.table.articles.column.refund.title", forbiddenRoles = "ROLE_SELLER", datePattern = "MM.dd.yyyy HH:mm:ss")
     @Temporal(TemporalType.TIMESTAMP)
     private Date refundDate;
 

@@ -4,6 +4,7 @@ import com.google.gdata.util.ServiceException;
 import com.lavida.service.entity.ArticleJdo;
 import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.dialog.SellDialog;
+import com.lavida.swing.dialog.SoldProductsDialog;
 import com.lavida.swing.exception.LavidaSwingRuntimeException;
 import com.lavida.swing.form.MainForm;
 import com.lavida.swing.service.ArticleServiceSwingWrapper;
@@ -29,6 +30,9 @@ public class MainFormHandler {
 
     @Resource
     private SellDialog sellDialog;
+
+    @Resource
+    private SoldProductsDialog soldProductsDialog;
 
     @Resource
     private ArticleServiceSwingWrapper articleServiceSwingWrapper;
@@ -99,5 +103,9 @@ public class MainFormHandler {
             }
         }
         form.getPostponedMessage().setText(count + "!");
+    }
+
+    public void showSoldProductsButtonClicked() {
+        soldProductsDialog.show();
     }
 }
