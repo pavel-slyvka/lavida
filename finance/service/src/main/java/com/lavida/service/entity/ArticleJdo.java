@@ -36,17 +36,17 @@ public class ArticleJdo {
 
     @SpreadsheetColumn(column = "code")
     @ViewColumn(titleKey = "mainForm.table.articles.column.code.title")
-    @FilterColumn(labelKey = "mainForm.label.search.by.code", orderForSell = 2)
+    @FilterColumn(labelKey = "mainForm.label.search.by.code", orderForSell = 2, orderForSold = 2)
     private String code;
 
     @SpreadsheetColumn(column = "name")
     @ViewColumn(titleKey = "mainForm.table.articles.column.name.title")
-    @FilterColumn(type = FilterType.PART_TEXT, labelKey = "mainForm.label.search.by.title", orderForSell = 1)
+    @FilterColumn(type = FilterType.PART_TEXT, labelKey = "mainForm.label.search.by.name", orderForSell = 1, orderForSold = 1)
     private String name;
 
     @SpreadsheetColumn(column = "brand")
     @ViewColumn(titleKey = "mainForm.table.articles.column.brand.title")
-    @FilterColumn(labelKey = "mainForm.label.search.by.title", showForSell = false)
+//    @FilterColumn(labelKey = "mainForm.label.search.by.brand", showForSell = false, orderForSold = 5)
     private String brand;
 
     @SpreadsheetColumn(column = "quantity")
@@ -63,7 +63,7 @@ public class ArticleJdo {
 
     @SpreadsheetColumn(column = "transportCostEUR")
     @ViewColumn(titleKey = "mainForm.table.articles.column.transport.cost.eur.title", forbiddenRoles = "ROLE_SELLER")
-    private double transportCostEUR;// , forbiddenRoles = "ROLE_SELLER"
+    private double transportCostEUR;
 
     @SpreadsheetColumn(column = "deliveryDate")
 //    @SpreadsheetColumn(column = "purchaseDate")
@@ -74,7 +74,9 @@ public class ArticleJdo {
     @SpreadsheetColumn(column = "priceUAH")
 //    @SpreadsheetColumn(column = "sellPrice")
     @ViewColumn(titleKey = "mainForm.table.articles.column.sell.price.uah.title")
-    @FilterColumn(type = FilterType.NUMBER, labelKey = "mainForm.label.search.by.price", showForSold = false)
+    @FilterColumn(type = FilterType.NUMBER, labelKey = "mainForm.label.search.by.price", orderForSell = 3, orderForSold = 3
+//            , showForSold = false
+    )
     private double priceUAH;
 
     @SpreadsheetColumn(column = "raisedPriceUAH")
@@ -96,6 +98,9 @@ public class ArticleJdo {
 
     @SpreadsheetColumn(column = "saleDate")
     @ViewColumn(titleKey = "mainForm.table.articles.column.sell.date.title")
+    @FilterColumn(
+//            type = FilterType.DATE,
+            labelKey = "mainForm.label.search.by.sale.date", showForSell = false, orderForSold = 4)
     @Temporal(TemporalType.DATE)
     private Calendar saleDate;
 

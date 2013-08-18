@@ -11,6 +11,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.*;
 
 /**
  * Created: 15:29 18.08.13
@@ -79,4 +80,15 @@ public class SoldProductsDialog extends AbstractDialog {
         rootContainer.add(westPanel, BorderLayout.WEST);
 
     }
+
+    /**
+     * Filters the JTable by permissions of roles (ROLE_SELLER). It removes certain columns.
+     *
+     * @param userRoles
+     */
+    public void filterTableByRoles(java.util.List<String> userRoles) {
+        articleTableComponent.filterTableByRoles(userRoles);
+    }
+
+
 }

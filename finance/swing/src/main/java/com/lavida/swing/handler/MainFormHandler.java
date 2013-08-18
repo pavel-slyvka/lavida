@@ -1,6 +1,7 @@
 package com.lavida.swing.handler;
 
 import com.google.gdata.util.ServiceException;
+import com.lavida.service.UserService;
 import com.lavida.service.entity.ArticleJdo;
 import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.dialog.SellDialog;
@@ -42,6 +43,10 @@ public class MainFormHandler {
 
     @Resource(name = "notSoldArticleTableModel")
     private ArticlesTableModel tableModel;
+
+    @Resource
+    private UserService userService;
+
 
     /**
      * The ActionListener for refreshButton component.
@@ -106,6 +111,7 @@ public class MainFormHandler {
     }
 
     public void showSoldProductsButtonClicked() {
+        soldProductsDialog.filterTableByRoles(userService.getCurrentUserRoles());
         soldProductsDialog.show();
     }
 }

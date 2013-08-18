@@ -14,19 +14,14 @@ import java.util.Locale;
  */
 public class CalendarConverter {
 
-    public static Calendar convertStringToCalendar(String strDate) {
+    public static Calendar convertStringToCalendar(String strDate) throws ParseException {
         Calendar cal = null;
 
         if (strDate != null) {
-            try {
                 DateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
                 Date date = formatter.parse(strDate);
                 cal = Calendar.getInstance();
                 cal.setTime(date);
-            } catch (ParseException e) {
-                e.printStackTrace();
-                throw new RuntimeException("Не верный формат даты!");  // todo exception
-            }
         }
 
         return cal;
@@ -38,7 +33,6 @@ public class CalendarConverter {
                 DateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
                 date = formatter.format(calendar.getTime());
         }
-
         return date;
     }
 }

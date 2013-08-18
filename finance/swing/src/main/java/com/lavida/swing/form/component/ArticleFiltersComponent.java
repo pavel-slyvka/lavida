@@ -5,9 +5,15 @@ import com.lavida.service.FilterType;
 import com.lavida.service.FiltersPurpose;
 import com.lavida.service.ViewColumn;
 import com.lavida.service.entity.ArticleJdo;
+import com.lavida.service.utils.CalendarConverter;
+import com.lavida.service.utils.DateConverter;
 import com.lavida.swing.LocaleHolder;
+import com.lavida.swing.exception.LavidaSwingRuntimeException;
+import com.lavida.swing.form.MainForm;
 import com.lavida.swing.service.ArticlesTableModel;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.MessageSource;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -17,6 +23,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.lang.reflect.Field;
+import java.text.ParseException;
 import java.util.*;
 import java.util.List;
 
@@ -80,7 +87,7 @@ public class ArticleFiltersComponent {
                 return filterUnit1.order - filterUnit2.order;
             }
         });
-        for (int i = 0; i<filters.size(); ++i) {
+        for (int i = 0; i < filters.size(); ++i) {
             constraints.gridx = 0;
             constraints.gridy = i;
             filtersPanel.add(filters.get(i).label, constraints);
@@ -126,6 +133,18 @@ public class ArticleFiltersComponent {
                 if (filterUnit.textField.getText().length() > 0) {
                     Double number = Double.parseDouble(filterUnit.textField.getText());
                     filter = RowFilter.numberFilter(RowFilter.ComparisonType.EQUAL, number, columnIndex);
+                }
+            } else if (FilterType.DATE == filterUnit.filterType) {
+                if (filterUnit.textField.getText().length() > 9) {
+                    try {
+                        filter = RowFilter.dateFilter(RowFilter.ComparisonType.EQUAL, CalendarConverter.convertStringToCalendar(
+                                filterUnit.textField.getText().trim()).getTime(), columnIndex);
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                        ApplicationContext context = new ClassPathXmlApplicationContext("spring-swing.xml");
+                        MainForm form = context.getBean(MainForm.class);
+                        form.showMessage("mainForm.exception.message.dialog.title", "exception.parse.component.filters.article.sale.date");
+                    }
                 }
             }
             if (filter != null) {

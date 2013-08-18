@@ -13,7 +13,7 @@ public class LavidaSwingRuntimeException extends RuntimeException {
     public static final int UNKNOWN_ERROR = 0;
     public static final int GOOGLE_SERVICE_EXCEPTION = 101;
     public static final int GOOGLE_IO_EXCEPTION = 102;
-
+    public static final int DATE_FORMAT_EXCEPTION = 201;
     private int errorCode;
     private AbstractForm form;
 
