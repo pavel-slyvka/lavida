@@ -42,6 +42,7 @@ public class LoginForm extends AbstractForm {
     protected void initializeForm() {
         super.initializeForm();
         form.setBounds(200, 200, 400, 200);
+
         form.setTitle(messageSource.getMessage("loginForm.form.title", null, localeHolder.getLocale()));
     }
 
