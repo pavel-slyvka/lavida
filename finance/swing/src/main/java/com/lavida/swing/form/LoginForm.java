@@ -48,6 +48,7 @@ public class LoginForm extends AbstractForm {
 
     @Override
     protected void initializeComponents() {
+
         instructionsLabel = new JLabel(messageSource.getMessage("loginForm.label.instruction.title", null, localeHolder.getLocale()));
         loginLabel = new JLabel(messageSource.getMessage("loginForm.label.login.title", null, localeHolder.getLocale()));
         passwordLabel = new JLabel(messageSource.getMessage("loginForm.label.password.title", null, localeHolder.getLocale()));
