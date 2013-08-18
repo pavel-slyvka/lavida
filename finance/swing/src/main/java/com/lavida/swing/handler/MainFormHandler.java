@@ -78,14 +78,13 @@ public class MainFormHandler {
                     articleJdo.setPostponedOperationDate(null);
                     showPostponedOperationsMessage();
                 } catch (IOException e) {
-                    e.printStackTrace();
                     form.showMessage("mainForm.exception.message.dialog.title", "sellDialog.handler.sold.article.not.saved.to.worksheet");
                     showPostponedOperationsMessage();
+                    throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.GOOGLE_IO_EXCEPTION, e, form);
                 } catch (ServiceException e) {
                     form.showMessage("mainForm.exception.message.dialog.title", "sellDialog.handler.sold.article.not.saved.to.worksheet");
-                    e.printStackTrace();
                     showPostponedOperationsMessage();
-
+                    throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.GOOGLE_SERVICE_EXCEPTION, e, form);
                 }
             }
         }

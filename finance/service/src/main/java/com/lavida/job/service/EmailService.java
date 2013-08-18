@@ -20,7 +20,7 @@ public class EmailService {
     @Resource
     private JavaMailSenderImpl mailSender;
 
-    @Resource
+    @Resource(name = "customeMailMessage")
     private SimpleMailMessage simpleMailMessage;
 
     @Resource

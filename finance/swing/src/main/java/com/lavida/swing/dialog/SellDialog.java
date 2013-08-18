@@ -27,9 +27,6 @@ public class SellDialog extends AbstractDialog {
     @Resource
     private SellDialogHandler handler;
 
-    @Resource
-    private ExchangerHolder exchangerHolder;
-
     @Resource(name = "notSoldArticleTableModel")
     private ArticlesTableModel tableModel;
 
@@ -39,7 +36,6 @@ public class SellDialog extends AbstractDialog {
     private JTextArea commentTextArea;
     private JButton sellButton, cancelButton;
     private JCheckBox oursCheckBox, presentCheckBox;
-    private ButtonGroup oursButtonGroup;
     private Border fieldsBorder;
 
     @Override
@@ -62,10 +58,6 @@ public class SellDialog extends AbstractDialog {
 
     @Override
     protected void initializeComponents() {
-
-//        double startPrice = articleJdo.getPriceUAH();
-//        double sellingPrice;
-
         rootContainer.setBackground(Color.LIGHT_GRAY);
         rootContainer.setLayout(new BorderLayout());
 //      input panel
@@ -142,7 +134,6 @@ public class SellDialog extends AbstractDialog {
         oursPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(messageSource.
                 getMessage("sellDialog.panel.ours.title", null, localeHolder.getLocale())),
                 BorderFactory.createEmptyBorder(5, 15, 5, 15)));
-        oursButtonGroup = new ButtonGroup();
         oursCheckBox = new JCheckBox();
         presentCheckBox = new JCheckBox();
         oursCheckBox.setText(messageSource.getMessage("sellDialog.checkBox.ours.text", null, localeHolder.getLocale()));
@@ -153,7 +144,6 @@ public class SellDialog extends AbstractDialog {
         oursCheckBox.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent e) {
-                JCheckBox source = (JCheckBox) e.getSource();
                 int state = e.getStateChange();
                 if (state == ItemEvent.SELECTED) {
                     handler.oursCheckBoxSelected();
@@ -166,7 +156,6 @@ public class SellDialog extends AbstractDialog {
         presentCheckBox.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent e) {
-                JCheckBox source = (JCheckBox) e.getSource();
                 int state = e.getStateChange();
                 if (state == ItemEvent.SELECTED) {
                     handler.presentCheckBoxSelected();

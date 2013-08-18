@@ -121,8 +121,8 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
                 } else {
                     this.headerTitles.add(messageSource.getMessage(viewColumn.titleKey(), null, localeHolder.getLocale()));
                 }
-                if (field.getType() == Calendar.class) {
-                    this.columnIndexToDateFormat.put(headerTitles.size() - 1,
+                if (field.getType() == Calendar.class) {          // todo for Date fields
+                    this.columnIndexToDateFormat.put(headerTitles.size() - 1,      //todo no patterns in articleJdo fields
                             new SimpleDateFormat(viewColumn.datePattern()));
                 }
             }
