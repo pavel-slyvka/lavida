@@ -14,6 +14,17 @@
 
     <context:component-scan base-package="com.lavida.swing"/>
 
+    <bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+        <property name="basenames">
+            <list>
+                <value>locale/messages</value>
+                <value>locale/errors</value>
+            </list>
+        </property>
+        <property name="fileEncodings" value="UTF-8"/>
+        <property name="defaultEncoding" value="UTF-8"/>
+    </bean>
+
     <util:constant id="ArticleJdo.FIND_NOT_SOLD" static-field="com.lavida.service.entity.ArticleJdo.FIND_NOT_SOLD" />
     <util:constant id="ArticleJdo.FIND_SOLD" static-field="com.lavida.service.entity.ArticleJdo.FIND_SOLD" />
 

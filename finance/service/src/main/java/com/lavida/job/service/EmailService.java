@@ -1,10 +1,10 @@
-package com.lavida.service.email;
+package com.lavida.job.service;
 
 import com.lavida.service.settings.Settings;
 import com.lavida.service.settings.SettingsService;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 
@@ -14,8 +14,9 @@ import javax.annotation.Resource;
  *
  * @author Ruslan
  */
-@Repository
-public class EmailSender {
+@Service
+public class EmailService {
+
     @Resource
     private JavaMailSenderImpl mailSender;
 
@@ -47,7 +48,5 @@ public class EmailSender {
         mailSender.setUsername(settings.getEmail());
         mailSender.setPassword(settings.getEmailPass());
         mailSender.send(message);
-
     }
-
 }
