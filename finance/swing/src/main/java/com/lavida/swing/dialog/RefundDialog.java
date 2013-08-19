@@ -24,6 +24,9 @@ public class RefundDialog extends AbstractDialog {
     @Resource
     private RefundDialogHandler handler;
 
+    @Resource
+    private SoldProductsDialog soldProductsDialog;
+
     @Resource(name = "soldArticleTableModel")
     private ArticlesTableModel tableModel;
 
@@ -132,7 +135,7 @@ public class RefundDialog extends AbstractDialog {
 
 //        button panel
         buttonPanel = new JPanel(new FlowLayout());
-        refundButton = new JButton(messageSource.getMessage("sellDialog.button.sell.title", null,
+        refundButton = new JButton(messageSource.getMessage("dialog.sold.products.button.refund.title", null,
                 localeHolder.getLocale()));
         refundButton.addActionListener(new ActionListener() {
             @Override
@@ -173,5 +176,9 @@ public class RefundDialog extends AbstractDialog {
 
     public JTextArea getCommentTextArea() {
         return commentTextArea;
+    }
+
+    public SoldProductsDialog getSoldProductsDialog() {
+        return soldProductsDialog;
     }
 }

@@ -48,7 +48,8 @@ public class SellDialogHandler {
     public void sell(ArticleJdo articleJdo) {
         articleJdo.setSaleDate(Calendar.getInstance());
         articleJdo.setSold(messageSource.getMessage("sellDialog.button.sell.clicked.sold", null, localeHolder.getLocale()));
-        articleJdo.setComment(articleJdo.getComment() + "; " + dialog.getCommentTextArea().getText());
+        articleJdo.setComment(articleJdo.getComment() + ((dialog.getCommentTextArea().getText().trim() == null)? null :
+                ( "; " + dialog.getCommentTextArea().getText().trim())));
         if (dialog.getOursCheckBox().isSelected()) {
             articleJdo.setPriceUAH(exchangeEurToUah(articleJdo.getPurchasingPriceEUR()));
             articleJdo.setOurs(dialog.getOursCheckBox().getActionCommand());
@@ -66,6 +67,10 @@ public class SellDialogHandler {
             articleServiceSwingWrapper.update(articleJdo);
             dialog.getMainForm().getHandler().showPostponedOperationsMessage();
             dialog.showMessage("mainForm.exception.message.dialog.title", "sellDialog.handler.sold.article.not.saved.to.worksheet");
+            dialog.hide();
+            dialog.getMainForm().update();
+            dialog.getMainForm().show();
+
         }
 
         dialog.hide();

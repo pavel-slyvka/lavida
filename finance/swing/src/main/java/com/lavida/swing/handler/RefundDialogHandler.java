@@ -45,6 +45,12 @@ public class RefundDialogHandler {
             articleServiceSwingWrapper.update(articleJdo);
             refundDialog.getMainForm().getHandler().showPostponedOperationsMessage();
             refundDialog.showMessage("mainForm.exception.message.dialog.title", "sellDialog.handler.sold.article.not.saved.to.worksheet");
+            refundDialog.hide();
+            refundDialog.getSoldProductsDialog().getDialog().repaint();
+            refundDialog.getSoldProductsDialog().show();
         }
+        refundDialog.hide();
+        refundDialog.getSoldProductsDialog().getDialog().repaint();
+        refundDialog.getSoldProductsDialog().show();
     }
 }
