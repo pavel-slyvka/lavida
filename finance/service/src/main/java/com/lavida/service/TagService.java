@@ -1,6 +1,7 @@
 package com.lavida.service;
 
 import com.lavida.service.dao.GenericDao;
+import com.lavida.service.dao.TagDao;
 import com.lavida.service.entity.TagJdo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,7 +17,7 @@ import java.util.List;
 @Service
 public class TagService {
     @Resource
-    private GenericDao<TagJdo> tagDao;
+    private TagDao tagDao;
 
     @Transactional
     public void save(TagJdo tagJdo) {
@@ -39,5 +40,9 @@ public class TagService {
     @Transactional
     public void delete (int id) {
         tagDao.delete(TagJdo.class, id);
+    }
+
+    public TagJdo getTagByName (String name) {
+         return tagDao.getTagByName(name);
     }
 }

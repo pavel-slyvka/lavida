@@ -10,13 +10,18 @@ import java.util.Date;
  */
 @Entity
 @Table(name = "tags")
+@NamedQueries({
+        @NamedQuery(name = TagJdo.FIND_BY_NAME, query = "select t from TagJdo t where t.name = :name")
+})
 public class TagJdo {
+    public static final String FIND_BY_NAME = "TagJdo.findByName";
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    private String uniqueName;
+    @Column(unique = true)
+    private String name;
 
     private String title;
 
@@ -28,8 +33,8 @@ public class TagJdo {
     public TagJdo() {
     }
 
-    public TagJdo(String uniqueName, String title, Date createDate, boolean enable) {
-        this.uniqueName = uniqueName;
+    public TagJdo(String name, String title, Date createDate, boolean enable) {
+        this.name = name;
         this.title = title;
         this.createDate = createDate;
         this.enable = enable;
@@ -43,12 +48,12 @@ public class TagJdo {
         this.id = id;
     }
 
-    public String getUniqueName() {
-        return uniqueName;
+    public String getName() {
+        return name;
     }
 
-    public void setUniqueName(String uniqueName) {
-        this.uniqueName = uniqueName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getTitle() {
@@ -79,7 +84,7 @@ public class TagJdo {
     public String toString() {
         return "TagJdo{" +
                 "id=" + id +
-                ", uniqueName='" + uniqueName + '\'' +
+                ", name='" + name + '\'' +
                 ", title='" + title + '\'' +
                 ", createDate=" + createDate +
                 ", enable=" + enable +
