@@ -42,6 +42,7 @@ public class LoginFormHandler {
             validateCredentials(loginEntered, passwordEntered);
             userService.login(loginEntered, passwordEntered);
             mainForm.filterTableByRoles(userService.getCurrentUserRoles());
+            mainForm.getSoldProductsDialog().filterTableByRoles(userService.getCurrentUserRoles());
             mainForm.show();
             form.hide();
         } catch (UserValidationException e1) {

@@ -24,6 +24,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.lang.reflect.Field;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
 
@@ -137,8 +138,8 @@ public class ArticleFiltersComponent {
             } else if (FilterType.DATE == filterUnit.filterType) {
                 if (filterUnit.textField.getText().length() > 9) {
                     try {
-                        filter = RowFilter.dateFilter(RowFilter.ComparisonType.EQUAL, CalendarConverter.convertStringToCalendar(
-                                filterUnit.textField.getText().trim()).getTime(), columnIndex);
+                        filter = RowFilter.dateFilter(RowFilter.ComparisonType.EQUAL, new SimpleDateFormat("dd.MM.yyyy").parse(
+                                filterUnit.textField.getText().trim()), columnIndex);
                     } catch (ParseException e) {
                         e.printStackTrace();
                         ApplicationContext context = new ClassPathXmlApplicationContext("spring-swing.xml");

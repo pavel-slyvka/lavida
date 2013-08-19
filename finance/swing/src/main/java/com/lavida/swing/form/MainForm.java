@@ -1,5 +1,6 @@
 package com.lavida.swing.form;
 
+import com.lavida.swing.dialog.SoldProductsDialog;
 import com.lavida.swing.form.component.ArticleTableComponent;
 import com.lavida.swing.handler.MainFormHandler;
 import com.lavida.swing.service.ArticlesTableModel;
@@ -26,6 +27,9 @@ public class MainForm extends AbstractForm {
 
     @Resource(name = "notSoldArticleTableModel")
     private ArticlesTableModel tableModel;
+
+    @Resource
+    private SoldProductsDialog soldProductsDialog;
 
     private JMenuBar jMenuBar;
     private JDesktopPane desktopPane;
@@ -193,6 +197,10 @@ public class MainForm extends AbstractForm {
 
     public MainFormHandler getHandler() {
         return handler;
+    }
+
+    public SoldProductsDialog getSoldProductsDialog() {
+        return soldProductsDialog;
     }
 }
 

@@ -63,6 +63,7 @@ public class SellDialogHandler {
         } catch (Exception e) {        // todo change to Custom exception
             e.printStackTrace();
             articleJdo.setPostponedOperationDate(new Date());
+            articleServiceSwingWrapper.update(articleJdo);
             dialog.getMainForm().getHandler().showPostponedOperationsMessage();
             dialog.showMessage("mainForm.exception.message.dialog.title", "sellDialog.handler.sold.article.not.saved.to.worksheet");
         }

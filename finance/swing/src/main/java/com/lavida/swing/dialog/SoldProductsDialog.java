@@ -1,7 +1,6 @@
 package com.lavida.swing.dialog;
 
 import com.lavida.swing.form.component.ArticleTableComponent;
-import com.lavida.swing.handler.MainFormHandler;
 import com.lavida.swing.handler.SoldProductsDialogHandler;
 import com.lavida.swing.service.ArticlesTableModel;
 import org.springframework.stereotype.Component;
@@ -13,11 +12,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.util.*;
 
 /**
  * Created: 15:29 18.08.13
- *
+ * The SoldProductsDialog is the dialog for selling the selected product.
  * @author Ruslan
  */
 @Component
@@ -60,7 +58,6 @@ public class SoldProductsDialog extends AbstractDialog {
         desktopPane.add(articleTableComponent.getMainPanel(), BorderLayout.CENTER);
 
 //      panel for search operations
-
         currentDateCheckBox = new JCheckBox();
         currentDateCheckBox.setText(messageSource.getMessage("dialog.sold.products.checkBox.current.date.title",
                 null, localeHolder.getLocale()));
@@ -73,7 +70,6 @@ public class SoldProductsDialog extends AbstractDialog {
                 } else if (state == ItemEvent.DESELECTED) {
                     handler.currentDateCheckBoxDeSelected();
                 }
-
             }
         });
         GridBagConstraints constraints = new GridBagConstraints();
@@ -129,15 +125,6 @@ public class SoldProductsDialog extends AbstractDialog {
      */
     public void filterTableByRoles(java.util.List<String> userRoles) {
         articleTableComponent.filterTableByRoles(userRoles);
-    }
-
-
-    public ArticlesTableModel getTableModel() {
-        return tableModel;
-    }
-
-    public SoldProductsDialogHandler getHandler() {
-        return handler;
     }
 
     public ArticleTableComponent getArticleTableComponent() {

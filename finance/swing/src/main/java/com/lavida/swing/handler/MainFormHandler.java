@@ -44,8 +44,8 @@ public class MainFormHandler {
     @Resource(name = "notSoldArticleTableModel")
     private ArticlesTableModel tableModel;
 
-    @Resource
-    private UserService userService;
+//    @Resource
+//    private UserService userService;
 
 
     /**
@@ -111,7 +111,7 @@ public class MainFormHandler {
     }
 
     public void showSoldProductsButtonClicked() {
-        soldProductsDialog.filterTableByRoles(userService.getCurrentUserRoles());
+//        soldProductsDialog.filterTableByRoles(userService.getCurrentUserRoles());
         soldProductsDialog.show();
     }
 }

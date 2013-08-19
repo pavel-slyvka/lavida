@@ -71,4 +71,8 @@ public abstract class AbstractDialog implements MessageSourceAware {
     public MainForm getMainForm() {
         return mainForm;
     }
+
+    public JDialog getDialog() {
+        return dialog;
+    }
 }
