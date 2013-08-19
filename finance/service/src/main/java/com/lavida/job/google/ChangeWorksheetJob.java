@@ -16,12 +16,12 @@ import java.util.List;
 import java.util.Scanner;
 
 /**
- * Created: 13:43 19.08.13
- * The ChangeCredentialsJob is a job for changing RemoteUser and RemotePass settings in the database.
+ * Created: 16:36 19.08.13
+ *
  * @author Ruslan
  */
 @Component
-public class ChangeCredentialsJob extends AbstractJob {
+public class ChangeWorksheetJob extends AbstractJob {
     private static final List<String> FORBIDDEN_ROLES = new ArrayList<String>();
 
     static {
@@ -34,11 +34,38 @@ public class ChangeCredentialsJob extends AbstractJob {
     @Resource
     private SettingsService settingsService;
 
+    /**
+     * Changes settings in the database
+     *
+     * @param spreadsheetName the RemoteUser to be changed;
+     * @param worksheetNumber the RemotePass to be changed.
+     */
+    private void changeSettings(String spreadsheetName, int worksheetNumber) {
+        Settings currentSettings = settingsService.getSettings();
+        currentSettings.setSpreadsheetName(spreadsheetName);
+        currentSettings.setWorksheetNumber(worksheetNumber);
+        settingsService.saveSettings(currentSettings);
+    }
 
     /**
-     * Changes credentials to the google account in  the setting table of the database.
+     * Checks if current user has forbidden roles.
+     *
+     * @param userRoles the List of roles
+     * @return true if the user has at least one forbidden role.
      */
-    public void changeCredentials() {
+    private boolean isForbidden(List<String> userRoles) {
+        for (String forbiddenRole : FORBIDDEN_ROLES) {
+            if (userRoles.contains(forbiddenRole)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Changes spreadsheetName and worksheetNumber in dialog from console.
+     */
+    private void changeWorksheet() {
         Scanner scanner = new Scanner(System.in);
         boolean authenticated = false;
         authentication:
@@ -56,58 +83,37 @@ public class ChangeCredentialsJob extends AbstractJob {
             }
         }
         List<String> userRoles = userService.getCurrentUserRoles();
-        String spreadsheetLogin;
         if (!isForbidden(userRoles)) {
+            System.out.println(messageSource.getMessage("job.google.change.spreadsheet.title.enter", null, locale));
+            String spreadsheetTitle = scanner.next().trim();
+            String index;
+            int worksheetIndex;
             while (true) {
-                System.out.println(messageSource.getMessage("job.google.change.credentials.enter.spreadsheet.login", null, locale));
-                spreadsheetLogin = scanner.next().trim();
-                if (spreadsheetLogin.endsWith("@gmail.com")) {
+                System.out.println(messageSource.getMessage("job.google.change.spreadsheet.worksheet.index.enter", null, locale));
+                index = scanner.next().trim();
+                if (index.matches("\\d") && Integer.parseInt(index) > 0) {
+                    worksheetIndex = Integer.parseInt(index);
                     break;
                 } else {
-                    System.out.println(messageSource.getMessage("job.google.change.credentials.validation.wrong.spreadsheet.login", null, locale));
+                    System.out.println(messageSource.getMessage("job.google.change.spreadsheet.validation.wrong.worksheet.index", null, locale));
+
                 }
             }
-            System.out.println(messageSource.getMessage("job.google.change.credentials.enter.spreadsheet.password", null, locale));
-            String spreadsheetPassword = scanner.next().trim();
-            changeSettings(spreadsheetLogin, spreadsheetPassword);
+            changeSettings(spreadsheetTitle, worksheetIndex);
             System.out.println(messageSource.getMessage("job.google.change.credentials.successfully", null, locale));
         } else {
             System.out.println(messageSource.getMessage("job.google.change.credentials.exception.access.denied", null, locale));
             System.exit(1);
         }
-    }
 
-    /**
-     * Changes settings in the database
-     * @param spreadsheetLogin the RemoteUser to be changed;
-     * @param spreadsheetPassword the RemotePass to be changed.
-     */
-    private void changeSettings(String spreadsheetLogin, String spreadsheetPassword) {
-        Settings currentSettings = settingsService.getSettings();
-        currentSettings.setRemoteUser(spreadsheetLogin);
-        currentSettings.setRemotePass(spreadsheetPassword);
-        settingsService.saveSettings(currentSettings);
-    }
-
-    /**
-     * Checks if current user has forbidden roles.
-     * @param userRoles the List of roles
-     * @return true if the user has at least one forbidden role.
-     */
-    private boolean isForbidden(List<String> userRoles) {
-        for (String forbiddenRole : FORBIDDEN_ROLES) {
-            if (userRoles.contains(forbiddenRole)) {
-                return true;
-            }
-        }
-        return false;
     }
 
 
     public static void main(String[] args) {
         ApplicationContext context = new ClassPathXmlApplicationContext("spring-jobs.xml");
-        ChangeCredentialsJob job = context.getBean(ChangeCredentialsJob.class);
-        job.changeCredentials();
+        ChangeWorksheetJob job = context.getBean(ChangeWorksheetJob.class);
+        job.changeWorksheet();
     }
-}
 
+
+}
