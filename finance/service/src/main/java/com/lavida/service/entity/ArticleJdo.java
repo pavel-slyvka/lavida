@@ -98,9 +98,7 @@ public class ArticleJdo {
 
     @SpreadsheetColumn(column = "saleDate")
     @ViewColumn(titleKey = "mainForm.table.articles.column.sell.date.title")
-    @FilterColumn(
-//            type = FilterType.DATE,
-            labelKey = "mainForm.label.search.by.sale.date", showForSell = false, orderForSold = 4)
+    @FilterColumn(type = FilterType.DATE, labelKey = "mainForm.label.search.by.sale.date", showForSell = false, orderForSold = 4)
     @Temporal(TemporalType.DATE)
     private Calendar saleDate;
 

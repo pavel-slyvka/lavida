@@ -5,15 +5,9 @@ import com.lavida.service.FilterType;
 import com.lavida.service.FiltersPurpose;
 import com.lavida.service.ViewColumn;
 import com.lavida.service.entity.ArticleJdo;
-import com.lavida.service.utils.CalendarConverter;
-import com.lavida.service.utils.DateConverter;
 import com.lavida.swing.LocaleHolder;
-import com.lavida.swing.exception.LavidaSwingRuntimeException;
-import com.lavida.swing.form.MainForm;
 import com.lavida.swing.service.ArticlesTableModel;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.MessageSource;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -27,6 +21,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
+import java.util.Queue;
 
 /**
  * ArticleFiltersComponent
@@ -71,6 +66,7 @@ public class ArticleFiltersComponent {
                     filterUnit.order = filterUnit.order == 0 ? Integer.MAX_VALUE : filterUnit.order;
                     filterUnit.filterType = filterColumn.type();
                     filterUnit.columnTitle = getColumnTitle(field, messageSource, localeHolder);
+                    filterUnit.columnDatePattern = getColumnDatePattern(field);
 
                     if (!filterColumn.labelKey().isEmpty()) {
                         filterUnit.label = new JLabel(messageSource.getMessage(filterColumn.labelKey(), null, localeHolder.getLocale()));
@@ -112,9 +108,14 @@ public class ArticleFiltersComponent {
         sorter = new TableRowSorter<ArticlesTableModel>(tableModel);
     }
 
-    public String getColumnTitle(Field field, MessageSource messageSource, LocaleHolder localeHolder) {
+    private String getColumnTitle(Field field, MessageSource messageSource, LocaleHolder localeHolder) {
         ViewColumn viewColumn = field.getAnnotation(ViewColumn.class);
         return viewColumn != null ? messageSource.getMessage(viewColumn.titleKey(), null, localeHolder.getLocale()) : field.getName();
+    }
+
+    private String getColumnDatePattern(Field field) {
+        ViewColumn viewColumn = field.getAnnotation(ViewColumn.class);
+        return viewColumn != null ? viewColumn.datePattern() : null;
     }
 
     /**
@@ -136,16 +137,9 @@ public class ArticleFiltersComponent {
                     filter = RowFilter.numberFilter(RowFilter.ComparisonType.EQUAL, number, columnIndex);
                 }
             } else if (FilterType.DATE == filterUnit.filterType) {
-                if (filterUnit.textField.getText().length() > 9) {
-                    try {
-                        filter = RowFilter.dateFilter(RowFilter.ComparisonType.EQUAL, new SimpleDateFormat("dd.MM.yyyy").parse(
-                                filterUnit.textField.getText().trim()), columnIndex);
-                    } catch (ParseException e) {
-                        e.printStackTrace();
-                        ApplicationContext context = new ClassPathXmlApplicationContext("spring-swing.xml");
-                        MainForm form = context.getBean(MainForm.class);
-                        form.showMessage("mainForm.exception.message.dialog.title", "exception.parse.component.filters.article.sale.date");
-                    }
+                if (filterUnit.textField.getText().length() > 0) {
+                        filter = RowFilter.regexFilter(getCorrectedDate(filterUnit.textField.getText().trim(),
+                                filterUnit.columnDatePattern), columnIndex);
                 }
             }
             if (filter != null) {
@@ -155,11 +149,49 @@ public class ArticleFiltersComponent {
         }
     }
 
+    /**
+     * Returns date in the format: neededDatePattern, in case if year or month isn't entered, current year/month is put.
+     *
+     * @return
+     */
+    private String getCorrectedDate(String enteredDate, String neededDatePattern) {
+        Queue<String> dateParts = new ArrayDeque<String>(3);
+        StringBuilder number = new StringBuilder();
+        for (char symbol : enteredDate.toCharArray()) {
+            if (Character.isDigit(symbol)) {
+                number.append(symbol);
+            } else if (number.length() > 0) {
+                dateParts.add(number.toString());
+                number = new StringBuilder();
+            }
+        }
+        if (number.length() > 0) {
+            dateParts.add(number.toString());
+        }
+
+        Calendar currentDate = Calendar.getInstance();
+        switch (dateParts.size()) {
+            case 1:
+                dateParts.add(Integer.toString(currentDate.get(Calendar.MONTH) + 1));
+            case 2:
+                dateParts.add(Integer.toString(currentDate.get(Calendar.YEAR)));
+        }
+
+        try {
+            Date date = new SimpleDateFormat("dd.MM.yyyy").parse(dateParts.remove() + '.' + dateParts.remove() + '.' + dateParts.remove());
+            return new SimpleDateFormat(neededDatePattern).format(date);
+
+        } catch (ParseException e) {
+            throw new RuntimeException(e);  // todo change exception
+        }
+    }
+
     public class FilterUnit {
         public JTextField textField;
         public JLabel label;
         public FilterType filterType;
         public String columnTitle;
+        public String columnDatePattern;
         public int order;
 
         @Override
@@ -169,6 +201,7 @@ public class ArticleFiltersComponent {
                     ", label=" + label +
                     ", filterType=" + filterType +
                     ", columnTitle='" + columnTitle + '\'' +
+                    ", columnDatePattern='" + columnDatePattern + '\'' +
                     ", order=" + order +
                     '}';
         }
