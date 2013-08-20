@@ -74,7 +74,7 @@ public class ArticleJdo {
     @SpreadsheetColumn(column = "priceUAH")
 //    @SpreadsheetColumn(column = "sellPrice")
     @ViewColumn(titleKey = "mainForm.table.articles.column.sell.price.uah.title")
-    @FilterColumn(type = FilterType.NUMBER, labelKey = "mainForm.label.search.by.price", orderForSell = 3, orderForSold = 3
+    @FilterColumn(type = FilterType.NUMBER_DIAPASON, labelKey = "mainForm.label.search.by.price", orderForSell = 3, orderForSold = 3
 //            , showForSold = false
     )
     private double priceUAH;
@@ -98,7 +98,7 @@ public class ArticleJdo {
 
     @SpreadsheetColumn(column = "saleDate")
     @ViewColumn(titleKey = "mainForm.table.articles.column.sell.date.title")
-    @FilterColumn(type = FilterType.DATE, labelKey = "mainForm.label.search.by.sale.date", showForSell = false, orderForSold = 4)
+    @FilterColumn(type = FilterType.DATE_DIAPASON, labelKey = "mainForm.label.search.by.sale.date", showForSell = false, orderForSold = 4)
     @Temporal(TemporalType.DATE)
     private Calendar saleDate;
 

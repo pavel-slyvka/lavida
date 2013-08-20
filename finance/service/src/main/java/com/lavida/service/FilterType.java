@@ -8,5 +8,5 @@ package com.lavida.service;
  * @author Pavel
  */
 public enum FilterType {
-    PART_TEXT, FULL_TEXT, NUMBER , DATE
+    PART_TEXT, FULL_TEXT, NUMBER, NUMBER_DIAPASON, DATE, DATE_DIAPASON
 }

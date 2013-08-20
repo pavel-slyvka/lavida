@@ -122,24 +122,57 @@ public class ArticleFiltersComponent {
      * Filters table by name, by code, by price.
      */
     private void applyFilters() {
-        List<RowFilter<ArticlesTableModel, Object>> andFilters = new ArrayList<RowFilter<ArticlesTableModel, Object>>();
+        List<RowFilter<ArticlesTableModel, Integer>> andFilters = new ArrayList<RowFilter<ArticlesTableModel, Integer>>();
         for (FilterUnit filterUnit : filters) {
-            int columnIndex = tableModel.findColumn(filterUnit.columnTitle);
+            final int columnIndex = tableModel.findColumn(filterUnit.columnTitle);
 
-            RowFilter<ArticlesTableModel, Object> filter = null;
+            RowFilter<ArticlesTableModel, Integer> filter = null;
             if (FilterType.PART_TEXT == filterUnit.filterType) {
                 filter = RowFilter.regexFilter(("(?iu)" + filterUnit.textField.getText().trim()), columnIndex);
             } else if (FilterType.FULL_TEXT == filterUnit.filterType) {
                 filter = RowFilter.regexFilter(filterUnit.textField.getText().trim(), columnIndex);
-            } else if (FilterType.NUMBER == filterUnit.filterType) {
+            } else if (FilterType.NUMBER == filterUnit.filterType
+                    || FilterType.NUMBER_DIAPASON == filterUnit.filterType && !filterUnit.textField.getText().contains("-")) {
                 if (filterUnit.textField.getText().length() > 0) {
                     Double number = Double.parseDouble(filterUnit.textField.getText());
                     filter = RowFilter.numberFilter(RowFilter.ComparisonType.EQUAL, number, columnIndex);
                 }
-            } else if (FilterType.DATE == filterUnit.filterType) {
+            } else if (FilterType.NUMBER_DIAPASON == filterUnit.filterType) {
                 if (filterUnit.textField.getText().length() > 0) {
-                        filter = RowFilter.regexFilter(getCorrectedDate(filterUnit.textField.getText().trim(),
-                                filterUnit.columnDatePattern), columnIndex);
+                    String[] numbers = filterUnit.textField.getText().split("-", 2);
+                    if (numbers.length > 1 && !numbers[0].trim().isEmpty() && !numbers[1].trim().isEmpty()) {
+                        final Double number1 = Double.parseDouble(numbers[0]);
+                        final Double number2 = Double.parseDouble(numbers[1]);
+                        filter = new RowFilter<ArticlesTableModel, Integer>() {
+                            @Override
+                            public boolean include(Entry<? extends ArticlesTableModel, ? extends Integer> entry) {
+                                Double number = (Double) tableModel.getRawValueAt(entry.getIdentifier(), columnIndex);
+                                return number > number1 && number < number2;
+                            }
+                        };
+                    }
+                }
+            } else if (FilterType.DATE == filterUnit.filterType
+                    || FilterType.DATE_DIAPASON == filterUnit.filterType && !filterUnit.textField.getText().contains("-")) {
+                if (filterUnit.textField.getText().length() > 0) {
+                    Date correctedDate = getCorrectedDate(filterUnit.textField.getText().trim());
+                    String correctedDateString = new SimpleDateFormat(filterUnit.columnDatePattern).format(correctedDate);
+                    filter = RowFilter.regexFilter(correctedDateString, columnIndex);
+                }
+            } else if (FilterType.DATE_DIAPASON == filterUnit.filterType) {
+                if (filterUnit.textField.getText().length() > 0) {
+                    String[] dates = filterUnit.textField.getText().split("-", 2);
+                    if (dates.length > 1 && !dates[0].trim().isEmpty() && !dates[1].trim().isEmpty()) {
+                        final Date correctedDate1 = getCorrectedDate(dates[0]);
+                        final Date correctedDate2 = getCorrectedDate(dates[1]);
+                        filter = new RowFilter<ArticlesTableModel, Integer>() {
+                            @Override
+                            public boolean include(Entry<? extends ArticlesTableModel, ? extends Integer> entry) {
+                                Date date = ((Calendar) tableModel.getRawValueAt(entry.getIdentifier(), columnIndex)).getTime();
+                                return date.after(addDays(correctedDate1, -1)) && date.before(addDays(correctedDate2, 1));
+                            }
+                        };
+                    }
                 }
             }
             if (filter != null) {
@@ -149,12 +182,19 @@ public class ArticleFiltersComponent {
         }
     }
 
+    private Date addDays(Date date, int daysCount) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.add(Calendar.DATE, daysCount);
+        return calendar.getTime();
+    }
+
     /**
      * Returns date in the format: neededDatePattern, in case if year or month isn't entered, current year/month is put.
      *
      * @return
      */
-    private String getCorrectedDate(String enteredDate, String neededDatePattern) {
+    private Date getCorrectedDate(String enteredDate) {
         Queue<String> dateParts = new ArrayDeque<String>(3);
         StringBuilder number = new StringBuilder();
         for (char symbol : enteredDate.toCharArray()) {
@@ -178,8 +218,7 @@ public class ArticleFiltersComponent {
         }
 
         try {
-            Date date = new SimpleDateFormat("dd.MM.yyyy").parse(dateParts.remove() + '.' + dateParts.remove() + '.' + dateParts.remove());
-            return new SimpleDateFormat(neededDatePattern).format(date);
+            return new SimpleDateFormat("dd.MM.yyyy").parse(dateParts.remove() + '.' + dateParts.remove() + '.' + dateParts.remove());
 
         } catch (ParseException e) {
             throw new RuntimeException(e);  // todo change exception

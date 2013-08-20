@@ -83,27 +83,31 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        ArticleJdo articleJdo = getArticleJdoByRowIndex(rowIndex);
+        Object value = getRawValueAt(rowIndex, columnIndex);
+        if (value instanceof Calendar) {
+            return columnIndexToDateFormat.get(columnIndex).format(((Calendar) value).getTime());
 
-        try {
-            Field field = ArticleJdo.class.getDeclaredField(articleFieldsSequence.get(columnIndex));
-            field.setAccessible(true);
-            Object value = field.get(articleJdo);
-            if (value instanceof Calendar) {
-                return columnIndexToDateFormat.get(columnIndex).format(((Calendar) value).getTime());
-
-            } else {
-                return value;
-            }
-
-        } catch (Exception e) {
-            logger.warn(e.getMessage(), e);
-            throw new RuntimeException(e);
+        } else {
+            return value;
         }
     }
 
     public ArticleJdo getArticleJdoByRowIndex(int rowIndex) {
         return getTableData().get(rowIndex);
+    }
+
+    public Object getRawValueAt(int rowIndex, int columnIndex) {
+        ArticleJdo articleJdo = getArticleJdoByRowIndex(rowIndex);
+
+        try {
+            Field field = ArticleJdo.class.getDeclaredField(articleFieldsSequence.get(columnIndex));
+            field.setAccessible(true);
+            return field.get(articleJdo);
+
+        } catch (Exception e) {
+            logger.warn(e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
     }
 
     @PostConstruct
