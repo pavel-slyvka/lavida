@@ -34,6 +34,7 @@ public class ArticleFiltersComponent {
     private List<FilterUnit> filters;
     private JPanel filtersPanel;
     private TableRowSorter<ArticlesTableModel> sorter;
+    private ArticleAnalyzeComponent articleAnalyzeComponent = new ArticleAnalyzeComponent();
 
     public void initializeComponents(ArticlesTableModel tableModel, MessageSource messageSource, LocaleHolder localeHolder) {
         this.tableModel = tableModel;
@@ -106,6 +107,9 @@ public class ArticleFiltersComponent {
         });
         filtersPanel.add(clearSearchButton, constraints);
         sorter = new TableRowSorter<ArticlesTableModel>(tableModel);
+
+        articleAnalyzeComponent.initializeComponents(tableModel, messageSource, localeHolder);
+
     }
 
     private String getColumnTitle(Field field, MessageSource messageSource, LocaleHolder localeHolder) {
@@ -246,20 +250,45 @@ public class ArticleFiltersComponent {
         }
     }
 
+    /**
+     * Updates fields of the articleAnalyzeComponent.
+     */
+    private void updateAnalyzeComponent () {
+        int totalCountArticles = 0;
+        double totalOriginalCostEUR = 0;
+        double totalPriceUAH = 0;
+
+        int viewRows = sorter.getViewRowCount();
+        List<ArticleJdo> selectedArticles = new ArrayList<ArticleJdo>();
+        for (int i=0; i < viewRows; i++) {
+            int row = sorter.convertRowIndexToModel(i);
+            selectedArticles.add(tableModel.getArticleJdoByRowIndex(row));
+        }
+        for (ArticleJdo articleJdo : selectedArticles) {
+            ++ totalCountArticles;
+            totalOriginalCostEUR += (articleJdo.getTransportCostEUR() + articleJdo.getPurchasingPriceEUR());
+            totalPriceUAH += (articleJdo.getPriceUAH());
+        }
+        articleAnalyzeComponent.updateFields(totalCountArticles, totalOriginalCostEUR, totalPriceUAH);
+    }
+
     class FilterElementsListener implements DocumentListener {
         @Override
         public void insertUpdate(DocumentEvent e) {
             applyFilters();
+            updateAnalyzeComponent();
         }
 
         @Override
         public void removeUpdate(DocumentEvent e) {
             applyFilters();
+            updateAnalyzeComponent();
         }
 
         @Override
         public void changedUpdate(DocumentEvent e) {
             applyFilters();
+            updateAnalyzeComponent();
         }
     }
 
@@ -273,5 +302,9 @@ public class ArticleFiltersComponent {
 
     public List<FilterUnit> getFilters() {
         return filters;
+    }
+
+    public ArticleAnalyzeComponent getArticleAnalyzeComponent() {
+        return articleAnalyzeComponent;
     }
 }

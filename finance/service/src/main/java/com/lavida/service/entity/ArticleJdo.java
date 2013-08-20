@@ -74,9 +74,8 @@ public class ArticleJdo {
     @SpreadsheetColumn(column = "priceUAH")
 //    @SpreadsheetColumn(column = "sellPrice")
     @ViewColumn(titleKey = "mainForm.table.articles.column.sell.price.uah.title")
-    @FilterColumn(type = FilterType.NUMBER_DIAPASON, labelKey = "mainForm.label.search.by.price", orderForSell = 3, orderForSold = 3
-//            , showForSold = false
-    )
+    @FilterColumn(type = FilterType.NUMBER_DIAPASON, labelKey = "mainForm.label.search.by.price", orderForSell = 3,
+            orderForSold = 3)
     private double priceUAH;
 
     @SpreadsheetColumn(column = "raisedPriceUAH")

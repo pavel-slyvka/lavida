@@ -25,12 +25,13 @@ public class ArticleTableComponent {
     private JTable articlesTable;
     private JScrollPane tableScrollPane;
     private ArticleFiltersComponent articleFiltersComponent = new ArticleFiltersComponent();
-    private ArticleAnalyzeComponent articleAnalyzeComponent = new ArticleAnalyzeComponent();
+//    private ArticleAnalyzeComponent articleAnalyzeComponent = new ArticleAnalyzeComponent();
 
     public void initializeComponents(ArticlesTableModel articlesTableModel, MessageSource messageSource, LocaleHolder localeHolder) {
         this.tableModel = articlesTableModel;
         this.messageSource = messageSource;
         this.localeHolder = localeHolder;
+        tableModel.initFields();
 
 //      main panel for table of goods
         mainPanel = new JPanel();
@@ -69,7 +70,7 @@ public class ArticleTableComponent {
         articlesTable.setRowSorter(articleFiltersComponent.getSorter());
 
 //        panel for analyzing total cost, price, count of products , shown in the table
-        articleAnalyzeComponent.initializeComponents(tableModel, messageSource, localeHolder);
+//        articleAnalyzeComponent.initializeComponents(tableModel, messageSource, localeHolder);
 
     }
 
@@ -103,7 +104,7 @@ public class ArticleTableComponent {
         return articleFiltersComponent;
     }
 
-    public ArticleAnalyzeComponent getArticleAnalyzeComponent() {
-        return articleAnalyzeComponent;
-    }
+//    public ArticleAnalyzeComponent getArticleAnalyzeComponent() {
+//        return articleAnalyzeComponent;
+//    }
 }

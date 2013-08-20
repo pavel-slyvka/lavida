@@ -68,7 +68,7 @@ public class MainForm extends AbstractForm {
 //      main panel for table of goods
         JPanel main = articleTableComponent.getMainPanel();
 //      analyze panel for total analyses
-        JPanel analyze = articleTableComponent.getArticleAnalyzeComponent().getAnalyzePanel();
+        JPanel analyze = articleTableComponent.getArticleFiltersComponent().getArticleAnalyzeComponent().getAnalyzePanel();
 //      panel for search operations
         JPanel search = articleTableComponent.getArticleFiltersComponent().getFiltersPanel();
 
@@ -197,6 +197,11 @@ public class MainForm extends AbstractForm {
         articleTableComponent.filterTableByRoles(userRoles);
     }
 
+    public void filterAnalyzePanelByRoles(List<String> userRoles) {
+        articleTableComponent.getArticleFiltersComponent().getArticleAnalyzeComponent().
+                filterAnalyzeComponentByRoles(userRoles);
+    }
+
     public JLabel getPostponedMessage() {
         return postponedMessage;
     }
@@ -207,6 +212,10 @@ public class MainForm extends AbstractForm {
 
     public SoldProductsDialog getSoldProductsDialog() {
         return soldProductsDialog;
+    }
+
+    public ArticleTableComponent getArticleTableComponent() {
+        return articleTableComponent;
     }
 }
 

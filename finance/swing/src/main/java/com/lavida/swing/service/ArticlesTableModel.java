@@ -33,6 +33,9 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
     private List<String> articleFieldsSequence;
     private Map<Integer, SimpleDateFormat> columnIndexToDateFormat;
     private ArticleJdo selectedArticle;
+    private int totalCountArticles;
+    private double totalOriginalCostEUR;
+    private double totalPriceUAH;
 
     @Resource
     private ArticleDao articleDao;
@@ -49,6 +52,7 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
     @Override
     public void onApplicationEvent(ArticleUpdateEvent event) {
         tableData = articleDao.get(queryName);
+//        initFields();
     }
 
     public List<ArticleJdo> getTableData() {
@@ -159,6 +163,21 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
         return false;
     }
 
+    public void initFields () {
+        int totalCount = 0;
+        double totalCost = 0;
+        double totalPrice = 0;
+        List<ArticleJdo> articleJdoList = getTableData();
+        for (ArticleJdo articleJdo : articleJdoList) {
+            ++ totalCount;
+            totalCost += (articleJdo.getTransportCostEUR() + articleJdo.getPurchasingPriceEUR());
+            totalPrice += (articleJdo.getPriceUAH());
+        }
+        this.totalCountArticles = totalCount;
+        this.totalOriginalCostEUR = totalCost;
+        this.totalPriceUAH = totalPrice;
+    }
+
     public void setSelectedArticle(ArticleJdo selectedArticle) {
         this.selectedArticle = selectedArticle;
     }
@@ -169,5 +188,29 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
 
     public void setQueryName(String queryName) {
         this.queryName = queryName;
+    }
+
+    public int getTotalCountArticles() {
+        return totalCountArticles;
+    }
+
+    public void setTotalCountArticles(int totalCountArticles) {
+        this.totalCountArticles = totalCountArticles;
+    }
+
+    public double getTotalOriginalCostEUR() {
+        return totalOriginalCostEUR;
+    }
+
+    public void setTotalOriginalCostEUR(double totalOriginalCostEUR) {
+        this.totalOriginalCostEUR = totalOriginalCostEUR;
+    }
+
+    public double getTotalPriceUAH() {
+        return totalPriceUAH;
+    }
+
+    public void setTotalPriceUAH(double totalPriceUAH) {
+        this.totalPriceUAH = totalPriceUAH;
     }
 }

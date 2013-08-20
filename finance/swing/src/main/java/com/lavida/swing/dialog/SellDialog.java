@@ -197,17 +197,6 @@ public class SellDialog extends AbstractDialog {
         for (TagJdo tagJdo : tags) {
             JCheckBox tagCheckBox = new JCheckBox(tagJdo.getTitle());
             tagCheckBox.setActionCommand(tagJdo.getName());
-//            tagCheckBox.addItemListener(new ItemListener() {
-//                @Override
-//                public void itemStateChanged(ItemEvent e) {
-//                    int state = e.getStateChange();
-//                    if (state == ItemEvent.SELECTED) {
-//                        handler.tagCheckBoxSelected();
-//                    } else if (state == ItemEvent.DESELECTED) {
-//                        handler.tagCheckBoxDeSelected();
-//                    }
-//                }
-//            });
             tagCheckBoxes.add(tagCheckBox);
         }
         for (JCheckBox checkBox : tagCheckBoxes) {
