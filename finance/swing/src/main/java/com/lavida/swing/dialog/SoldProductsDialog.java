@@ -29,8 +29,8 @@ public class SoldProductsDialog extends AbstractDialog {
 
     private ArticleTableComponent articleTableComponent = new ArticleTableComponent();
 
-    private JDesktopPane desktopPane;
-    private JPanel  westPanel, southPanel;
+    private JSplitPane mainPane, southPane;
+    private JPanel  westPanel, southPanel, desktopPanel;
     private JButton refundButton, cancelButton;
     private JCheckBox currentDateCheckBox;
 
@@ -49,13 +49,12 @@ public class SoldProductsDialog extends AbstractDialog {
         rootContainer.setLayout(new BorderLayout());
 
 //      desktop pane
-        desktopPane = new JDesktopPane();
-        desktopPane.setBackground(Color.white);
-        desktopPane.setLayout(new BorderLayout());
+        desktopPanel = new JPanel();
+        desktopPanel.setBackground(Color.white);
+        desktopPanel.setLayout(new BorderLayout());
 
-//      main panel for table of goods
         articleTableComponent.initializeComponents(tableModel, messageSource, localeHolder);
-        desktopPane.add(articleTableComponent.getMainPanel(), BorderLayout.CENTER);
+
 
 //      panel for search operations
         currentDateCheckBox = new JCheckBox();
@@ -78,9 +77,18 @@ public class SoldProductsDialog extends AbstractDialog {
         constraints.gridy = 3;
         articleTableComponent.getArticleFiltersComponent().getFiltersPanel().add(currentDateCheckBox, constraints);
 
-        desktopPane.add(articleTableComponent.getArticleFiltersComponent().getFiltersPanel(), BorderLayout.SOUTH);
+//      main panel for table of goods
+        JPanel main = articleTableComponent.getMainPanel();
+//      analyze panel for total analyses
+        JPanel analyze = articleTableComponent.getArticleAnalyzeComponent().getAnalyzePanel();
+//      panel for search operations
+        JPanel search = articleTableComponent.getArticleFiltersComponent().getFiltersPanel();
 
-        rootContainer.add(desktopPane, BorderLayout.CENTER);
+        southPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, analyze, search);
+        mainPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, main, southPane);
+        desktopPanel.add(mainPane, BorderLayout.CENTER);
+
+        rootContainer.add(desktopPanel, BorderLayout.CENTER);
 
 //        west panel with buttons
         westPanel = new JPanel();
@@ -131,9 +139,6 @@ public class SoldProductsDialog extends AbstractDialog {
         return articleTableComponent;
     }
 
-    public JDesktopPane getDesktopPane() {
-        return desktopPane;
-    }
 
     public JPanel getWestPanel() {
         return westPanel;

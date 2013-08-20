@@ -32,8 +32,8 @@ public class MainForm extends AbstractForm {
     private SoldProductsDialog soldProductsDialog;
 
     private JMenuBar jMenuBar;
-    private JDesktopPane desktopPane;
-    private JPanel operationPanel, refreshPanel, westPanel;
+    private JSplitPane mainPane, southPane;
+    private JPanel operationPanel, refreshPanel, westPanel, desktopPanel;
     private JButton refreshButton, recommitButton, sellButton, showSoldProductsButton;
     private JPanel statusBarPanel, postponedPanel;
     private JLabel postponedOperations, postponedMessage;
@@ -59,18 +59,24 @@ public class MainForm extends AbstractForm {
         form.setJMenuBar(jMenuBar);
 
 //      desktop pane
-        desktopPane = new JDesktopPane();
-        desktopPane.setBackground(Color.white);
-        desktopPane.setLayout(new BorderLayout());
+        desktopPanel = new JPanel();
+        desktopPanel.setBackground(Color.white);
+        desktopPanel.setLayout(new BorderLayout());
+
+        articleTableComponent.initializeComponents(tableModel, messageSource, localeHolder);
 
 //      main panel for table of goods
-        articleTableComponent.initializeComponents(tableModel, messageSource, localeHolder);
-        desktopPane.add(articleTableComponent.getMainPanel(), BorderLayout.CENTER);
-
+        JPanel main = articleTableComponent.getMainPanel();
+//      analyze panel for total analyses
+        JPanel analyze = articleTableComponent.getArticleAnalyzeComponent().getAnalyzePanel();
 //      panel for search operations
-        desktopPane.add(articleTableComponent.getArticleFiltersComponent().getFiltersPanel(), BorderLayout.SOUTH);
+        JPanel search = articleTableComponent.getArticleFiltersComponent().getFiltersPanel();
 
-        rootContainer.add(desktopPane, BorderLayout.CENTER);
+        southPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, analyze, search);
+        mainPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, main, southPane);
+        desktopPanel.add(mainPane, BorderLayout.CENTER);
+
+        rootContainer.add(desktopPanel, BorderLayout.CENTER);
 
 //        west panel for buttons
 //      panel for refresh and save operations with data
