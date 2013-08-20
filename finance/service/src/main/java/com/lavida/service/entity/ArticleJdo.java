@@ -118,6 +118,10 @@ public class ArticleJdo {
     @ViewColumn(titleKey = "mainForm.table.articles.column.tags.title", forbiddenRoles = "ROLE_SELLER")
     private String financialTags;
 
+    @SpreadsheetColumn(column = "shop")
+    @ViewColumn(titleKey = "mainForm.table.articles.column.shop.title", forbiddenRoles = "ROLE_SELLER")
+    private String shop;
+
     public ArticleJdo() {
     }
 
@@ -282,6 +286,13 @@ public class ArticleJdo {
         this.financialTags = financialTags;
     }
 
+    public String getShop() {
+        return shop;
+    }
+
+    public void setShop(String shop) {
+        this.shop = shop;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -360,6 +371,7 @@ public class ArticleJdo {
                 ", postponedOperationDate=" + DateConverter.convertDateToString(postponedOperationDate) +
                 ", refundDate=" + DateConverter.convertDateToString(refundDate) +
                 ", financialTags='" + financialTags + '\'' +
+                ", shop='" + shop + '\'' +
                 '}';
     }
 }
