@@ -1,7 +1,8 @@
 package com.lavida.swing.dialog;
 
+import com.lavida.service.TagService;
 import com.lavida.service.entity.ArticleJdo;
-import com.lavida.swing.ExchangerHolder;
+import com.lavida.service.entity.TagJdo;
 import com.lavida.swing.handler.SellDialogHandler;
 import com.lavida.swing.service.ArticlesTableModel;
 import org.springframework.stereotype.Component;
@@ -15,6 +16,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created: 10:39 15.08.13
@@ -30,14 +33,17 @@ public class SellDialog extends AbstractDialog {
     @Resource(name = "notSoldArticleTableModel")
     private ArticlesTableModel tableModel;
 
-    private JPanel buttonPanel, inputPanel, oursPanel, commentPanel;
+    @Resource
+    private TagService tagService;
+
+    private JPanel buttonPanel, inputPanel, oursPanel, commentPanel, tagsPanel;
     private JLabel codeLabel, nameLabel, brandLabel, sizeLabel, priceLabel, commentLabel,
             codeField, nameField, brandField, sizeField, priceField;
     private JTextArea commentTextArea;
     private JButton sellButton, cancelButton;
     private JCheckBox oursCheckBox, presentCheckBox;
     private Border fieldsBorder;
-
+    private List<JCheckBox> tagCheckBoxes = new ArrayList<JCheckBox>();
     @Override
     protected void initializeForm() {
         super.initializeForm();
@@ -182,6 +188,35 @@ public class SellDialog extends AbstractDialog {
 
         inputPanel.add(commentPanel, constraints);
 
+//        tags panel
+        tagsPanel = new JPanel();
+        FlowLayout tagsLayout = new FlowLayout();
+        tagsPanel.setLayout(tagsLayout);
+        tagsLayout.setAlignment(FlowLayout.TRAILING);
+        List<TagJdo> tags = tagService.getAll();
+        for (TagJdo tagJdo : tags) {
+            JCheckBox tagCheckBox = new JCheckBox(tagJdo.getTitle());
+            tagCheckBox.setActionCommand(tagJdo.getName());
+//            tagCheckBox.addItemListener(new ItemListener() {
+//                @Override
+//                public void itemStateChanged(ItemEvent e) {
+//                    int state = e.getStateChange();
+//                    if (state == ItemEvent.SELECTED) {
+//                        handler.tagCheckBoxSelected();
+//                    } else if (state == ItemEvent.DESELECTED) {
+//                        handler.tagCheckBoxDeSelected();
+//                    }
+//                }
+//            });
+            tagCheckBoxes.add(tagCheckBox);
+        }
+        for (JCheckBox checkBox : tagCheckBoxes) {
+            tagsPanel.add(checkBox);
+        }
+        constraints.gridx = 0;
+        constraints.gridy = 7;
+        inputPanel.add(tagsPanel, constraints);
+
         rootContainer.add(inputPanel, BorderLayout.CENTER);
 
 //        button panel
@@ -192,7 +227,7 @@ public class SellDialog extends AbstractDialog {
             @Override
             public void actionPerformed(ActionEvent e) {
                 ArticleJdo articleJdo = tableModel.getSelectedArticle();
-                handler.sell(articleJdo);
+                handler.sellButtonClicked(articleJdo);
             }
         });
 
@@ -227,5 +262,9 @@ public class SellDialog extends AbstractDialog {
 
     public JCheckBox getPresentCheckBox() {
         return presentCheckBox;
+    }
+
+    public List<JCheckBox> getTagCheckBoxes() {
+        return tagCheckBoxes;
     }
 }

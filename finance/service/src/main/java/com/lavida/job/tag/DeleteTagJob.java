@@ -57,7 +57,7 @@ public class DeleteTagJob extends AbstractJob {
         int id;
         int[] tagsId;
         if (!isForbidden(userRoles)) {
-            System.out.println(messageSource.getMessage("job.tag.delete.show.all", null, locale));
+            System.out.println(messageSource.getMessage("job.tag.show.all", null, locale));
             List<TagJdo> tags = tagService.getAll();
             System.out.println(tags);
             tagsId = new int[tags.size()];
@@ -65,13 +65,13 @@ public class DeleteTagJob extends AbstractJob {
                 tagsId[i] = tags.get(i).getId();
             }
             while (true) {
-                System.out.println(messageSource.getMessage("job.tag.delete.chose.name", null, locale));
+                System.out.println(messageSource.getMessage("job.tag.delete.chose.id", null, locale));
                 idNumber = scanner.next().trim();
                 if (idNumber.matches("\\d") && Arrays.asList(tagsId).contains(Integer.parseInt(idNumber))) {
                     id = Integer.parseInt(idNumber);
                     break;
                 } else {
-                    System.out.println(messageSource.getMessage("job.tag.delete.validation.wrong.id", null, locale));
+                    System.out.println(messageSource.getMessage("job.tag.validation.wrong.id", null, locale));
                 }
             }
             tagService.delete(id);

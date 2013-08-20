@@ -10,6 +10,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import javax.swing.*;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -45,7 +46,7 @@ public class SellDialogHandler {
      *
      * @param articleJdo //     * @param articlesTableModel
      */
-    public void sell(ArticleJdo articleJdo) {
+    public void sellButtonClicked(ArticleJdo articleJdo) {
         articleJdo.setSaleDate(Calendar.getInstance());
         articleJdo.setSold(messageSource.getMessage("sellDialog.button.sell.clicked.sold", null, localeHolder.getLocale()));
         articleJdo.setComment(articleJdo.getComment() + ((dialog.getCommentTextArea().getText().trim() == null)? null :
@@ -57,8 +58,15 @@ public class SellDialogHandler {
             articleJdo.setPriceUAH(0);
             articleJdo.setOurs(dialog.getPresentCheckBox().getActionCommand());
         }
-        articleServiceSwingWrapper.update(articleJdo);
+        StringBuilder tagsBuilder = new StringBuilder();
+        for (JCheckBox checkBox : dialog.getTagCheckBoxes()) {
+            if (checkBox.isSelected()) {
+               tagsBuilder.append(checkBox.getActionCommand() + "; ");
+            }
+        }
+        articleJdo.setFinancialTags(new String(tagsBuilder));
 
+        articleServiceSwingWrapper.update(articleJdo);
         try {
             articleServiceSwingWrapper.updateToSpreadsheet(articleJdo);
         } catch (Exception e) {        // todo change to Custom exception
