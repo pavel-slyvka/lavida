@@ -36,10 +36,11 @@ public class SellDialog extends AbstractDialog {
     @Resource
     private TagService tagService;
 
-    private JPanel buttonPanel, inputPanel, oursPanel, commentPanel, tagsPanel;
+    private JPanel buttonPanel, inputPanel, oursPanel, commentPanel, tagsPanel, shopPanel;
     private JLabel codeLabel, nameLabel, brandLabel, sizeLabel, priceLabel, commentLabel,
-            codeField, nameField, brandField, sizeField, priceField;
+            codeField, nameField, brandField, sizeField, priceField, shopLabel;
     private JTextArea commentTextArea;
+    private JTextField shopTextField;
     private JButton sellButton, cancelButton;
     private JCheckBox oursCheckBox, presentCheckBox;
     private Border fieldsBorder;
@@ -181,7 +182,6 @@ public class SellDialog extends AbstractDialog {
         commentLabel = new JLabel();
         commentLabel.setText(messageSource.getMessage("sellDialog.label.comment.title", null, localeHolder.getLocale()));
         commentPanel.add(commentLabel);
-
         commentTextArea = new JTextArea();
         commentTextArea.setPreferredSize(new Dimension(300, 50));
         commentPanel.add(commentTextArea);
@@ -216,6 +216,18 @@ public class SellDialog extends AbstractDialog {
         constraints.gridx = 0;
         constraints.gridy = 7;
         inputPanel.add(tagsPanel, constraints);
+
+//        shop panel
+        shopPanel = new JPanel(new GridLayout(2, 1));
+        constraints.gridx = 0;
+        constraints.gridy = 8;
+        shopLabel = new JLabel();
+        shopLabel.setText(messageSource.getMessage("sellDialog.label.shop.title", null, localeHolder.getLocale()));
+        shopPanel.add(shopLabel);
+        shopTextField = new JTextField();
+        shopTextField.setText(messageSource.getMessage("sellDialog.text.field.shop.text", null, localeHolder.getLocale()));
+        shopPanel.add(shopTextField);
+        inputPanel.add(shopPanel, constraints);
 
         rootContainer.add(inputPanel, BorderLayout.CENTER);
 
@@ -266,5 +278,9 @@ public class SellDialog extends AbstractDialog {
 
     public List<JCheckBox> getTagCheckBoxes() {
         return tagCheckBoxes;
+    }
+
+    public JTextField getShopTextField() {
+        return shopTextField;
     }
 }

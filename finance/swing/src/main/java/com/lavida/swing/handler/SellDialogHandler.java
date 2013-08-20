@@ -65,6 +65,8 @@ public class SellDialogHandler {
             }
         }
         articleJdo.setFinancialTags(new String(tagsBuilder));
+        articleJdo.setShop((dialog.getShopTextField().getText().trim() == null)? null :
+                dialog.getShopTextField().getText().trim());
 
         articleServiceSwingWrapper.update(articleJdo);
         try {

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<xs:schema xmlns:tns="http://www.xml.lavida.com/schema/articles.com"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified"
+           targetNamespace="http://www.xml.lavida.com/schema/articles.com" version="1.0">
+    <xs:complexType name="articles">
+        <xs:sequence>
+            <xs:element maxOccurs="unbounded" minOccurs="0" name="article" nillable="true" type="tns:articleType"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="articleType">
+        <xs:sequence>
+            <xs:element name="code" type="xs:string"/>
+            <xs:element name="name" type="xs:string"/>
+        </xs:sequence>
+        <xs:attribute name="spreadsheetRow" type="xs:int" use="required"/>
+    </xs:complexType>
+</xs:schema>
