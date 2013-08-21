@@ -1,17 +1,15 @@
-package com.lavida.swing.service;
+package com.lavida.service;
 
 /**
  * Created: 8:42 21.08.13
- * The ArticleUpdateInformer is a holder of needed information about updating process.
+ * The ArticleUpdateInfo is a holder of needed information about updating process.
+ *
  * @author Ruslan
  */
-public class ArticleUpdateInformer {
+public class ArticleUpdateInfo {
     private int addedCount;
     private int updatedCount;
     private int deletedCount;
-
-    public ArticleUpdateInformer() {
-    }
 
     public int getAddedCount() {
         return addedCount;
@@ -39,7 +37,7 @@ public class ArticleUpdateInformer {
 
     @Override
     public String toString() {
-        return "ArticleUpdateInformer{" +
+        return "ArticleUpdateInfo{" +
                 "addedCount=" + addedCount +
                 ", updatedCount=" + updatedCount +
                 ", deletedCount=" + deletedCount +

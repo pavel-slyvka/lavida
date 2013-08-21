@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -37,10 +38,41 @@ public class ArticleService {
     }
 
     @Transactional
-    public void update(List<ArticleJdo> articles) {
-        for (ArticleJdo articleJdo : articles) {
+    public ArticleUpdateInfo updateDatabase(List<ArticleJdo> remoteArticles) {
+        List<ArticleJdo> dbOldArticles = getAll();
+
+        List<ArticleJdo> articlesToUpdate = new ArrayList<ArticleJdo>();
+        List<ArticleJdo> articlesToDelete = new ArrayList<ArticleJdo>();
+        l:
+        for (ArticleJdo dbOldArticle : dbOldArticles) {
+            for (int i = 0; i<remoteArticles.size(); ++i) {
+                ArticleJdo remoteArticle = remoteArticles.get(i);
+                if (dbOldArticle.getSpreadsheetRow() == remoteArticle.getSpreadsheetRow()) {
+                    remoteArticles.remove(i);
+                    if (!dbOldArticle.equals(remoteArticle)) {
+                        remoteArticle.setId(dbOldArticle.getId());
+                        articlesToUpdate.add(remoteArticle);
+                    }
+                    continue l;
+                }
+                articlesToDelete.add(dbOldArticle);
+            }
+        }
+
+        ArticleUpdateInfo articleUpdateInfo = new ArticleUpdateInfo();
+        articleUpdateInfo.setAddedCount(remoteArticles.size());
+        articleUpdateInfo.setUpdatedCount(articlesToUpdate.size());
+        articleUpdateInfo.setDeletedCount(articlesToDelete.size());
+        for (ArticleJdo articleJdo : articlesToDelete) {
+            delete(articleJdo.getId());
+        }
+        for (ArticleJdo articleJdo : articlesToUpdate) {
             update(articleJdo);
         }
+        for (ArticleJdo articleJdo : remoteArticles) {
+            save(articleJdo);
+        }
+        return articleUpdateInfo;
     }
 
     @Transactional
