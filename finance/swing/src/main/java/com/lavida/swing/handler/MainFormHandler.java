@@ -9,10 +9,13 @@ import com.lavida.swing.dialog.SoldProductsDialog;
 import com.lavida.swing.exception.LavidaSwingRuntimeException;
 import com.lavida.swing.form.MainForm;
 import com.lavida.swing.service.ArticleServiceSwingWrapper;
+import com.lavida.swing.service.ArticleUpdateInformer;
 import com.lavida.swing.service.ArticlesTableModel;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import javax.swing.*;
 import java.io.IOException;
 import java.util.List;
 
@@ -31,6 +34,9 @@ public class MainFormHandler {
 
     @Resource
     private SellDialog sellDialog;
+
+    @Resource
+    private MessageSource messageSource;
 
     @Resource
     private SoldProductsDialog soldProductsDialog;
@@ -57,7 +63,8 @@ public class MainFormHandler {
     public void refreshButtonClicked() {
         try {
             List<ArticleJdo> articles = articleServiceSwingWrapper.loadArticlesFromRemoteServer();
-            articleServiceSwingWrapper.update(articles);
+            ArticleUpdateInformer informer = articleServiceSwingWrapper.updateToDatabase(articles);
+            showUpdateInfoMessage(informer);
             form.update();    // repaint MainForm in some time
 
         } catch (IOException e) {
@@ -67,6 +74,27 @@ public class MainFormHandler {
         }
     }
 
+    /**
+     * Shows a JOptionPane message with the information about the articles updating  process.
+     * @param informer  the ArticleUpdateInformer to be shown.
+     */
+    private void showUpdateInfoMessage ( ArticleUpdateInformer informer) {
+        StringBuilder messageBuilder = new StringBuilder();
+        messageBuilder.append(messageSource.getMessage("mainForm.panel.refresh.message.articles.added",
+                null, localeHolder.getLocale()));
+        messageBuilder.append(informer.getAddedCount());
+        messageBuilder.append(". \\n");
+        messageBuilder.append(messageSource.getMessage("mainForm.panel.refresh.message.articles.updated",
+                null, localeHolder.getLocale()));
+        messageBuilder.append(informer.getUpdatedCount());
+        messageBuilder.append(". \\n");
+        messageBuilder.append(messageSource.getMessage("mainForm.panel.refresh.message.articles.deleted",
+                null, localeHolder.getLocale()));
+        messageBuilder.append(informer.getDeletedCount());
+        messageBuilder.append(". \\n");
+
+        form.showMessageBox("mainForm.panel.refresh.message.title", new String(messageBuilder));
+    }
 
     public void sellButtonClicked() {
         if (tableModel.getSelectedArticle() != null) {

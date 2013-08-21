@@ -41,12 +41,14 @@ public class ArticleJdo {
 
     @SpreadsheetColumn(column = "name")
     @ViewColumn(titleKey = "mainForm.table.articles.column.name.title")
-    @FilterColumn(type = FilterType.PART_TEXT, labelKey = "mainForm.label.search.by.name", orderForSell = 2, orderForSold = 2)
+    @FilterColumn(type = FilterType.PART_TEXT, labelKey = "mainForm.label.search.by.name", orderForSell = 2,
+            orderForSold = 2)
     private String name;
 
     @SpreadsheetColumn(column = "brand")
     @ViewColumn(titleKey = "mainForm.table.articles.column.brand.title")
-    @FilterColumn(type = FilterType.PART_TEXT, labelKey = "mainForm.label.search.by.brand", orderForSell = 3, orderForSold = 3)
+    @FilterColumn(type = FilterType.PART_TEXT, labelKey = "mainForm.label.search.by.brand", orderForSell = 3,
+            orderForSold = 3)
     private String brand;
 
     @SpreadsheetColumn(column = "quantity")
@@ -55,7 +57,8 @@ public class ArticleJdo {
 
     @SpreadsheetColumn(column = "size")
     @ViewColumn(titleKey = "mainForm.table.articles.column.size.title")
-    @FilterColumn(type = FilterType.PART_TEXT,labelKey = "mainForm.label.search.by.size", orderForSell = 4, orderForSold = 4)
+    @FilterColumn(type = FilterType.PART_TEXT,labelKey = "mainForm.label.search.by.size", orderForSell = 4,
+            orderForSold = 4)
     private String size;
 
     @SpreadsheetColumn(column = "purchasingPriceEUR")
@@ -68,7 +71,8 @@ public class ArticleJdo {
 
     @SpreadsheetColumn(column = "deliveryDate")
     @ViewColumn(titleKey = "mainForm.table.articles.column.purchase.date.title")
-    @FilterColumn(type = FilterType.DATE_DIAPASON, labelKey = "mainForm.label.search.by.delivery.date", orderForSell = 5, orderForSold = 5)
+    @FilterColumn(type = FilterType.DATE_DIAPASON, labelKey = "mainForm.label.search.by.delivery.date",
+            orderForSell = 5, orderForSold = 5)
     @Temporal(TemporalType.DATE)
     private Calendar deliveryDate;
 
@@ -96,7 +100,8 @@ public class ArticleJdo {
 
     @SpreadsheetColumn(column = "saleDate")
     @ViewColumn(titleKey = "mainForm.table.articles.column.sell.date.title")
-    @FilterColumn(type = FilterType.DATE_DIAPASON, labelKey = "mainForm.label.search.by.sale.date", showForSell = false, orderForSold = 7)
+    @FilterColumn(type = FilterType.DATE_DIAPASON, labelKey = "mainForm.label.search.by.sale.date",
+            showForSell = false, orderForSold = 7)
     @Temporal(TemporalType.DATE)
     private Calendar saleDate;
 
@@ -108,7 +113,8 @@ public class ArticleJdo {
     private Date postponedOperationDate;
 
     @SpreadsheetColumn(column = "refundDate")
-    @ViewColumn(titleKey = "mainForm.table.articles.column.refund.title", forbiddenRoles = "ROLE_SELLER", datePattern = "MM.dd.yyyy HH:mm:ss")
+    @ViewColumn(titleKey = "mainForm.table.articles.column.refund.title", forbiddenRoles = "ROLE_SELLER",
+            datePattern = "MM.dd.yyyy HH:mm:ss")
     @Temporal(TemporalType.TIMESTAMP)
     private Date refundDate;
 
@@ -300,7 +306,6 @@ public class ArticleJdo {
         ArticleJdo that = (ArticleJdo) o;
 
         if (Double.compare(that.actionPriceUAH, actionPriceUAH) != 0) return false;
-        if (id != that.id) return false;
         if (Double.compare(that.priceUAH, priceUAH) != 0) return false;
         if (Double.compare(that.purchasingPriceEUR, purchasingPriceEUR) != 0) return false;
         if (quantity != that.quantity) return false;
@@ -309,10 +314,14 @@ public class ArticleJdo {
         if (brand != null ? !brand.equals(that.brand) : that.brand != null) return false;
         if (code != null ? !code.equals(that.code) : that.code != null) return false;
         if (comment != null ? !comment.equals(that.comment) : that.comment != null) return false;
-        if (deliveryDate != null ? !deliveryDate.equals(that.deliveryDate) : that.deliveryDate != null) return false;
+        if (!deliveryDate.equals(that.deliveryDate)) return false;
+        if (financialTags != null ? !financialTags.equals(that.financialTags) : that.financialTags != null)
+            return false;
         if (!name.equals(that.name)) return false;
         if (ours != null ? !ours.equals(that.ours) : that.ours != null) return false;
+        if (refundDate != null ? !refundDate.equals(that.refundDate) : that.refundDate != null) return false;
         if (saleDate != null ? !saleDate.equals(that.saleDate) : that.saleDate != null) return false;
+        if (shop != null ? !shop.equals(that.shop) : that.shop != null) return false;
         if (size != null ? !size.equals(that.size) : that.size != null) return false;
         if (sold != null ? !sold.equals(that.sold) : that.sold != null) return false;
 
@@ -323,8 +332,7 @@ public class ArticleJdo {
     public int hashCode() {
         int result;
         long temp;
-        result = id;
-        result = 31 * result + (code != null ? code.hashCode() : 0);
+        result = code != null ? code.hashCode() : 0;
         result = 31 * result + name.hashCode();
         result = 31 * result + (brand != null ? brand.hashCode() : 0);
         result = 31 * result + quantity;
@@ -333,7 +341,7 @@ public class ArticleJdo {
         result = 31 * result + (int) (temp ^ (temp >>> 32));
         temp = Double.doubleToLongBits(transportCostEUR);
         result = 31 * result + (int) (temp ^ (temp >>> 32));
-        result = 31 * result + (deliveryDate != null ? deliveryDate.hashCode() : 0);
+        result = 31 * result + deliveryDate.hashCode();
         temp = Double.doubleToLongBits(priceUAH);
         result = 31 * result + (int) (temp ^ (temp >>> 32));
         temp = Double.doubleToLongBits(raisedPriceUAH);
@@ -344,6 +352,9 @@ public class ArticleJdo {
         result = 31 * result + (ours != null ? ours.hashCode() : 0);
         result = 31 * result + (saleDate != null ? saleDate.hashCode() : 0);
         result = 31 * result + (comment != null ? comment.hashCode() : 0);
+        result = 31 * result + (refundDate != null ? refundDate.hashCode() : 0);
+        result = 31 * result + (financialTags != null ? financialTags.hashCode() : 0);
+        result = 31 * result + (shop != null ? shop.hashCode() : 0);
         return result;
     }
 
