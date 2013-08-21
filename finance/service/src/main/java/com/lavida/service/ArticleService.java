@@ -58,8 +58,8 @@ public class ArticleService {
                     }
                     continue l;
                 }
-                articlesToDelete.add(dbOldArticle);
             }
+            articlesToDelete.add(dbOldArticle);
         }
 
         ArticleUpdateInfo articleUpdateInfo = new ArticleUpdateInfo();

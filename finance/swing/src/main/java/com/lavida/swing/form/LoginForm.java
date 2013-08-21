@@ -40,7 +40,6 @@ public class LoginForm extends AbstractForm {
 
     @Override
     protected void initializeForm() {
-
         super.initializeForm();
         form.setBounds(200, 200, 400, 200);
         form.setTitle(messageSource.getMessage("loginForm.form.title", null, localeHolder.getLocale()));
@@ -49,8 +48,6 @@ public class LoginForm extends AbstractForm {
 
     @Override
     protected void initializeComponents() {
-
-        System.out.println("Fix");
         instructionsLabel = new JLabel(messageSource.getMessage("loginForm.label.instruction.title", null, localeHolder.getLocale()));
         loginLabel = new JLabel(messageSource.getMessage("loginForm.label.login.title", null, localeHolder.getLocale()));
         passwordLabel = new JLabel(messageSource.getMessage("loginForm.label.password.title", null, localeHolder.getLocale()));

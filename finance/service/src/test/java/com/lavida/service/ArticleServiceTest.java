@@ -21,9 +21,9 @@ public class ArticleServiceTest {
     @Test
     public void testUpdateDatabase() {
         List<ArticleJdo> dbOldArticles = Arrays.asList(
-                createArticleJdo(1, 1, "111", "name1", "brand1", "S", 100.5, null),
                 createArticleJdo(2, 2, "222", "name2", "brand2", "S", 100.5, null),
-                createArticleJdo(3, 4, "444", "name4", "brand4", "S", 100.5, null)
+                createArticleJdo(3, 4, "444", "name4", "brand4", "S", 100.5, null),
+                createArticleJdo(1, 1, "111", "name1", "brand1", "S", 100.5, null)
         );
         List<ArticleJdo> remoteArticles = Arrays.asList(
                 createArticleJdo(0, 1, "111", "name1", "brand1", "S", 100.5, null),

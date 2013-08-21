@@ -320,7 +320,7 @@ public class ArticleJdo {
             return false;
         if (!name.equals(that.name)) return false;
         if (ours != null ? !ours.equals(that.ours) : that.ours != null) return false;
-        if (refundDate != null ? !refundDate.equals(that.refundDate) : that.refundDate != null) return false;
+        if (refundDate != null ? refundDate.getTime()!=that.refundDate.getTime() : that.refundDate!=null) return false;
         if (saleDate != null ? !saleDate.equals(that.saleDate) : that.saleDate != null) return false;
         if (shop != null ? !shop.equals(that.shop) : that.shop != null) return false;
         if (size != null ? !size.equals(that.size) : that.size != null) return false;
