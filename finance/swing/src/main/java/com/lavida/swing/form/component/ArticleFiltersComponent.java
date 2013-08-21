@@ -138,15 +138,18 @@ public class ArticleFiltersComponent {
             } else if (FilterType.NUMBER == filterUnit.filterType
                     || FilterType.NUMBER_DIAPASON == filterUnit.filterType && !filterUnit.textField.getText().contains("-")) {
                 if (filterUnit.textField.getText().length() > 0) {
-                    Double number = Double.parseDouble(filterUnit.textField.getText());
+                    String numberStr = filterUnit.textField.getText().trim().replace(",", ".").replaceAll("[^0-9.]", "");
+                    Double number = Double.parseDouble(numberStr);
                     filter = RowFilter.numberFilter(RowFilter.ComparisonType.EQUAL, number, columnIndex);
                 }
             } else if (FilterType.NUMBER_DIAPASON == filterUnit.filterType) {
                 if (filterUnit.textField.getText().length() > 0) {
                     String[] numbers = filterUnit.textField.getText().split("-", 2);
                     if (numbers.length > 1 && !numbers[0].trim().isEmpty() && !numbers[1].trim().isEmpty()) {
-                        final Double number1 = Double.parseDouble(numbers[0]);
-                        final Double number2 = Double.parseDouble(numbers[1]);
+                        String numbers0 = numbers[0].replace(",", ".").replaceAll("[^0-9.]", "");
+                        String numbers1 = numbers[1].replace(",", ".").replaceAll("[^0-9.]", "");
+                        final Double number1 = Double.parseDouble(numbers0);
+                        final Double number2 = Double.parseDouble(numbers1);
                         filter = new RowFilter<ArticlesTableModel, Integer>() {
                             @Override
                             public boolean include(Entry<? extends ArticlesTableModel, ? extends Integer> entry) {
@@ -253,19 +256,19 @@ public class ArticleFiltersComponent {
     /**
      * Updates fields of the articleAnalyzeComponent.
      */
-    private void updateAnalyzeComponent () {
+    private void updateAnalyzeComponent() {
         int totalCountArticles = 0;
         double totalOriginalCostEUR = 0;
         double totalPriceUAH = 0;
 
         int viewRows = sorter.getViewRowCount();
         List<ArticleJdo> selectedArticles = new ArrayList<ArticleJdo>();
-        for (int i=0; i < viewRows; i++) {
+        for (int i = 0; i < viewRows; i++) {
             int row = sorter.convertRowIndexToModel(i);
             selectedArticles.add(tableModel.getArticleJdoByRowIndex(row));
         }
         for (ArticleJdo articleJdo : selectedArticles) {
-            ++ totalCountArticles;
+            ++totalCountArticles;
             totalOriginalCostEUR += (articleJdo.getTransportCostEUR() + articleJdo.getPurchasingPriceEUR());
             totalPriceUAH += (articleJdo.getPriceUAH());
         }
