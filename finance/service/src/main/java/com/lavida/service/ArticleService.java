@@ -45,6 +45,9 @@ public class ArticleService {
         List<ArticleJdo> articlesToDelete = new ArrayList<ArticleJdo>();
         l:
         for (ArticleJdo dbOldArticle : dbOldArticles) {
+            if (dbOldArticle.getPostponedOperationDate() != null) {
+                throw new RuntimeException("Postponed operations must be operated firstly!");
+            }
             for (int i = 0; i<remoteArticles.size(); ++i) {
                 ArticleJdo remoteArticle = remoteArticles.get(i);
                 if (dbOldArticle.getSpreadsheetRow() == remoteArticle.getSpreadsheetRow()) {
