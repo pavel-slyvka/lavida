@@ -315,7 +315,7 @@ public class ArticleJdo {
         if (brand != null ? !brand.equals(that.brand) : that.brand != null) return false;
         if (code != null ? !code.equals(that.code) : that.code != null) return false;
         if (comment != null ? !comment.equals(that.comment) : that.comment != null) return false;
-        if (!deliveryDate.equals(that.deliveryDate)) return false;
+        if (deliveryDate != null ? !deliveryDate.equals(that.deliveryDate) : that.deliveryDate != null) return false;
         if (financialTags != null ? !financialTags.equals(that.financialTags) : that.financialTags != null)
             return false;
         if (!name.equals(that.name)) return false;

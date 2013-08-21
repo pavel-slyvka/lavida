@@ -66,16 +66,28 @@ public class ArticleService {
         articleUpdateInfo.setAddedCount(remoteArticles.size());
         articleUpdateInfo.setUpdatedCount(articlesToUpdate.size());
         articleUpdateInfo.setDeletedCount(articlesToDelete.size());
-        for (ArticleJdo articleJdo : articlesToDelete) {
-            delete(articleJdo.getId());
-        }
-        for (ArticleJdo articleJdo : articlesToUpdate) {
-            update(articleJdo);
-        }
-        for (ArticleJdo articleJdo : remoteArticles) {
+        remove(articlesToDelete);
+        update(articlesToUpdate);
+        save(remoteArticles);
+        return articleUpdateInfo;
+    }
+
+    void save(List<ArticleJdo> articleToSave) {
+        for (ArticleJdo articleJdo : articleToSave) {
             save(articleJdo);
         }
-        return articleUpdateInfo;
+    }
+
+    void update(List<ArticleJdo> articleToSave) {
+        for (ArticleJdo articleJdo : articleToSave) {
+            update(articleJdo);
+        }
+    }
+
+    void remove(List<ArticleJdo> articleToSave) {
+        for (ArticleJdo articleJdo : articleToSave) {
+            delete(articleJdo.getId());
+        }
     }
 
     @Transactional
