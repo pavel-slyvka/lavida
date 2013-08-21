@@ -310,6 +310,7 @@ public class ArticleJdo {
         if (Double.compare(that.purchasingPriceEUR, purchasingPriceEUR) != 0) return false;
         if (quantity != that.quantity) return false;
         if (Double.compare(that.raisedPriceUAH, raisedPriceUAH) != 0) return false;
+        if (spreadsheetRow != that.spreadsheetRow) return false;
         if (Double.compare(that.transportCostEUR, transportCostEUR) != 0) return false;
         if (brand != null ? !brand.equals(that.brand) : that.brand != null) return false;
         if (code != null ? !code.equals(that.code) : that.code != null) return false;
@@ -332,7 +333,8 @@ public class ArticleJdo {
     public int hashCode() {
         int result;
         long temp;
-        result = code != null ? code.hashCode() : 0;
+        result = spreadsheetRow;
+        result = 31 * result + (code != null ? code.hashCode() : 0);
         result = 31 * result + name.hashCode();
         result = 31 * result + (brand != null ? brand.hashCode() : 0);
         result = 31 * result + quantity;
