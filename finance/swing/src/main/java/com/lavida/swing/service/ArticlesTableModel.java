@@ -90,7 +90,8 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
         Object value = getRawValueAt(rowIndex, columnIndex);
         if (value instanceof Calendar) {
             return columnIndexToDateFormat.get(columnIndex).format(((Calendar) value).getTime());
-
+        } else if (value instanceof Date) {
+            return columnIndexToDateFormat.get(columnIndex).format(value);
         } else {
             return value;
         }
@@ -131,6 +132,9 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
                 }
                 if (field.getType() == Calendar.class) {          // todo for Date fields
                     this.columnIndexToDateFormat.put(headerTitles.size() - 1,      //todo no patterns in articleJdo fields
+                            new SimpleDateFormat(viewColumn.datePattern()));
+                } else if (field.getType() == Date.class) {
+                    this.columnIndexToDateFormat.put (headerTitles.size() - 1,
                             new SimpleDateFormat(viewColumn.datePattern()));
                 }
             }

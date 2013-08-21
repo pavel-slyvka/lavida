@@ -49,7 +49,7 @@ public class RemoteService {
         return articles;
     }
 
-    public void updateArticle(ArticleJdo articleJdo) throws IOException, ServiceException {
+    public void updateArticle(ArticleJdo articleJdo, Boolean isSold) throws IOException, ServiceException {
         GoogleSpreadsheetWorker spreadsheetWorker = new GoogleSpreadsheetWorker(settingsHolder.getSettings());
 
         // take headers
@@ -65,30 +65,85 @@ public class RemoteService {
         String sizeColumnValue = cellsTransformer.cellToValue(articleFeed, headers, sizeColumnHeader);
         String soldColumnHeader = ReflectionUtils.getFieldAnnotation(ArticleJdo.class, "sold", SpreadsheetColumn.class).column();
         String soldColumnValue = cellsTransformer.cellToValue(articleFeed, headers, soldColumnHeader);
+//        String nameColumnHeader = ReflectionUtils.getFieldAnnotation(ArticleJdo.class, "name", SpreadsheetColumn.class).column();
+//        String nameColumnValue = cellsTransformer.cellToValue(articleFeed, headers, nameColumnHeader);
 
         // ArticleJdo.spreadsheetRow has incorrect value -> search for correct
-        if (codeColumnValue == null || !codeColumnValue.equals(articleJdo.getCode())
-                || sizeColumnValue == null || !sizeColumnValue.equals(articleJdo.getSize())
-                || soldColumnValue != null && !StringUtils.isEmpty(soldColumnValue)) {
-            Integer newSpreadsheetRowIndex = null;
-            List<ArticleJdo> realArticles = loadArticles();
-            for (ArticleJdo realArticleJdo : realArticles) {
-                if (realArticleJdo.getCode() != null && realArticleJdo.getCode().equals(articleJdo.getCode())
-                        && realArticleJdo.getSize() != null && realArticleJdo.getSize().equals(articleJdo.getSize())
-                        && StringUtils.isEmpty(realArticleJdo.getSold())) {
-                    newSpreadsheetRowIndex = realArticleJdo.getSpreadsheetRow();
+        if (isSold != null && isSold.booleanValue()) {    // for selling
+            if (codeColumnValue == null || !codeColumnValue.equals(articleJdo.getCode())
+                    || sizeColumnValue == null || !sizeColumnValue.equals(articleJdo.getSize())
+                    || soldColumnValue != null && !StringUtils.isEmpty(soldColumnValue)
+                    ) {
+                Integer newSpreadsheetRowIndex = null;
+                List<ArticleJdo> realArticles = loadArticles();
+                for (ArticleJdo realArticleJdo : realArticles) {
+                    if (realArticleJdo.getCode() != null && realArticleJdo.getCode().equals(articleJdo.getCode())
+                            && realArticleJdo.getSize() != null && realArticleJdo.getSize().equals(articleJdo.getSize())
+                            && StringUtils.isEmpty(realArticleJdo.getSold())) {
+                        newSpreadsheetRowIndex = realArticleJdo.getSpreadsheetRow();
+                    }
+                }
+
+                if (newSpreadsheetRowIndex != null) {
+                    articleJdo.setSpreadsheetRow(newSpreadsheetRowIndex);
+
+                } else {
+                    throw new RuntimeException("Updating article doesn't exist anymore!");
+                }
+            } else if (isSold != null && !isSold.booleanValue()) {  //for refunding  , code != null
+                if ((codeColumnValue != null) ? !codeColumnValue.equals(articleJdo.getCode()) :
+                        articleJdo.getCode() != null
+                                || (sizeColumnValue != null) ? !sizeColumnValue.equals(articleJdo.getSize()) :
+                                articleJdo.getSize() != null
+                                        || soldColumnValue == null && StringUtils.isEmpty(soldColumnValue)
+                        ) {
+                    Integer newSpreadsheetRowIndex = null;
+                    List<ArticleJdo> realArticles = loadArticles();
+                    for (ArticleJdo realArticleJdo : realArticles) {
+                        if ((realArticleJdo.getCode() != null) ? realArticleJdo.getCode().equals(articleJdo.getCode()) :
+                                articleJdo.getCode() == null
+                                        && (realArticleJdo.getSize() != null) ? realArticleJdo.getSize().equals(articleJdo.getSize()) :
+                                        articleJdo.getSize() == null
+                                                && !StringUtils.isEmpty(realArticleJdo.getSold())) {
+                            newSpreadsheetRowIndex = realArticleJdo.getSpreadsheetRow();
+                        }
+                    }
+                    if (newSpreadsheetRowIndex != null) {
+                        articleJdo.setSpreadsheetRow(newSpreadsheetRowIndex);
+                    } else {
+                        throw new RuntimeException("Updating article doesn't exist anymore!");
+                    }
+                }
+            } else {   // no selling nor refunding, but simple changing
+                if ((codeColumnValue != null) ? !codeColumnValue.equals(articleJdo.getCode()) :
+                        articleJdo.getCode() != null
+                                || (sizeColumnValue != null) ? !sizeColumnValue.equals(articleJdo.getSize()) :
+                                articleJdo.getSize() != null
+                        ) {
+                    Integer newSpreadsheetRowIndex = null;
+                    List<ArticleJdo> realArticles = loadArticles();
+                    for (ArticleJdo realArticleJdo : realArticles) {
+                        if ((realArticleJdo.getCode() != null) ? realArticleJdo.getCode().equals(articleJdo.getCode()) :
+                                articleJdo.getCode() == null
+                                        && (realArticleJdo.getSize() != null) ? realArticleJdo.getSize().equals(articleJdo.getSize()) :
+                                        articleJdo.getSize() == null
+                                && (realArticleJdo.getSold() != null)? realArticleJdo.getSold().equals(articleJdo.getSold()) :
+                                articleJdo.getSold() == null
+                                ) {
+                            newSpreadsheetRowIndex = realArticleJdo.getSpreadsheetRow();
+                        }
+                    }
+                    if (newSpreadsheetRowIndex != null) {
+                        articleJdo.setSpreadsheetRow(newSpreadsheetRowIndex);
+                    } else {
+                        throw new RuntimeException("Updating article doesn't exist anymore!");
+                    }
                 }
             }
-            if (newSpreadsheetRowIndex != null) {
-                articleJdo.setSpreadsheetRow(newSpreadsheetRowIndex);
-
-            } else {
-                throw new RuntimeException("Updating article doesn't exist anymore!");
-            }
         }
-
         // transform and update.
         List<CellEntry> cellEntriesForUpdate = cellsTransformer.articleToCellEntriesForUpdate(articleJdo, headers, articleFeed);
         spreadsheetWorker.saveOrUpdateCells(cellEntriesForUpdate);
     }
+
 }

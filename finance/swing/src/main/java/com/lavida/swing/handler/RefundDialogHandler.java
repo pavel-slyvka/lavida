@@ -39,7 +39,7 @@ public class RefundDialogHandler {
                 ("; " + refundDialog.getCommentTextArea().getText())));
         articleServiceSwingWrapper.update(articleJdo);
         try {
-            articleServiceSwingWrapper.updateToSpreadsheet(articleJdo);
+            articleServiceSwingWrapper.updateToSpreadsheet(articleJdo, new Boolean(false));
         } catch (Exception e) {        // todo change to Custom exception
             e.printStackTrace();
             articleJdo.setPostponedOperationDate(new Date());

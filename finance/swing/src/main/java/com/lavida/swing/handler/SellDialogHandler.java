@@ -70,7 +70,7 @@ public class SellDialogHandler {
 
         articleServiceSwingWrapper.update(articleJdo);
         try {
-            articleServiceSwingWrapper.updateToSpreadsheet(articleJdo);
+            articleServiceSwingWrapper.updateToSpreadsheet(articleJdo, new Boolean(true));
         } catch (Exception e) {        // todo change to Custom exception
             e.printStackTrace();
             articleJdo.setPostponedOperationDate(new Date());

@@ -119,8 +119,8 @@ public class ArticleService {
         return remoteService.loadArticles();
     }
 
-    public void updateToSpreadsheet(ArticleJdo articleJdo) throws IOException, ServiceException {
-        remoteService.updateArticle(articleJdo);
+    public void updateToSpreadsheet(ArticleJdo articleJdo, Boolean isSold) throws IOException, ServiceException {
+        remoteService.updateArticle(articleJdo, isSold);
     }
 
     public void setArticleDao(ArticleDao articleDao) {

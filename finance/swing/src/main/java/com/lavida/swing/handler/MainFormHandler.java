@@ -75,22 +75,23 @@ public class MainFormHandler {
 
     /**
      * Shows a JOptionPane message with the information about the articles updating  process.
-     * @param informer  the ArticleUpdateInfo to be shown.
+     *
+     * @param informer the ArticleUpdateInfo to be shown.
      */
-    private void showUpdateInfoMessage ( ArticleUpdateInfo informer) {
+    private void showUpdateInfoMessage(ArticleUpdateInfo informer) {
         StringBuilder messageBuilder = new StringBuilder();
         messageBuilder.append(messageSource.getMessage("mainForm.panel.refresh.message.articles.added",
                 null, localeHolder.getLocale()));
         messageBuilder.append(informer.getAddedCount());
-        messageBuilder.append(". \\n");
+        messageBuilder.append(". \n");
         messageBuilder.append(messageSource.getMessage("mainForm.panel.refresh.message.articles.updated",
                 null, localeHolder.getLocale()));
         messageBuilder.append(informer.getUpdatedCount());
-        messageBuilder.append(". \\n");
+        messageBuilder.append(". \n");
         messageBuilder.append(messageSource.getMessage("mainForm.panel.refresh.message.articles.deleted",
                 null, localeHolder.getLocale()));
         messageBuilder.append(informer.getDeletedCount());
-        messageBuilder.append(". \\n");
+        messageBuilder.append(". \n");
 
         form.showMessageBox("mainForm.panel.refresh.message.title", new String(messageBuilder));
     }
@@ -110,8 +111,16 @@ public class MainFormHandler {
         for (ArticleJdo articleJdo : articles) {
             if (articleJdo.getPostponedOperationDate() != null) {
                 try {
-                    articleServiceSwingWrapper.updateToSpreadsheet(articleJdo);
+                    if (articleJdo.getSold() != null) {   //recommit selling
+                        articleServiceSwingWrapper.updateToSpreadsheet(articleJdo, new Boolean(true));
+                    } else if (articleJdo.getSold() == null && articleJdo.getRefundDate()!= null) {  // recommit refunding
+                        articleServiceSwingWrapper.updateToSpreadsheet(articleJdo, new Boolean(false));
+                        articleJdo.setSaleDate(null);
+                    } else {
+                        articleServiceSwingWrapper.updateToSpreadsheet(articleJdo, null); // recommit other changes
+                    }
                     articleJdo.setPostponedOperationDate(null);
+                    articleServiceSwingWrapper.update(articleJdo);
                     showPostponedOperationsMessage();
                 } catch (IOException e) {
                     form.showMessage("mainForm.exception.message.dialog.title", "sellDialog.handler.sold.article.not.saved.to.worksheet");
