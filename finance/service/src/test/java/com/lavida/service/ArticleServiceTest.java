@@ -1,14 +1,13 @@
 package com.lavida.service;
 
 import com.lavida.service.entity.ArticleJdo;
-import junit.framework.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static junit.framework.Assert.*;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 /**
