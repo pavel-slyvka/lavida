@@ -157,7 +157,7 @@ public class GoogleCellsTransformer {
             return "";
         } else if (fieldValue instanceof Calendar) {
             return new SimpleDateFormat(spreadsheetColumn.datePattern()).format(((Calendar) fieldValue).getTime());
-        } else if (fieldValue instanceof Date) {  // todo Date
+        } else if (fieldValue instanceof Date) {
             return new SimpleDateFormat(spreadsheetColumn.datePattern()).format(fieldValue);
         } else if (fieldValue instanceof Double) {
             String value = fieldValue.toString();

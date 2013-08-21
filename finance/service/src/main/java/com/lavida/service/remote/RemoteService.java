@@ -70,15 +70,19 @@ public class RemoteService {
 
         // ArticleJdo.spreadsheetRow has incorrect value -> search for correct
         if (isSold != null && isSold.booleanValue()) {    // for selling
-            if (codeColumnValue == null || !codeColumnValue.equals(articleJdo.getCode())
-                    || sizeColumnValue == null || !sizeColumnValue.equals(articleJdo.getSize())
-                    || soldColumnValue != null && !StringUtils.isEmpty(soldColumnValue)
+            if ((codeColumnValue != null) ? !codeColumnValue.equals(articleJdo.getCode()) :
+                    articleJdo.getCode() != null
+                            || (sizeColumnValue != null) ? !sizeColumnValue.equals(articleJdo.getSize()) :
+                            articleJdo.getSize() != null
+                                    || soldColumnValue != null && !StringUtils.isEmpty(soldColumnValue)
                     ) {
                 Integer newSpreadsheetRowIndex = null;
                 List<ArticleJdo> realArticles = loadArticles();
                 for (ArticleJdo realArticleJdo : realArticles) {
-                    if (realArticleJdo.getCode() != null && realArticleJdo.getCode().equals(articleJdo.getCode())
-                            && realArticleJdo.getSize() != null && realArticleJdo.getSize().equals(articleJdo.getSize())
+                    if ((realArticleJdo.getCode() != null)? realArticleJdo.getCode().equals(articleJdo.getCode()) :
+                            articleJdo.getCode() == null
+                            && (realArticleJdo.getSize() != null)? realArticleJdo.getSize().equals(articleJdo.getSize()):
+                                    articleJdo.getSize() == null
                             && StringUtils.isEmpty(realArticleJdo.getSold())) {
                         newSpreadsheetRowIndex = realArticleJdo.getSpreadsheetRow();
                     }
@@ -127,8 +131,8 @@ public class RemoteService {
                                 articleJdo.getCode() == null
                                         && (realArticleJdo.getSize() != null) ? realArticleJdo.getSize().equals(articleJdo.getSize()) :
                                         articleJdo.getSize() == null
-                                && (realArticleJdo.getSold() != null)? realArticleJdo.getSold().equals(articleJdo.getSold()) :
-                                articleJdo.getSold() == null
+                                                && (realArticleJdo.getSold() != null) ? realArticleJdo.getSold().equals(articleJdo.getSold()) :
+                                                articleJdo.getSold() == null
                                 ) {
                             newSpreadsheetRowIndex = realArticleJdo.getSpreadsheetRow();
                         }
