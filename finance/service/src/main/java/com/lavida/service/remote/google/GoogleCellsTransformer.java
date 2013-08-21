@@ -155,10 +155,10 @@ public class GoogleCellsTransformer {
     private String articleFieldValueToString(Object fieldValue, SpreadsheetColumn spreadsheetColumn) {
         if (fieldValue == null) {
             return "";
-
         } else if (fieldValue instanceof Calendar) {
             return new SimpleDateFormat(spreadsheetColumn.datePattern()).format(((Calendar) fieldValue).getTime());
-
+        } else if (fieldValue instanceof Date) {  // todo Date
+            return new SimpleDateFormat(spreadsheetColumn.datePattern()).format(fieldValue);
         } else if (fieldValue instanceof Double) {
             String value = fieldValue.toString();
             if (value.endsWith(".0")) {
