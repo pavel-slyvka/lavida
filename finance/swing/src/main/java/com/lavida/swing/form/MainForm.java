@@ -93,7 +93,7 @@ public class MainForm extends AbstractForm {
         });
         refreshPanel.add(refreshButton);
 
-        refreshPanel.add(Box.createVerticalStrut(5));
+        refreshPanel.add(Box.createVerticalStrut(20));
         refreshPanel.add(new JSeparator(JSeparator.HORIZONTAL));
         refreshPanel.add(Box.createVerticalStrut(5));
 
@@ -125,7 +125,7 @@ public class MainForm extends AbstractForm {
         });
         operationPanel.add(sellButton);
 
-        operationPanel.add(Box.createVerticalStrut(5));
+        operationPanel.add(Box.createVerticalStrut(20));
         operationPanel.add(new JSeparator(JSeparator.HORIZONTAL));
         operationPanel.add(Box.createVerticalStrut(5));
 
@@ -155,7 +155,7 @@ public class MainForm extends AbstractForm {
 
         constraints.gridx = 0;
         constraints.gridy = 1;
-        constraints.fill = GridBagConstraints.NONE;
+        constraints.fill = GridBagConstraints.VERTICAL;
         constraints.gridwidth = GridBagConstraints.RELATIVE;
         constraints.anchor = GridBagConstraints.WEST;
         constraints.weightx = 0.0;

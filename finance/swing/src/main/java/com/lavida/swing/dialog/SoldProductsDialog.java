@@ -30,8 +30,8 @@ public class SoldProductsDialog extends AbstractDialog {
 
     private ArticleTableComponent articleTableComponent = new ArticleTableComponent();
 
-    private JSplitPane mainPane, southPane;
-    private JPanel  westPanel, southPanel, desktopPanel;
+    private JPanel operationPanel, southPanel, desktopPanel, filtersPanel, analyzePanel, mainPanel,
+            buttonPanel;
     private JButton refundButton, cancelButton;
     private JCheckBox currentDateCheckBox;
 
@@ -40,7 +40,7 @@ public class SoldProductsDialog extends AbstractDialog {
         super.initializeForm();
         dialog.setTitle(messageSource.getMessage("dialog.sold.products.title", null, localeHolder.getLocale()));
         dialog.setResizable(true);
-        dialog.setBounds(100, 100, 800, 500);
+        dialog.setBounds(100, 100, 800, 700);
         dialog.setLocationRelativeTo(null);
     }
 
@@ -51,8 +51,8 @@ public class SoldProductsDialog extends AbstractDialog {
 
 //      desktop pane
         desktopPanel = new JPanel();
-        desktopPanel.setBackground(Color.white);
         desktopPanel.setLayout(new BorderLayout());
+        desktopPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
         articleTableComponent.initializeComponents(tableModel, messageSource, localeHolder);
 
@@ -74,30 +74,41 @@ public class SoldProductsDialog extends AbstractDialog {
         });
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.gridx = 2;
-        constraints.gridy = 3;
+        constraints.gridx = 1;
+        constraints.gridy = articleTableComponent.getArticleFiltersComponent().getFilters().size();
+        constraints.gridwidth = GridBagConstraints.REMAINDER;
+        constraints.anchor = GridBagConstraints.EAST;
+        constraints.weightx = 1.0;
         articleTableComponent.getArticleFiltersComponent().getFiltersPanel().add(currentDateCheckBox, constraints);
 
 //      main panel for table of goods
-        JPanel main = articleTableComponent.getMainPanel();
+        mainPanel = articleTableComponent.getMainPanel();
+        desktopPanel.add(mainPanel, BorderLayout.CENTER);
+
+
+//        south panel for desktopPanel
+        southPanel = new JPanel(new GridBagLayout());
+        southPanel.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
+
+
+
 //      analyze panel for total analyses
-        JPanel analyze = articleTableComponent.getArticleFiltersComponent().getArticleAnalyzeComponent().getAnalyzePanel();
+        analyzePanel = articleTableComponent.getArticleFiltersComponent().getArticleAnalyzeComponent().getAnalyzePanel();
 //      panel for search operations
-        JPanel search = articleTableComponent.getArticleFiltersComponent().getFiltersPanel();
+        filtersPanel= articleTableComponent.getArticleFiltersComponent().getFiltersPanel();
 
-        southPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, analyze, search);
-        mainPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, main, southPane);
-        desktopPanel.add(mainPane, BorderLayout.CENTER);
 
-        rootContainer.add(desktopPanel, BorderLayout.CENTER);
 
-//        west panel with buttons
-        westPanel = new JPanel();
-        westPanel.setBackground(Color.lightGray);
-        westPanel.setLayout(new BoxLayout(westPanel, BoxLayout.LINE_AXIS));
-        westPanel.setBorder(BorderFactory.createEmptyBorder(20, 10, 20, 10));
-
+        operationPanel = new JPanel();
+        operationPanel.setLayout(new GridBagLayout());
+        operationPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(messageSource.
+                getMessage("mainForm.panel.operation.title", null, localeHolder.getLocale())),
+                BorderFactory.createEmptyBorder(5, 5, 5, 5)));
         refundButton = new JButton();
+        refundButton.setHorizontalTextPosition(JButton.CENTER);
+        refundButton.setPreferredSize(new Dimension(150, 25));
+        refundButton.setMaximumSize(new Dimension(150, 25));
+        refundButton.setMinimumSize(new Dimension(150, 25));
         refundButton.setText(messageSource.getMessage("dialog.sold.products.button.refund.title", null, localeHolder.getLocale()));
         refundButton.addActionListener(new ActionListener() {
             @Override
@@ -105,16 +116,55 @@ public class SoldProductsDialog extends AbstractDialog {
                 handler.refundButtonClicked();
             }
         });
-        westPanel.add(refundButton);
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.gridx = 0;
+        constraints.gridy = 0;
+        constraints.gridwidth = GridBagConstraints.REMAINDER;
+        constraints.anchor = GridBagConstraints.SOUTH;
+        constraints.weightx = 1.0;
+        operationPanel.add(refundButton, constraints);
 
-        rootContainer.add(westPanel, BorderLayout.WEST);
+        constraints.gridx = 0;
+        constraints.gridy = 0;
+        constraints.fill = GridBagConstraints.REMAINDER;
+        constraints.gridwidth = GridBagConstraints.REMAINDER;
+        constraints.anchor = GridBagConstraints.WEST;
+        constraints.weightx = 0.0;
+        constraints.weighty = 0.0;
+        southPanel.add(analyzePanel, constraints);
+
+        constraints.gridx = 0;
+        constraints.gridy = 1;
+        constraints.fill = GridBagConstraints.VERTICAL;
+        constraints.gridwidth = GridBagConstraints.RELATIVE;
+        constraints.anchor = GridBagConstraints.WEST;
+        constraints.weightx = 0.0;
+        constraints.weighty = 1.0;
+        southPanel.add(operationPanel, constraints);
+
+        constraints.gridx = 1;
+        constraints.gridy = 1;
+        constraints.fill = GridBagConstraints.BOTH;
+        constraints.gridwidth = GridBagConstraints.REMAINDER;
+        constraints.gridheight = GridBagConstraints.REMAINDER;
+        constraints.anchor = GridBagConstraints.WEST;
+        constraints.weightx = 1.0;
+        constraints.weighty = 1.0;
+        southPanel.add(filtersPanel, constraints);
+
+        desktopPanel.add(southPanel, BorderLayout.SOUTH);
+
+        rootContainer.add(desktopPanel, BorderLayout.CENTER);
 
 //        south panel for buttons
-        southPanel = new JPanel();
-        southPanel.setBackground(Color.lightGray);
-        southPanel.setLayout(new GridLayout(1,1));
+        buttonPanel = new JPanel();
+        buttonPanel.setLayout(new FlowLayout(FlowLayout.TRAILING));
 
         cancelButton = new JButton();
+        cancelButton.setHorizontalTextPosition(JButton.CENTER);
+        cancelButton.setPreferredSize(new Dimension(150, 25));
+        cancelButton.setMaximumSize(new Dimension(150, 25));
+        cancelButton.setMinimumSize(new Dimension(150, 25));
         cancelButton.setText(messageSource.getMessage("sellDialog.button.cancel.title", null, localeHolder.getLocale()));
         cancelButton.addActionListener(new ActionListener() {
             @Override
@@ -122,9 +172,9 @@ public class SoldProductsDialog extends AbstractDialog {
                 handler.cancelButtonClicked();
             }
         });
-        southPanel.add(cancelButton);
+        buttonPanel.add(cancelButton);
 
-        rootContainer.add(southPanel, BorderLayout.SOUTH);
+        rootContainer.add(buttonPanel, BorderLayout.SOUTH);
     }
 
     /**
@@ -146,23 +196,16 @@ public class SoldProductsDialog extends AbstractDialog {
     }
 
 
-    public JPanel getWestPanel() {
-        return westPanel;
-    }
 
-    public JPanel getSouthPanel() {
-        return southPanel;
-    }
-
-    public JButton getRefundButton() {
-        return refundButton;
-    }
-
-    public JButton getCancelButton() {
-        return cancelButton;
-    }
-
-    public JCheckBox getCurrentDateCheckBox() {
-        return currentDateCheckBox;
-    }
+//    public JButton getRefundButton() {
+//        return refundButton;
+//    }
+//
+//    public JButton getCancelButton() {
+//        return cancelButton;
+//    }
+//
+//    public JCheckBox getCurrentDateCheckBox() {
+//        return currentDateCheckBox;
+//    }
 }

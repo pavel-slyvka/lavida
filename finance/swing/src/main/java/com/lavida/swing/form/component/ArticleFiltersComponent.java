@@ -100,10 +100,10 @@ public class ArticleFiltersComponent {
         }
 
         JButton clearSearchButton = new JButton(messageSource.getMessage("mainForm.button.clear.title", null, localeHolder.getLocale()));
-        constraints.gridx = 0;
-        constraints.gridy = filters.size();
+        constraints.gridx = 1;
+        constraints.gridy = filters.size() + 1;
         constraints.gridwidth = GridBagConstraints.REMAINDER;
-        constraints.anchor = GridBagConstraints.CENTER;
+        constraints.anchor = GridBagConstraints.EAST;
         constraints.weightx = 1.0;
         clearSearchButton.addActionListener(new ActionListener() {
             @Override
