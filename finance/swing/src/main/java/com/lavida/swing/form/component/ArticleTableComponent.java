@@ -35,7 +35,7 @@ public class ArticleTableComponent {
 
 //      main panel for table of goods
         mainPanel = new JPanel();
-        mainPanel.setBackground(Color.white);
+//        mainPanel.setBackground(Color.white);
         mainPanel.setLayout(new BorderLayout());
 
         articlesTable = new JTable(tableModel);

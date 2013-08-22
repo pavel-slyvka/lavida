@@ -143,7 +143,7 @@ public class MainFormHandler {
                 ++count;
             }
         }
-        form.getPostponedMessage().setText(count + "!");
+        form.getPostponedMessage().setText(String.valueOf(count));
     }
 
     public void showSoldProductsButtonClicked() {

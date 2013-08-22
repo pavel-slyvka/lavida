@@ -45,7 +45,7 @@ public class ArticleFiltersComponent {
 
 //      panel for search operations
         filtersPanel = new JPanel();
-        filtersPanel.setBackground(Color.lightGray);
+//        filtersPanel.setBackground(Color.lightGray);
         filtersPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(messageSource.
                 getMessage("mainForm.panel.search.title", null, localeHolder.getLocale())),
                 BorderFactory.createEmptyBorder(5, 5, 5, 5)));
