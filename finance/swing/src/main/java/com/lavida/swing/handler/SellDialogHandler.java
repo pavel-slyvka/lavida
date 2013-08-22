@@ -1,7 +1,6 @@
 package com.lavida.swing.handler;
 
 import com.lavida.service.entity.ArticleJdo;
-import com.lavida.swing.ExchangerHolder;
 import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.dialog.SellDialog;
 import com.lavida.swing.service.ArticleServiceSwingWrapper;
@@ -39,9 +38,6 @@ public class SellDialogHandler {
     @Resource(name = "notSoldArticleTableModel")
     private ArticlesTableModel tableModel;
 
-    @Resource
-    private ExchangerHolder exchangerHolder;
-
     /**
      * Performs selling operation.
      *
@@ -50,7 +46,7 @@ public class SellDialogHandler {
     public void sellButtonClicked(ArticleJdo articleJdo) {
         articleJdo.setSaleDate(Calendar.getInstance());
         articleJdo.setSold(messageSource.getMessage("sellDialog.button.sell.clicked.sold", null, localeHolder.getLocale()));
-        articleJdo.setComment(dialog.getCommentTextArea().getText().trim());
+        articleJdo.setComment(dialog.getCommentTextField().getText().trim());
         if (dialog.getOursCheckBox().isSelected()) {
             articleJdo.setPriceUAH(Double.parseDouble(dialog.getPriceField().getText()));
             articleJdo.setOurs(dialog.getOursCheckBox().getActionCommand());
@@ -80,17 +76,11 @@ public class SellDialogHandler {
             dialog.hide();
             dialog.getMainForm().update();
             dialog.getMainForm().show();
-
         }
-
         dialog.hide();
         dialog.getMainForm().update();
         dialog.getMainForm().show();
     }
-
-//    private double exchangeEurToUah(double priceEur) {
-//        return priceEur * exchangerHolder.getSellRateEUR();
-//    }
 
     public void oursCheckBoxSelected() {
         dialog.getPriceField().setText(String.valueOf(0));

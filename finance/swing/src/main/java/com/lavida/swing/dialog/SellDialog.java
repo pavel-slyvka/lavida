@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import javax.swing.*;
-import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.*;
@@ -18,7 +17,7 @@ import java.util.List;
 
 /**
  * Created: 10:39 15.08.13
- *
+ * the dialog for selling operation.
  * @author Ruslan
  */
 @Component
@@ -36,8 +35,7 @@ public class SellDialog extends AbstractDialog {
     private JPanel buttonPanel, inputPanel, oursPanel, commentPanel, tagsPanel;
     private JLabel codeLabel, nameLabel, brandLabel, sizeLabel, priceLabel, commentLabel,
             codeField, nameField, brandField, sizeField, priceField, shopLabel, discountLabel, totalCostLabel;
-//    private JTextArea commentTextArea;
-    private JTextField shopTextField, discountTextField, totalCostTextField, commentTextArea;
+    private JTextField shopTextField, discountTextField, totalCostTextField, commentTextField;
     private JButton sellButton, cancelButton;
     private JCheckBox oursCheckBox, presentCheckBox;
     private List<JCheckBox> tagCheckBoxes = new ArrayList<JCheckBox>();
@@ -57,7 +55,7 @@ public class SellDialog extends AbstractDialog {
         brandField.setText(articleJdo.getBrand());
         sizeField.setText(articleJdo.getSize());
         priceField.setText(String.valueOf(articleJdo.getPriceUAH()));
-        commentTextArea.setText(articleJdo.getComment());
+        commentTextField.setText(articleJdo.getComment());
         handler.discountTextEntered();
     }
 
@@ -73,10 +71,6 @@ public class SellDialog extends AbstractDialog {
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.insets = new Insets(5, 5, 5, 5);
 
-        Border fieldsBorder = BorderFactory.createLineBorder(Color.LIGHT_GRAY);
-
-//        constraints.gridx = 0;
-//        constraints.gridy = 0;
         codeLabel = new JLabel();
         codeLabel.setText(messageSource.getMessage("sellDialog.label.code.title", null, localeHolder.getLocale()));
         codeLabel.setLabelFor(codeField);
@@ -87,17 +81,12 @@ public class SellDialog extends AbstractDialog {
         inputPanel.add(codeLabel, constraints);
 
         codeField = new JLabel();
-//        codeField.setBorder(fieldsBorder);
-//        constraints.gridx = 1;
-//        constraints.gridy = 0;
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.gridwidth = GridBagConstraints.REMAINDER;
         constraints.anchor = GridBagConstraints.EAST;
         constraints.weightx = 1.0;
         inputPanel.add(codeField, constraints);
 
-//        constraints.gridx = 0;
-//        constraints.gridy = 1;
         nameLabel = new JLabel();
         nameLabel.setText(messageSource.getMessage("sellDialog.label.name.title", null, localeHolder.getLocale()));
         nameLabel.setLabelFor(nameField);
@@ -108,17 +97,12 @@ public class SellDialog extends AbstractDialog {
         inputPanel.add(nameLabel, constraints);
 
         nameField = new JLabel();
-//        nameField.setBorder(fieldsBorder);
-//        constraints.gridx = 1;
-//        constraints.gridy = 1;
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.gridwidth = GridBagConstraints.REMAINDER;
         constraints.anchor = GridBagConstraints.EAST;
         constraints.weightx = 1.0;
         inputPanel.add(nameField, constraints);
 
-//        constraints.gridx = 0;
-//        constraints.gridy = 2;
         brandLabel = new JLabel();
         brandLabel.setText(messageSource.getMessage("sellDialog.label.brand.title", null, localeHolder.getLocale()));
         brandLabel.setLabelFor(brandField);
@@ -129,17 +113,12 @@ public class SellDialog extends AbstractDialog {
         inputPanel.add(brandLabel, constraints);
 
         brandField = new JLabel();
-//        brandField.setBorder(fieldsBorder);
-//        constraints.gridx = 1;
-//        constraints.gridy = 2;
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.gridwidth = GridBagConstraints.REMAINDER;
         constraints.anchor = GridBagConstraints.EAST;
         constraints.weightx = 1.0;
         inputPanel.add(brandField, constraints);
 
-//        constraints.gridx = 0;
-//        constraints.gridy = 3;
         sizeLabel = new JLabel();
         sizeLabel.setText(messageSource.getMessage("sellDialog.label.size.title", null, localeHolder.getLocale()));
         sizeLabel.setLabelFor(sizeField);
@@ -150,9 +129,6 @@ public class SellDialog extends AbstractDialog {
         inputPanel.add(sizeLabel, constraints);
 
         sizeField = new JLabel();
-//        sizeField.setBorder(fieldsBorder);
-//        constraints.gridx = 1;
-//        constraints.gridy = 3;
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.gridwidth = GridBagConstraints.REMAINDER;
         constraints.anchor = GridBagConstraints.EAST;
@@ -160,8 +136,6 @@ public class SellDialog extends AbstractDialog {
         inputPanel.add(sizeField, constraints);
 
 
-//        constraints.gridx = 0;
-//        constraints.gridy = 4;
         priceLabel = new JLabel();
         priceLabel.setText(messageSource.getMessage("sellDialog.label.price.title", null, localeHolder.getLocale()));
         priceLabel.setLabelFor(priceField);
@@ -172,9 +146,6 @@ public class SellDialog extends AbstractDialog {
         inputPanel.add(priceLabel, constraints);
 
         priceField = new JLabel();
-//        priceField.setBorder(fieldsBorder);
-//        constraints.gridx = 1;
-//        constraints.gridy = 4;
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.gridwidth = GridBagConstraints.REMAINDER;
         constraints.anchor = GridBagConstraints.EAST;
@@ -295,11 +266,10 @@ public class SellDialog extends AbstractDialog {
         commentLabel = new JLabel();
         commentLabel.setText(messageSource.getMessage("sellDialog.label.comment.title", null, localeHolder.getLocale()));
         commentPanel.add(commentLabel);
-        commentTextArea = new JTextField(200);
-//        commentTextArea.setPreferredSize(new Dimension(300, 50));
+        commentTextField = new JTextField(200);
         constraints.weighty = 1.0;
         constraints.weightx = 1.0;
-        commentPanel.add(commentTextArea);
+        commentPanel.add(commentTextField);
 
         inputPanel.add(commentPanel, constraints);
 
@@ -342,7 +312,7 @@ public class SellDialog extends AbstractDialog {
         cancelButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                commentTextArea.setText("");
+                commentTextField.setText("");
                 oursCheckBox.setSelected(false);
                 presentCheckBox.setSelected(false);
                 hide();
@@ -361,8 +331,8 @@ public class SellDialog extends AbstractDialog {
         return priceField;
     }
 
-    public JTextField getCommentTextArea() {
-        return commentTextArea;
+    public JTextField getCommentTextField() {
+        return commentTextField;
     }
 
     public JCheckBox getOursCheckBox() {
