@@ -11,6 +11,7 @@ import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
 /**
@@ -27,7 +28,7 @@ public class LoginForm extends AbstractForm {
     @Resource
     private LoginFormHandler handler;
 
-    private JButton submitButton;
+    private JButton submitButton, cancelButton;
     private JTextField loginField;
     private JPasswordField passwordField;
     private JLabel loginLabel;
@@ -41,47 +42,91 @@ public class LoginForm extends AbstractForm {
     @Override
     protected void initializeForm() {
         super.initializeForm();
-        form.setBounds(200, 200, 400, 200);
+        form.setBounds(200, 200, 300, 200);
         form.setTitle(messageSource.getMessage("loginForm.form.title", null, localeHolder.getLocale()));
     }
 
 
     @Override
     protected void initializeComponents() {
+        informPanel = new JPanel(new GridLayout(2, 1));
+        informPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         instructionsLabel = new JLabel(messageSource.getMessage("loginForm.label.instruction.title", null, localeHolder.getLocale()));
+        instructionsLabel.setHorizontalAlignment(JLabel.CENTER);
+        errorLabel = new JLabel();
+        errorLabel.setForeground(Color.RED);
+        errorLabel.setHorizontalAlignment(JLabel.CENTER);
+        errorLabel.doLayout();
+        informPanel.add(instructionsLabel);
+        informPanel.add(errorLabel);
+
+        GridBagLayout bagLayout = new GridBagLayout();
+        GridBagConstraints constraints = new GridBagConstraints();
+        constraints.insets = new Insets(2,5,2,5);
+        credentialPanel = new JPanel(bagLayout);
+
         loginLabel = new JLabel(messageSource.getMessage("loginForm.label.login.title", null, localeHolder.getLocale()));
+        loginLabel.setHorizontalAlignment(JLabel.RIGHT);
+        loginLabel.setLabelFor(loginField);
+        constraints.fill = GridBagConstraints.NONE;
+        constraints.gridwidth = GridBagConstraints.RELATIVE;
+        constraints.anchor = GridBagConstraints.EAST;
+        constraints.weightx = 0.0;
+        credentialPanel.add(loginLabel, constraints);
+
+        loginField = new JTextField(20);
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.gridwidth = GridBagConstraints.REMAINDER;
+        constraints.anchor = GridBagConstraints.EAST;
+        constraints.weightx = 1.0;
+        credentialPanel.add(loginField, constraints);
+
         passwordLabel = new JLabel(messageSource.getMessage("loginForm.label.password.title", null, localeHolder.getLocale()));
-        loginField = new JTextField();
-        passwordField = new JPasswordField();
+        passwordLabel.setHorizontalAlignment(JLabel.RIGHT);
+        passwordLabel.setLabelFor(passwordField);
+        constraints.fill = GridBagConstraints.NONE;
+        constraints.gridwidth = GridBagConstraints.RELATIVE;
+        constraints.anchor = GridBagConstraints.EAST;
+        constraints.weightx = 0.0;
+        credentialPanel.add(passwordLabel, constraints);
+
+        passwordField = new JPasswordField(20);
+        passwordField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                super.keyPressed(e);
+                int key = e.getKeyCode();
+                if ( key == KeyEvent.VK_ENTER) {
+                    submitButton.doClick();
+                }
+            }
+        });
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.gridwidth = GridBagConstraints.REMAINDER;
+        constraints.anchor = GridBagConstraints.EAST;
+        constraints.weightx = 1.0;
+        credentialPanel.add(passwordField, constraints);
+
+        buttonPanel = new JPanel();
+        FlowLayout flowLayout = new FlowLayout();
+        flowLayout.setAlignment(FlowLayout.RIGHT);
+        buttonPanel.setLayout(flowLayout);
         submitButton = new JButton(messageSource.getMessage("loginForm.button.login.title", null, localeHolder.getLocale()));
-        submitButton.setMnemonic(KeyEvent.VK_ENTER);  // Alt+Enter hot keys
-        submitButton.setBackground(Color.orange);
         submitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 handler.submitButtonClicked(loginField.getText().trim(), new String(passwordField.getPassword()));
             }
         });
-
-        errorLabel = new JLabel();
-        errorLabel.setForeground(Color.RED);
-
-        credentialPanel = new JPanel(new GridLayout(2, 2));
-        credentialPanel.add(loginLabel);
-        credentialPanel.add(loginField);
-        credentialPanel.add(passwordLabel);
-        credentialPanel.add(passwordField);
-        credentialPanel.setBorder(new LineBorder(Color.ORANGE));
-        credentialPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-
-        informPanel = new JPanel(new GridLayout(2, 1));
-        informPanel.add(instructionsLabel);
-        informPanel.add(errorLabel);
-        informPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-
-        buttonPanel = new JPanel();
+        cancelButton = new JButton(messageSource.getMessage("loginForm.button.cancel.title", null, localeHolder.getLocale()));
+        cancelButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                hide();
+            }
+        });
         buttonPanel.add(submitButton);
-        buttonPanel.setBorder(BorderFactory.createEmptyBorder(5, 50, 5, 50));
+        buttonPanel.add(cancelButton);
 
         rootContainer.setLayout(new BorderLayout());
         rootContainer.setBackground(Color.LIGHT_GRAY);
