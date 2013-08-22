@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import javax.swing.*;
+import java.text.DecimalFormat;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -49,13 +50,12 @@ public class SellDialogHandler {
     public void sellButtonClicked(ArticleJdo articleJdo) {
         articleJdo.setSaleDate(Calendar.getInstance());
         articleJdo.setSold(messageSource.getMessage("sellDialog.button.sell.clicked.sold", null, localeHolder.getLocale()));
-        articleJdo.setComment(articleJdo.getComment() + ((dialog.getCommentTextArea().getText().trim() == null)? null :
-                ( "; " + dialog.getCommentTextArea().getText().trim())));
+        articleJdo.setComment(dialog.getCommentTextArea().getText().trim());
         if (dialog.getOursCheckBox().isSelected()) {
-            articleJdo.setPriceUAH(exchangeEurToUah(articleJdo.getPurchasingPriceEUR()));
+            articleJdo.setPriceUAH(Double.parseDouble(dialog.getPriceField().getText()));
             articleJdo.setOurs(dialog.getOursCheckBox().getActionCommand());
         } else if (dialog.getPresentCheckBox().isSelected()) {
-            articleJdo.setPriceUAH(0);
+            articleJdo.setPriceUAH(Double.parseDouble(dialog.getPriceField().getText()));
             articleJdo.setOurs(dialog.getPresentCheckBox().getActionCommand());
         }
         StringBuilder tagsBuilder = new StringBuilder();
@@ -88,14 +88,13 @@ public class SellDialogHandler {
         dialog.getMainForm().show();
     }
 
-    private double exchangeEurToUah(double priceEur) {
-        return priceEur * exchangerHolder.getSellRateEUR();
-    }
+//    private double exchangeEurToUah(double priceEur) {
+//        return priceEur * exchangerHolder.getSellRateEUR();
+//    }
 
     public void oursCheckBoxSelected() {
-        ArticleJdo articleJdo = tableModel.getSelectedArticle();
-        double sellingPrice = (exchangeEurToUah(articleJdo.getPurchasingPriceEUR()));
-        dialog.getPriceField().setText(String.valueOf(sellingPrice));
+        dialog.getPriceField().setText(String.valueOf(0));
+        dialog.getDiscountTextField().setText(String.valueOf(0));
     }
 
     public void checkBoxDeSelected() {
@@ -105,5 +104,15 @@ public class SellDialogHandler {
 
     public void presentCheckBoxSelected() {
         dialog.getPriceField().setText(String.valueOf(0));
+        dialog.getDiscountTextField().setText(String.valueOf(0));
+    }
+
+    public void discountTextEntered() {
+        String inputStr = (dialog.getDiscountTextField().getText().trim().equals(""))? "0.0" : dialog.getDiscountTextField().getText().trim();
+        String discountStr = inputStr.replace(",", ".").replaceAll("[^0-9.]", "");
+        double discount = Double.parseDouble(discountStr);
+        double price = Double.parseDouble(dialog.getPriceField().getText());
+        double totalCost = price - discount;
+        dialog.getTotalCostTextField().setText(new DecimalFormat("##.##").format(totalCost));
     }
 }

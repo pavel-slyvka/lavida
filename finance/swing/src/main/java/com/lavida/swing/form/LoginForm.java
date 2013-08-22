@@ -75,6 +75,16 @@ public class LoginForm extends AbstractForm {
         credentialPanel.add(loginLabel, constraints);
 
         loginField = new JTextField(20);
+        loginField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                super.keyPressed(e);
+                int key = e.getKeyCode();
+                if (key == KeyEvent.VK_ENTER) {
+                    passwordField.requestFocusInWindow();
+                }
+            }
+        });
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.gridwidth = GridBagConstraints.REMAINDER;
         constraints.anchor = GridBagConstraints.EAST;
