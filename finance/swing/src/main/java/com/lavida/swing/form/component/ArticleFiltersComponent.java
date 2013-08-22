@@ -45,16 +45,16 @@ public class ArticleFiltersComponent {
 
 //      panel for search operations
         filtersPanel = new JPanel();
-//        filtersPanel.setBackground(Color.lightGray);
         filtersPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(messageSource.
                 getMessage("mainForm.panel.search.title", null, localeHolder.getLocale())),
                 BorderFactory.createEmptyBorder(5, 5, 5, 5)));
-        filtersPanel.setOpaque(true);
-        filtersPanel.setAutoscrolls(true);
+//        filtersPanel.setOpaque(true);
+//        filtersPanel.setAutoscrolls(true);
         filtersPanel.setLayout(new GridBagLayout());
 
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.insets = new Insets(5, 5, 5, 5);
 
         boolean sellPurpose = FiltersPurpose.SELL_PRODUCTS == filtersPurpose;
         boolean soldPurpose = FiltersPurpose.SOLD_PRODUCTS == filtersPurpose;
@@ -86,17 +86,25 @@ public class ArticleFiltersComponent {
             }
         });
         for (int i = 0; i < filters.size(); ++i) {
-            constraints.gridx = 0;
-            constraints.gridy = i;
+            filters.get(i).label.setLabelFor(filters.get(i).textField);
+            constraints.fill = GridBagConstraints.NONE;
+            constraints.gridwidth = GridBagConstraints.RELATIVE;
+            constraints.anchor = GridBagConstraints.EAST;
+            constraints.weightx = 0.0;
             filtersPanel.add(filters.get(i).label, constraints);
-            constraints.gridx = 1;
-            constraints.gridy = i;
+            constraints.fill = GridBagConstraints.HORIZONTAL;
+            constraints.gridwidth = GridBagConstraints.REMAINDER;
+            constraints.anchor = GridBagConstraints.EAST;
+            constraints.weightx = 1.0;
             filtersPanel.add(filters.get(i).textField, constraints);
         }
 
         JButton clearSearchButton = new JButton(messageSource.getMessage("mainForm.button.clear.title", null, localeHolder.getLocale()));
-        constraints.gridx = 2;
-        constraints.gridy = 1;
+        constraints.gridx = 0;
+        constraints.gridy = filters.size();
+        constraints.gridwidth = GridBagConstraints.REMAINDER;
+        constraints.anchor = GridBagConstraints.CENTER;
+        constraints.weightx = 1.0;
         clearSearchButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
