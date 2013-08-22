@@ -135,7 +135,6 @@ public class SellDialog extends AbstractDialog {
         constraints.weightx = 1.0;
         inputPanel.add(sizeField, constraints);
 
-
         priceLabel = new JLabel();
         priceLabel.setText(messageSource.getMessage("sellDialog.label.price.title", null, localeHolder.getLocale()));
         priceLabel.setLabelFor(priceField);

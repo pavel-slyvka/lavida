@@ -7,8 +7,6 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import javax.swing.*;
-import javax.swing.border.BevelBorder;
-import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -34,16 +32,15 @@ public class RefundDialog extends AbstractDialog {
     private JPanel buttonPanel, inputPanel, commentPanel;
     private JLabel codeLabel, nameLabel, brandLabel, sizeLabel, priceLabel, commentLabel,
             codeField, nameField, brandField, sizeField, priceField;
-    private JTextArea commentTextArea;
+    private JTextField commentTextField;
     private JButton refundButton, cancelButton;
-    private Border fieldsBorder;
 
     @Override
     protected void initializeForm() {
         super.initializeForm();
         dialog.setTitle(messageSource.getMessage("dialog.refund.title", null, localeHolder.getLocale()));
         dialog.setResizable(true);
-        dialog.setBounds(100, 100, 800, 500);
+        dialog.setBounds(100, 100, 300, 250);
         dialog.setLocationRelativeTo(null);
     }
 
@@ -53,88 +50,109 @@ public class RefundDialog extends AbstractDialog {
         rootContainer.setLayout(new BorderLayout());
 //      input panel
         inputPanel = new JPanel(new GridBagLayout());
-        inputPanel.setBorder(BorderFactory.createEmptyBorder(15, 5, 15, 5));
         GridBagConstraints constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        fieldsBorder = BorderFactory.createBevelBorder(BevelBorder.LOWERED);
+        constraints.insets = new Insets(5, 5, 5, 5);
 
-        constraints.gridx = 0;
-        constraints.gridy = 0;
         codeLabel = new JLabel();
         codeLabel.setText(messageSource.getMessage("sellDialog.label.code.title", null, localeHolder.getLocale()));
+        codeLabel.setLabelFor(codeField);
+        constraints.fill = GridBagConstraints.NONE;
+        constraints.gridwidth = GridBagConstraints.RELATIVE;
+        constraints.anchor = GridBagConstraints.EAST;
+        constraints.weightx = 0.0;
         inputPanel.add(codeLabel, constraints);
 
         codeField = new JLabel();
-        codeField.setBorder(fieldsBorder);
-        constraints.gridx = 1;
-        constraints.gridy = 0;
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.gridwidth = GridBagConstraints.REMAINDER;
+        constraints.anchor = GridBagConstraints.EAST;
+        constraints.weightx = 1.0;
         inputPanel.add(codeField, constraints);
 
-        constraints.gridx = 0;
-        constraints.gridy = 1;
         nameLabel = new JLabel();
         nameLabel.setText(messageSource.getMessage("sellDialog.label.name.title", null, localeHolder.getLocale()));
+        nameLabel.setLabelFor(nameField);
+        constraints.fill = GridBagConstraints.NONE;
+        constraints.gridwidth = GridBagConstraints.RELATIVE;
+        constraints.anchor = GridBagConstraints.EAST;
+        constraints.weightx = 0.0;
         inputPanel.add(nameLabel, constraints);
 
         nameField = new JLabel();
-        nameField.setBorder(fieldsBorder);
-        constraints.gridx = 1;
-        constraints.gridy = 1;
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.gridwidth = GridBagConstraints.REMAINDER;
+        constraints.anchor = GridBagConstraints.EAST;
+        constraints.weightx = 1.0;
         inputPanel.add(nameField, constraints);
 
-        constraints.gridx = 0;
-        constraints.gridy = 2;
         brandLabel = new JLabel();
         brandLabel.setText(messageSource.getMessage("sellDialog.label.brand.title", null, localeHolder.getLocale()));
+        brandLabel.setLabelFor(brandField);
+        constraints.fill = GridBagConstraints.NONE;
+        constraints.gridwidth = GridBagConstraints.RELATIVE;
+        constraints.anchor = GridBagConstraints.EAST;
+        constraints.weightx = 0.0;
         inputPanel.add(brandLabel, constraints);
 
         brandField = new JLabel();
-        brandField.setBorder(fieldsBorder);
-        constraints.gridx = 1;
-        constraints.gridy = 2;
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.gridwidth = GridBagConstraints.REMAINDER;
+        constraints.anchor = GridBagConstraints.EAST;
+        constraints.weightx = 1.0;
         inputPanel.add(brandField, constraints);
 
-        constraints.gridx = 0;
-        constraints.gridy = 3;
         sizeLabel = new JLabel();
         sizeLabel.setText(messageSource.getMessage("sellDialog.label.size.title", null, localeHolder.getLocale()));
+        sizeLabel.setLabelFor(sizeField);
+        constraints.fill = GridBagConstraints.NONE;
+        constraints.gridwidth = GridBagConstraints.RELATIVE;
+        constraints.anchor = GridBagConstraints.EAST;
+        constraints.weightx = 0.0;
         inputPanel.add(sizeLabel, constraints);
 
         sizeField = new JLabel();
-        sizeField.setBorder(fieldsBorder);
-        constraints.gridx = 1;
-        constraints.gridy = 3;
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.gridwidth = GridBagConstraints.REMAINDER;
+        constraints.anchor = GridBagConstraints.EAST;
+        constraints.weightx = 1.0;
         inputPanel.add(sizeField, constraints);
 
-        constraints.gridx = 0;
-        constraints.gridy = 4;
         priceLabel = new JLabel();
         priceLabel.setText(messageSource.getMessage("sellDialog.label.price.title", null, localeHolder.getLocale()));
+        priceLabel.setLabelFor(priceField);
+        constraints.fill = GridBagConstraints.NONE;
+        constraints.gridwidth = GridBagConstraints.RELATIVE;
+        constraints.anchor = GridBagConstraints.EAST;
+        constraints.weightx = 0.0;
         inputPanel.add(priceLabel, constraints);
 
         priceField = new JLabel();
-        priceField.setBorder(fieldsBorder);
-        constraints.gridx = 1;
-        constraints.gridy = 4;
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.gridwidth = GridBagConstraints.REMAINDER;
+        constraints.anchor = GridBagConstraints.EAST;
+        constraints.weightx = 1.0;
         inputPanel.add(priceField, constraints);
 
         commentPanel = new JPanel(new GridLayout(2, 1));
         constraints.gridx = 0;
         constraints.gridy = 5;
+        constraints.gridwidth = GridBagConstraints.REMAINDER;
+        constraints.anchor = GridBagConstraints.CENTER;
+        constraints.weightx = 1.0;
         commentLabel = new JLabel();
         commentLabel.setText(messageSource.getMessage("sellDialog.label.comment.title", null, localeHolder.getLocale()));
         commentPanel.add(commentLabel);
 
-        commentTextArea = new JTextArea();
-        commentTextArea.setPreferredSize(new Dimension(300, 50));
-        commentPanel.add(commentTextArea);
+        commentTextField = new JTextField();
+        commentTextField.setPreferredSize(new Dimension(200, 50));
+        commentPanel.add(commentTextField);
 
         inputPanel.add(commentPanel, constraints);
 
         rootContainer.add(inputPanel, BorderLayout.CENTER);
 
 //        button panel
-        buttonPanel = new JPanel(new FlowLayout());
+        buttonPanel = new JPanel(new FlowLayout(FlowLayout.TRAILING));
         refundButton = new JButton(messageSource.getMessage("dialog.sold.products.button.refund.title", null,
                 localeHolder.getLocale()));
         refundButton.addActionListener(new ActionListener() {
@@ -149,7 +167,7 @@ public class RefundDialog extends AbstractDialog {
         cancelButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                commentTextArea.setText("");
+                commentTextField.setText("");
                 hide();
                 mainForm.getForm().setVisible(true);
                 mainForm.update();
@@ -171,11 +189,11 @@ public class RefundDialog extends AbstractDialog {
         brandField.setText(articleJdo.getBrand());
         sizeField.setText(articleJdo.getSize());
         priceField.setText(String.valueOf(articleJdo.getPriceUAH()));
-
+        commentTextField.setText(articleJdo.getComment());
     }
 
-    public JTextArea getCommentTextArea() {
-        return commentTextArea;
+    public JTextField getCommentTextField() {
+        return commentTextField;
     }
 
     public SoldProductsDialog getSoldProductsDialog() {
