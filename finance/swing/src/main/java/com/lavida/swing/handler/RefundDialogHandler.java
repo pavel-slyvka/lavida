@@ -33,7 +33,7 @@ public class RefundDialogHandler {
      */
     public void refundButtonClicked (ArticleJdo articleJdo){
         articleJdo.setSold(null);
-        articleJdo.setOurs(null);
+        articleJdo.setSellType(null);
         articleJdo.setRefundDate(new Date());
         articleJdo.setComment(articleJdo.getComment());
         articleServiceSwingWrapper.update(articleJdo);

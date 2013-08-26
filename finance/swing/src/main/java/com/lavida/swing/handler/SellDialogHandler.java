@@ -48,11 +48,11 @@ public class SellDialogHandler {
         articleJdo.setSold(messageSource.getMessage("sellDialog.button.sell.clicked.sold", null, localeHolder.getLocale()));
         articleJdo.setComment(dialog.getCommentTextField().getText().trim());
         if (dialog.getOursCheckBox().isSelected()) {
-            articleJdo.setPriceUAH(Double.parseDouble(dialog.getPriceField().getText()));
-            articleJdo.setOurs(dialog.getOursCheckBox().getActionCommand());
+            articleJdo.setSalePrice(Double.parseDouble(dialog.getPriceField().getText()));
+            articleJdo.setSellType(dialog.getOursCheckBox().getActionCommand());
         } else if (dialog.getPresentCheckBox().isSelected()) {
-            articleJdo.setPriceUAH(Double.parseDouble(dialog.getPriceField().getText()));
-            articleJdo.setOurs(dialog.getPresentCheckBox().getActionCommand());
+            articleJdo.setSalePrice(Double.parseDouble(dialog.getPriceField().getText()));
+            articleJdo.setSellType(dialog.getPresentCheckBox().getActionCommand());
         }
         StringBuilder tagsBuilder = new StringBuilder();
         for (JCheckBox checkBox : dialog.getTagCheckBoxes()) {
@@ -60,7 +60,7 @@ public class SellDialogHandler {
                tagsBuilder.append(checkBox.getActionCommand() + "; ");
             }
         }
-        articleJdo.setFinancialTags(new String(tagsBuilder));
+        articleJdo.setTags(new String(tagsBuilder));
         articleJdo.setShop((dialog.getShopTextField().getText().trim() == null)? null :
                 dialog.getShopTextField().getText().trim());
 
@@ -89,7 +89,7 @@ public class SellDialogHandler {
 
     public void checkBoxDeSelected() {
         ArticleJdo articleJdo = tableModel.getSelectedArticle();
-        dialog.getPriceField().setText(String.valueOf(articleJdo.getPriceUAH()));
+        dialog.getPriceField().setText(String.valueOf(articleJdo.getSalePrice()));
     }
 
     public void presentCheckBoxSelected() {

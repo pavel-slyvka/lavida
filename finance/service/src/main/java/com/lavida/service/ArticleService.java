@@ -4,11 +4,14 @@ import com.google.gdata.util.ServiceException;
 import com.lavida.service.dao.ArticleDao;
 import com.lavida.service.entity.ArticleJdo;
 import com.lavida.service.remote.RemoteService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +23,7 @@ import java.util.List;
  */
 @Service
 public class ArticleService {
+    private final static Logger logger = LoggerFactory.getLogger(ArticleService.class);
 
     @Resource
     private ArticleDao articleDao;
@@ -37,6 +41,107 @@ public class ArticleService {
         articleDao.update(articleJdo);
     }
 
+    public List<ArticleJdo> fixArticles(List<ArticleJdo> articles) {
+        final String ERROR = "ERROR";
+        List<ArticleJdo> articlesForUpdate = new ArrayList<ArticleJdo>();
+        for (int i = 0; i < articles.size(); ++i) {
+            ArticleJdo articleJdo = articles.get(i);
+            boolean updated = false;
+            if (!Integer.toString(i + 1).equals(articleJdo.getSpreadsheetNum())) {
+                articleJdo.setSpreadsheetNum(Integer.toString(i + 1));
+                updated = true;
+            }
+            if (articleJdo.getCode() == null || articleJdo.getCode().trim().isEmpty()) {
+                articleJdo.setCode(ERROR);
+                updated = true;
+            }
+            if (articleJdo.getBrand() == null || articleJdo.getBrand().trim().isEmpty()) {
+                articleJdo.setBrand("Unknown");
+                updated = true;
+            }
+            if (articleJdo.getDeliveryDate() == null) {
+                logger.warn("Article deliveryDate == null: " + articleJdo);
+                // todo
+            }
+            if (articleJdo.getPurchasePriceEUR() == 0 && articleJdo.getTotalCostUAH() == 0) {
+                logger.warn("Article purchasePriceEUR == null: " + articleJdo);
+                //todo
+            }
+            if (articleJdo.getTransportCostEUR() == 0 && articleJdo.getTotalCostUAH() == 0) {
+                logger.warn("Article transportCostEUR == null: " + articleJdo);
+                //todo
+            }
+            double cost = articleJdo.getPurchasePriceEUR() + articleJdo.getTransportCostEUR() + articleJdo.getPurchasePriceEUR() / 100 * 6.5;
+            cost = BigDecimal.valueOf(cost).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue();
+            if (articleJdo.getTotalCostEUR() != cost) {
+                articleJdo.setTotalCostEUR(cost);
+                updated = true;
+            }
+            double costUAH = articleJdo.getTotalCostEUR() * 11; //todo
+            costUAH = BigDecimal.valueOf(costUAH).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue();
+            if (articleJdo.getTotalCostEUR() != 0 && articleJdo.getTotalCostUAH() != costUAH) {
+                articleJdo.setTotalCostUAH(costUAH);
+                updated = true;
+            }
+            if (articleJdo.getSalePrice() == 0 && (articleJdo.getSellType() == null || !"В подарок".equals(articleJdo.getSellType().trim()))) {
+                logger.warn("Article salePrice == null: " + articleJdo);
+                //todo
+            }
+            if (articleJdo.getMultiplier() == 0) {
+                if (articleJdo.getTotalCostUAH() == 0) {
+                    logger.warn("Article totalCostUAH == 0: " + articleJdo);
+                } else {
+                    double multi = BigDecimal.valueOf(articleJdo.getSalePrice() / articleJdo.getTotalCostUAH()).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue();
+                    articleJdo.setMultiplier(multi);
+                    updated = true;
+                }
+            }
+            if (articleJdo.getCalculatedSalePrice() == 0) {
+                articleJdo.setCalculatedSalePrice(articleJdo.getTotalCostUAH() * articleJdo.getMultiplier());
+                updated = true;
+            }
+            if (articleJdo.getRaisedSalePrice() != 0 && articleJdo.getSalePrice() > articleJdo.getOldSalePrice()) {
+                double buf = articleJdo.getSalePrice();
+                articleJdo.setSalePrice(articleJdo.getOldSalePrice());
+                articleJdo.setOldSalePrice(buf);
+                updated = true;
+            }
+            if (articleJdo.getSellType() != null && !articleJdo.getSellType().trim().isEmpty()
+                    && (articleJdo.getSold() == null || articleJdo.getSold().trim().isEmpty())) {
+                articleJdo.setSold("Продано");
+                updated = true;
+            }
+            if (articleJdo.getSold() != null && !articleJdo.getSold().trim().isEmpty()
+                    && articleJdo.getSaleDate() == null) {
+                logger.warn("Article sale date == null: " + articleJdo);
+                // todo
+            }
+            if (articleJdo.getShop() == null || articleJdo.getShop().trim().isEmpty()) {
+                articleJdo.setShop("LA VIDA");
+                updated = true;
+            }
+            if (articleJdo.getQuantity() > 1) {
+                try {
+                    for (int j = 0; j < articleJdo.getQuantity() - 1; ++j) {
+                        ArticleJdo newArticleJdo = (ArticleJdo) articleJdo.clone();
+                        newArticleJdo.setQuantity(1);
+                        articles.add(i + 1, newArticleJdo);
+//                        articlesForUpdate.add(newArticleJdo);
+//                        i++;
+                    }
+                    articleJdo.setQuantity(1);
+                    updated = true;
+                } catch (CloneNotSupportedException e) {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                }
+            }
+            if (updated) {
+                articlesForUpdate.add(articleJdo);
+            }
+        }
+        return articlesForUpdate;
+    }
+
     @Transactional
     public ArticleUpdateInfo updateDatabase(List<ArticleJdo> remoteArticles) {
         List<ArticleJdo> dbOldArticles = getAll();
@@ -48,7 +153,7 @@ public class ArticleService {
             if (dbOldArticle.getPostponedOperationDate() != null) {
                 throw new RuntimeException("Postponed operations must be operated firstly!");
             }
-            for (int i = 0; i<remoteArticles.size(); ++i) {
+            for (int i = 0; i < remoteArticles.size(); ++i) {
                 ArticleJdo remoteArticle = remoteArticles.get(i);
                 if (dbOldArticle.getSpreadsheetRow() == remoteArticle.getSpreadsheetRow()) {
                     remoteArticles.remove(i);

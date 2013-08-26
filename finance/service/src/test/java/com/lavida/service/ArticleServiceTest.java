@@ -64,7 +64,7 @@ public class ArticleServiceTest {
         articleJdo.setName(name);
         articleJdo.setBrand(brand);
         articleJdo.setSize(size);
-        articleJdo.setPriceUAH(priceUAH);
+        articleJdo.setSalePrice(priceUAH);
         articleJdo.setSold(sold);
         return articleJdo;
     }

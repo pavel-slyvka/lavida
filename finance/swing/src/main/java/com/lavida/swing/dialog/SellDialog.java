@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import javax.swing.*;
-import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
@@ -54,7 +53,7 @@ public class SellDialog extends AbstractDialog {
         nameField.setText(articleJdo.getName());
         brandField.setText(articleJdo.getBrand());
         sizeField.setText(articleJdo.getSize());
-        priceField.setText(String.valueOf(articleJdo.getPriceUAH()));
+        priceField.setText(String.valueOf(articleJdo.getSalePrice()));
         commentTextField.setText(articleJdo.getComment());
         handler.discountTextEntered();
     }

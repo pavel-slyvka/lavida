@@ -277,8 +277,8 @@ public class ArticleFiltersComponent {
         }
         for (ArticleJdo articleJdo : selectedArticles) {
             ++totalCountArticles;
-            totalOriginalCostEUR += (articleJdo.getTransportCostEUR() + articleJdo.getPurchasingPriceEUR());
-            totalPriceUAH += (articleJdo.getPriceUAH());
+            totalOriginalCostEUR += (articleJdo.getTransportCostEUR() + articleJdo.getPurchasePriceEUR());
+            totalPriceUAH += (articleJdo.getSalePrice());
         }
         articleAnalyzeComponent.updateFields(totalCountArticles, totalOriginalCostEUR, totalPriceUAH);
     }

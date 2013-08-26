@@ -174,8 +174,8 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
         List<ArticleJdo> articleJdoList = getTableData();
         for (ArticleJdo articleJdo : articleJdoList) {
             ++ totalCount;
-            totalCost += (articleJdo.getTransportCostEUR() + articleJdo.getPurchasingPriceEUR());
-            totalPrice += (articleJdo.getPriceUAH());
+            totalCost += (articleJdo.getTransportCostEUR() + articleJdo.getPurchasePriceEUR());
+            totalPrice += (articleJdo.getSalePrice());
         }
         this.totalCountArticles = totalCount;
         this.totalOriginalCostEUR = totalCost;

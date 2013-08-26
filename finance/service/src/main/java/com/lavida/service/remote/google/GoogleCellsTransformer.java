@@ -111,6 +111,9 @@ public class GoogleCellsTransformer {
     }
 
     private double fixIfNeedAndParseDouble(String doubleString) {
+        if (doubleString == null || doubleString.trim().isEmpty()) {
+            return 0;
+        }
         return Double.parseDouble(doubleString.replace(" ", "").replace(",", "."));
     }
 

@@ -24,7 +24,7 @@ import java.util.Date;
         @NamedQuery(name = ArticleJdo.FIND_NOT_SOLD, query = "select a from ArticleJdo a where a.sold IS NULL"),
         @NamedQuery(name = ArticleJdo.FIND_SOLD, query = "select a from ArticleJdo a where a.sold IS NOT NULL")
 })
-public class ArticleJdo {
+public class ArticleJdo implements Cloneable {
     public static final String FIND_NOT_SOLD = "ArticleJdo.findSold";
     public static final String FIND_SOLD = "ArticleJdo.findNotSold";
 
@@ -33,6 +33,9 @@ public class ArticleJdo {
     private int id;
 
     private int spreadsheetRow;
+
+    @SpreadsheetColumn(column = "num")
+    private String spreadsheetNum;
 
     @SpreadsheetColumn(column = "code")
     @ViewColumn(titleKey = "mainForm.table.articles.column.code.title")
@@ -61,14 +64,6 @@ public class ArticleJdo {
             orderForSold = 4)
     private String size;
 
-    @SpreadsheetColumn(column = "purchasingPriceEUR")
-    @ViewColumn(titleKey = "mainForm.table.articles.column.purchase.price.eur.title", forbiddenRoles = "ROLE_SELLER")
-    private double purchasingPriceEUR;
-
-    @SpreadsheetColumn(column = "transportCostEUR")
-    @ViewColumn(titleKey = "mainForm.table.articles.column.transport.cost.eur.title", forbiddenRoles = "ROLE_SELLER")
-    private double transportCostEUR;
-
     @SpreadsheetColumn(column = "deliveryDate")
     @ViewColumn(titleKey = "mainForm.table.articles.column.purchase.date.title")
     @FilterColumn(type = FilterType.DATE_DIAPASON, labelKey = "mainForm.label.search.by.delivery.date",
@@ -76,27 +71,50 @@ public class ArticleJdo {
     @Temporal(TemporalType.DATE)
     private Calendar deliveryDate;
 
-    @SpreadsheetColumn(column = "priceUAH")
+    @SpreadsheetColumn(column = "purchasePriceEUR")
+    @ViewColumn(titleKey = "mainForm.table.articles.column.purchase.price.eur.title", forbiddenRoles = "ROLE_SELLER")
+    private double purchasePriceEUR;
+
+    @SpreadsheetColumn(column = "transportCostEUR")
+    @ViewColumn(titleKey = "mainForm.table.articles.column.transport.cost.eur.title", forbiddenRoles = "ROLE_SELLER")
+    private double transportCostEUR;
+
+    @SpreadsheetColumn(column = "totalCostEUR")
+    @ViewColumn(titleKey = "mainForm.table.articles.column.purchase.cost.total.eur.title", forbiddenRoles = "ROLE_SELLER")
+    private double totalCostEUR;
+
+    @SpreadsheetColumn(column = "totalCostUAH")
+    @ViewColumn(titleKey = "mainForm.table.articles.column.purchase.cost.total.uah.title", forbiddenRoles = "ROLE_SELLER")
+    private double totalCostUAH;
+
+    @SpreadsheetColumn(column = "multiplier")
+    @ViewColumn(titleKey = "mainForm.table.articles.column.multiplier.title", forbiddenRoles = "ROLE_SELLER")
+    private double multiplier;
+
+    @SpreadsheetColumn(column = "calculatedSalePrice")
+    private double calculatedSalePrice;
+
+    @SpreadsheetColumn(column = "salePrice")
     @ViewColumn(titleKey = "mainForm.table.articles.column.sell.price.uah.title")
     @FilterColumn(type = FilterType.NUMBER_DIAPASON, labelKey = "mainForm.label.search.by.price", orderForSell = 6,
             orderForSold = 6)
-    private double priceUAH;
+    private double salePrice;
 
-    @SpreadsheetColumn(column = "raisedPriceUAH")
+    @SpreadsheetColumn(column = "raisedSalePrice")
     @ViewColumn(titleKey = "mainForm.table.articles.column.raised.price.uah.title", forbiddenRoles = "ROLE_SELLER")
-    private double raisedPriceUAH;
+    private double raisedSalePrice;
 
-    @SpreadsheetColumn(column = "actionPriceUAH")
-    @ViewColumn(titleKey = "mainForm.table.articles.column.action.price.uah.title", forbiddenRoles = "ROLE_SELLER")
-    private double actionPriceUAH;
+    @SpreadsheetColumn(column = "oldSalePrice")
+    @ViewColumn(titleKey = "mainForm.table.articles.column.old.price.uah.title", forbiddenRoles = "ROLE_SELLER")
+    private double oldSalePrice;
 
     @SpreadsheetColumn(column = "sold")
     @ViewColumn(show = false)
     private String sold;
 
-    @SpreadsheetColumn(column = "ours")
+    @SpreadsheetColumn(column = "sellType")
     @ViewColumn(titleKey = "mainForm.table.articles.column.sell.marker.title")
-    private String ours;
+    private String sellType;
 
     @SpreadsheetColumn(column = "saleDate")
     @ViewColumn(titleKey = "mainForm.table.articles.column.sell.date.title")
@@ -105,22 +123,22 @@ public class ArticleJdo {
     @Temporal(TemporalType.DATE)
     private Calendar saleDate;
 
-    @SpreadsheetColumn(column = "comment")
-    @ViewColumn(titleKey = "mainForm.table.articles.column.comment.title")
-    private String comment;
-
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date postponedOperationDate;
-
     @SpreadsheetColumn(column = "refundDate" , datePattern = "MM.dd.yyyy HH:mm:ss")
     @ViewColumn(titleKey = "mainForm.table.articles.column.refund.title", forbiddenRoles = "ROLE_SELLER",
             datePattern = "MM.dd.yyyy HH:mm:ss")
     @Temporal(TemporalType.TIMESTAMP)
     private Date refundDate;
 
-    @SpreadsheetColumn(column = "financialTags")
+    @SpreadsheetColumn(column = "tags")
     @ViewColumn(titleKey = "mainForm.table.articles.column.tags.title", forbiddenRoles = "ROLE_SELLER")
-    private String financialTags;
+    private String tags;
+
+    @SpreadsheetColumn(column = "comment")
+    @ViewColumn(titleKey = "mainForm.table.articles.column.comment.title")
+    private String comment;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date postponedOperationDate;
 
     @SpreadsheetColumn(column = "shop")
     @ViewColumn(titleKey = "mainForm.table.articles.column.shop.title", forbiddenRoles = "ROLE_SELLER")
@@ -185,12 +203,12 @@ public class ArticleJdo {
         this.size = size;
     }
 
-    public double getPurchasingPriceEUR() {
-        return purchasingPriceEUR;
+    public double getPurchasePriceEUR() {
+        return purchasePriceEUR;
     }
 
-    public void setPurchasingPriceEUR(double purchasingPriceEUR) {
-        this.purchasingPriceEUR = purchasingPriceEUR;
+    public void setPurchasePriceEUR(double purchasingPriceEUR) {
+        this.purchasePriceEUR = purchasingPriceEUR;
     }
 
     public double getTransportCostEUR() {
@@ -209,28 +227,28 @@ public class ArticleJdo {
         this.deliveryDate = deliveryDate;
     }
 
-    public double getPriceUAH() {
-        return priceUAH;
+    public double getSalePrice() {
+        return salePrice;
     }
 
-    public void setPriceUAH(double priceUAH) {
-        this.priceUAH = priceUAH;
+    public void setSalePrice(double priceUAH) {
+        this.salePrice = priceUAH;
     }
 
-    public double getRaisedPriceUAH() {
-        return raisedPriceUAH;
+    public double getRaisedSalePrice() {
+        return raisedSalePrice;
     }
 
-    public void setRaisedPriceUAH(double raisedPriceUAH) {
-        this.raisedPriceUAH = raisedPriceUAH;
+    public void setRaisedSalePrice(double raisedPriceUAH) {
+        this.raisedSalePrice = raisedPriceUAH;
     }
 
-    public double getActionPriceUAH() {
-        return actionPriceUAH;
+    public double getOldSalePrice() {
+        return oldSalePrice;
     }
 
-    public void setActionPriceUAH(double actionPriceUAH) {
-        this.actionPriceUAH = actionPriceUAH;
+    public void setOldSalePrice(double actionPriceUAH) {
+        this.oldSalePrice = actionPriceUAH;
     }
 
     public String getSold() {
@@ -241,12 +259,12 @@ public class ArticleJdo {
         this.sold = sold;
     }
 
-    public String getOurs() {
-        return ours;
+    public String getSellType() {
+        return sellType;
     }
 
-    public void setOurs(String ours) {
-        this.ours = ours;
+    public void setSellType(String ours) {
+        this.sellType = ours;
     }
 
     public Calendar getSaleDate() {
@@ -282,12 +300,12 @@ public class ArticleJdo {
         this.refundDate = refundDate;
     }
 
-    public String getFinancialTags() {
-        return financialTags;
+    public String getTags() {
+        return tags;
     }
 
-    public void setFinancialTags(String financialTags) {
-        this.financialTags = financialTags;
+    public void setTags(String financialTags) {
+        this.tags = financialTags;
     }
 
     public String getShop() {
@@ -298,6 +316,46 @@ public class ArticleJdo {
         this.shop = shop;
     }
 
+    public String getSpreadsheetNum() {
+        return spreadsheetNum;
+    }
+
+    public void setSpreadsheetNum(String num) {
+        this.spreadsheetNum = num;
+    }
+
+    public double getTotalCostEUR() {
+        return totalCostEUR;
+    }
+
+    public void setTotalCostEUR(double totalCostEUR) {
+        this.totalCostEUR = totalCostEUR;
+    }
+
+    public double getTotalCostUAH() {
+        return totalCostUAH;
+    }
+
+    public void setTotalCostUAH(double totalCostUAH) {
+        this.totalCostUAH = totalCostUAH;
+    }
+
+    public double getMultiplier() {
+        return multiplier;
+    }
+
+    public void setMultiplier(double multiplier) {
+        this.multiplier = multiplier;
+    }
+
+    public double getCalculatedSalePrice() {
+        return calculatedSalePrice;
+    }
+
+    public void setCalculatedSalePrice(double calculatedSalePrice) {
+        this.calculatedSalePrice = calculatedSalePrice;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -305,21 +363,28 @@ public class ArticleJdo {
 
         ArticleJdo that = (ArticleJdo) o;
 
-        if (Double.compare(that.actionPriceUAH, actionPriceUAH) != 0) return false;
-        if (Double.compare(that.priceUAH, priceUAH) != 0) return false;
-        if (Double.compare(that.purchasingPriceEUR, purchasingPriceEUR) != 0) return false;
+        if (Double.compare(that.oldSalePrice, oldSalePrice) != 0) return false;
+        if (Double.compare(that.salePrice, salePrice) != 0) return false;
+        if (Double.compare(that.purchasePriceEUR, purchasePriceEUR) != 0) return false;
+
+        if (Double.compare(that.totalCostEUR, totalCostEUR) != 0) return false;
+        if (Double.compare(that.totalCostUAH, totalCostUAH) != 0) return false;
+        if (Double.compare(that.raisedSalePrice, raisedSalePrice) != 0) return false;
+        if (Double.compare(that.multiplier, multiplier) != 0) return false;
+
         if (quantity != that.quantity) return false;
-        if (Double.compare(that.raisedPriceUAH, raisedPriceUAH) != 0) return false;
+        if (Double.compare(that.raisedSalePrice, raisedSalePrice) != 0) return false;
         if (spreadsheetRow != that.spreadsheetRow) return false;
+        if (spreadsheetNum != that.spreadsheetNum) return false;
         if (Double.compare(that.transportCostEUR, transportCostEUR) != 0) return false;
         if (brand != null ? !brand.equals(that.brand) : that.brand != null) return false;
         if (code != null ? !code.equals(that.code) : that.code != null) return false;
         if (comment != null ? !comment.equals(that.comment) : that.comment != null) return false;
         if (deliveryDate != null ? !deliveryDate.equals(that.deliveryDate) : that.deliveryDate != null) return false;
-        if (financialTags != null ? !financialTags.equals(that.financialTags) : that.financialTags != null)
+        if (tags != null ? !tags.equals(that.tags) : that.tags != null)
             return false;
         if (!name.equals(that.name)) return false;
-        if (ours != null ? !ours.equals(that.ours) : that.ours != null) return false;
+        if (sellType != null ? !sellType.equals(that.sellType) : that.sellType != null) return false;
         if (refundDate != null ? refundDate.getTime()!=that.refundDate.getTime() : that.refundDate!=null) return false;
         if (saleDate != null ? !saleDate.equals(that.saleDate) : that.saleDate != null) return false;
         if (shop != null ? !shop.equals(that.shop) : that.shop != null) return false;
@@ -339,49 +404,69 @@ public class ArticleJdo {
         result = 31 * result + (brand != null ? brand.hashCode() : 0);
         result = 31 * result + quantity;
         result = 31 * result + (size != null ? size.hashCode() : 0);
-        temp = Double.doubleToLongBits(purchasingPriceEUR);
+        temp = Double.doubleToLongBits(purchasePriceEUR);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits(totalCostEUR);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits(totalCostUAH);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits(raisedSalePrice);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits(multiplier);
         result = 31 * result + (int) (temp ^ (temp >>> 32));
         temp = Double.doubleToLongBits(transportCostEUR);
         result = 31 * result + (int) (temp ^ (temp >>> 32));
         result = 31 * result + deliveryDate.hashCode();
-        temp = Double.doubleToLongBits(priceUAH);
+        temp = Double.doubleToLongBits(salePrice);
         result = 31 * result + (int) (temp ^ (temp >>> 32));
-        temp = Double.doubleToLongBits(raisedPriceUAH);
+        temp = Double.doubleToLongBits(raisedSalePrice);
         result = 31 * result + (int) (temp ^ (temp >>> 32));
-        temp = Double.doubleToLongBits(actionPriceUAH);
+        temp = Double.doubleToLongBits(oldSalePrice);
         result = 31 * result + (int) (temp ^ (temp >>> 32));
         result = 31 * result + (sold != null ? sold.hashCode() : 0);
-        result = 31 * result + (ours != null ? ours.hashCode() : 0);
+        result = 31 * result + (sellType != null ? sellType.hashCode() : 0);
         result = 31 * result + (saleDate != null ? saleDate.hashCode() : 0);
         result = 31 * result + (comment != null ? comment.hashCode() : 0);
         result = 31 * result + (refundDate != null ? refundDate.hashCode() : 0);
-        result = 31 * result + (financialTags != null ? financialTags.hashCode() : 0);
+        result = 31 * result + (tags != null ? tags.hashCode() : 0);
         result = 31 * result + (shop != null ? shop.hashCode() : 0);
+        result = 31 * result + (spreadsheetNum != null ? spreadsheetNum.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 
     @Override
     public String toString() {
         return "ArticleJdo{" +
                 "id=" + id +
+                ", spreadsheetRow=" + spreadsheetRow +
+                ", spreadsheetNum='" + spreadsheetNum + '\'' +
                 ", code='" + code + '\'' +
                 ", name='" + name + '\'' +
                 ", brand='" + brand + '\'' +
                 ", quantity=" + quantity +
                 ", size='" + size + '\'' +
-                ", purchasingPriceEUR=" + purchasingPriceEUR +
+                ", deliveryDate=" + deliveryDate +
+                ", purchasePriceEUR=" + purchasePriceEUR +
                 ", transportCostEUR=" + transportCostEUR +
-                ", deliveryDate=" + CalendarConverter.convertCalendarToString(deliveryDate) +
-                ", priceUAH=" + priceUAH +
-                ", raisedPriceUAH=" + raisedPriceUAH +
-                ", actionPriceUAH=" + actionPriceUAH +
+                ", totalCostEUR=" + totalCostEUR +
+                ", totalCostUAH=" + totalCostUAH +
+                ", multiplier=" + multiplier +
+                ", calculatedSalePrice=" + calculatedSalePrice +
+                ", salePrice=" + salePrice +
+                ", raisedSalePrice=" + raisedSalePrice +
+                ", oldSalePrice=" + oldSalePrice +
                 ", sold='" + sold + '\'' +
-                ", ours='" + ours + '\'' +
-                ", saleDate=" + CalendarConverter.convertCalendarToString(saleDate) +
+                ", sellType='" + sellType + '\'' +
+                ", saleDate=" + saleDate +
+                ", refundDate=" + refundDate +
                 ", comment='" + comment + '\'' +
-                ", postponedOperationDate=" + DateConverter.convertDateToString(postponedOperationDate) +
-                ", refundDate=" + DateConverter.convertDateToString(refundDate) +
-                ", financialTags='" + financialTags + '\'' +
+                ", postponedOperationDate=" + postponedOperationDate +
+                ", tags='" + tags + '\'' +
                 ", shop='" + shop + '\'' +
                 '}';
     }

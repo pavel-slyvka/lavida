@@ -188,7 +188,7 @@ public class RefundDialog extends AbstractDialog {
         nameField.setText(articleJdo.getName());
         brandField.setText(articleJdo.getBrand());
         sizeField.setText(articleJdo.getSize());
-        priceField.setText(String.valueOf(articleJdo.getPriceUAH()));
+        priceField.setText(String.valueOf(articleJdo.getSalePrice()));
         commentTextField.setText(articleJdo.getComment());
     }
 
