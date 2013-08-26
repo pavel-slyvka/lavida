@@ -70,7 +70,7 @@ public class MainForm extends AbstractForm {
 
 //      analyze panel for total analyses
         analyzePanel = articleTableComponent.getArticleFiltersComponent().getArticleAnalyzeComponent().getAnalyzePanel();
-        analyzePanel.setPreferredSize(new Dimension(790, 30));
+//        analyzePanel.setPreferredSize(new Dimension(790, 50));
 
 //      panel for search operations
         filtersPanel = articleTableComponent.getArticleFiltersComponent().getFiltersPanel();
@@ -93,8 +93,8 @@ public class MainForm extends AbstractForm {
         });
         refreshPanel.add(refreshButton);
 
-        refreshPanel.add(Box.createVerticalStrut(20));
-        refreshPanel.add(new JSeparator(JSeparator.HORIZONTAL));
+        refreshPanel.add(Box.createVerticalStrut(5));
+//        refreshPanel.add(new JSeparator(JSeparator.HORIZONTAL));
         refreshPanel.add(Box.createVerticalStrut(5));
 
         recommitButton = new Button(messageSource.getMessage("mainForm.button.recommit.title", null, localeHolder.getLocale()));
@@ -125,8 +125,8 @@ public class MainForm extends AbstractForm {
         });
         operationPanel.add(sellButton);
 
-        operationPanel.add(Box.createVerticalStrut(20));
-        operationPanel.add(new JSeparator(JSeparator.HORIZONTAL));
+        operationPanel.add(Box.createVerticalStrut(5));
+//        operationPanel.add(new JSeparator(JSeparator.HORIZONTAL));
         operationPanel.add(Box.createVerticalStrut(5));
 
         showSoldProductsButton = new Button(messageSource.getMessage("mainForm.button.show.sold.products.title", null, localeHolder.getLocale()));

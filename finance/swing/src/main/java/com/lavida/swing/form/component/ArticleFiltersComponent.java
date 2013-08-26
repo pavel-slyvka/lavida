@@ -54,7 +54,7 @@ public class ArticleFiltersComponent {
 
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.insets = new Insets(5, 5, 5, 5);
+        constraints.insets = new Insets(1, 5, 1, 5);
 
         boolean sellPurpose = FiltersPurpose.SELL_PRODUCTS == filtersPurpose;
         boolean soldPurpose = FiltersPurpose.SOLD_PRODUCTS == filtersPurpose;
