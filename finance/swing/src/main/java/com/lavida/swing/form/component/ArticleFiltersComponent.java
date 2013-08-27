@@ -264,7 +264,7 @@ public class ArticleFiltersComponent {
     /**
      * Updates fields of the articleAnalyzeComponent.
      */
-    private void updateAnalyzeComponent() {
+    public void updateAnalyzeComponent() {
         int totalCountArticles = 0;
         double totalOriginalCostEUR = 0;
         double totalPriceUAH = 0;

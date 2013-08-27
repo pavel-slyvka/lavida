@@ -64,6 +64,7 @@ public class MainFormHandler {
             List<ArticleJdo> articles = articleServiceSwingWrapper.loadArticlesFromRemoteServer();
             ArticleUpdateInfo informer = articleServiceSwingWrapper.updateToDatabase(articles);
             showUpdateInfoMessage(informer);
+            form.getArticleTableComponent().getArticleFiltersComponent().updateAnalyzeComponent();
             form.update();    // repaint MainForm in some time
 
         } catch (IOException e) {
