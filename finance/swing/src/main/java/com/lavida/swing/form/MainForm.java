@@ -43,7 +43,7 @@ public class MainForm extends AbstractForm {
         super.initializeForm();
         form.setTitle(messageSource.getMessage("mainForm.form.title", null, localeHolder.getLocale()));
         form.setResizable(true);
-        form.setBounds(100, 100, 800, 700);
+        form.setBounds(100, 100, 900, 700);
         form.setLocationRelativeTo(null);
     }
 
@@ -55,10 +55,10 @@ public class MainForm extends AbstractForm {
         desktopPanel = new JPanel();
 //        desktopPanel.setBackground(Color.white);
         desktopPanel.setLayout(new BorderLayout());
-        desktopPanel.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
+        desktopPanel.setBorder(BorderFactory.createEmptyBorder());
 
         GridBagConstraints constraints = new GridBagConstraints();
-        constraints.insets = new Insets(5,5,5,5);
+        constraints.insets = new Insets(1,5,1,5);
 //        constraints.fill = GridBagConstraints.HORIZONTAL;
 
 
@@ -66,11 +66,14 @@ public class MainForm extends AbstractForm {
 
 //      main panel for table of goods
         mainPanel = articleTableComponent.getMainPanel();
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(0,5,0,5));
         desktopPanel.add(mainPanel, BorderLayout.CENTER);
 
 //      analyze panel for total analyses
         analyzePanel = articleTableComponent.getArticleFiltersComponent().getArticleAnalyzeComponent().getAnalyzePanel();
-//        analyzePanel.setPreferredSize(new Dimension(790, 50));
+        analyzePanel.setPreferredSize(new Dimension(890, 25));
+        analyzePanel.setMinimumSize(new Dimension(800, 25));
+        analyzePanel.setMaximumSize(new Dimension(1500, 25));
 
 //      panel for search operations
         filtersPanel = articleTableComponent.getArticleFiltersComponent().getFiltersPanel();
@@ -80,7 +83,7 @@ public class MainForm extends AbstractForm {
         refreshPanel = new JPanel();
         refreshPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(messageSource.
                 getMessage("mainForm.panel.refresh.title", null, localeHolder.getLocale())),
-                BorderFactory.createEmptyBorder(5, 5, 5, 5)));
+                BorderFactory.createEmptyBorder(0, 5, 0, 5)));
         refreshPanel.setLayout(new BoxLayout(refreshPanel, BoxLayout.Y_AXIS));
         refreshButton = new Button(messageSource.getMessage("mainForm.button.refresh.title", null,
                 localeHolder.getLocale()));
@@ -112,7 +115,7 @@ public class MainForm extends AbstractForm {
         operationPanel = new JPanel();
         operationPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(messageSource.
                 getMessage("mainForm.panel.operation.title", null, localeHolder.getLocale())),
-                BorderFactory.createEmptyBorder(5, 5, 5, 5)));
+                BorderFactory.createEmptyBorder(0, 5, 0 ,5)));
         operationPanel.setLayout(new BoxLayout(operationPanel, BoxLayout.Y_AXIS));
 
         sellButton = new Button(messageSource.getMessage("mainForm.button.sell.title", null, localeHolder.getLocale()));
@@ -142,7 +145,7 @@ public class MainForm extends AbstractForm {
         buttonPanel.add(operationPanel);
 
         southPanel = new JPanel(new GridBagLayout());
-        southPanel.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        southPanel.setBorder(BorderFactory.createEmptyBorder());
 
         constraints.gridx = 0;
         constraints.gridy = 0;
@@ -180,19 +183,21 @@ public class MainForm extends AbstractForm {
         statusBarPanel = new JPanel();
         FlowLayout flowLayout = new FlowLayout(FlowLayout.LEADING);
         statusBarPanel.setLayout(flowLayout);
-        statusBarPanel.setPreferredSize(new Dimension(790, 30));
-        statusBarPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(0, 5, 5, 5),
+        statusBarPanel.setPreferredSize(new Dimension(790, 20));
+        statusBarPanel.setMinimumSize(new Dimension(300, 20));
+        statusBarPanel.setMaximumSize(new Dimension(1500, 20));
+        statusBarPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(-5, 5, 1, 5),
                 BorderFactory.createBevelBorder(BevelBorder.RAISED)));
         postponedOperations = new JLabel();
         postponedOperations.setHorizontalAlignment(JLabel.LEFT);
-        postponedOperations.setVerticalAlignment(JLabel.CENTER);
+        postponedOperations.setVerticalAlignment(JLabel.TOP);
         postponedOperations.setLabelFor(postponedMessage);
-        postponedOperations.setVerticalTextPosition(JLabel.CENTER);
+        postponedOperations.setVerticalTextPosition(JLabel.TOP);
         postponedOperations.setText(messageSource.getMessage(
                 "mainForm.panel.statusBar.postponed.operations.label.title", null, localeHolder.getLocale()));
 
         postponedMessage = new JLabel();
-        postponedMessage.setVerticalTextPosition(JLabel.CENTER);
+        postponedMessage.setVerticalTextPosition(JLabel.TOP);
         postponedMessage.setForeground(Color.RED);
         handler.showPostponedOperationsMessage();
         statusBarPanel.add(postponedOperations);
@@ -235,9 +240,9 @@ public class MainForm extends AbstractForm {
         private Button() {
             super();
             setHorizontalTextPosition(JButton.CENTER);
-            setPreferredSize(new Dimension(150, 25));
-            setMaximumSize(new Dimension(150, 25));
-            setMinimumSize(new Dimension(150, 25));
+            setPreferredSize(new Dimension(150, 20));
+            setMaximumSize(new Dimension(150, 20));
+            setMinimumSize(new Dimension(150, 20));
 
         }
 

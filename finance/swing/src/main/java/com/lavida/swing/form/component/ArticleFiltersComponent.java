@@ -47,9 +47,7 @@ public class ArticleFiltersComponent {
         filtersPanel = new JPanel();
         filtersPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(messageSource.
                 getMessage("mainForm.panel.search.title", null, localeHolder.getLocale())),
-                BorderFactory.createEmptyBorder(5, 5, 5, 5)));
-//        filtersPanel.setOpaque(true);
-//        filtersPanel.setAutoscrolls(true);
+                BorderFactory.createEmptyBorder()));
         filtersPanel.setLayout(new GridBagLayout());
 
         GridBagConstraints constraints = new GridBagConstraints();
@@ -99,7 +97,11 @@ public class ArticleFiltersComponent {
             filtersPanel.add(filters.get(i).textField, constraints);
         }
 
-        JButton clearSearchButton = new JButton(messageSource.getMessage("mainForm.button.clear.title", null, localeHolder.getLocale()));
+        JButton clearSearchButton = new JButton(messageSource.getMessage("mainForm.button.clear.title", null,
+                localeHolder.getLocale()));
+        clearSearchButton.setPreferredSize(new Dimension(500, 20));
+        clearSearchButton.setMaximumSize(new Dimension(500, 20));
+        clearSearchButton.setMinimumSize(new Dimension(500, 20));
         constraints.gridx = 1;
         constraints.gridy = filters.size() + 1;
         constraints.gridwidth = GridBagConstraints.REMAINDER;

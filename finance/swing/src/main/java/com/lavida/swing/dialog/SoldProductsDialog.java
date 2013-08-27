@@ -40,7 +40,7 @@ public class SoldProductsDialog extends AbstractDialog {
         super.initializeForm();
         dialog.setTitle(messageSource.getMessage("dialog.sold.products.title", null, localeHolder.getLocale()));
         dialog.setResizable(true);
-        dialog.setBounds(100, 100, 800, 700);
+        dialog.setBounds(100, 100, 900, 700);
         dialog.setLocationRelativeTo(null);
     }
 
@@ -52,7 +52,7 @@ public class SoldProductsDialog extends AbstractDialog {
 //      desktop pane
         desktopPanel = new JPanel();
         desktopPanel.setLayout(new BorderLayout());
-        desktopPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        desktopPanel.setBorder(BorderFactory.createEmptyBorder());
 
         articleTableComponent.initializeComponents(tableModel, messageSource, localeHolder);
 
@@ -74,6 +74,7 @@ public class SoldProductsDialog extends AbstractDialog {
         });
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.insets = new Insets(1, 5, 1, 5);
         constraints.gridx = 1;
         constraints.gridy = articleTableComponent.getArticleFiltersComponent().getFilters().size();
         constraints.gridwidth = GridBagConstraints.REMAINDER;
@@ -83,27 +84,28 @@ public class SoldProductsDialog extends AbstractDialog {
 
 //      main panel for table of goods
         mainPanel = articleTableComponent.getMainPanel();
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(1,5,0,5));
         desktopPanel.add(mainPanel, BorderLayout.CENTER);
 
 
 //        south panel for desktopPanel
         southPanel = new JPanel(new GridBagLayout());
-        southPanel.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
-
-
+        southPanel.setBorder(BorderFactory.createEmptyBorder());
 
 //      analyze panel for total analyses
         analyzePanel = articleTableComponent.getArticleFiltersComponent().getArticleAnalyzeComponent().getAnalyzePanel();
+        analyzePanel.setPreferredSize(new Dimension(890, 25));
+        analyzePanel.setMinimumSize(new Dimension(800, 25));
+        analyzePanel.setMaximumSize(new Dimension(1500, 25));
+
 //      panel for search operations
         filtersPanel= articleTableComponent.getArticleFiltersComponent().getFiltersPanel();
-
-
 
         operationPanel = new JPanel();
         operationPanel.setLayout(new GridBagLayout());
         operationPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(messageSource.
                 getMessage("mainForm.panel.operation.title", null, localeHolder.getLocale())),
-                BorderFactory.createEmptyBorder(5, 5, 5, 5)));
+                BorderFactory.createEmptyBorder()));
         refundButton = new JButton();
         refundButton.setHorizontalTextPosition(JButton.CENTER);
         refundButton.setPreferredSize(new Dimension(150, 25));

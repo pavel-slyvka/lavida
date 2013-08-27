@@ -1,6 +1,5 @@
 package com.lavida.swing.form.component;
 
-import com.lavida.service.entity.ArticleJdo;
 import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.service.ArticlesTableModel;
 import org.springframework.context.MessageSource;
@@ -14,6 +13,7 @@ import java.util.*;
 import java.util.List;
 
 /**
+ * The component for analyze panel
  * Created: 13:30 20.08.13
  *
  * @author Ruslan
@@ -44,38 +44,57 @@ public class ArticleAnalyzeComponent {
         Border fieldsBorder = BorderFactory.createBevelBorder(BevelBorder.LOWERED);
 
         analyzePanel = new JPanel(flowLayout);
+        analyzePanel.setBorder(BorderFactory.createEmptyBorder());
 
         totalCountPanel = new JPanel(flowLayout);
+        totalCountPanel.setPreferredSize(new Dimension(200, 25));
+        totalCountPanel.setMinimumSize(new Dimension(200, 25));
+        totalCountPanel.setMaximumSize(new Dimension(300, 25));
+        totalCountPanel.setBorder(BorderFactory.createEmptyBorder());
         totalCountLabel = new JLabel();
+        totalCountLabel.setBorder(BorderFactory.createEmptyBorder(-2,0,0,0));
         totalCountLabel.setText(messageSource.getMessage("component.article.analyze.label.total.count.title",
                 null, localeHolder.getLocale()));
+        totalCountLabel.setLabelFor(totalCountField);
         totalCountPanel.add(totalCountLabel);
         totalCountField = new JLabel();
+        totalCountField.setBorder(BorderFactory.createCompoundBorder(fieldsBorder,BorderFactory.createEmptyBorder(-2,0,0,0)));
         totalCountField.setText(String.valueOf(tableModel.getTotalCountArticles()));
-        totalCountField.setBorder(fieldsBorder);
         totalCountPanel.add(totalCountField);
         analyzePanel.add(totalCountPanel);
 
         totalOriginalCostPanel = new JPanel(flowLayout);
+        totalOriginalCostPanel.setPreferredSize(new Dimension(250, 25));
+        totalOriginalCostPanel.setMinimumSize(new Dimension(200, 25));
+        totalOriginalCostPanel.setMaximumSize(new Dimension(300, 25));
+        totalOriginalCostPanel.setBorder(BorderFactory.createEmptyBorder());
         totalOriginalCostLabel = new JLabel(messageSource.getMessage("component.article.analyze.label.total.cost.original.title",
                 null, localeHolder.getLocale()));
+        totalOriginalCostLabel.setBorder(BorderFactory.createEmptyBorder(-2,0,0,0));
         totalOriginalCostLabel.setText(messageSource.getMessage("component.article.analyze.label.total.cost.original.title",
                 null, localeHolder.getLocale()));
+        totalOriginalCostLabel.setLabelFor(totalOriginalCostField);
         totalOriginalCostPanel.add(totalOriginalCostLabel);
         totalOriginalCostField = new JLabel();
+        totalOriginalCostField.setBorder(BorderFactory.createCompoundBorder(fieldsBorder,BorderFactory.createEmptyBorder(-2,0,0,0)));
         totalOriginalCostField.setText(roundTwoDecimals(tableModel.getTotalOriginalCostEUR()));
-        totalOriginalCostField.setBorder(fieldsBorder);
         totalOriginalCostPanel.add(totalOriginalCostField);
         analyzePanel.add(totalOriginalCostPanel);
 
         totalPricePanel = new JPanel(flowLayout);
+        totalPricePanel.setPreferredSize(new Dimension(250, 25));
+        totalPricePanel.setMinimumSize(new Dimension(200, 25));
+        totalPricePanel.setMaximumSize(new Dimension(300, 25));
+        totalPricePanel.setBorder(BorderFactory.createEmptyBorder());
         totalPriceLabel = new JLabel();
+        totalPriceLabel.setBorder(BorderFactory.createEmptyBorder(-2,0,0,0));
         totalPriceLabel.setText(messageSource.getMessage("component.article.analyze.label.total.price.title",
                 null, localeHolder.getLocale()));
+        totalPriceLabel.setLabelFor(totalPriceField);
         totalPricePanel.add(totalPriceLabel);
         totalPriceField = new JLabel();
         totalPriceField.setText(roundTwoDecimals(tableModel.getTotalPriceUAH()));
-        totalPriceField.setBorder(fieldsBorder);
+        totalPriceField.setBorder(BorderFactory.createCompoundBorder(fieldsBorder,BorderFactory.createEmptyBorder(-2,0,0,0)));
         totalPricePanel.add(totalPriceField);
         analyzePanel.add(totalPricePanel);
     }
