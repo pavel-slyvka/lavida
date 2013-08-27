@@ -185,8 +185,13 @@ public class ArticleFiltersComponent {
                         filter = new RowFilter<ArticlesTableModel, Integer>() {
                             @Override
                             public boolean include(Entry<? extends ArticlesTableModel, ? extends Integer> entry) {
-                                Date date = ((Calendar) tableModel.getRawValueAt(entry.getIdentifier(), columnIndex)).getTime();
-                                return date.after(addDays(correctedDate1, -1)) && date.before(addDays(correctedDate2, 1));
+                                Object saleDateObj = tableModel.getRawValueAt(entry.getIdentifier(), columnIndex);
+                                if (saleDateObj != null) {
+                                    Date date = ((Calendar) tableModel.getRawValueAt(entry.getIdentifier(), columnIndex)).getTime();
+                                    return date.after(addDays(correctedDate1, -1)) && date.before(addDays(correctedDate2, 1));
+                                } else {
+                                    return false;
+                                }
                             }
                         };
                     }
