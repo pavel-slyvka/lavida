@@ -113,7 +113,7 @@ public class MainFormHandler {
                 try {
                     if (articleJdo.getSold() != null) {   //recommit selling
                         articleServiceSwingWrapper.updateToSpreadsheet(articleJdo, new Boolean(true));
-                    } else if (articleJdo.getSold() == null && articleJdo.getRefundDate()!= null) {  // recommit refunding
+                    } else if (articleJdo.getSold() == null && articleJdo.getRefundDate() != null) {  // recommit refunding
                         articleServiceSwingWrapper.updateToSpreadsheet(articleJdo, new Boolean(false));
                         articleJdo.setSaleDate(null);
                     } else {
@@ -143,7 +143,9 @@ public class MainFormHandler {
                 ++count;
             }
         }
-        form.getPostponedMessage().setText(String.valueOf(count));
+        if (count > 0) {
+            form.getPostponedMessage().setText(String.valueOf(count));
+        }
     }
 
     public void showSoldProductsButtonClicked() {
