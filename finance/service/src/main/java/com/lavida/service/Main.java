@@ -20,7 +20,6 @@ public class Main {
         ArticleService articleService = context.getBean(ArticleService.class);
         ArticleJdo articleJdo = new ArticleJdo();
         articleJdo.setName("Мак");
-
         articleJdo.setCode("1234/46");
 //        articleJdo.setId(1);
 //        articleService.save(articleJdo);
