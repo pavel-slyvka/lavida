@@ -45,13 +45,13 @@ public abstract class AbstractForm implements MessageSourceAware {
         JOptionPane.showMessageDialog(form,
                 messageSource.getMessage(messageKey, null, localeHolder.getLocale()),
                 messageSource.getMessage(titleKey, null, localeHolder.getLocale()),
-                JOptionPane.DEFAULT_OPTION);
+                JOptionPane.WARNING_MESSAGE);
     }
 
     public void showMessageBox(String titleKey, String messageBody) {
         JOptionPane.showMessageDialog(form, messageBody,
                 messageSource.getMessage(titleKey, null, localeHolder.getLocale()),
-                JOptionPane.WARNING_MESSAGE);
+                JOptionPane.INFORMATION_MESSAGE);
 
     }
 
