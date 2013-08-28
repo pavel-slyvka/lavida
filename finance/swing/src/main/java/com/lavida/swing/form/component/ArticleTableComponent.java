@@ -69,9 +69,6 @@ public class ArticleTableComponent {
         articleFiltersComponent.initializeComponents(tableModel, messageSource, localeHolder);
         articlesTable.setRowSorter(articleFiltersComponent.getSorter());
 
-//        panel for analyzing total cost, price, count of products , shown in the table
-//        articleAnalyzeComponent.initializeComponents(tableModel, messageSource, localeHolder);
-
     }
 
     /**
@@ -104,7 +101,4 @@ public class ArticleTableComponent {
         return articleFiltersComponent;
     }
 
-//    public ArticleAnalyzeComponent getArticleAnalyzeComponent() {
-//        return articleAnalyzeComponent;
-//    }
 }

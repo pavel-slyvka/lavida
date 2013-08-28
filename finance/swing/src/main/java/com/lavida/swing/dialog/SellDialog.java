@@ -1,8 +1,11 @@
 package com.lavida.swing.dialog;
 
 import com.lavida.service.TagService;
+import com.lavida.service.ViewColumn;
 import com.lavida.service.entity.ArticleJdo;
 import com.lavida.service.entity.TagJdo;
+import com.lavida.service.utils.CalendarConverter;
+import com.lavida.service.utils.DateConverter;
 import com.lavida.swing.handler.SellDialogHandler;
 import com.lavida.swing.service.ArticlesTableModel;
 import org.springframework.stereotype.Component;
@@ -11,7 +14,9 @@ import javax.annotation.Resource;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -32,9 +37,9 @@ public class SellDialog extends AbstractDialog {
     private TagService tagService;
 
     private JPanel buttonPanel, inputPanel, oursPanel, commentPanel, tagsPanel;
-    private JLabel codeLabel, nameLabel, brandLabel, sizeLabel, priceLabel, commentLabel,
-            codeField, nameField, brandField, sizeField, priceField, shopLabel, discountLabel, totalCostLabel;
-    private JTextField shopTextField, discountTextField, totalCostTextField, commentTextField;
+    private JLabel codeLabel, nameLabel, brandLabel, sizeLabel, priceLabel, commentLabel, codeField, nameField,
+            brandField, sizeField, priceField, shopLabel, discountLabel, totalCostLabel, saleDateLabel;
+    private JTextField shopTextField, discountTextField, totalCostTextField, commentTextField, saleDateTextField;
     private JButton sellButton, cancelButton;
     private JCheckBox oursCheckBox, presentCheckBox;
     private List<JCheckBox> tagCheckBoxes = new ArrayList<JCheckBox>();
@@ -44,7 +49,7 @@ public class SellDialog extends AbstractDialog {
         super.initializeForm();
         dialog.setTitle(messageSource.getMessage("sellDialog.dialog.title", null, localeHolder.getLocale()));
         dialog.setResizable(true);
-        dialog.setSize(400, 450);
+        dialog.setSize(400, 550);
         dialog.setLocationRelativeTo(null);
     }
 
@@ -55,7 +60,15 @@ public class SellDialog extends AbstractDialog {
         sizeField.setText(articleJdo.getSize());
         priceField.setText(String.valueOf(articleJdo.getSalePrice()));
         commentTextField.setText(articleJdo.getComment());
+        discountTextField.setText("0.0");
         handler.discountTextEntered();
+        saleDateTextField.setText(new SimpleDateFormat("dd.MM.yyyy").format(Calendar.getInstance().getTime()));
+        shopTextField.setText(messageSource.getMessage("sellDialog.text.field.shop.text", null, localeHolder.getLocale()));
+        oursCheckBox.setSelected(false);
+        presentCheckBox.setSelected(false);
+        for (JCheckBox checkbox : tagCheckBoxes) {
+            checkbox.setSelected(false);
+        }
     }
 
 
@@ -203,16 +216,31 @@ public class SellDialog extends AbstractDialog {
         inputPanel.add(shopLabel, constraints);
 
         shopTextField = new JTextField();
-        shopTextField.setText(messageSource.getMessage("sellDialog.text.field.shop.text", null, localeHolder.getLocale()));
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.gridwidth = GridBagConstraints.REMAINDER;
         constraints.anchor = GridBagConstraints.EAST;
         constraints.weightx = 1.0;
         inputPanel.add(shopTextField, constraints);
 
+        saleDateLabel = new JLabel();
+        saleDateLabel.setText(messageSource.getMessage("sellDialog.label.saleDate.title", null, localeHolder.getLocale()));
+        saleDateLabel.setLabelFor(saleDateTextField);
+        constraints.fill = GridBagConstraints.NONE;
+        constraints.gridwidth = GridBagConstraints.RELATIVE;
+        constraints.anchor = GridBagConstraints.EAST;
+        constraints.weightx = 0.0;
+        inputPanel.add(saleDateLabel, constraints);
+
+        saleDateTextField = new JTextField();
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.gridwidth = GridBagConstraints.REMAINDER;
+        constraints.anchor = GridBagConstraints.EAST;
+        constraints.weightx = 1.0;
+        inputPanel.add(saleDateTextField, constraints);
+
         oursPanel = new JPanel(new FlowLayout());
         constraints.gridx = 0;
-        constraints.gridy = 8;
+        constraints.gridy = 9;
         constraints.gridwidth = GridBagConstraints.REMAINDER;
         constraints.anchor = GridBagConstraints.CENTER;
         constraints.weightx = 1.0;
@@ -260,7 +288,7 @@ public class SellDialog extends AbstractDialog {
 
         commentPanel = new JPanel(new GridLayout(2, 1));
         constraints.gridx = 0;
-        constraints.gridy = 9;
+        constraints.gridy = 10;
         commentLabel = new JLabel();
         commentLabel.setText(messageSource.getMessage("sellDialog.label.comment.title", null, localeHolder.getLocale()));
         commentPanel.add(commentLabel);
@@ -286,7 +314,7 @@ public class SellDialog extends AbstractDialog {
             tagsPanel.add(checkBox);
         }
         constraints.gridx = 0;
-        constraints.gridy = 10;
+        constraints.gridy = 11;
         inputPanel.add(tagsPanel, constraints);
 
 
@@ -310,10 +338,8 @@ public class SellDialog extends AbstractDialog {
         cancelButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                commentTextField.setText("");
-                oursCheckBox.setSelected(false);
-                presentCheckBox.setSelected(false);
                 hide();
+                mainForm.getTableModel().setSelectedArticle(null);
                 mainForm.getForm().setVisible(true);
                 mainForm.update();
             }
@@ -355,5 +381,9 @@ public class SellDialog extends AbstractDialog {
 
     public JTextField getTotalCostTextField() {
         return totalCostTextField;
+    }
+
+    public JTextField getSaleDateTextField() {
+        return saleDateTextField;
     }
 }
