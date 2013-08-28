@@ -136,6 +136,9 @@ public class MainFormHandler {
         }
     }
 
+    /**
+     * Shows postponedOperationMessageLabel in the statusBarPanel of the mainForm.
+     */
     public void showPostponedOperationsMessage() {
         int count = 0;
         List<ArticleJdo> articles = articleServiceSwingWrapper.getAll();
@@ -146,6 +149,9 @@ public class MainFormHandler {
         }
         if (count > 0) {
             form.getPostponedMessage().setText(String.valueOf(count));
+            form.getPostponedMessage().setVisible(true);
+        }else {
+            form.getPostponedMessage().setVisible(false);
         }
     }
 

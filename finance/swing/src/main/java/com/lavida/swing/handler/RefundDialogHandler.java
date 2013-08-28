@@ -35,6 +35,7 @@ public class RefundDialogHandler {
         articleJdo.setSold(null);
         articleJdo.setSellType(null);
         articleJdo.setRefundDate(new Date());
+        articleJdo.setSaleDate(null);
         articleJdo.setComment(refundDialog.getCommentTextField().getText().trim());
         articleServiceSwingWrapper.update(articleJdo);
         try {
@@ -44,15 +45,19 @@ public class RefundDialogHandler {
             articleJdo.setPostponedOperationDate(new Date());
             articleServiceSwingWrapper.update(articleJdo);
             refundDialog.hide();
+            refundDialog.getMainForm().getTableModel().fireTableDataChanged();
+            refundDialog.getSoldProductsDialog().getTableModel().fireTableDataChanged();
             refundDialog.getSoldProductsDialog().getTableModel().setSelectedArticle(null);
             refundDialog.getMainForm().getHandler().showPostponedOperationsMessage();
             refundDialog.getSoldProductsDialog().getArticleTableComponent().getArticleFiltersComponent().updateAnalyzeComponent();
             refundDialog.getSoldProductsDialog().getMainForm().getArticleTableComponent().getArticleFiltersComponent().updateAnalyzeComponent();
             refundDialog.showMessage("mainForm.exception.message.dialog.title", "sellDialog.handler.sold.article.not.saved.to.worksheet");
             refundDialog.getSoldProductsDialog().getDialog().repaint();
-            refundDialog.getSoldProductsDialog().show();
+            return;
         }
         refundDialog.hide();
+        refundDialog.getMainForm().getTableModel().fireTableDataChanged();
+        refundDialog.getSoldProductsDialog().getTableModel().fireTableDataChanged();
         refundDialog.getSoldProductsDialog().getTableModel().setSelectedArticle(null);
         refundDialog.getSoldProductsDialog().getArticleTableComponent().getArticleFiltersComponent().updateAnalyzeComponent();
         refundDialog.getSoldProductsDialog().getMainForm().getArticleTableComponent().getArticleFiltersComponent().updateAnalyzeComponent();
