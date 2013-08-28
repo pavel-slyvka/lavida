@@ -44,12 +44,16 @@ public class RefundDialogHandler {
             articleJdo.setPostponedOperationDate(new Date());
             articleServiceSwingWrapper.update(articleJdo);
             refundDialog.getMainForm().getHandler().showPostponedOperationsMessage();
+            refundDialog.getSoldProductsDialog().getArticleTableComponent().getArticleFiltersComponent().updateAnalyzeComponent();
+            refundDialog.getSoldProductsDialog().getMainForm().getArticleTableComponent().getArticleFiltersComponent().updateAnalyzeComponent();
             refundDialog.showMessage("mainForm.exception.message.dialog.title", "sellDialog.handler.sold.article.not.saved.to.worksheet");
             refundDialog.hide();
             refundDialog.getSoldProductsDialog().getDialog().repaint();
             refundDialog.getSoldProductsDialog().show();
         }
         refundDialog.hide();
+        refundDialog.getSoldProductsDialog().getArticleTableComponent().getArticleFiltersComponent().updateAnalyzeComponent();
+        refundDialog.getSoldProductsDialog().getMainForm().getArticleTableComponent().getArticleFiltersComponent().updateAnalyzeComponent();
         refundDialog.getSoldProductsDialog().getDialog().repaint();
         refundDialog.getSoldProductsDialog().show();
     }
