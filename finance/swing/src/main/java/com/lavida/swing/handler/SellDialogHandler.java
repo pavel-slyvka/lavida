@@ -11,6 +11,8 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 import javax.swing.*;
 import java.text.DecimalFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -41,10 +43,24 @@ public class SellDialogHandler {
     /**
      * Performs selling operation.
      *
-     * @param articleJdo //     * @param articlesTableModel
+     * @param articleJdo
      */
     public void sellButtonClicked(ArticleJdo articleJdo) {
-        articleJdo.setSaleDate(Calendar.getInstance());
+        String saleDateStr = dialog.getSaleDateTextField().getText().trim();
+        Calendar saleDateCalendar = Calendar.getInstance();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
+        dateFormat.setLenient(false);
+        try {
+            Date saleDate = dateFormat.parse(saleDateStr);
+            saleDateCalendar.setTime(saleDate);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            dialog.showMessage("mainForm.exception.message.dialog.title", "sellDialog.handler.saleDate.not.correct.format");
+            dialog.hide();
+            dialog.getMainForm().getTableModel().setSelectedArticle(null);
+            return;
+        }
+        articleJdo.setSaleDate(saleDateCalendar);
         articleJdo.setSold(messageSource.getMessage("sellDialog.button.sell.clicked.sold", null, localeHolder.getLocale()));
         articleJdo.setComment(dialog.getCommentTextField().getText().trim());
         dialog.getCommentTextField().setText("");
@@ -76,22 +92,26 @@ public class SellDialogHandler {
             articleJdo.setPostponedOperationDate(new Date());
             articleServiceSwingWrapper.update(articleJdo);
             dialog.hide();
-            dialog.getMainForm().getTableModel().setSelectedArticle(null);
-            dialog.getMainForm().getArticleTableComponent().getArticleFiltersComponent().getClearSearchButton().doClick();
-            dialog.getMainForm().getHandler().showPostponedOperationsMessage();
             dialog.showMessage("mainForm.exception.message.dialog.title", "sellDialog.handler.sold.article.not.saved.to.worksheet");
+            dialog.getMainForm().getHandler().showPostponedOperationsMessage();
+            dialog.getMainForm().getTableModel().fireTableDataChanged();
+            dialog.getMainForm().getSoldProductsDialog().getTableModel().fireTableDataChanged();
+            dialog.getMainForm().getTableModel().setSelectedArticle(null);
             dialog.getMainForm().getArticleTableComponent().getArticleFiltersComponent().updateAnalyzeComponent();
             dialog.getMainForm().getSoldProductsDialog().getArticleTableComponent().getArticleFiltersComponent().updateAnalyzeComponent();
             dialog.getMainForm().update();
-            dialog.getMainForm().show();
+            return;
         }
         dialog.hide();
+        dialog.getMainForm().getTableModel().fireTableDataChanged();
+        dialog.getMainForm().getSoldProductsDialog().getTableModel().fireTableDataChanged();
         dialog.getMainForm().getTableModel().setSelectedArticle(null);
         dialog.getMainForm().getArticleTableComponent().getArticleFiltersComponent().updateAnalyzeComponent();
         dialog.getMainForm().getSoldProductsDialog().getArticleTableComponent().getArticleFiltersComponent().updateAnalyzeComponent();
         dialog.getMainForm().update();
         dialog.getMainForm().show();
     }
+
 
     public void oursCheckBoxSelected() {
         dialog.getPriceField().setText(String.valueOf(0));
