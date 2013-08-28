@@ -76,6 +76,8 @@ public class SellDialogHandler {
             articleJdo.setPostponedOperationDate(new Date());
             articleServiceSwingWrapper.update(articleJdo);
             dialog.hide();
+            dialog.getMainForm().getTableModel().setSelectedArticle(null);
+            dialog.getMainForm().getArticleTableComponent().getArticleFiltersComponent().getClearSearchButton().doClick();
             dialog.getMainForm().getHandler().showPostponedOperationsMessage();
             dialog.showMessage("mainForm.exception.message.dialog.title", "sellDialog.handler.sold.article.not.saved.to.worksheet");
             dialog.getMainForm().getArticleTableComponent().getArticleFiltersComponent().updateAnalyzeComponent();
@@ -84,6 +86,7 @@ public class SellDialogHandler {
             dialog.getMainForm().show();
         }
         dialog.hide();
+        dialog.getMainForm().getTableModel().setSelectedArticle(null);
         dialog.getMainForm().getArticleTableComponent().getArticleFiltersComponent().updateAnalyzeComponent();
         dialog.getMainForm().getSoldProductsDialog().getArticleTableComponent().getArticleFiltersComponent().updateAnalyzeComponent();
         dialog.getMainForm().update();

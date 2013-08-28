@@ -33,6 +33,7 @@ public class ArticleFiltersComponent {
     private ArticlesTableModel tableModel;
     private List<FilterUnit> filters;
     private JPanel filtersPanel;
+    private JButton clearSearchButton;
     private TableRowSorter<ArticlesTableModel> sorter;
     private ArticleAnalyzeComponent articleAnalyzeComponent = new ArticleAnalyzeComponent();
 
@@ -97,7 +98,7 @@ public class ArticleFiltersComponent {
             filtersPanel.add(filters.get(i).textField, constraints);
         }
 
-        JButton clearSearchButton = new JButton(messageSource.getMessage("mainForm.button.clear.title", null,
+        clearSearchButton = new JButton(messageSource.getMessage("mainForm.button.clear.title", null,
                 localeHolder.getLocale()));
         clearSearchButton.setPreferredSize(new Dimension(500, 20));
         clearSearchButton.setMaximumSize(new Dimension(500, 20));
@@ -324,5 +325,9 @@ public class ArticleFiltersComponent {
 
     public ArticleAnalyzeComponent getArticleAnalyzeComponent() {
         return articleAnalyzeComponent;
+    }
+
+    public JButton getClearSearchButton() {
+        return clearSearchButton;
     }
 }

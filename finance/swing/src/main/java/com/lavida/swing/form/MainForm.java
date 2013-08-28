@@ -254,5 +254,9 @@ public class MainForm extends AbstractForm {
             setMinimumSize(new Dimension(150, 25));
         }
     }
+
+    public ArticlesTableModel getTableModel() {
+        return tableModel;
+    }
 }
 

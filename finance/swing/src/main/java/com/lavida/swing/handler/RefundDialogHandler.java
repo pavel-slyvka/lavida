@@ -35,7 +35,7 @@ public class RefundDialogHandler {
         articleJdo.setSold(null);
         articleJdo.setSellType(null);
         articleJdo.setRefundDate(new Date());
-        articleJdo.setComment(articleJdo.getComment());
+        articleJdo.setComment(refundDialog.getCommentTextField().getText().trim());
         articleServiceSwingWrapper.update(articleJdo);
         try {
             articleServiceSwingWrapper.updateToSpreadsheet(articleJdo, new Boolean(false));
@@ -43,15 +43,17 @@ public class RefundDialogHandler {
             e.printStackTrace();
             articleJdo.setPostponedOperationDate(new Date());
             articleServiceSwingWrapper.update(articleJdo);
+            refundDialog.hide();
+            refundDialog.getSoldProductsDialog().getTableModel().setSelectedArticle(null);
             refundDialog.getMainForm().getHandler().showPostponedOperationsMessage();
             refundDialog.getSoldProductsDialog().getArticleTableComponent().getArticleFiltersComponent().updateAnalyzeComponent();
             refundDialog.getSoldProductsDialog().getMainForm().getArticleTableComponent().getArticleFiltersComponent().updateAnalyzeComponent();
             refundDialog.showMessage("mainForm.exception.message.dialog.title", "sellDialog.handler.sold.article.not.saved.to.worksheet");
-            refundDialog.hide();
             refundDialog.getSoldProductsDialog().getDialog().repaint();
             refundDialog.getSoldProductsDialog().show();
         }
         refundDialog.hide();
+        refundDialog.getSoldProductsDialog().getTableModel().setSelectedArticle(null);
         refundDialog.getSoldProductsDialog().getArticleTableComponent().getArticleFiltersComponent().updateAnalyzeComponent();
         refundDialog.getSoldProductsDialog().getMainForm().getArticleTableComponent().getArticleFiltersComponent().updateAnalyzeComponent();
         refundDialog.getSoldProductsDialog().getDialog().repaint();

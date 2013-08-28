@@ -197,17 +197,7 @@ public class SoldProductsDialog extends AbstractDialog {
         return articleTableComponent;
     }
 
-
-
-//    public JButton getRefundButton() {
-//        return refundButton;
-//    }
-//
-//    public JButton getCancelButton() {
-//        return cancelButton;
-//    }
-//
-//    public JCheckBox getCurrentDateCheckBox() {
-//        return currentDateCheckBox;
-//    }
+    public ArticlesTableModel getTableModel() {
+        return tableModel;
+    }
 }
