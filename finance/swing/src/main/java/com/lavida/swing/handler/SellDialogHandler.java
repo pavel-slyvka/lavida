@@ -49,11 +49,11 @@ public class SellDialogHandler {
         articleJdo.setComment(dialog.getCommentTextField().getText().trim());
         dialog.getCommentTextField().setText("");
         if (dialog.getOursCheckBox().isSelected()) {
-            articleJdo.setSalePrice(Double.parseDouble(dialog.getPriceField().getText()));
+            articleJdo.setSalePrice(articleJdo.getCalculatedSalePrice());
             articleJdo.setSellType(dialog.getOursCheckBox().getActionCommand());
             dialog.getOursCheckBox().setSelected(false);
         } else if (dialog.getPresentCheckBox().isSelected()) {
-            articleJdo.setSalePrice(Double.parseDouble(dialog.getPriceField().getText()));
+            articleJdo.setSalePrice(Double.parseDouble(dialog.getPriceField().getText().trim()));
             articleJdo.setSellType(dialog.getPresentCheckBox().getActionCommand());
             dialog.getPresentCheckBox().setSelected(false);
         }
