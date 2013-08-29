@@ -35,7 +35,9 @@ public class MainForm extends AbstractForm {
             buttonPanel, statusBarPanel;
     private Button refreshButton, recommitButton, sellButton, showSoldProductsButton;
     private JLabel postponedOperations, postponedMessage;
-
+    private JMenuBar menuBar;
+    private JMenu postponedMenu;
+    private JMenuItem savePostponedItem, loadPostponedItem, deletePostponedItem;
     private ArticleTableComponent articleTableComponent = new ArticleTableComponent();
 
     @Override
@@ -50,6 +52,10 @@ public class MainForm extends AbstractForm {
     @Override
     protected void initializeComponents() {
         rootContainer.setLayout(new BorderLayout());
+
+//        menuBar
+        initializeMenuBar();
+        form.setJMenuBar(menuBar);
 
 //      desktop pane
         desktopPanel = new JPanel();
@@ -204,6 +210,35 @@ public class MainForm extends AbstractForm {
         statusBarPanel.add(postponedMessage);
 
         rootContainer.add(statusBarPanel, BorderLayout.SOUTH);
+    }
+
+    /**
+     * Initializes the menuBar of the mainForm.
+     */
+    private void initializeMenuBar() {
+        menuBar = new JMenuBar();
+
+//        postponed menu
+        postponedMenu = new JMenu();
+        postponedMenu.setText(messageSource.getMessage("mainForm.menu.postponed.title", null, localeHolder.getLocale()));
+
+        savePostponedItem = new JMenuItem();
+        savePostponedItem.setText(messageSource.getMessage("mainForm.menu.postponed.save.title", null, localeHolder.getLocale()));
+
+        loadPostponedItem = new JMenuItem();
+        loadPostponedItem.setText(messageSource.getMessage("mainForm.menu.postponed.load.title", null, localeHolder.getLocale()));
+        loadPostponedItem.add(new JSeparator());
+
+        deletePostponedItem = new JMenuItem();
+        deletePostponedItem.setText(messageSource.getMessage("mainForm.menu.postponed.delete.title", null, localeHolder.getLocale()));
+        deletePostponedItem.add(new JSeparator());
+
+        postponedMenu.add(savePostponedItem);
+        postponedMenu.add(loadPostponedItem);
+        postponedMenu.add(deletePostponedItem);
+
+        menuBar.add(postponedMenu);
+
     }
 
     /**
