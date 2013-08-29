@@ -1,0 +1,1 @@
+java -cp "target/swing-1.0.jar;target/lib/*" com.lavida.swing.form.LoginForm

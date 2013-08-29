@@ -75,7 +75,7 @@ public class GoogleSpreadsheetWorker {
             if (spreadsheetObject instanceof SpreadsheetEntry) {
                 SpreadsheetEntry spreadsheet = (SpreadsheetEntry) spreadsheetObject;
                 String sheetTitle = spreadsheet.getTitle().getPlainText();
-                if (sheetTitle != null && sheetTitle.equals(spreadsheetName)) {
+                if (sheetTitle != null && sheetTitle.trim().equals(spreadsheetName.trim())) {
                     return spreadsheet;
                 }
 
