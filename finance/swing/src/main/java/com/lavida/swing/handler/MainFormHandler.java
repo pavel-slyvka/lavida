@@ -15,7 +15,10 @@ import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import javax.xml.bind.JAXBException;
+import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -158,5 +161,24 @@ public class MainFormHandler {
     public void showSoldProductsButtonClicked() {
         soldProductsDialog.filterAnalyzePanelByRoles(userService.getCurrentUserRoles());
         soldProductsDialog.show();
+    }
+
+    public void savePostponed(File file) {
+        List<ArticleJdo> articlesPostponed = new ArrayList<ArticleJdo>();
+        List<ArticleJdo> articlesAll = articleServiceSwingWrapper.getAll();
+        for (ArticleJdo articleJdo : articlesAll) {
+            if (articleJdo.getPostponedOperationDate() != null) {
+                articlesPostponed.add(articleJdo);
+            }
+        }
+        try {
+            articleServiceSwingWrapper.saveToXml(articlesPostponed, file);
+        } catch (JAXBException e) {
+            e.printStackTrace();
+            form.showMessage("mainForm.exception.message.dialog.title", "mainForm.exception.xml.JAXB.message");
+        } catch (IOException e) {
+            e.printStackTrace();
+            form.showMessage("mainForm.exception.message.dialog.title", "mainForm.exception.io.xml.file");
+        }
     }
 }

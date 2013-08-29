@@ -2,6 +2,7 @@ package com.lavida.swing.form;
 
 import com.lavida.swing.dialog.SoldProductsDialog;
 import com.lavida.swing.form.component.ArticleTableComponent;
+import com.lavida.swing.form.component.SaveFileChooser;
 import com.lavida.swing.handler.MainFormHandler;
 import com.lavida.swing.service.ArticlesTableModel;
 import org.springframework.stereotype.Component;
@@ -9,8 +10,13 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -38,6 +44,7 @@ public class MainForm extends AbstractForm {
     private JMenuBar menuBar;
     private JMenu postponedMenu;
     private JMenuItem savePostponedItem, loadPostponedItem, deletePostponedItem;
+    private JFileChooser saveFileChooser, loadFileChooser;
     private ArticleTableComponent articleTableComponent = new ArticleTableComponent();
 
     @Override
@@ -224,6 +231,28 @@ public class MainForm extends AbstractForm {
 
         savePostponedItem = new JMenuItem();
         savePostponedItem.setText(messageSource.getMessage("mainForm.menu.postponed.save.title", null, localeHolder.getLocale()));
+        savePostponedItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (saveFileChooser == null) {
+                    saveFileChooser = new SaveFileChooser();
+                    saveFileChooser.setFileFilter(new FileNameExtensionFilter("XML","xml"));
+                    saveFileChooser.setLocale(localeHolder.getLocale());
+                    saveFileChooser.setSelectedFile(new File("postponed_" +
+                            new SimpleDateFormat("dd-MM-yyyy").format(new Date())));
+                }
+                int choice = saveFileChooser.showSaveDialog(form);
+                if (choice == JFileChooser.APPROVE_OPTION) {
+                    File file = saveFileChooser.getSelectedFile();
+                    FileNameExtensionFilter extensionFilter = (FileNameExtensionFilter)saveFileChooser.getFileFilter();
+                    String extension = extensionFilter.getExtensions()[0];
+                    String filePath = file.getAbsolutePath() + extension;
+                    file = new File(filePath);
+                    handler.savePostponed(file);
+                }
+                saveFileChooser.setSelectedFile(null);
+            }
+        });
 
         loadPostponedItem = new JMenuItem();
         loadPostponedItem.setText(messageSource.getMessage("mainForm.menu.postponed.load.title", null, localeHolder.getLocale()));

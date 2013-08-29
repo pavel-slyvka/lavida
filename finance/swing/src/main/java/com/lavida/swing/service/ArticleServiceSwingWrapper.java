@@ -4,6 +4,7 @@ import com.google.gdata.util.ServiceException;
 import com.lavida.service.ArticleService;
 import com.lavida.service.ArticleUpdateInfo;
 import com.lavida.service.entity.ArticleJdo;
+import com.lavida.service.xml.ArticlesXmlService;
 import com.lavida.swing.event.ArticleUpdateEvent;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -11,6 +12,9 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import javax.xml.bind.JAXBException;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 
@@ -26,6 +30,9 @@ public class ArticleServiceSwingWrapper implements ApplicationContextAware {
 
     @Resource
     private ArticleService articleService;
+
+    @Resource
+    private ArticlesXmlService articlesXmlService;
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
@@ -65,5 +72,15 @@ public class ArticleServiceSwingWrapper implements ApplicationContextAware {
 
     public void updateToSpreadsheet(ArticleJdo articleJdo, Boolean isSold) throws IOException, ServiceException {
         articleService.updateToSpreadsheet(articleJdo, isSold);
+    }
+
+    public void saveToXml(List<ArticleJdo> articleJdoList, File file) throws JAXBException, IOException {
+        String filePath = file.getAbsolutePath();
+        articlesXmlService.marshal(articleJdoList, filePath);
+    }
+
+    public List<ArticleJdo> loadFromXml (File file) throws JAXBException, FileNotFoundException {
+        String filePath = file.getAbsolutePath();
+        return articlesXmlService.unmarshal(filePath);
     }
 }
