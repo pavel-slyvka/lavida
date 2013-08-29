@@ -2,17 +2,45 @@
 <xs:schema xmlns:tns="http://www.xml.lavida.com/schema/articles.com"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
            elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
            targetNamespace="http://www.xml.lavida.com/schema/articles.com" version="1.0">
-    <xs:complexType name="articles">
+
+    <xs:element name="articles" type="tns:articlesType"/>
+    <xs:complexType name="articlesType">
         <xs:sequence>
             <xs:element maxOccurs="unbounded" minOccurs="0" name="article" nillable="true" type="tns:articleType"/>
         </xs:sequence>
     </xs:complexType>
+
+    <xs:element name="article" type="tns:articleType"/>
     <xs:complexType name="articleType">
         <xs:sequence>
+            <xs:element name="id" type="xs:int"/>
+            <xs:element name="spreadsheetRow" type="xs:int"/>
+            <xs:element name="spreadsheetNum" type="xs:string"/>
             <xs:element name="code" type="xs:string"/>
             <xs:element name="name" type="xs:string"/>
+            <xs:element name="brand" type="xs:string"/>
+            <xs:element name="quantity" type="xs:int"/>
+            <xs:element name="size" type="xs:string"/>
+            <xs:element name="deliveryDate" type="xs:date"/>
+            <xs:element name="purchasePriceEUR" type="xs:double"/>
+            <xs:element name="transportCostEUR" type="xs:double"/>
+            <xs:element name="totalCostEUR" type="xs:double"/>
+            <xs:element name="totalCostUAH" type="xs:double"/>
+            <xs:element name="multiplier" type="xs:double"/>
+            <xs:element name="calculatedSalePrice" type="xs:double"/>
+            <xs:element name="salePrice" type="xs:double"/>
+            <xs:element name="raisedSalePrice" type="xs:double"/>
+            <xs:element name="oldSalePrice" type="xs:double"/>
+            <xs:element name="sold" type="xs:string"/>
+            <xs:element name="sellType" type="xs:string"/>
+            <xs:element name="saleDate" type="xs:date"/>
+            <xs:element name="refundDate" type="xs:date"/>
+            <xs:element name="tags" type="xs:string"/>
+            <xs:element name="comment" type="xs:string"/>
+            <xs:element name="postponedOperationDate" type="xs:dateTime"/>
+            <xs:element name="shop" type="xs:string"/>
         </xs:sequence>
-        <xs:attribute name="spreadsheetRow" type="xs:int" use="required"/>
     </xs:complexType>
 </xs:schema>

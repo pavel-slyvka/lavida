@@ -9,6 +9,10 @@ import com.lavida.service.utils.CalendarConverter;
 import com.lavida.service.utils.DateConverter;
 
 import javax.persistence.*;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlType;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -24,44 +28,54 @@ import java.util.Date;
         @NamedQuery(name = ArticleJdo.FIND_NOT_SOLD, query = "select a from ArticleJdo a where a.sold IS NULL"),
         @NamedQuery(name = ArticleJdo.FIND_SOLD, query = "select a from ArticleJdo a where a.sold IS NOT NULL")
 })
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(name = "articleType", namespace = "http://www.xml.lavida.com/schema/articles.com")
 public class ArticleJdo implements Cloneable {
     public static final String FIND_NOT_SOLD = "ArticleJdo.findSold";
     public static final String FIND_SOLD = "ArticleJdo.findNotSold";
 
     @Id
     @GeneratedValue (strategy = GenerationType.IDENTITY)
+    @XmlElement
     private int id;
 
+    @XmlElement(required = true)
     private int spreadsheetRow;
 
     @SpreadsheetColumn(column = "num")
+    @XmlElement
     private String spreadsheetNum;
 
     @SpreadsheetColumn(column = "code")
     @ViewColumn(titleKey = "mainForm.table.articles.column.code.title")
     @FilterColumn(labelKey = "mainForm.label.search.by.code", orderForSell = 1, orderForSold = 1)
+    @XmlElement
     private String code;
 
     @SpreadsheetColumn(column = "name")
     @ViewColumn(titleKey = "mainForm.table.articles.column.name.title")
     @FilterColumn(type = FilterType.PART_TEXT, labelKey = "mainForm.label.search.by.name", orderForSell = 2,
             orderForSold = 2)
+    @XmlElement(required = true)
     private String name;
 
     @SpreadsheetColumn(column = "brand")
     @ViewColumn(titleKey = "mainForm.table.articles.column.brand.title")
     @FilterColumn(type = FilterType.PART_TEXT, labelKey = "mainForm.label.search.by.brand", orderForSell = 3,
             orderForSold = 3)
+    @XmlElement
     private String brand;
 
     @SpreadsheetColumn(column = "quantity")
     @ViewColumn(titleKey = "mainForm.table.articles.column.quantity.title")
+    @XmlElement
     private int quantity;
 
     @SpreadsheetColumn(column = "size")
     @ViewColumn(titleKey = "mainForm.table.articles.column.size.title")
     @FilterColumn(type = FilterType.PART_TEXT,labelKey = "mainForm.label.search.by.size", orderForSell = 4,
             orderForSold = 4)
+    @XmlElement
     private String size;
 
     @SpreadsheetColumn(column = "deliveryDate")
@@ -69,51 +83,63 @@ public class ArticleJdo implements Cloneable {
     @FilterColumn(type = FilterType.DATE_DIAPASON, labelKey = "mainForm.label.search.by.delivery.date",
             orderForSell = 5, orderForSold = 5)
     @Temporal(TemporalType.DATE)
+    @XmlElement
     private Calendar deliveryDate;
 
     @SpreadsheetColumn(column = "purchasePriceEUR")
     @ViewColumn(titleKey = "mainForm.table.articles.column.purchase.price.eur.title", forbiddenRoles = "ROLE_SELLER")
+    @XmlElement
     private double purchasePriceEUR;
 
     @SpreadsheetColumn(column = "transportCostEUR")
     @ViewColumn(titleKey = "mainForm.table.articles.column.transport.cost.eur.title", forbiddenRoles = "ROLE_SELLER")
+    @XmlElement
     private double transportCostEUR;
 
     @SpreadsheetColumn(column = "totalCostEUR")
     @ViewColumn(titleKey = "mainForm.table.articles.column.purchase.cost.total.eur.title", forbiddenRoles = "ROLE_SELLER")
+    @XmlElement
     private double totalCostEUR;
 
     @SpreadsheetColumn(column = "totalCostUAH")
     @ViewColumn(titleKey = "mainForm.table.articles.column.purchase.cost.total.uah.title", forbiddenRoles = "ROLE_SELLER")
+    @XmlElement
     private double totalCostUAH;
 
     @SpreadsheetColumn(column = "multiplier")
     @ViewColumn(titleKey = "mainForm.table.articles.column.multiplier.title", forbiddenRoles = "ROLE_SELLER")
+    @XmlElement
     private double multiplier;
 
     @SpreadsheetColumn(column = "calculatedSalePrice")
+    @XmlElement
     private double calculatedSalePrice;
 
     @SpreadsheetColumn(column = "salePrice")
     @ViewColumn(titleKey = "mainForm.table.articles.column.sell.price.uah.title")
     @FilterColumn(type = FilterType.NUMBER_DIAPASON, labelKey = "mainForm.label.search.by.price", orderForSell = 6,
             orderForSold = 6)
+    @XmlElement
     private double salePrice;
 
     @SpreadsheetColumn(column = "raisedSalePrice")
     @ViewColumn(titleKey = "mainForm.table.articles.column.raised.price.uah.title", forbiddenRoles = "ROLE_SELLER")
+    @XmlElement
     private double raisedSalePrice;
 
     @SpreadsheetColumn(column = "oldSalePrice")
     @ViewColumn(titleKey = "mainForm.table.articles.column.old.price.uah.title", forbiddenRoles = "ROLE_SELLER")
+    @XmlElement
     private double oldSalePrice;
 
     @SpreadsheetColumn(column = "sold")
     @ViewColumn(show = false)
+    @XmlElement
     private String sold;
 
     @SpreadsheetColumn(column = "sellType")
     @ViewColumn(titleKey = "mainForm.table.articles.column.sell.marker.title")
+    @XmlElement
     private String sellType;
 
     @SpreadsheetColumn(column = "saleDate")
@@ -121,27 +147,33 @@ public class ArticleJdo implements Cloneable {
     @FilterColumn(type = FilterType.DATE_DIAPASON, labelKey = "mainForm.label.search.by.sale.date",
             showForSell = false, orderForSold = 7)
     @Temporal(TemporalType.DATE)
+    @XmlElement
     private Calendar saleDate;
 
     @SpreadsheetColumn(column = "refundDate" , datePattern = "MM.dd.yyyy HH:mm:ss")
     @ViewColumn(titleKey = "mainForm.table.articles.column.refund.title", forbiddenRoles = "ROLE_SELLER",
             datePattern = "MM.dd.yyyy HH:mm:ss")
     @Temporal(TemporalType.TIMESTAMP)
+    @XmlElement
     private Date refundDate;
 
     @SpreadsheetColumn(column = "tags")
     @ViewColumn(titleKey = "mainForm.table.articles.column.tags.title", forbiddenRoles = "ROLE_SELLER")
+    @XmlElement
     private String tags;
 
     @SpreadsheetColumn(column = "comment")
     @ViewColumn(titleKey = "mainForm.table.articles.column.comment.title")
+    @XmlElement
     private String comment;
 
     @Temporal(TemporalType.TIMESTAMP)
+    @XmlElement
     private Date postponedOperationDate;
 
     @SpreadsheetColumn(column = "shop")
     @ViewColumn(titleKey = "mainForm.table.articles.column.shop.title", forbiddenRoles = "ROLE_SELLER")
+    @XmlElement
     private String shop;
 
     public ArticleJdo() {
