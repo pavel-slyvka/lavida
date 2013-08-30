@@ -2,7 +2,6 @@ package com.lavida.swing.form;
 
 import com.lavida.swing.dialog.SoldProductsDialog;
 import com.lavida.swing.form.component.ArticleTableComponent;
-import com.lavida.swing.form.component.SaveFileChooser;
 import com.lavida.swing.handler.MainFormHandler;
 import com.lavida.swing.service.ArticlesTableModel;
 import org.springframework.stereotype.Component;
@@ -10,13 +9,8 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
-import javax.swing.filechooser.FileFilter;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -44,7 +38,6 @@ public class MainForm extends AbstractForm {
     private JMenuBar menuBar;
     private JMenu postponedMenu;
     private JMenuItem savePostponedItem, loadPostponedItem, deletePostponedItem;
-    private JFileChooser saveFileChooser, loadFileChooser;
     private ArticleTableComponent articleTableComponent = new ArticleTableComponent();
 
     @Override
@@ -71,7 +64,7 @@ public class MainForm extends AbstractForm {
         desktopPanel.setBorder(BorderFactory.createEmptyBorder());
 
         GridBagConstraints constraints = new GridBagConstraints();
-        constraints.insets = new Insets(1,5,1,5);
+        constraints.insets = new Insets(1, 5, 1, 5);
 //        constraints.fill = GridBagConstraints.HORIZONTAL;
 
 
@@ -79,7 +72,7 @@ public class MainForm extends AbstractForm {
 
 //      main panel for table of goods
         mainPanel = articleTableComponent.getMainPanel();
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(0,5,0,5));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
         desktopPanel.add(mainPanel, BorderLayout.CENTER);
 
 //      analyze panel for total analyses
@@ -91,7 +84,7 @@ public class MainForm extends AbstractForm {
 //      panel for search operations
         filtersPanel = articleTableComponent.getArticleFiltersComponent().getFiltersPanel();
 
-        buttonPanel = new JPanel(new GridLayout(2,1));
+        buttonPanel = new JPanel(new GridLayout(2, 1));
 //      panel for refresh and save operations with data
         refreshPanel = new JPanel();
         refreshPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(messageSource.
@@ -128,7 +121,7 @@ public class MainForm extends AbstractForm {
         operationPanel = new JPanel();
         operationPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(messageSource.
                 getMessage("mainForm.panel.operation.title", null, localeHolder.getLocale())),
-                BorderFactory.createEmptyBorder(0, 5, 0 ,5)));
+                BorderFactory.createEmptyBorder(0, 5, 0, 5)));
         operationPanel.setLayout(new BoxLayout(operationPanel, BoxLayout.Y_AXIS));
 
         sellButton = new Button(messageSource.getMessage("mainForm.button.sell.title", null, localeHolder.getLocale()));
@@ -234,23 +227,7 @@ public class MainForm extends AbstractForm {
         savePostponedItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (saveFileChooser == null) {
-                    saveFileChooser = new SaveFileChooser();
-                    saveFileChooser.setFileFilter(new FileNameExtensionFilter("XML","xml"));
-                    saveFileChooser.setLocale(localeHolder.getLocale());
-                    saveFileChooser.setSelectedFile(new File("postponed_" +
-                            new SimpleDateFormat("dd-MM-yyyy").format(new Date())));
-                }
-                int choice = saveFileChooser.showSaveDialog(form);
-                if (choice == JFileChooser.APPROVE_OPTION) {
-                    File file = saveFileChooser.getSelectedFile();
-                    FileNameExtensionFilter extensionFilter = (FileNameExtensionFilter)saveFileChooser.getFileFilter();
-                    String extension = extensionFilter.getExtensions()[0];
-                    String filePath = file.getAbsolutePath() + extension;
-                    file = new File(filePath);
-                    handler.savePostponed(file);
-                }
-                saveFileChooser.setSelectedFile(null);
+                handler.savePostponedItemClicked();
             }
         });
 
