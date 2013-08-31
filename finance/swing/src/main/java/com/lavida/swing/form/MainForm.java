@@ -238,6 +238,12 @@ public class MainForm extends AbstractForm {
         deletePostponedItem = new JMenuItem();
         deletePostponedItem.setText(messageSource.getMessage("mainForm.menu.postponed.delete.title", null, localeHolder.getLocale()));
         deletePostponedItem.add(new JSeparator());
+        deletePostponedItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handler.deletePostponedItemClicked();
+            }
+        });
 
         postponedMenu.add(savePostponedItem);
         postponedMenu.add(loadPostponedItem);

@@ -75,4 +75,17 @@ public abstract class AbstractForm implements MessageSourceAware {
     public void setMessageSource(MessageSource messageSource) {
         this.messageSource = messageSource;
     }
+
+    /**
+     * Shows a YES_NO confirm dialog.
+     * @param titleKey  the title of the dialog from the locale resource bundle
+     * @param messageBody the body of the dialog from the locale resource bundle
+     * @return
+     */
+    public int showConfirmDialog(String titleKey, String messageBody) {
+        return JOptionPane.showConfirmDialog(form,
+                messageSource.getMessage(messageBody, null, localeHolder.getLocale()),
+                messageSource.getMessage(titleKey, null, localeHolder.getLocale()),
+                JOptionPane.YES_NO_OPTION);
+    }
 }

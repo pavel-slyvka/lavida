@@ -162,6 +162,7 @@ public class MainFormHandler {
             form.getPostponedMessage().setText(String.valueOf(count));
             form.getPostponedMessage().setVisible(true);
         } else {
+            form.getPostponedMessage().setText(String.valueOf(count));
             form.getPostponedMessage().setVisible(false);
         }
     }
@@ -223,10 +224,10 @@ public class MainFormHandler {
 
                 file = fileChooser.improveFileExtension(file);
 
-                if(file.exists()){
+                if (file.exists()) {
                     int result = fileChooser.showConfirmDialog("mainForm.handler.fileChooser.file.exists.dialog.title",
                             "mainForm.handler.fileChooser.file.exists.dialog.message");
-                    switch(result){
+                    switch (result) {
                         case JOptionPane.YES_OPTION:
                             break;
                         case JOptionPane.NO_OPTION:
@@ -254,4 +255,35 @@ public class MainFormHandler {
 
     }
 
+    /**
+     * Deletes all postponed operations from the database.
+     */
+    public void deletePostponedItemClicked() {
+        int result = form.showConfirmDialog("mainForm.menu.postponed.delete.message.title",
+                "mainForm.menu.postponed.delete.message.body");
+        switch (result) {
+            case JOptionPane.YES_OPTION:
+                deletePostponedOperations();
+            case JOptionPane.NO_OPTION:
+                return;
+            case JOptionPane.CLOSED_OPTION:
+                return;
+        }
+
+    }
+
+    /**
+     * Deletes all postponed operations from the database and updates the PostponedOperationsMessage label of the
+     * mainForm.
+     */
+    private void deletePostponedOperations() {
+        List<ArticleJdo> allArticles = articleServiceSwingWrapper.getAll();
+        for (ArticleJdo articleJdo : allArticles) {
+            if (articleJdo.getPostponedOperationDate() != null) {
+                articleJdo.setPostponedOperationDate(null);
+                articleServiceSwingWrapper.update(articleJdo);
+            }
+        }
+        showPostponedOperationsMessage();
+    }
 }
