@@ -84,6 +84,11 @@ public class SellDialogHandler {
         articleJdo.setShop((dialog.getShopTextField().getText().trim() == null) ? null :
                 dialog.getShopTextField().getText().trim());
         dialog.getShopTextField().setText(messageSource.getMessage("sellDialog.text.field.shop.text", null, localeHolder.getLocale()));
+        String seller = (String)dialog.getSellerNames().getSelectedItem();
+        tableModel.setSellerName(seller);
+        dialog.getSellerNames().setSelectedItem(seller);
+        articleJdo.setSellerName(seller);
+
         articleServiceSwingWrapper.update(articleJdo);
         try {
             articleServiceSwingWrapper.updateToSpreadsheet(articleJdo, new Boolean(true));

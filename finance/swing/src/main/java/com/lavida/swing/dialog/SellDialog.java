@@ -342,6 +342,7 @@ public class SellDialog extends AbstractDialog {
         }
         sellerNames = new JComboBox(sellerNamesArray);
         sellerNames.setSelectedItem(tableModel.getSellerName());
+        sellerNames.setEditable(false);
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.gridwidth = GridBagConstraints.REMAINDER;
         constraints.anchor = GridBagConstraints.EAST;
@@ -417,5 +418,9 @@ public class SellDialog extends AbstractDialog {
 
     public JTextField getSaleDateTextField() {
         return saleDateTextField;
+    }
+
+    public JComboBox getSellerNames() {
+        return sellerNames;
     }
 }
