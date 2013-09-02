@@ -182,6 +182,7 @@ public class ArticleJdo implements Cloneable {
     @ViewColumn(titleKey = "mainForm.table.articles.column.sellerName.title")
     @FilterColumn(type = FilterType.PART_TEXT,labelKey = "mainForm.label.search.by.sellerName", showForSell = false,
             orderForSold = 9)
+    @XmlElement
     private String sellerName;
 
     public ArticleJdo() {
