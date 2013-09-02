@@ -1,12 +1,14 @@
 package com.lavida.service;
 
-import com.lavida.service.dao.GenericDao;
 import com.lavida.service.dao.TagDao;
 import com.lavida.service.entity.TagJdo;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -46,4 +48,13 @@ public class TagService {
     public TagJdo getTagByName (String name) {
          return tagDao.getTagByName(name);
     }
+
+    public static void main(String[] args) {
+        ApplicationContext context = new ClassPathXmlApplicationContext("spring-security.xml");
+        TagService service = context.getBean(TagService.class);
+        service.save(new TagJdo("cash", "Наличные", new Date(), true));
+        service.save(new TagJdo("terminal", "Терминал", new Date(), true));
+        System.out.println(service.getAll());
+    }
+
 }

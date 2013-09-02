@@ -1,8 +1,10 @@
 package com.lavida.swing.dialog;
 
+import com.lavida.service.SellerService;
 import com.lavida.service.TagService;
 import com.lavida.service.ViewColumn;
 import com.lavida.service.entity.ArticleJdo;
+import com.lavida.service.entity.SellerJdo;
 import com.lavida.service.entity.TagJdo;
 import com.lavida.service.utils.CalendarConverter;
 import com.lavida.service.utils.DateConverter;
@@ -36,12 +38,16 @@ public class SellDialog extends AbstractDialog {
     @Resource
     private TagService tagService;
 
+    @Resource
+    private SellerService sellerService;
+
     private JPanel buttonPanel, inputPanel, oursPanel, commentPanel, tagsPanel;
     private JLabel codeLabel, nameLabel, brandLabel, sizeLabel, priceLabel, commentLabel, codeField, nameField,
-            brandField, sizeField, priceField, shopLabel, discountLabel, totalCostLabel, saleDateLabel;
+            brandField, sizeField, priceField, shopLabel, discountLabel, totalCostLabel, saleDateLabel, sellerNameLabel;
     private JTextField shopTextField, discountTextField, totalCostTextField, commentTextField, saleDateTextField;
     private JButton sellButton, cancelButton;
     private JCheckBox oursCheckBox, presentCheckBox;
+    private JComboBox sellerNames;
     private List<JCheckBox> tagCheckBoxes = new ArrayList<JCheckBox>();
 
     @Override
@@ -317,6 +323,32 @@ public class SellDialog extends AbstractDialog {
         constraints.gridy = 11;
         inputPanel.add(tagsPanel, constraints);
 
+//        seller choosing
+        sellerNameLabel = new JLabel();
+        sellerNameLabel.setText(messageSource.getMessage("sellDialog.label.sellerName.title", null, localeHolder.getLocale()));
+        sellerNameLabel.setLabelFor(sellerNames);
+        constraints.fill = GridBagConstraints.NONE;
+        constraints.gridwidth = GridBagConstraints.RELATIVE;
+        constraints.anchor = GridBagConstraints.EAST;
+        constraints.weightx = 0.0;
+        constraints.gridx = 0;
+        constraints.gridy = 12;
+        inputPanel.add(sellerNameLabel, constraints);
+
+        List<SellerJdo> sellers = sellerService.getAll();
+        String[] sellerNamesArray = new String[sellers.size() + 1];
+        for(int i = 0; i < sellers.size(); ++i) {
+            sellerNamesArray[i] = sellers.get(i).getName();
+        }
+        sellerNames = new JComboBox(sellerNamesArray);
+        sellerNames.setSelectedItem(tableModel.getSellerName());
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.gridwidth = GridBagConstraints.REMAINDER;
+        constraints.anchor = GridBagConstraints.EAST;
+        constraints.weightx = 1.0;
+        constraints.gridx = 1;
+        constraints.gridy = 12;
+        inputPanel.add(sellerNames, constraints);
 
         rootContainer.add(inputPanel, BorderLayout.CENTER);
 

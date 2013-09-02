@@ -36,6 +36,7 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
     private int totalCountArticles;
     private double totalOriginalCostEUR;
     private double totalPriceUAH;
+    private String sellerName;
 
     @Resource
     private ArticleDao articleDao;
