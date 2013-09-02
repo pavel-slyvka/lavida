@@ -53,9 +53,6 @@ public class SellerService {
         SellerService service = context.getBean(SellerService.class);
         service.save(new SellerJdo("Seller 1"));
         service.save(new SellerJdo("Seller 2"));
-
         System.out.println(service.getAll());
-
-
     }
 }

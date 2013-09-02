@@ -36,6 +36,7 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
     private int totalCountArticles;
     private double totalOriginalCostEUR;
     private double totalPriceUAH;
+    private String sellerName;
 
     @Resource
     private ArticleDao articleDao;
@@ -216,5 +217,13 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
 
     public void setTotalPriceUAH(double totalPriceUAH) {
         this.totalPriceUAH = totalPriceUAH;
+    }
+
+    public String getSellerName() {
+        return sellerName;
+    }
+
+    public void setSellerName(String sellerName) {
+        this.sellerName = sellerName;
     }
 }
