@@ -48,7 +48,7 @@ public class ArticleServiceSwingWrapper implements ApplicationContextAware {
     }
 
     public void updateDatabase(List<ArticleJdo> articles) {
-        articleService.updateDatabase(articles);
+        articleService.updateDatabaseFromRemote(articles);
         applicationContext.publishEvent(new ArticleUpdateEvent(this));
     }
 
@@ -64,10 +64,20 @@ public class ArticleServiceSwingWrapper implements ApplicationContextAware {
      * @param remoteArticles the List of articles to be updated to database;
      * @return the ArticleUpdateInfo object with the information about updating process.
      */
-    public ArticleUpdateInfo updateToDatabase(List<ArticleJdo> remoteArticles) {
-        ArticleUpdateInfo articleUpdateInfo = articleService.updateDatabase(remoteArticles);
+    public ArticleUpdateInfo updateDatabaseFromRemote(List<ArticleJdo> remoteArticles) {
+        ArticleUpdateInfo articleUpdateInfo = articleService.updateDatabaseFromRemote(remoteArticles);
         applicationContext.publishEvent(new ArticleUpdateEvent(this));
         return articleUpdateInfo;
+    }
+
+    /**
+     * Finds equivalent articles from the database to match loaded articles with postponed operations.
+//     * Updates articles from loaded postponed operations to the database.
+     * @param loadedArticles the List < {@link com.lavida.service.entity.ArticleJdo} > with postponed operations.
+     */
+    public List<ArticleJdo> mergePostponedWithDatabase(List<ArticleJdo> loadedArticles) {
+        return articleService.mergePostponedWithDatabase(loadedArticles);
+//        applicationContext.publishEvent(new ArticleUpdateEvent(this));
     }
 
     public void updateToSpreadsheet(ArticleJdo articleJdo, Boolean isSold) throws IOException, ServiceException {

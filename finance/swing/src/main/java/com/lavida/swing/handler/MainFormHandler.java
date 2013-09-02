@@ -20,6 +20,7 @@ import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.xml.bind.JAXBException;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -73,9 +74,8 @@ public class MainFormHandler {
     public void refreshButtonClicked() {
         try {
             List<ArticleJdo> articles = articleServiceSwingWrapper.loadArticlesFromRemoteServer();
-            ArticleUpdateInfo informer = articleServiceSwingWrapper.updateToDatabase(articles);
+            ArticleUpdateInfo informer = articleServiceSwingWrapper.updateDatabaseFromRemote(articles);
             showUpdateInfoMessage(informer);
-            form.getArticleTableComponent().getArticleFiltersComponent().updateAnalyzeComponent();
             form.update();    // repaint MainForm in some time
 
         } catch (IOException e) {
@@ -145,6 +145,7 @@ public class MainFormHandler {
                 }
             }
         }
+        form.update();
     }
 
     /**
@@ -197,7 +198,7 @@ public class MainFormHandler {
     }
 
     /**
-     * Chooses the file for saving postponed operations.
+     * Shows a dialog for choosing the file for saving postponed operations.
      */
     public void savePostponedItemClicked() {
         fileChooser.setFileFilter(new FileNameExtensionFilter("XML", "xml"));
@@ -250,9 +251,9 @@ public class MainFormHandler {
             }
         }
         savePostponed(file);
+        form.update();
         fileChooser.setSelectedFile(new File("postponed_" +
                 new SimpleDateFormat("dd-MM-yyyy").format(new Date()) + ".xml"));
-
     }
 
     /**
@@ -264,6 +265,7 @@ public class MainFormHandler {
         switch (result) {
             case JOptionPane.YES_OPTION:
                 deletePostponedOperations();
+                form.update();
             case JOptionPane.NO_OPTION:
                 return;
             case JOptionPane.CLOSED_OPTION:
@@ -285,5 +287,67 @@ public class MainFormHandler {
             }
         }
         showPostponedOperationsMessage();
+    }
+
+    /**
+     * Shows a dialog for choosing the xml file with postponed operations and loads them to the database.
+     */
+    public void loadPostponedItemClicked() {
+        fileChooser.setFileFilter(new FileNameExtensionFilter("XML", "xml"));
+        fileChooser.setSelectedFile(null);
+        File file;
+        while (true) {
+            int choice = fileChooser.showOpenDialog(form.getForm());
+            if (choice == JFileChooser.APPROVE_OPTION) {
+                file = fileChooser.getSelectedFile();
+                if (!fileChooser.isValidFile(file)) {
+                    fileChooser.showWarningMessage("mainForm.exception.message.dialog.title",
+                            "mainForm.handler.fileChooser.fileName.format.message");
+                    fileChooser.setSelectedFile(null);
+                    continue;
+                }
+
+                if (!fileChooser.isFileFilterSelected()) {
+                    fileChooser.showWarningMessage("mainForm.exception.message.dialog.title",
+                            "mainForm.handler.fileChooser.fileFilter.selection.message");
+                    continue;
+                }
+                break;
+            } else {
+                fileChooser.setSelectedFile(null);
+                fileChooser.cancelSelection();
+                return;
+            }
+        }
+        loadPostponed(file);
+        form.update();
+        fileChooser.setSelectedFile(null);
+    }
+
+    /**
+     * Loads postponed operations to the database.
+     *
+     * @param file the chosen xml file with postponed operations to be loaded.
+     */
+    private void loadPostponed(File file) {
+        List<ArticleJdo> loadedArticles = null;
+        try {
+            loadedArticles = articleServiceSwingWrapper.loadFromXml(file);
+        } catch (JAXBException e) {
+            e.printStackTrace();
+            form.showMessage("mainForm.exception.message.dialog.title", "mainForm.exception.xml.JAXB.message");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            form.showMessage("mainForm.exception.message.dialog.title", "mainForm.exception.io.xml.file");
+        }
+        List<ArticleJdo> forUpdateArticles = articleServiceSwingWrapper.mergePostponedWithDatabase(loadedArticles);
+        if (loadedArticles.size() > 0) {
+            for (ArticleJdo articleJdo : forUpdateArticles) {
+                articleServiceSwingWrapper.update(articleJdo);
+            }
+            showPostponedOperationsMessage();
+        } else {
+            form.showMessage("mainForm.exception.message.dialog.title", "mainForm.handler.postponed.articles.not.exist.message");
+        }
     }
 }

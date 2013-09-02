@@ -46,7 +46,7 @@ public class ArticleServiceTest {
         doNothing().when(articleService).update(any(List.class));
         doNothing().when(articleService).remove(any(List.class));
 
-        ArticleUpdateInfo articleUpdateInfo = articleService.updateDatabase(new ArrayList<ArticleJdo>(remoteArticles));
+        ArticleUpdateInfo articleUpdateInfo = articleService.updateDatabaseFromRemote(new ArrayList<ArticleJdo>(remoteArticles));
 
         assertEquals(toAdd.size(), articleUpdateInfo.getAddedCount());
         assertEquals(toUpdate.size(), articleUpdateInfo.getUpdatedCount());

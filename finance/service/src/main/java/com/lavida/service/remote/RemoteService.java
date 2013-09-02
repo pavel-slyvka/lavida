@@ -49,7 +49,7 @@ public class RemoteService {
         return articles;
     }
 
-    public void updateArticle(ArticleJdo articleJdo, Boolean isSold) throws IOException, ServiceException {
+    public void updateArticleToRemote(ArticleJdo articleJdo, Boolean isSold) throws IOException, ServiceException {
         GoogleSpreadsheetWorker spreadsheetWorker = new GoogleSpreadsheetWorker(settingsHolder.getSettings());
 
         // take headers

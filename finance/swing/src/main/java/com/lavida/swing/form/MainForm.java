@@ -234,6 +234,12 @@ public class MainForm extends AbstractForm {
         loadPostponedItem = new JMenuItem();
         loadPostponedItem.setText(messageSource.getMessage("mainForm.menu.postponed.load.title", null, localeHolder.getLocale()));
         loadPostponedItem.add(new JSeparator());
+        loadPostponedItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handler.loadPostponedItemClicked();
+            }
+        });
 
         deletePostponedItem = new JMenuItem();
         deletePostponedItem.setText(messageSource.getMessage("mainForm.menu.postponed.delete.title", null, localeHolder.getLocale()));
@@ -251,6 +257,18 @@ public class MainForm extends AbstractForm {
 
         menuBar.add(postponedMenu);
 
+    }
+
+    /**
+     * Updates tableModels for sold articles and not sold articles , and their analyze components.
+     */
+    @Override
+    public void update() {
+        getTableModel().fireTableDataChanged();
+        getSoldProductsDialog().getTableModel().fireTableDataChanged();
+        getArticleTableComponent().getArticleFiltersComponent().updateAnalyzeComponent();
+        getSoldProductsDialog().getArticleTableComponent().getArticleFiltersComponent().updateAnalyzeComponent();
+        super.update();
     }
 
     /**

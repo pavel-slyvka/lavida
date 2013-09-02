@@ -94,20 +94,12 @@ public class SellDialogHandler {
             dialog.hide();
             dialog.showMessage("mainForm.exception.message.dialog.title", "sellDialog.handler.sold.article.not.saved.to.worksheet");
             dialog.getMainForm().getHandler().showPostponedOperationsMessage();
-            dialog.getMainForm().getTableModel().fireTableDataChanged();
-            dialog.getMainForm().getSoldProductsDialog().getTableModel().fireTableDataChanged();
             dialog.getMainForm().getTableModel().setSelectedArticle(null);
-            dialog.getMainForm().getArticleTableComponent().getArticleFiltersComponent().updateAnalyzeComponent();
-            dialog.getMainForm().getSoldProductsDialog().getArticleTableComponent().getArticleFiltersComponent().updateAnalyzeComponent();
             dialog.getMainForm().update();
             return;
         }
         dialog.hide();
-        dialog.getMainForm().getTableModel().fireTableDataChanged();
-        dialog.getMainForm().getSoldProductsDialog().getTableModel().fireTableDataChanged();
         dialog.getMainForm().getTableModel().setSelectedArticle(null);
-        dialog.getMainForm().getArticleTableComponent().getArticleFiltersComponent().updateAnalyzeComponent();
-        dialog.getMainForm().getSoldProductsDialog().getArticleTableComponent().getArticleFiltersComponent().updateAnalyzeComponent();
         dialog.getMainForm().update();
         dialog.getMainForm().show();
     }

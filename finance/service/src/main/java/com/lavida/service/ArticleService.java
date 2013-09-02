@@ -12,7 +12,10 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 /**
@@ -143,7 +146,7 @@ public class ArticleService {
     }
 
     @Transactional
-    public ArticleUpdateInfo updateDatabase(List<ArticleJdo> remoteArticles) {
+    public ArticleUpdateInfo updateDatabaseFromRemote(List<ArticleJdo> remoteArticles) {
         List<ArticleJdo> dbOldArticles = getAll();
 
         List<ArticleJdo> articlesToUpdate = new ArrayList<ArticleJdo>();
@@ -225,7 +228,105 @@ public class ArticleService {
     }
 
     public void updateToSpreadsheet(ArticleJdo articleJdo, Boolean isSold) throws IOException, ServiceException {
-        remoteService.updateArticle(articleJdo, isSold);
+        remoteService.updateArticleToRemote(articleJdo, isSold);
+    }
+
+    /**
+     * Finds equivalent articles from the database to match loaded articles with postponed operations.
+     *
+     * @param loadedArticles the List < {@link com.lavida.service.entity.ArticleJdo} > with postponed operations.
+     */
+    public List<ArticleJdo> mergePostponedWithDatabase(List<ArticleJdo> loadedArticles) {
+        List<ArticleJdo> fromDatabaseArticles = getAll();
+        List<ArticleJdo> forUpdateArticles = new ArrayList<ArticleJdo>();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
+        label:
+        for (ArticleJdo loadedArticle : loadedArticles) {
+            if (dateFormat.format(loadedArticle.getPostponedOperationDate()).equals(dateFormat.format(loadedArticle.getSaleDate().getTime()))
+                    && !loadedArticle.getSold().isEmpty()) {   // selling
+                for (ArticleJdo fromDatabaseArticle : fromDatabaseArticles) {
+                    if ((loadedArticle.getCode() != null) ? loadedArticle.getCode().equals(fromDatabaseArticle.getCode()) :
+                            fromDatabaseArticle.getCode() == null &&
+                                    (loadedArticle.getSize() != null) ? loadedArticle.getSize().equals(fromDatabaseArticle.getSize()) :
+                                    fromDatabaseArticle.getSize() == null &&
+                                            fromDatabaseArticle.getSold() == null) {
+
+                        fromDatabaseArticle.setPostponedOperationDate(loadedArticle.getPostponedOperationDate());
+                        fromDatabaseArticle.setSaleDate(loadedArticle.getSaleDate());
+                        fromDatabaseArticle.setSold(loadedArticle.getSold());
+                        fromDatabaseArticle.setComment(loadedArticle.getComment());
+                        fromDatabaseArticle.setSellType(loadedArticle.getSellType());
+                        fromDatabaseArticle.setShop(loadedArticle.getShop());
+                        fromDatabaseArticle.setSalePrice(loadedArticle.getSalePrice());
+                        fromDatabaseArticle.setTags(loadedArticle.getTags());
+
+                        forUpdateArticles.add(fromDatabaseArticle);
+                        continue label;
+                    }
+                }
+            }
+            if (loadedArticle.getPostponedOperationDate().equals(loadedArticle.getRefundDate()) &&
+                    loadedArticle.getSold().isEmpty()) {                 // refunding
+                for (ArticleJdo fromDatabaseArticle : fromDatabaseArticles) {
+                    if ((loadedArticle.getCode() != null) ? loadedArticle.getCode().equals(fromDatabaseArticle.getCode()) :
+                            fromDatabaseArticle.getCode() == null &&
+                                    (loadedArticle.getSize() != null) ? loadedArticle.getSize().equals(fromDatabaseArticle.getSize()) :
+                                    fromDatabaseArticle.getSize() == null &&
+                                            fromDatabaseArticle.getSold() != null) {
+                        fromDatabaseArticle.setPostponedOperationDate(loadedArticle.getPostponedOperationDate());
+                        fromDatabaseArticle.setRefundDate(loadedArticle.getRefundDate());
+                        fromDatabaseArticle.setSaleDate(loadedArticle.getSaleDate());
+                        fromDatabaseArticle.setSold(loadedArticle.getSold());
+                        fromDatabaseArticle.setComment(loadedArticle.getComment());
+                        fromDatabaseArticle.setSellType(loadedArticle.getSellType());
+                        fromDatabaseArticle.setShop(loadedArticle.getShop());
+                        fromDatabaseArticle.setSalePrice(loadedArticle.getSalePrice());
+                        fromDatabaseArticle.setTags(loadedArticle.getTags());
+
+                        forUpdateArticles.add(fromDatabaseArticle);
+                        continue label;
+                    }
+                }
+            }
+            if (!loadedArticle.getPostponedOperationDate().equals(loadedArticle.getRefundDate()) &&
+                    !dateFormat.format(loadedArticle.getPostponedOperationDate()).equals(dateFormat.format(loadedArticle.getSaleDate().getTime()))) {
+                for (ArticleJdo fromDatabaseArticle : fromDatabaseArticles) {  // editing
+                    if ((loadedArticle.getCode() != null) ? loadedArticle.getCode().equals(fromDatabaseArticle.getCode()) :
+                            fromDatabaseArticle.getCode() == null &&
+                                    (loadedArticle.getSize() != null) ? loadedArticle.getSize().equals(fromDatabaseArticle.getSize()) :
+                                    fromDatabaseArticle.getSize() == null &&
+                                            (loadedArticle.getSold() != null) ? loadedArticle.getSold().equals(fromDatabaseArticle.getSold()) :
+                                            fromDatabaseArticle.getSold() == null &&
+                                                    (loadedArticle.getSaleDate() != null) ? loadedArticle.getSaleDate().equals(fromDatabaseArticle.getSaleDate()) :
+                                                    fromDatabaseArticle.getSaleDate() == null &&
+                                                            (loadedArticle.getRefundDate() != null) ? loadedArticle.getRefundDate().equals(fromDatabaseArticle.getRefundDate()) :
+                                                            fromDatabaseArticle.getRefundDate() == null) {
+                        fromDatabaseArticle.setPostponedOperationDate(loadedArticle.getPostponedOperationDate());
+                        fromDatabaseArticle.setComment(loadedArticle.getComment());
+                        fromDatabaseArticle.setSellType(loadedArticle.getSellType());
+                        fromDatabaseArticle.setShop(loadedArticle.getShop());
+                        fromDatabaseArticle.setSalePrice(loadedArticle.getSalePrice());
+                        fromDatabaseArticle.setTags(loadedArticle.getTags());
+                        fromDatabaseArticle.setBrand(loadedArticle.getBrand());
+                        fromDatabaseArticle.setName(loadedArticle.getName());
+                        fromDatabaseArticle.setDeliveryDate(loadedArticle.getDeliveryDate());
+                        fromDatabaseArticle.setPurchasePriceEUR(loadedArticle.getPurchasePriceEUR());
+                        fromDatabaseArticle.setTransportCostEUR(loadedArticle.getTransportCostEUR());
+                        fromDatabaseArticle.setTotalCostEUR(loadedArticle.getTotalCostEUR());
+                        fromDatabaseArticle.setTotalCostUAH(loadedArticle.getTotalCostUAH());
+                        fromDatabaseArticle.setMultiplier(loadedArticle.getMultiplier());
+                        fromDatabaseArticle.setCalculatedSalePrice(loadedArticle.getCalculatedSalePrice());
+                        fromDatabaseArticle.setOldSalePrice(loadedArticle.getOldSalePrice());
+                        fromDatabaseArticle.setRaisedSalePrice(loadedArticle.getRaisedSalePrice());
+
+                        forUpdateArticles.add(fromDatabaseArticle);
+                        continue label;
+                    }
+                }
+            }
+        }
+//        update(forUpdateArticles);
+        return forUpdateArticles;
     }
 
     public void setArticleDao(ArticleDao articleDao) {
