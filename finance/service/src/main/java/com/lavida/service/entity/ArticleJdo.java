@@ -53,7 +53,7 @@ public class ArticleJdo implements Cloneable {
     private String code;
 
     @SpreadsheetColumn(column = "name")
-    @ViewColumn(titleKey = "mainForm.table.articles.column.name.title")
+    @ViewColumn(titleKey = "mainForm.table.articles.column.name.title", columnWidth = 250)
     @FilterColumn(type = FilterType.PART_TEXT, labelKey = "mainForm.label.search.by.name", orderForSell = 2,
             orderForSold = 2)
     @XmlElement(required = true)
@@ -133,7 +133,7 @@ public class ArticleJdo implements Cloneable {
     private double oldSalePrice;
 
     @SpreadsheetColumn(column = "sold")
-    @ViewColumn(show = false)
+//    @ViewColumn(show = false)
     @XmlElement
     private String sold;
 

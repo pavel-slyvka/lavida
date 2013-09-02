@@ -52,7 +52,7 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
     @Override
     public void onApplicationEvent(ArticleUpdateEvent event) {
         tableData = articleDao.get(queryName);
-//        initFields();
+//        initAnalyzeFields();
     }
 
     public List<ArticleJdo> getTableData() {
@@ -134,7 +134,7 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
                     this.columnIndexToDateFormat.put(headerTitles.size() - 1,      //todo no patterns in articleJdo fields
                             new SimpleDateFormat(viewColumn.datePattern()));
                 } else if (field.getType() == Date.class) {
-                    this.columnIndexToDateFormat.put (headerTitles.size() - 1,
+                    this.columnIndexToDateFormat.put(headerTitles.size() - 1,
                             new SimpleDateFormat(viewColumn.datePattern()));
                 }
             }
@@ -167,13 +167,13 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
         return false;
     }
 
-    public void initFields () {
+    public void initAnalyzeFields() {
         int totalCount = 0;
         double totalCost = 0;
         double totalPrice = 0;
         List<ArticleJdo> articleJdoList = getTableData();
         for (ArticleJdo articleJdo : articleJdoList) {
-            ++ totalCount;
+            ++totalCount;
             totalCost += (articleJdo.getTransportCostEUR() + articleJdo.getPurchasePriceEUR());
             totalPrice += (articleJdo.getSalePrice());
         }
@@ -181,6 +181,32 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
         this.totalOriginalCostEUR = totalCost;
         this.totalPriceUAH = totalPrice;
     }
+
+
+    public Map<String, Integer> getColumnHeaderToWidth() {
+        Map<String, Integer> columnHeaderToWidth = new HashMap<String, Integer>(headerTitles.size());
+        label:
+        for (String columnHeader : headerTitles) {
+            Integer width = 0;
+            for (Field field : ArticleJdo.class.getDeclaredFields()) {
+                ViewColumn viewColumn = field.getAnnotation(ViewColumn.class);
+                if (viewColumn != null) {
+                    if (viewColumn.titleKey().isEmpty() && columnHeader.equals(field.getName())) {
+                        width = viewColumn.columnWidth();
+                        columnHeaderToWidth.put(columnHeader, new Integer(width));
+                        continue label;
+                    } else if (!viewColumn.titleKey().isEmpty() &&
+                            columnHeader.equals(messageSource.getMessage(viewColumn.titleKey(), null, localeHolder.getLocale()))){
+                        width = viewColumn.columnWidth();
+                        columnHeaderToWidth.put(columnHeader, new Integer(width));
+                        continue label;
+                    }
+                }
+            }
+        }
+        return columnHeaderToWidth;
+    }
+
 
     public void setSelectedArticle(ArticleJdo selectedArticle) {
         this.selectedArticle = selectedArticle;
@@ -198,23 +224,12 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
         return totalCountArticles;
     }
 
-    public void setTotalCountArticles(int totalCountArticles) {
-        this.totalCountArticles = totalCountArticles;
-    }
-
     public double getTotalOriginalCostEUR() {
         return totalOriginalCostEUR;
-    }
-
-    public void setTotalOriginalCostEUR(double totalOriginalCostEUR) {
-        this.totalOriginalCostEUR = totalOriginalCostEUR;
     }
 
     public double getTotalPriceUAH() {
         return totalPriceUAH;
     }
 
-    public void setTotalPriceUAH(double totalPriceUAH) {
-        this.totalPriceUAH = totalPriceUAH;
-    }
 }

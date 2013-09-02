@@ -20,4 +20,5 @@ public @interface ViewColumn {
     String datePattern() default "dd.MM.yyyy";
 
     String forbiddenRoles() default "";
+    int columnWidth() default 100;
 }

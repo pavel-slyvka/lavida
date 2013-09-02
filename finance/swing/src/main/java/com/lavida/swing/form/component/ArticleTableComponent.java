@@ -8,7 +8,11 @@ import org.springframework.context.MessageSource;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.table.TableColumnModel;
 import java.awt.*;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * ArticleTableComponent
@@ -23,15 +27,15 @@ public class ArticleTableComponent {
 
     private JPanel mainPanel;
     private JTable articlesTable;
+    private TableColumnModel columnModel;
     private JScrollPane tableScrollPane;
     private ArticleFiltersComponent articleFiltersComponent = new ArticleFiltersComponent();
-//    private ArticleAnalyzeComponent articleAnalyzeComponent = new ArticleAnalyzeComponent();
 
     public void initializeComponents(ArticlesTableModel articlesTableModel, MessageSource messageSource, LocaleHolder localeHolder) {
         this.tableModel = articlesTableModel;
         this.messageSource = messageSource;
         this.localeHolder = localeHolder;
-        tableModel.initFields();
+        tableModel.initAnalyzeFields();
 
 //      main panel for table of goods
         mainPanel = new JPanel();
@@ -39,6 +43,8 @@ public class ArticleTableComponent {
         mainPanel.setLayout(new BorderLayout());
 
         articlesTable = new JTable(tableModel);
+        columnModel = articlesTable.getColumnModel();
+        initTableColumnsWidth();
         articlesTable.doLayout();
         articlesTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 //      Filtering the table
@@ -62,7 +68,7 @@ public class ArticleTableComponent {
 
         tableScrollPane = new JScrollPane(articlesTable);
         tableScrollPane.setPreferredSize(new Dimension(1000, 700));
-        packTable(articlesTable);
+        initTableColumnsWidth();
         mainPanel.add(tableScrollPane, BorderLayout.CENTER);
 
 //      panel for search operations
@@ -85,12 +91,12 @@ public class ArticleTableComponent {
 
     /**
      * Sets preferred width to certain columns
-     *
-     * @param table JTable to be changed
      */
-    private void packTable(JTable table) {
-//        table.getColumn(messageSource.getMessage("mainForm.table.articles.column.name.title", null,
-//                localeHolder.getLocale())).setPreferredWidth(250);    // todo review and fix
+    private void initTableColumnsWidth() {
+        Map<String, Integer> columnHeaderToWidth = tableModel.getColumnHeaderToWidth();
+        for (Map.Entry<String, Integer> entry : columnHeaderToWidth.entrySet()) {
+                articlesTable.getColumn(entry.getKey()).setPreferredWidth(entry.getValue());
+        }
     }
 
     public JPanel getMainPanel() {
