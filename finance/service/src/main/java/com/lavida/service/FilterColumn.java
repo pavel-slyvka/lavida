@@ -23,7 +23,11 @@ public @interface FilterColumn {
 
     boolean showForSold() default true;
 
+    boolean showForAddNew() default true;
+
     int orderForSell() default 0;
 
     int orderForSold() default 0;
+
+    int orderForAddNew() default 0;
 }

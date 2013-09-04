@@ -4,6 +4,7 @@ import com.google.gdata.util.ServiceException;
 import com.lavida.service.UserService;
 import com.lavida.service.entity.ArticleJdo;
 import com.lavida.swing.LocaleHolder;
+import com.lavida.swing.dialog.AddNewProductsDialog;
 import com.lavida.swing.dialog.SellDialog;
 import com.lavida.swing.dialog.SoldProductsDialog;
 import com.lavida.swing.exception.LavidaSwingRuntimeException;
@@ -38,22 +39,25 @@ import java.util.List;
 public class MainFormHandler {
 
     @Resource
+    private MessageSource messageSource;
+
+    @Resource
+    private LocaleHolder localeHolder;
+
+    @Resource
+    private ArticleServiceSwingWrapper articleServiceSwingWrapper;
+
+    @Resource
     private MainForm form;
 
     @Resource
     private SellDialog sellDialog;
 
     @Resource
-    private MessageSource messageSource;
-
-    @Resource
     private SoldProductsDialog soldProductsDialog;
 
     @Resource
-    private ArticleServiceSwingWrapper articleServiceSwingWrapper;
-
-    @Resource
-    private LocaleHolder localeHolder;
+    private AddNewProductsDialog addNewProductsDialog;
 
     @Resource(name = "notSoldArticleTableModel")
     private ArticlesTableModel tableModel;
@@ -349,5 +353,12 @@ public class MainFormHandler {
         } else {
             form.showMessage("mainForm.exception.message.dialog.title", "mainForm.handler.postponed.articles.not.exist.message");
         }
+    }
+
+    /**
+     * Opens s dialog for adding new  products.
+     */
+    public void addNewProductsItemClicked() {
+        addNewProductsDialog.show();
     }
 }

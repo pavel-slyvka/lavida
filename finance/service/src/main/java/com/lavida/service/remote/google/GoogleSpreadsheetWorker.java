@@ -3,10 +3,8 @@ package com.lavida.service.remote.google;
 import com.google.gdata.client.spreadsheet.CellQuery;
 import com.google.gdata.client.spreadsheet.FeedURLFactory;
 import com.google.gdata.client.spreadsheet.SpreadsheetService;
-import com.google.gdata.data.spreadsheet.CellEntry;
-import com.google.gdata.data.spreadsheet.CellFeed;
-import com.google.gdata.data.spreadsheet.SpreadsheetEntry;
-import com.google.gdata.data.spreadsheet.SpreadsheetFeed;
+import com.google.gdata.data.Link;
+import com.google.gdata.data.spreadsheet.*;
 import com.google.gdata.util.AuthenticationException;
 import com.google.gdata.util.ServiceException;
 import com.lavida.service.settings.Settings;
@@ -14,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
@@ -29,11 +28,14 @@ public class GoogleSpreadsheetWorker {
 
     private SpreadsheetService spreadsheetService = new SpreadsheetService(APPLICATION_NAME);
     private URL worksheetUrl;
+    private WorksheetEntry worksheetEntry;
+    private ListEntry listEntry;
 
     public GoogleSpreadsheetWorker(Settings settings) throws ServiceException, IOException {
         loginToGmail(spreadsheetService, settings.getRemoteUser(), settings.getRemotePass());
         List spreadsheets = getSpreadsheetList(spreadsheetService);
         SpreadsheetEntry spreadsheet = getSpreadsheetByName(spreadsheets, settings.getSpreadsheetName());
+        worksheetEntry = spreadsheet.getWorksheets().get(settings.getWorksheetNumber());
         worksheetUrl = getWorksheetUrl(spreadsheet, settings.getWorksheetNumber());
     }
 
@@ -50,9 +52,19 @@ public class GoogleSpreadsheetWorker {
         return spreadsheetService.query(query, CellFeed.class);
     }
 
+
     public void saveOrUpdateCells(List<CellEntry> cellEntries) throws IOException, ServiceException {
         for (CellEntry cellEntry : cellEntries) {
             spreadsheetService.insert(worksheetUrl, cellEntry);
+        }
+    }
+
+    public void deleteCells(List<CellEntry> cellEntries) throws IOException, ServiceException {
+        for (CellEntry cellEntry :cellEntries) {
+            Link link = cellEntry.getEditLink();
+            URL url = new URL(link.getHref());
+            String eTag = link.getEtag();
+            spreadsheetService.delete(url, eTag);
         }
     }
 
@@ -89,5 +101,19 @@ public class GoogleSpreadsheetWorker {
 
     private URL getWorksheetUrl(SpreadsheetEntry spreadsheet, int worksheetNumber) throws IOException, ServiceException {
         return spreadsheet.getWorksheets().get(worksheetNumber).getCellFeedUrl();
+    }
+
+    /**
+     * Adds a row to the worksheet.
+     * @return the number of the added row.
+     * @throws IOException  if Connection error occurs when extending worksheet .
+     * @throws ServiceException if Service error occurs when extending worksheet .
+     */
+    public int addRow() throws IOException, ServiceException {
+//        WorksheetEntry worksheetEntry = getWorksheetEntry();
+        int rowCount = worksheetEntry.getRowCount();
+        worksheetEntry.setRowCount(++rowCount);
+        worksheetEntry.update();
+        return rowCount;
     }
 }

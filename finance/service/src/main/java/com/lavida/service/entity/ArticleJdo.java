@@ -26,7 +26,7 @@ import java.util.Date;
 @Table(name = "goods")
 @NamedQueries({
         @NamedQuery(name = ArticleJdo.FIND_NOT_SOLD, query = "select a from ArticleJdo a where a.sold IS NULL"),
-        @NamedQuery(name = ArticleJdo.FIND_SOLD, query = "select a from ArticleJdo a where a.sold IS NOT NULL")
+        @NamedQuery(name = ArticleJdo.FIND_SOLD, query = "select a from ArticleJdo a where a.sold IS NOT NULL"),
 })
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "articleType", namespace = "http://www.xml.lavida.com/schema/articles.com")
@@ -150,9 +150,9 @@ public class ArticleJdo implements Cloneable {
     @XmlElement
     private Calendar saleDate;
 
-    @SpreadsheetColumn(column = "refundDate" , datePattern = "MM.dd.yyyy HH:mm:ss")
+    @SpreadsheetColumn(column = "refundDate" , datePattern = "MM/dd/yyyy HH:mm:ss")
     @ViewColumn(titleKey = "mainForm.table.articles.column.refund.title", forbiddenRoles = "ROLE_SELLER",
-            datePattern = "MM.dd.yyyy HH:mm:ss")
+            datePattern = "dd.MM.yyyy HH:mm:ss")
     @Temporal(TemporalType.TIMESTAMP)
     @XmlElement
     private Date refundDate;
@@ -432,9 +432,9 @@ public class ArticleJdo implements Cloneable {
         if (deliveryDate != null ? !deliveryDate.equals(that.deliveryDate) : that.deliveryDate != null) return false;
         if (tags != null ? !tags.equals(that.tags) : that.tags != null)
             return false;
-        if (!name.equals(that.name)) return false;
+        if (name != null ? !name.equals(that.name) : that.name != null) return false;
         if (sellType != null ? !sellType.equals(that.sellType) : that.sellType != null) return false;
-        if (refundDate != null ? refundDate.getTime()!=that.refundDate.getTime() : that.refundDate!=null) return false;
+        if (refundDate != null ? refundDate.getTime() != that.refundDate.getTime() : that.refundDate!=null) return false;
         if (saleDate != null ? !saleDate.equals(that.saleDate) : that.saleDate != null) return false;
         if (shop != null ? !shop.equals(that.shop) : that.shop != null) return false;
         if (size != null ? !size.equals(that.size) : that.size != null) return false;
@@ -449,7 +449,7 @@ public class ArticleJdo implements Cloneable {
         long temp;
         result = spreadsheetRow;
         result = 31 * result + (code != null ? code.hashCode() : 0);
-        result = 31 * result + name.hashCode();
+        result = 31 * result + (name != null ? name.hashCode() :0);
         result = 31 * result + (brand != null ? brand.hashCode() : 0);
         result = 31 * result + quantity;
         result = 31 * result + (size != null ? size.hashCode() : 0);

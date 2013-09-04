@@ -56,43 +56,43 @@ public class RemoteService {
         CellFeed headersFeed = spreadsheetWorker.getRow(1);
         GoogleCellEntriesIterator cellEntriesIterator = new GoogleCellEntriesIterator(headersFeed.getEntries());
         Map<Integer, String> headers = cellsTransformer.cellsToColNumsAndItsValueMap(cellEntriesIterator.getNextLine());
+        CellFeed articleFeed = null;
+        if (articleJdo.getSpreadsheetRow() > 0) {
+            // take articles feed and check (by code and size) if all correct
+            articleFeed = spreadsheetWorker.getRow(articleJdo.getSpreadsheetRow());
+            String codeColumnHeader = ReflectionUtils.getFieldAnnotation(ArticleJdo.class, "code", SpreadsheetColumn.class).column();
+            String codeColumnValue = cellsTransformer.cellToValue(articleFeed, headers, codeColumnHeader);
+            String sizeColumnHeader = ReflectionUtils.getFieldAnnotation(ArticleJdo.class, "size", SpreadsheetColumn.class).column();
+            String sizeColumnValue = cellsTransformer.cellToValue(articleFeed, headers, sizeColumnHeader);
+            String soldColumnHeader = ReflectionUtils.getFieldAnnotation(ArticleJdo.class, "sold", SpreadsheetColumn.class).column();
+            String soldColumnValue = cellsTransformer.cellToValue(articleFeed, headers, soldColumnHeader);
 
-        // take articles feed and check (by code and size) if all correct
-        CellFeed articleFeed = spreadsheetWorker.getRow(articleJdo.getSpreadsheetRow());
-        String codeColumnHeader = ReflectionUtils.getFieldAnnotation(ArticleJdo.class, "code", SpreadsheetColumn.class).column();
-        String codeColumnValue = cellsTransformer.cellToValue(articleFeed, headers, codeColumnHeader);
-        String sizeColumnHeader = ReflectionUtils.getFieldAnnotation(ArticleJdo.class, "size", SpreadsheetColumn.class).column();
-        String sizeColumnValue = cellsTransformer.cellToValue(articleFeed, headers, sizeColumnHeader);
-        String soldColumnHeader = ReflectionUtils.getFieldAnnotation(ArticleJdo.class, "sold", SpreadsheetColumn.class).column();
-        String soldColumnValue = cellsTransformer.cellToValue(articleFeed, headers, soldColumnHeader);
-//        String nameColumnHeader = ReflectionUtils.getFieldAnnotation(ArticleJdo.class, "name", SpreadsheetColumn.class).column();
-//        String nameColumnValue = cellsTransformer.cellToValue(articleFeed, headers, nameColumnHeader);
-
-        // ArticleJdo.spreadsheetRow has incorrect value -> search for correct
-        if (isSold != null && isSold.booleanValue()) {    // for selling
-            if ((codeColumnValue != null) ? !codeColumnValue.equals(articleJdo.getCode()) :
-                    articleJdo.getCode() != null
-                            || (sizeColumnValue != null) ? !sizeColumnValue.equals(articleJdo.getSize()) :
-                            articleJdo.getSize() != null
-                                    || soldColumnValue != null && !StringUtils.isEmpty(soldColumnValue)
-                    ) {
-                Integer newSpreadsheetRowIndex = null;
-                List<ArticleJdo> realArticles = loadArticles();
-                for (ArticleJdo realArticleJdo : realArticles) {
-                    if ((realArticleJdo.getCode() != null)? realArticleJdo.getCode().equals(articleJdo.getCode()) :
-                            articleJdo.getCode() == null
-                            && (realArticleJdo.getSize() != null)? realArticleJdo.getSize().equals(articleJdo.getSize()):
-                                    articleJdo.getSize() == null
-                            && StringUtils.isEmpty(realArticleJdo.getSold())) {
-                        newSpreadsheetRowIndex = realArticleJdo.getSpreadsheetRow();
+            // ArticleJdo.spreadsheetRow has incorrect value -> search for correct
+            if (isSold != null && isSold.booleanValue()) {    // for selling
+                if ((codeColumnValue != null) ? !codeColumnValue.equals(articleJdo.getCode()) :
+                        articleJdo.getCode() != null
+                                || (sizeColumnValue != null) ? !sizeColumnValue.equals(articleJdo.getSize()) :
+                                articleJdo.getSize() != null
+                                        || soldColumnValue != null && !StringUtils.isEmpty(soldColumnValue)
+                        ) {
+                    Integer newSpreadsheetRowIndex = null;
+                    List<ArticleJdo> realArticles = loadArticles();
+                    for (ArticleJdo realArticleJdo : realArticles) {
+                        if ((realArticleJdo.getCode() != null) ? realArticleJdo.getCode().equals(articleJdo.getCode()) :
+                                articleJdo.getCode() == null
+                                        && (realArticleJdo.getSize() != null) ? realArticleJdo.getSize().equals(articleJdo.getSize()) :
+                                        articleJdo.getSize() == null
+                                                && StringUtils.isEmpty(realArticleJdo.getSold())) {
+                            newSpreadsheetRowIndex = realArticleJdo.getSpreadsheetRow();
+                        }
                     }
-                }
 
-                if (newSpreadsheetRowIndex != null) {
-                    articleJdo.setSpreadsheetRow(newSpreadsheetRowIndex);
+                    if (newSpreadsheetRowIndex != null) {
+                        articleJdo.setSpreadsheetRow(newSpreadsheetRowIndex);
 
-                } else {
-                    throw new RuntimeException("Updating article doesn't exist anymore!");
+                    } else {
+                        throw new RuntimeException("Updating article doesn't exist anymore!");
+                    }
                 }
             } else if (isSold != null && !isSold.booleanValue()) {  //for refunding  , code != null
                 if ((codeColumnValue != null) ? !codeColumnValue.equals(articleJdo.getCode()) :
@@ -119,11 +119,9 @@ public class RemoteService {
                     }
                 }
             } else {   // no selling nor refunding, but simple changing
-                if ((codeColumnValue != null) ? !codeColumnValue.equals(articleJdo.getCode()) :
-                        articleJdo.getCode() != null
-                                || (sizeColumnValue != null) ? !sizeColumnValue.equals(articleJdo.getSize()) :
-                                articleJdo.getSize() != null
-                        ) {
+                if ((codeColumnValue != null ? !codeColumnValue.equals(articleJdo.getCode()) : articleJdo.getCode() != null)
+                                || (sizeColumnValue != null ? !sizeColumnValue.equals(articleJdo.getSize()) :
+                                articleJdo.getSize() != null)) {
                     Integer newSpreadsheetRowIndex = null;
                     List<ArticleJdo> realArticles = loadArticles();
                     for (ArticleJdo realArticleJdo : realArticles) {
@@ -144,10 +142,16 @@ public class RemoteService {
                     }
                 }
             }
+        } else if (articleJdo.getSpreadsheetRow() == 0) {
+            articleJdo.setSpreadsheetRow(spreadsheetWorker.addRow());
+            articleFeed = spreadsheetWorker.getRow(articleJdo.getSpreadsheetRow());
         }
         // transform and update.
         List<CellEntry> cellEntriesForUpdate = cellsTransformer.articleToCellEntriesForUpdate(articleJdo, headers, articleFeed);
         spreadsheetWorker.saveOrUpdateCells(cellEntriesForUpdate);
     }
 
+    public void deleteArticleFromRemote (ArticleJdo articleJdo) {
+
+    }
 }

@@ -110,7 +110,7 @@ public class GoogleCellsTransformer {
         return null;
     }
 
-    private double fixIfNeedAndParseDouble(String doubleString) {
+    private double fixIfNeedAndParseDouble(String doubleString) {  // todo make reusable with ArticlesTableModel
         if (doubleString == null || doubleString.trim().isEmpty()) {
             return 0;
         }

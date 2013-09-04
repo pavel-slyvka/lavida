@@ -57,12 +57,22 @@ public class ArticleFiltersComponent {
 
         boolean sellPurpose = FiltersPurpose.SELL_PRODUCTS == filtersPurpose;
         boolean soldPurpose = FiltersPurpose.SOLD_PRODUCTS == filtersPurpose;
+        boolean addNewPurpose = FiltersPurpose.ADD_NEW_PRODUCTS == filtersPurpose;
         for (Field field : ArticleJdo.class.getDeclaredFields()) {
             FilterColumn filterColumn = field.getAnnotation(FilterColumn.class);
             if (filterColumn != null) {
-                if (sellPurpose && filterColumn.showForSell() || soldPurpose && filterColumn.showForSold()) {
+                if (sellPurpose && filterColumn.showForSell() || soldPurpose && filterColumn.showForSold() ||
+                        addNewPurpose && filterColumn.showForAddNew()) {
                     FilterUnit filterUnit = new FilterUnit();
-                    filterUnit.order = sellPurpose ? filterColumn.orderForSell() : filterColumn.orderForSold();
+                    if (sellPurpose) {
+                        filterUnit.order = filterColumn.orderForSell();
+                    } else if (soldPurpose) {
+                        filterUnit.order = filterColumn.orderForSold();
+                    } else if (addNewPurpose) {
+                        filterUnit.order = filterColumn.orderForAddNew();
+                    }
+
+//                    filterUnit.order = sellPurpose ? filterColumn.orderForSell() : filterColumn.orderForSold();
                     filterUnit.order = filterUnit.order == 0 ? Integer.MAX_VALUE : filterUnit.order;
                     filterUnit.filterType = filterColumn.type();
                     filterUnit.columnTitle = getColumnTitle(field, messageSource, localeHolder);

@@ -1,37 +1,29 @@
 package com.lavida.swing.service;
 
-import com.google.gdata.util.ServiceException;
 import com.lavida.service.FiltersPurpose;
-import com.lavida.service.UserService;
 import com.lavida.service.ViewColumn;
-import com.lavida.service.dao.ArticleDao;
 import com.lavida.service.entity.ArticleJdo;
 import com.lavida.service.utils.DateConverter;
 import com.lavida.swing.LocaleHolder;
-import com.lavida.swing.event.ArticleUpdateEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationListener;
 import org.springframework.context.MessageSource;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.swing.table.AbstractTableModel;
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
- * Created: 15:33 06.08.13
- * <p/>
- * The <code>ArticlesTableModel</code> class specifies the methods the
- * <code>JTable</code> will use to interrogate a tabular data model of ArticlesJdo.
+ * The table model for the addNewArticlesDialog
+ * Created: 18:28 03.09.13
  *
  * @author Ruslan
  */
-public class ArticlesTableModel extends AbstractTableModel implements ApplicationListener<ArticleUpdateEvent> {
-    private static final Logger logger = LoggerFactory.getLogger(ArticlesTableModel.class);
+public class AddNewArticleTableModel extends AbstractTableModel {
+    private static final Logger logger = LoggerFactory.getLogger(AddNewArticleTableModel.class);
 
     private List<String> headerTitles = new ArrayList<String>();
     private List<String> articleFieldsSequence;
@@ -40,16 +32,7 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
     private int totalCountArticles;
     private double totalOriginalCostEUR;
     private double totalPriceUAH;
-    private String sellerName;
 
-    @Resource
-    private ArticleDao articleDao;
-
-    @Resource
-    private ArticleServiceSwingWrapper articleServiceSwingWrapper;
-
-    @Resource
-    private UserService userService;
 
     @Resource
     private MessageSource messageSource;
@@ -57,35 +40,20 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
     @Resource
     private LocaleHolder localeHolder;
 
-    private String queryName;
-    private List<ArticleJdo> tableData;
+    private List<ArticleJdo> tableData = new ArrayList<ArticleJdo>();
+
     private static final List<String> FORBIDDEN_ROLES = new ArrayList<String>();
 
     static {
-          FORBIDDEN_ROLES.add("ROLE_SELLER");
-    }
-
-    @Override
-    public void onApplicationEvent(ArticleUpdateEvent event) {
-        tableData = articleDao.get(queryName);
-//        initAnalyzeFields();
+        FORBIDDEN_ROLES.add("ROLE_SELLER");
     }
 
     public List<ArticleJdo> getTableData() {
-        if (tableData == null) {
-            tableData = articleDao.get(queryName);
-        }
         return tableData;
     }
 
     public FiltersPurpose getFiltersPurpose() {
-        if (ArticleJdo.FIND_SOLD.equals(queryName)) {
-            return FiltersPurpose.SOLD_PRODUCTS;
-        } else if (ArticleJdo.FIND_NOT_SOLD.equals(queryName)){
-            return FiltersPurpose.SELL_PRODUCTS;
-        } else {
-            return FiltersPurpose.ADD_NEW_PRODUCTS;
-        }
+        return FiltersPurpose.ADD_NEW_PRODUCTS;
     }
 
     @Override
@@ -147,8 +115,8 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
                 } else {
                     this.headerTitles.add(messageSource.getMessage(viewColumn.titleKey(), null, localeHolder.getLocale()));
                 }
-                if (field.getType() == Calendar.class) {          // todo for Date fields
-                    this.columnIndexToDateFormat.put(headerTitles.size() - 1,      //todo no patterns in articleJdo fields
+                if (field.getType() == Calendar.class) {
+                    this.columnIndexToDateFormat.put(headerTitles.size() - 1,
                             new SimpleDateFormat(viewColumn.datePattern()));
                 } else if (field.getType() == Date.class) {
                     this.columnIndexToDateFormat.put(headerTitles.size() - 1,
@@ -225,7 +193,7 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
                         columnHeaderToWidth.put(columnHeader, new Integer(width));
                         continue label;
                     } else if (!viewColumn.titleKey().isEmpty() &&
-                            columnHeader.equals(messageSource.getMessage(viewColumn.titleKey(), null, localeHolder.getLocale()))){
+                            columnHeader.equals(messageSource.getMessage(viewColumn.titleKey(), null, localeHolder.getLocale()))) {
                         width = viewColumn.columnWidth();
                         columnHeaderToWidth.put(columnHeader, new Integer(width));
                         continue label;
@@ -237,32 +205,29 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
     }
 
     /**
-     *  Returns true if the user has permissions.
+     * Returns true.
      *
-     *  @param  rowIndex  the row being queried
-     *  @param  columnIndex the column being queried
-     *  @return true the user has permissions.
+     * @param rowIndex    the row being queried
+     * @param columnIndex the column being queried
+     * @return true .
      */
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        if (isForbidden(userService.getCurrentUserRoles(), FORBIDDEN_ROLES)) {
-            return false;
-        }
         return true;
     }
 
     /**
-     *  This empty implementation is provided so users don't have to implement
-     *  this method if their data model is not editable.
+     * This empty implementation is provided so users don't have to implement
+     * this method if their data model is not editable.
      *
-     *  @param  aValue   value to assign to cell
-     *  @param  rowIndex   row of cell
-     *  @param  columnIndex  column of cell
+     * @param aValue      value to assign to cell
+     * @param rowIndex    row of cell
+     * @param columnIndex column of cell
      */
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
         ArticleJdo articleJdo = getArticleJdoByRowIndex(rowIndex);
-        String value = (String)aValue;
+        String value = (String) aValue;
         SimpleDateFormat calendarFormatter = new SimpleDateFormat("dd.MM.yyyy");
         calendarFormatter.setLenient(false);
         try {
@@ -301,12 +266,13 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
                 field.set(articleJdo, Long.parseLong(value));
             } else if (Calendar.class == field.getType()) {
                 Calendar calendar = Calendar.getInstance();
-                String formattedValue = value.replace("," , ".").trim();
-                calendar.setTime(calendarFormatter.parse(formattedValue));
+                String formattedValue = value.replace(",", ".").trim();
+                calendar.setTime(!formattedValue.isEmpty() ? (calendarFormatter.parse(formattedValue)) : null);
                 field.set(articleJdo, calendar);
             } else if (Date.class == field.getType()) {
-                String formattedValue = value.replace("," , ".").trim();
-                field.set(articleJdo, DateConverter.convertStringToDate(formattedValue));
+                String formattedValue = value.replace(",", ".").trim();
+                Date date = !formattedValue.isEmpty() ? DateConverter.convertStringToDate(formattedValue) : null;
+                field.set(articleJdo, date);
             } else {
                 field.set(articleJdo, value);
             }
@@ -326,10 +292,10 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
 
 
     /**
-     *  Returns <code>Object.class</code> regardless of <code>columnIndex</code>.
+     * Returns <code>Object.class</code> regardless of <code>columnIndex</code>.
      *
-     *  @param columnIndex  the column being queried
-     *  @return the {@code Class} object representing the class or interface
+     * @param columnIndex the column being queried
+     * @return the {@code Class} object representing the class or interface
      * that declares the field represented by this {@code Field} object.
      */
     @Override
@@ -339,23 +305,12 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
 
     /**
      * Updates table and remote spreadsheet with the changed article
+     *
      * @param changedArticle
      */
     private void updateTable(ArticleJdo changedArticle) {
-        try {
-            articleServiceSwingWrapper.updateToSpreadsheet(changedArticle, null);
-            articleServiceSwingWrapper.update(changedArticle);
-            fireTableDataChanged();
-        } catch (IOException e) {
-            logger.warn(e.getMessage(), e);
-            changedArticle.setPostponedOperationDate(new Date());
-            articleServiceSwingWrapper.update(changedArticle);
-        } catch (ServiceException e) {
-            logger.warn(e.getMessage(), e);
-            changedArticle.setPostponedOperationDate(new Date());
-            articleServiceSwingWrapper.update(changedArticle);
-        }
-
+        fireTableDataChanged();
+        initAnalyzeFields();
     }
 
     public void setSelectedArticle(ArticleJdo selectedArticle) {
@@ -364,10 +319,6 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
 
     public ArticleJdo getSelectedArticle() {
         return selectedArticle;
-    }
-
-    public void setQueryName(String queryName) {
-        this.queryName = queryName;
     }
 
     public int getTotalCountArticles() {
@@ -382,15 +333,9 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
         return totalPriceUAH;
     }
 
-    public String getSellerName() {
-        return sellerName;
-    }
-
-    public void setSellerName(String sellerName) {
-        this.sellerName = sellerName;
-    }
-
     public void setTableData(List<ArticleJdo> tableData) {
         this.tableData = tableData;
     }
+
+
 }

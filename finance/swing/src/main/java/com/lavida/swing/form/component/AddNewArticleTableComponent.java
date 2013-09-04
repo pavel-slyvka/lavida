@@ -2,40 +2,41 @@ package com.lavida.swing.form.component;
 
 import com.lavida.service.entity.ArticleJdo;
 import com.lavida.swing.LocaleHolder;
+import com.lavida.swing.service.AddNewArticleTableModel;
 import com.lavida.swing.service.ArticlesTableModel;
 import org.springframework.context.MessageSource;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.table.TableColumnModel;
+import javax.swing.table.TableRowSorter;
 import java.awt.*;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
- * ArticleTableComponent
- * Created: 20:09 16.08.13
+ * The table component for the AddNewProductsDialog
+ * Created: 18:56 03.09.13
  *
- * @author Pavel
+ * @author Ruslan
  */
-public class ArticleTableComponent {
-    private ArticlesTableModel tableModel;
+public class AddNewArticleTableComponent {
+    private AddNewArticleTableModel tableModel;
     private MessageSource messageSource;
     private LocaleHolder localeHolder;
 
     private JPanel mainPanel;
     private JTable articlesTable;
     private JScrollPane tableScrollPane;
-    private ArticleFiltersComponent articleFiltersComponent = new ArticleFiltersComponent();
+    private AddNewArticleAnalyzeComponent analyzeComponent = new AddNewArticleAnalyzeComponent();
+    private TableRowSorter<AddNewArticleTableModel> sorter ;
 
-    public void initializeComponents(ArticlesTableModel articlesTableModel, MessageSource messageSource, LocaleHolder localeHolder) {
+    public void initializeComponents(AddNewArticleTableModel articlesTableModel, MessageSource messageSource, LocaleHolder localeHolder) {
         this.tableModel = articlesTableModel;
         this.messageSource = messageSource;
         this.localeHolder = localeHolder;
         tableModel.initAnalyzeFields();
-
+        this.sorter = new TableRowSorter<AddNewArticleTableModel>(tableModel);
+        sorter.setSortsOnUpdates(true);
 //      main panel for table of goods
         mainPanel = new JPanel();
 //        mainPanel.setBackground(Color.white);
@@ -71,8 +72,7 @@ public class ArticleTableComponent {
         mainPanel.add(tableScrollPane, BorderLayout.CENTER);
 
 //      panel for search operations
-        articleFiltersComponent.initializeComponents(tableModel, messageSource, localeHolder);
-        articlesTable.setRowSorter(articleFiltersComponent.getSorter());
+        analyzeComponent.initializeComponents(tableModel, messageSource, localeHolder);
 
     }
 
@@ -94,16 +94,37 @@ public class ArticleTableComponent {
     private void initTableColumnsWidth() {
         Map<String, Integer> columnHeaderToWidth = tableModel.getColumnHeaderToWidth();
         for (Map.Entry<String, Integer> entry : columnHeaderToWidth.entrySet()) {
-                articlesTable.getColumn(entry.getKey()).setPreferredWidth(entry.getValue());
+            articlesTable.getColumn(entry.getKey()).setPreferredWidth(entry.getValue());
         }
+    }
+
+    /**
+     * Updates fields of the articleAnalyzeComponent.
+     */
+    public void updateAnalyzeComponent() {
+        int totalCountArticles = 0;
+        double totalOriginalCostEUR = 0;
+        double totalPriceUAH = 0;
+
+        int viewRows = sorter.getViewRowCount();
+        java.util.List<ArticleJdo> selectedArticles = new ArrayList<ArticleJdo>();
+        for (int i = 0; i < viewRows; i++) {
+            int row = sorter.convertRowIndexToModel(i);
+            selectedArticles.add(tableModel.getArticleJdoByRowIndex(row));
+        }
+        for (ArticleJdo articleJdo : selectedArticles) {
+            ++totalCountArticles;
+            totalOriginalCostEUR += (articleJdo.getTransportCostEUR() + articleJdo.getPurchasePriceEUR());
+            totalPriceUAH += (articleJdo.getSalePrice());
+        }
+        analyzeComponent.updateFields(totalCountArticles, totalOriginalCostEUR, totalPriceUAH);
     }
 
     public JPanel getMainPanel() {
         return mainPanel;
     }
 
-    public ArticleFiltersComponent getArticleFiltersComponent() {
-        return articleFiltersComponent;
+    public AddNewArticleAnalyzeComponent getAnalyzeComponent() {
+        return analyzeComponent;
     }
-
 }

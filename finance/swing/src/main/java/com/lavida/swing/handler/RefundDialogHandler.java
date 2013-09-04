@@ -37,6 +37,8 @@ public class RefundDialogHandler {
         articleJdo.setRefundDate(new Date());
         articleJdo.setSaleDate(null);
         articleJdo.setComment(refundDialog.getCommentTextField().getText().trim());
+        articleJdo.setTags(null);
+        articleJdo.setShop(null);
         articleServiceSwingWrapper.update(articleJdo);
         try {
             articleServiceSwingWrapper.updateToSpreadsheet(articleJdo, new Boolean(false));

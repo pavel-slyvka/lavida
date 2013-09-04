@@ -119,7 +119,8 @@ public class ArticleService {
                 logger.warn("Article sale date == null: " + articleJdo);
                 // todo
             }
-            if (articleJdo.getShop() == null || articleJdo.getShop().trim().isEmpty()) {
+            if ((articleJdo.getShop() == null || articleJdo.getShop().trim().isEmpty()) &&
+                    (articleJdo.getSold() != null || !articleJdo.getSold().trim().isEmpty())) {
                 articleJdo.setShop("LA VIDA");
                 updated = true;
             }

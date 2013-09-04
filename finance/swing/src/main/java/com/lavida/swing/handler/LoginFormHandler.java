@@ -43,6 +43,7 @@ public class LoginFormHandler {
             userService.login(loginEntered, passwordEntered);
             mainForm.filterTableByRoles(userService.getCurrentUserRoles());
             mainForm.filterAnalyzePanelByRoles(userService.getCurrentUserRoles());
+            mainForm.filterMenuBarByRoles(userService.getCurrentUserRoles());
             mainForm.getSoldProductsDialog().filterTableByRoles(userService.getCurrentUserRoles());
             mainForm.show();
             form.hide();

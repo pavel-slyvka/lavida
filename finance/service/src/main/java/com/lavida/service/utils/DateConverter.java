@@ -17,6 +17,7 @@ public class DateConverter {
         String strDate = null;
         if (date != null) {
             DateFormat formatter = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+            formatter.setLenient(false);
             strDate = formatter.format(date);
         }
         return strDate;
@@ -26,6 +27,7 @@ public class DateConverter {
         Date date = null;
         if (strDate != null) {
             DateFormat formatter = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+            formatter.setLenient(false);
             date = formatter.parse(strDate);
         }
         return date;

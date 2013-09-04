@@ -11,6 +11,7 @@ import javax.swing.*;
 import javax.swing.border.BevelBorder;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -31,13 +32,21 @@ public class MainForm extends AbstractForm {
     @Resource
     private SoldProductsDialog soldProductsDialog;
 
+
+
+    private static final List<String> FORBIDDEN_ROLES = new ArrayList<String>();
+    static {
+        FORBIDDEN_ROLES.add("ROLE_SELLER");
+    }
+
     private JPanel operationPanel, refreshPanel, southPanel, desktopPanel, filtersPanel, analyzePanel, mainPanel,
             buttonPanel, statusBarPanel;
     private Button refreshButton, recommitButton, sellButton, showSoldProductsButton;
     private JLabel postponedOperations, postponedMessage;
     private JMenuBar menuBar;
-    private JMenu postponedMenu;
-    private JMenuItem savePostponedItem, loadPostponedItem, deletePostponedItem;
+    private JMenu postponedMenu, productsMenu;
+    private JMenuItem savePostponedItem, loadPostponedItem, deletePostponedItem,
+            addNewProductsItem;
     private ArticleTableComponent articleTableComponent = new ArticleTableComponent();
 
     @Override
@@ -255,7 +264,22 @@ public class MainForm extends AbstractForm {
         postponedMenu.add(loadPostponedItem);
         postponedMenu.add(deletePostponedItem);
 
+//        products menu
+        productsMenu = new JMenu();
+        productsMenu.setText(messageSource.getMessage("mainForm.menu.products.title", null, localeHolder.getLocale()));
+
+        addNewProductsItem = new JMenuItem();
+        addNewProductsItem.setText(messageSource.getMessage("mainForm.menu.products.item.addNew", null, localeHolder.getLocale()));
+        addNewProductsItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handler.addNewProductsItemClicked();
+            }
+        });
+        productsMenu.add(addNewProductsItem);
+
         menuBar.add(postponedMenu);
+        menuBar.add(productsMenu);
 
     }
 
@@ -283,6 +307,12 @@ public class MainForm extends AbstractForm {
     public void filterAnalyzePanelByRoles(List<String> userRoles) {
         articleTableComponent.getArticleFiltersComponent().getArticleAnalyzeComponent().
                 filterAnalyzeComponentByRoles(userRoles);
+    }
+
+    public void filterMenuBarByRoles (List<String> userRoles) {
+        if (isForbidden(userRoles, FORBIDDEN_ROLES)) {
+            addNewProductsItem.setEnabled(false);
+        }
     }
 
     public JLabel getPostponedMessage() {
@@ -323,5 +353,15 @@ public class MainForm extends AbstractForm {
     public ArticlesTableModel getTableModel() {
         return tableModel;
     }
+
+    private boolean isForbidden(List<String> userRoles, List<String> forbiddenRoles) {
+        for (String forbiddenRole : forbiddenRoles) {
+            if (userRoles.contains(forbiddenRole)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }
 
