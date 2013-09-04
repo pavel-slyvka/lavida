@@ -44,7 +44,7 @@ public class AddNewProductsDialogHandler {
         ArticleJdo articleJdo = new ArticleJdo();
         dialog.getTableModel().getTableData().add(articleJdo);
         dialog.getTableModel().fireTableDataChanged();
-        dialog.getArticleTableComponent().updateAnalyzeComponent();
+//        dialog.getArticleTableComponent().updateAnalyzeComponent();
     }
 
     public void deleteRowButtonClicked() {
@@ -52,7 +52,7 @@ public class AddNewProductsDialogHandler {
         dialog.getTableModel().getTableData().remove(selectedArticle);
         dialog.getTableModel().setSelectedArticle(null);
         dialog.getTableModel().fireTableDataChanged();
-        dialog.getArticleTableComponent().updateAnalyzeComponent();
+//        dialog.getArticleTableComponent().updateAnalyzeComponent();
     }
 
     public void cancelButtonClicked() {

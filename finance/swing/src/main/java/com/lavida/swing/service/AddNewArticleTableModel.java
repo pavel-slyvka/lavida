@@ -5,6 +5,7 @@ import com.lavida.service.ViewColumn;
 import com.lavida.service.entity.ArticleJdo;
 import com.lavida.service.utils.DateConverter;
 import com.lavida.swing.LocaleHolder;
+import com.lavida.swing.form.component.AddNewArticleTableComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
@@ -310,7 +311,6 @@ public class AddNewArticleTableModel extends AbstractTableModel {
      */
     private void updateTable(ArticleJdo changedArticle) {
         fireTableDataChanged();
-        initAnalyzeFields();
     }
 
     public void setSelectedArticle(ArticleJdo selectedArticle) {

@@ -274,7 +274,7 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
                     field.set(articleJdo, new Integer(1));
                     int quantity = Integer.parseInt(value);
                     for (int i = 1; i < quantity; ++i) {
-                        ArticleJdo newArticle = articleJdo;
+                        ArticleJdo newArticle = (ArticleJdo)articleJdo.clone();
                         newArticle.setSpreadsheetRow(0);
                         newArticle.setId(0);
                         tableData.add(newArticle);

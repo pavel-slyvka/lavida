@@ -9,6 +9,8 @@ import org.springframework.context.MessageSource;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.util.*;
@@ -19,7 +21,7 @@ import java.util.*;
  *
  * @author Ruslan
  */
-public class AddNewArticleTableComponent {
+public class AddNewArticleTableComponent implements TableModelListener {
     private AddNewArticleTableModel tableModel;
     private MessageSource messageSource;
     private LocaleHolder localeHolder;
@@ -32,6 +34,7 @@ public class AddNewArticleTableComponent {
 
     public void initializeComponents(AddNewArticleTableModel articlesTableModel, MessageSource messageSource, LocaleHolder localeHolder) {
         this.tableModel = articlesTableModel;
+        tableModel.addTableModelListener(this);
         this.messageSource = messageSource;
         this.localeHolder = localeHolder;
         tableModel.initAnalyzeFields();
@@ -126,5 +129,13 @@ public class AddNewArticleTableComponent {
 
     public AddNewArticleAnalyzeComponent getAnalyzeComponent() {
         return analyzeComponent;
+    }
+
+    @Override
+    public void tableChanged(TableModelEvent e) {
+        if (e != null) {
+            updateAnalyzeComponent();
+            return;
+        }
     }
 }

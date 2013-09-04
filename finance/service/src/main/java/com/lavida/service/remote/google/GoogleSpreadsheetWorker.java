@@ -110,7 +110,6 @@ public class GoogleSpreadsheetWorker {
      * @throws ServiceException if Service error occurs when extending worksheet .
      */
     public int addRow() throws IOException, ServiceException {
-//        WorksheetEntry worksheetEntry = getWorksheetEntry();
         int rowCount = worksheetEntry.getRowCount();
         worksheetEntry.setRowCount(++rowCount);
         worksheetEntry.update();

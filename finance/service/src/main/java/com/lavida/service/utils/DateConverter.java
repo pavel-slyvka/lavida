@@ -26,7 +26,7 @@ public class DateConverter {
     public static Date convertStringToDate (String strDate) throws ParseException {
         Date date = null;
         if (strDate != null) {
-            DateFormat formatter = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+            DateFormat formatter = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
             formatter.setLenient(false);
             date = formatter.parse(strDate);
         }
