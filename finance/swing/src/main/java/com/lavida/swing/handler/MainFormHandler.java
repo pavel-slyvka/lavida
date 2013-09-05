@@ -5,6 +5,7 @@ import com.lavida.service.UserService;
 import com.lavida.service.entity.ArticleJdo;
 import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.dialog.AddNewProductsDialog;
+import com.lavida.swing.dialog.ColumnsViewSettingsDialog;
 import com.lavida.swing.dialog.SellDialog;
 import com.lavida.swing.dialog.SoldProductsDialog;
 import com.lavida.swing.exception.LavidaSwingRuntimeException;
@@ -58,6 +59,9 @@ public class MainFormHandler {
 
     @Resource
     private AddNewProductsDialog addNewProductsDialog;
+
+    @Resource
+    private ColumnsViewSettingsDialog columnsViewSettingsDialog;
 
     @Resource(name = "notSoldArticleTableModel")
     private ArticlesTableModel tableModel;
@@ -360,5 +364,14 @@ public class MainFormHandler {
      */
     public void addNewProductsItemClicked() {
         addNewProductsDialog.show();
+    }
+
+    public void columnsViewItemClicked() {
+//        columnsViewSettingsDialog.initializeLists( form.getArticleTableComponent().getArticlesTable());
+        columnsViewSettingsDialog.show();
+    }
+
+    public ColumnsViewSettingsDialog getColumnsViewSettingsDialog() {
+        return columnsViewSettingsDialog;
     }
 }

@@ -106,4 +106,7 @@ public class ArticleTableComponent {
         return articleFiltersComponent;
     }
 
+    public JTable getArticlesTable() {
+        return articlesTable;
+    }
 }

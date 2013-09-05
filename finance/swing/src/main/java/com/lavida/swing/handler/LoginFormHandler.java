@@ -45,6 +45,9 @@ public class LoginFormHandler {
             mainForm.filterAnalyzePanelByRoles(userService.getCurrentUserRoles());
             mainForm.filterMenuBarByRoles(userService.getCurrentUserRoles());
             mainForm.getSoldProductsDialog().filterTableByRoles(userService.getCurrentUserRoles());
+            mainForm.getHandler().getColumnsViewSettingsDialog().initializeLists(
+                    mainForm.getArticleTableComponent().getArticlesTable(),
+                    mainForm.getSoldProductsDialog().getArticleTableComponent().getArticlesTable());
             mainForm.show();
             form.hide();
         } catch (UserValidationException e1) {

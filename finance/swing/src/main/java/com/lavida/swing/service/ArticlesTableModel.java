@@ -393,4 +393,8 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
     public void setTableData(List<ArticleJdo> tableData) {
         this.tableData = tableData;
     }
+
+    public List<String> getHeaderTitles() {
+        return headerTitles;
+    }
 }

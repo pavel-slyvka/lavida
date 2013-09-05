@@ -44,9 +44,9 @@ public class MainForm extends AbstractForm {
     private Button refreshButton, recommitButton, sellButton, showSoldProductsButton;
     private JLabel postponedOperations, postponedMessage;
     private JMenuBar menuBar;
-    private JMenu postponedMenu, productsMenu;
+    private JMenu postponedMenu, productsMenu, settingsMenu;
     private JMenuItem savePostponedItem, loadPostponedItem, deletePostponedItem,
-            addNewProductsItem;
+            addNewProductsItem, columnsViewItem;
     private ArticleTableComponent articleTableComponent = new ArticleTableComponent();
 
     @Override
@@ -278,9 +278,23 @@ public class MainForm extends AbstractForm {
         });
         productsMenu.add(addNewProductsItem);
 
+//        settings menu
+        settingsMenu = new JMenu();
+        settingsMenu.setText(messageSource.getMessage("mainForm.menu.settings.title", null, localeHolder.getLocale()));
+
+        columnsViewItem = new JMenuItem();
+        columnsViewItem.setText(messageSource.getMessage("mainForm.menu.settings.item.view.columns", null, localeHolder.getLocale()));
+        columnsViewItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handler.columnsViewItemClicked();
+            }
+        });
+        settingsMenu.add(columnsViewItem);
+
         menuBar.add(postponedMenu);
         menuBar.add(productsMenu);
-
+        menuBar.add(settingsMenu);
     }
 
     /**
