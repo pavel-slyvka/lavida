@@ -44,9 +44,9 @@ public class MainForm extends AbstractForm {
     private Button refreshButton, recommitButton, sellButton, showSoldProductsButton;
     private JLabel postponedOperations, postponedMessage;
     private JMenuBar menuBar;
-    private JMenu postponedMenu, productsMenu, settingsMenu;
+    private JMenu postponedMenu, productsMenu, settingsMenu, discountsMenu;
     private JMenuItem savePostponedItem, loadPostponedItem, deletePostponedItem,
-            addNewProductsItem, columnsViewItem;
+            addNewProductsItem, columnsViewItem, addNewDiscountCardItem, allDiscountCardsItem;
     private ArticleTableComponent articleTableComponent = new ArticleTableComponent();
 
     @Override
@@ -292,9 +292,35 @@ public class MainForm extends AbstractForm {
         });
         settingsMenu.add(columnsViewItem);
 
+//        discounts menu
+        discountsMenu = new JMenu();
+        discountsMenu.setText(messageSource.getMessage("mainForm.menu.discounts.title", null, localeHolder.getLocale()));
+
+        addNewDiscountCardItem = new JMenuItem();
+        addNewDiscountCardItem.setText(messageSource.getMessage("mainForm.menu.discounts.item.addNewCard", null, localeHolder.getLocale()));
+        addNewDiscountCardItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handler.addNewDiscountCardItemClicked();
+            }
+        });
+        discountsMenu.add(addNewDiscountCardItem);
+
+        allDiscountCardsItem = new JMenuItem();
+        allDiscountCardsItem.setText(messageSource.getMessage("mainForm.menu.discounts.item.allCards", null, localeHolder.getLocale()));
+        allDiscountCardsItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handler.allDiscountCardsItemClicked();
+            }
+        });
+        discountsMenu.add(allDiscountCardsItem);
+
         menuBar.add(postponedMenu);
         menuBar.add(productsMenu);
         menuBar.add(settingsMenu);
+        menuBar.add(discountsMenu);
+
     }
 
     /**

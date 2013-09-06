@@ -374,4 +374,12 @@ public class MainFormHandler {
     public ColumnsViewSettingsDialog getColumnsViewSettingsDialog() {
         return columnsViewSettingsDialog;
     }
+
+    public void addNewDiscountCardItemClicked() {
+
+    }
+
+    public void allDiscountCardsItemClicked() {
+
+    }
 }
