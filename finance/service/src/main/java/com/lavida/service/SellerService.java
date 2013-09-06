@@ -32,6 +32,7 @@ public class SellerService {
         sellerDao.update(sellerJdo);
     }
 
+    @Transactional
     public void delete(int id) {
         sellerDao.delete(SellerJdo.class, id);
     }

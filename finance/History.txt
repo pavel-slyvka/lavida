@@ -3,13 +3,14 @@ HISTORY of the LA VIDA Finance
 
 0.2
 -------------------------
+- Added the system for discounting prices;
 - Added change-log file  History.txt ;
 - Added abilities :
   - to manage postponed operations (save to the XML file, load from the XML file, delete from the local database);
   - to edit tables fields with synchronous updating the remote Google spreadsheet;
   - to add new products to the remote Google spreadsheet;
 - Created UI components:
-  - MenuBar with items: postponed, products, settings;
+  - MenuBar with items: postponed, products, settings, discounts;
   - AddNewProductsDialog, ColumnsViewSettingsDialog;
 
 0.1           27-08-2013
