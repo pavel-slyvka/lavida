@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -42,6 +43,10 @@ public class DiscountCardService {
         return discountCardDao.getAll(DiscountCardJdo.class);
     }
 
+    public List<DiscountCardJdo> get (String query) {
+        return discountCardDao.get(query);
+    }
+
     public DiscountCardJdo getByNumber (int number) {
         return  discountCardDao.getByNumber(number);
     }
@@ -53,8 +58,8 @@ public class DiscountCardService {
     public static void main(String[] args) {
         ApplicationContext context = new ClassPathXmlApplicationContext("spring-security.xml");
         DiscountCardService service = context.getBean(DiscountCardService.class);
-        service.save(new DiscountCardJdo(1, "name1", "phone1", "address1", "eMail1", 0, 0));
-        service.save(new DiscountCardJdo(2, "name2", "phone2", "address2", "eMail2", 0, 0));
+        service.save(new DiscountCardJdo(1, "name1", "phone1", "address1", "eMail1", 0, 0, Calendar.getInstance(), null));
+        service.save(new DiscountCardJdo(2, "name2", "phone2", "address2", "eMail2", 0, 0, Calendar.getInstance(), null));
         System.out.println(service.getAll());
     }
 

@@ -68,7 +68,6 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
     @Override
     public void onApplicationEvent(ArticleUpdateEvent event) {
         tableData = articleDao.get(queryName);
-//        initAnalyzeFields();
     }
 
     public List<ArticleJdo> getTableData() {

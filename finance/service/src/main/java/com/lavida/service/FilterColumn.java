@@ -25,9 +25,13 @@ public @interface FilterColumn {
 
     boolean showForAddNew() default true;
 
+    boolean showForAllDiscountCards() default true;
+
     int orderForSell() default 0;
 
     int orderForSold() default 0;
 
     int orderForAddNew() default 0;
+
+    int orderForAllDiscountCards() default 0;
 }

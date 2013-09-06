@@ -4,6 +4,7 @@ import com.lavida.service.entity.DiscountCardJdo;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.TypedQuery;
+import java.util.List;
 
 /**
  * The DAO layer for the {@link com.lavida.service.entity.DiscountCardJdo}.
@@ -18,5 +19,9 @@ public class DiscountCardDao extends AbstractDao<DiscountCardJdo> {
         TypedQuery<DiscountCardJdo> query = entityManager.createNamedQuery(DiscountCardJdo.FIND_BY_NUMBER, DiscountCardJdo.class).
                 setParameter("number", number);
         return query.getSingleResult();
+    }
+
+    public List<DiscountCardJdo> get (String query) {
+        return entityManager.createNamedQuery(query, DiscountCardJdo.class).getResultList();
     }
 }

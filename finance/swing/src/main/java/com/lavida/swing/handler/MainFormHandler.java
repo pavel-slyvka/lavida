@@ -4,10 +4,7 @@ import com.google.gdata.util.ServiceException;
 import com.lavida.service.UserService;
 import com.lavida.service.entity.ArticleJdo;
 import com.lavida.swing.LocaleHolder;
-import com.lavida.swing.dialog.AddNewProductsDialog;
-import com.lavida.swing.dialog.ColumnsViewSettingsDialog;
-import com.lavida.swing.dialog.SellDialog;
-import com.lavida.swing.dialog.SoldProductsDialog;
+import com.lavida.swing.dialog.*;
 import com.lavida.swing.exception.LavidaSwingRuntimeException;
 import com.lavida.swing.form.MainForm;
 import com.lavida.swing.form.component.FileChooserComponent;
@@ -62,6 +59,9 @@ public class MainFormHandler {
 
     @Resource
     private ColumnsViewSettingsDialog columnsViewSettingsDialog;
+
+    @Resource
+    private AllDiscountCardsDialog allDiscountCardsDialog;
 
     @Resource(name = "notSoldArticleTableModel")
     private ArticlesTableModel tableModel;
@@ -380,6 +380,7 @@ public class MainFormHandler {
     }
 
     public void allDiscountCardsItemClicked() {
+        allDiscountCardsDialog.show();
 
     }
 }

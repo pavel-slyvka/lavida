@@ -4,9 +4,9 @@ import com.lavida.service.FilterColumn;
 import com.lavida.service.FilterType;
 import com.lavida.service.FiltersPurpose;
 import com.lavida.service.ViewColumn;
-import com.lavida.service.entity.ArticleJdo;
+import com.lavida.service.entity.DiscountCardJdo;
 import com.lavida.swing.LocaleHolder;
-import com.lavida.swing.service.ArticlesTableModel;
+import com.lavida.swing.service.DiscountCardsTableModel;
 import org.springframework.context.MessageSource;
 
 import javax.swing.*;
@@ -21,23 +21,23 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
-import java.util.Queue;
 
 /**
- * ArticleFiltersComponent
- * Created: 20:09 16.08.13
+ * The filter component for the {@link com.lavida.swing.form.component.DiscountCardTableComponent}.
+ * Created: 16:39 06.09.13
  *
- * @author Pavel
+ * @author Ruslan
  */
-public class ArticleFiltersComponent {
-    private ArticlesTableModel tableModel;
+public class DiscountCardFiltersComponent {
+
+    private DiscountCardsTableModel tableModel;
     private List<FilterUnit> filters;
     private JPanel filtersPanel;
     private JButton clearSearchButton;
-    private TableRowSorter<ArticlesTableModel> sorter;
-    private ArticleAnalyzeComponent articleAnalyzeComponent = new ArticleAnalyzeComponent();
+    private TableRowSorter<DiscountCardsTableModel> sorter;
+    private DiscountCardAnalyzeComponent cardAnalyzeComponent = new DiscountCardAnalyzeComponent();
 
-    public void initializeComponents(ArticlesTableModel tableModel, MessageSource messageSource, LocaleHolder localeHolder) {
+    public void initializeComponents(DiscountCardsTableModel tableModel, MessageSource messageSource, LocaleHolder localeHolder) {
         this.tableModel = tableModel;
         this.filters = new ArrayList<FilterUnit>();
         FiltersPurpose filtersPurpose = tableModel.getFiltersPurpose();
@@ -55,21 +55,17 @@ public class ArticleFiltersComponent {
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.insets = new Insets(1, 5, 1, 5);
 
-        boolean sellPurpose = FiltersPurpose.SELL_PRODUCTS == filtersPurpose;
-        boolean soldPurpose = FiltersPurpose.SOLD_PRODUCTS == filtersPurpose;
-        boolean addNewPurpose = FiltersPurpose.ADD_NEW_PRODUCTS == filtersPurpose;
-        for (Field field : ArticleJdo.class.getDeclaredFields()) {
+//        boolean sellPurpose = FiltersPurpose.SELL_PRODUCTS == filtersPurpose;
+//        boolean soldPurpose = FiltersPurpose.SOLD_PRODUCTS == filtersPurpose;
+//        boolean addNewPurpose = FiltersPurpose.ADD_NEW_PRODUCTS == filtersPurpose;
+        boolean allCardsPurpose = FiltersPurpose.ALL_DISCOUNT_CARDS == filtersPurpose;
+        for (Field field : DiscountCardJdo.class.getDeclaredFields()) {
             FilterColumn filterColumn = field.getAnnotation(FilterColumn.class);
             if (filterColumn != null) {
-                if (sellPurpose && filterColumn.showForSell() || soldPurpose && filterColumn.showForSold() ||
-                        addNewPurpose && filterColumn.showForAddNew()) {
+                if (allCardsPurpose && filterColumn.showForAllDiscountCards()) {
                     FilterUnit filterUnit = new FilterUnit();
-                    if (sellPurpose) {
-                        filterUnit.order = filterColumn.orderForSell();
-                    } else if (soldPurpose) {
-                        filterUnit.order = filterColumn.orderForSold();
-                    } else if (addNewPurpose) {
-                        filterUnit.order = filterColumn.orderForAddNew();
+                    if (allCardsPurpose) {
+                        filterUnit.order = filterColumn.orderForAllDiscountCards();
                     }
 
 //                    filterUnit.order = sellPurpose ? filterColumn.orderForSell() : filterColumn.orderForSold();
@@ -127,9 +123,9 @@ public class ArticleFiltersComponent {
             }
         });
         filtersPanel.add(clearSearchButton, constraints);
-        sorter = new TableRowSorter<ArticlesTableModel>(tableModel);
+        sorter = new TableRowSorter<DiscountCardsTableModel>(tableModel);
 
-        articleAnalyzeComponent.initializeComponents(tableModel, messageSource, localeHolder);
+        cardAnalyzeComponent.initializeComponents(tableModel, messageSource, localeHolder);
 
     }
 
@@ -147,11 +143,11 @@ public class ArticleFiltersComponent {
      * Filters table by name, by code, by price.
      */
     private void applyFilters() {
-        List<RowFilter<ArticlesTableModel, Integer>> andFilters = new ArrayList<RowFilter<ArticlesTableModel, Integer>>();
+        List<RowFilter<DiscountCardsTableModel, Integer>> andFilters = new ArrayList<RowFilter<DiscountCardsTableModel, Integer>>();
         for (FilterUnit filterUnit : filters) {
             final int columnIndex = tableModel.findColumn(filterUnit.columnTitle);
 
-            RowFilter<ArticlesTableModel, Integer> filter = null;
+            RowFilter<DiscountCardsTableModel, Integer> filter = null;
             if (FilterType.PART_TEXT == filterUnit.filterType) {
                 filter = RowFilter.regexFilter(("(?iu)" + filterUnit.textField.getText().trim()), columnIndex);
             } else if (FilterType.FULL_TEXT == filterUnit.filterType) {
@@ -171,9 +167,9 @@ public class ArticleFiltersComponent {
                         String numbers1 = numbers[1].replace(",", ".").replaceAll("[^0-9.]", "");
                         final Double number1 = Double.parseDouble(numbers0);
                         final Double number2 = Double.parseDouble(numbers1);
-                        filter = new RowFilter<ArticlesTableModel, Integer>() {
+                        filter = new RowFilter<DiscountCardsTableModel, Integer>() {
                             @Override
-                            public boolean include(Entry<? extends ArticlesTableModel, ? extends Integer> entry) {
+                            public boolean include(Entry<? extends DiscountCardsTableModel, ? extends Integer> entry) {
                                 Double number = (Double) tableModel.getRawValueAt(entry.getIdentifier(), columnIndex);
                                 return number > number1 && number < number2;
                             }
@@ -193,9 +189,9 @@ public class ArticleFiltersComponent {
                     if (dates.length > 1 && !dates[0].trim().isEmpty() && !dates[1].trim().isEmpty()) {
                         final Date correctedDate1 = getCorrectedDate(dates[0]);
                         final Date correctedDate2 = getCorrectedDate(dates[1]);
-                        filter = new RowFilter<ArticlesTableModel, Integer>() {
+                        filter = new RowFilter<DiscountCardsTableModel, Integer>() {
                             @Override
-                            public boolean include(Entry<? extends ArticlesTableModel, ? extends Integer> entry) {
+                            public boolean include(Entry<? extends DiscountCardsTableModel, ? extends Integer> entry) {
                                 Object saleDateObj = tableModel.getRawValueAt(entry.getIdentifier(), columnIndex);
                                 if (saleDateObj != null) {
                                     Date date = ((Calendar) tableModel.getRawValueAt(entry.getIdentifier(), columnIndex)).getTime();
@@ -258,26 +254,25 @@ public class ArticleFiltersComponent {
         }
     }
 
+
     /**
-     * Updates fields of the articleAnalyzeComponent.
+     * Updates fields of the cardAnalyzeComponent.
      */
     public void updateAnalyzeComponent() {
-        int totalCountArticles = 0;
-        double totalOriginalCostEUR = 0;
-        double totalPriceUAH = 0;
+        int totalCards = 0;
+        double totalSumUAH = 0;
 
         int viewRows = sorter.getViewRowCount();
-        List<ArticleJdo> selectedArticles = new ArrayList<ArticleJdo>();
+        List<DiscountCardJdo> selectedCards = new ArrayList<DiscountCardJdo>();
         for (int i = 0; i < viewRows; i++) {
             int row = sorter.convertRowIndexToModel(i);
-            selectedArticles.add(tableModel.getArticleJdoByRowIndex(row));
+            selectedCards.add(tableModel.getDiscountCardByRowIndex(row));
         }
-        for (ArticleJdo articleJdo : selectedArticles) {
-            ++totalCountArticles;
-            totalOriginalCostEUR += (articleJdo.getTransportCostEUR() + articleJdo.getPurchasePriceEUR());
-            totalPriceUAH += (articleJdo.getSalePrice());
+        for (DiscountCardJdo discountCardJdo : selectedCards) {
+            ++totalCards;
+            totalSumUAH += discountCardJdo.getSumTotalUAH();
         }
-        articleAnalyzeComponent.updateFields(totalCountArticles, totalOriginalCostEUR, totalPriceUAH);
+        cardAnalyzeComponent.updateFields(totalCards, totalSumUAH);
     }
 
     class FilterElementsListener implements DocumentListener {
@@ -304,7 +299,7 @@ public class ArticleFiltersComponent {
         return filtersPanel;
     }
 
-    public TableRowSorter<ArticlesTableModel> getSorter() {
+    public TableRowSorter<DiscountCardsTableModel> getSorter() {
         return sorter;
     }
 
@@ -312,11 +307,13 @@ public class ArticleFiltersComponent {
         return filters;
     }
 
-    public ArticleAnalyzeComponent getArticleAnalyzeComponent() {
-        return articleAnalyzeComponent;
+    public DiscountCardAnalyzeComponent getCardAnalyzeComponent() {
+        return cardAnalyzeComponent;
     }
 
     public JButton getClearSearchButton() {
         return clearSearchButton;
     }
+
+
 }

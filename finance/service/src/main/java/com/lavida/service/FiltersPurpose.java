@@ -8,5 +8,5 @@ package com.lavida.service;
  * @author Pavel
  */
 public enum FiltersPurpose {
-    SELL_PRODUCTS, SOLD_PRODUCTS , ADD_NEW_PRODUCTS
+    SELL_PRODUCTS, SOLD_PRODUCTS , ADD_NEW_PRODUCTS , ALL_DISCOUNT_CARDS
 }

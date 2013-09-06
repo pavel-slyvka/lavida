@@ -4,6 +4,7 @@ import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.dialog.RefundDialog;
 import com.lavida.swing.dialog.SoldProductsDialog;
 import com.lavida.swing.form.component.ArticleFiltersComponent;
+import com.lavida.swing.form.component.FilterUnit;
 import com.lavida.swing.service.ArticlesTableModel;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
@@ -63,9 +64,9 @@ public class SoldProductsDialogHandler {
     public void currentDateCheckBoxSelected() {
         String currentDate = new SimpleDateFormat("dd.MM.yyyy").format(Calendar.getInstance().getTime());
 
-        List<ArticleFiltersComponent.FilterUnit> filters = soldProductsDialog.getArticleTableComponent().
+        List<FilterUnit> filters = soldProductsDialog.getArticleTableComponent().
                 getArticleFiltersComponent().getFilters();
-        for (ArticleFiltersComponent.FilterUnit filterUnit : filters) {
+        for (FilterUnit filterUnit : filters) {
             if (messageSource.getMessage("mainForm.table.articles.column.sell.date.title", null, localeHolder.getLocale()).
                     equalsIgnoreCase(filterUnit.columnTitle)) {
                 filterUnit.textField.setText(currentDate);
@@ -77,9 +78,9 @@ public class SoldProductsDialogHandler {
      * Handles the CurrentDateCheckBox deselecting.
      */
     public void currentDateCheckBoxDeSelected() {
-        List<ArticleFiltersComponent.FilterUnit> filters = soldProductsDialog.getArticleTableComponent().
+        List<FilterUnit> filters = soldProductsDialog.getArticleTableComponent().
                 getArticleFiltersComponent().getFilters();
-        for (ArticleFiltersComponent.FilterUnit filterUnit : filters) {
+        for (FilterUnit filterUnit : filters) {
             if (messageSource.getMessage("mainForm.table.articles.column.sell.date.title", null, localeHolder.getLocale()).
                     equalsIgnoreCase(filterUnit.columnTitle)) {
                 filterUnit.textField.setText("");
