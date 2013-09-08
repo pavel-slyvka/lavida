@@ -63,6 +63,9 @@ public class MainFormHandler {
     @Resource
     private AllDiscountCardsDialog allDiscountCardsDialog;
 
+    @Resource
+    private AddNewDiscountCardsDialog addNewDiscountCardsDialog;
+
     @Resource(name = "notSoldArticleTableModel")
     private ArticlesTableModel tableModel;
 
@@ -376,7 +379,7 @@ public class MainFormHandler {
     }
 
     public void addNewDiscountCardItemClicked() {
-
+        addNewDiscountCardsDialog.show();
     }
 
     public void allDiscountCardsItemClicked() {

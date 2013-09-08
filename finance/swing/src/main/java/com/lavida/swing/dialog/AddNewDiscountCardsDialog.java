@@ -1,7 +1,7 @@
 package com.lavida.swing.dialog;
 
 import com.lavida.swing.form.component.DiscountCardTableComponent;
-import com.lavida.swing.handler.AllDiscountCardsDialogHandler;
+import com.lavida.swing.handler.AddNewDiscountCardsDialogHandler;
 import com.lavida.swing.service.DiscountCardsTableModel;
 import org.springframework.stereotype.Component;
 
@@ -10,37 +10,36 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 
 /**
- * The dialog for viewing, searching, editing all discount cards.
- * Created: 11:23 06.09.13
+ * The dialog for adding new discount cards to the database.
+ * Created: 17:04 07.09.13
  *
  * @author Ruslan
  */
 @Component
-public class AllDiscountCardsDialog extends AbstractDialog {
+public class AddNewDiscountCardsDialog extends AbstractDialog {
 
     @Resource
-    private AllDiscountCardsDialogHandler handler;
+    private AddNewDiscountCardsDialogHandler handler;
 
-    @Resource(name = "allDiscountCardsTableModel")
+    @Resource(name = "addNewDiscountCardsTableModel")
     private DiscountCardsTableModel tableModel;
 
     private JPanel operationPanel, southPanel, desktopPanel, filtersPanel, analyzePanel, mainPanel,
             buttonPanel;
-    private JButton activateButton, disableButton, cancelButton;
+    private JButton addRowButton, deleteRowButton, acceptCardsButton, cancelButton;
     private DiscountCardTableComponent cardTableComponent = new DiscountCardTableComponent();
 
     @Override
     protected void initializeForm() {
         super.initializeForm();
-        dialog.setTitle(messageSource.getMessage("dialog.discounts.card.all.title", null, localeHolder.getLocale()));
+        dialog.setTitle(messageSource.getMessage("dialog.discounts.card.addNew.title", null, localeHolder.getLocale()));
         dialog.setResizable(true);
         dialog.setBounds(100, 100, 900, 700);
         dialog.setLocationRelativeTo(null);
     }
+
 
     @Override
     protected void initializeComponents() {
@@ -73,7 +72,7 @@ public class AllDiscountCardsDialog extends AbstractDialog {
         analyzePanel.setMaximumSize(new Dimension(1500, 25));
 
 //      panel for search operations
-        filtersPanel= cardTableComponent.getCardFiltersComponent().getFiltersPanel();
+//        filtersPanel= cardTableComponent.getCardFiltersComponent().getFiltersPanel();
 
         operationPanel = new JPanel();
         operationPanel.setLayout(new GridBagLayout());
@@ -83,16 +82,16 @@ public class AllDiscountCardsDialog extends AbstractDialog {
         operationPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(messageSource.
                 getMessage("mainForm.panel.operation.title", null, localeHolder.getLocale())),
                 BorderFactory.createEmptyBorder()));
-        activateButton = new JButton();
-        activateButton.setHorizontalTextPosition(JButton.CENTER);
-        activateButton.setPreferredSize(new Dimension(150, 25));
-        activateButton.setMaximumSize(new Dimension(150, 25));
-        activateButton.setMinimumSize(new Dimension(150, 25));
-        activateButton.setText(messageSource.getMessage("dialog.discounts.card.all.button.activate", null, localeHolder.getLocale()));
-        activateButton.addActionListener(new ActionListener() {
+        addRowButton = new JButton();
+        addRowButton.setHorizontalTextPosition(JButton.CENTER);
+        addRowButton.setPreferredSize(new Dimension(150, 25));
+        addRowButton.setMaximumSize(new Dimension(150, 25));
+        addRowButton.setMinimumSize(new Dimension(150, 25));
+        addRowButton.setText(messageSource.getMessage("dialog.discounts.card.addNew.button.addRow", null, localeHolder.getLocale()));
+        addRowButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                handler.activateButtonClicked();
+                handler.addRowButtonClicked();
             }
         });
 
@@ -103,18 +102,18 @@ public class AllDiscountCardsDialog extends AbstractDialog {
         constraints.gridwidth = GridBagConstraints.REMAINDER;
         constraints.anchor = GridBagConstraints.SOUTH;
         constraints.weightx = 1.0;
-        operationPanel.add(activateButton, constraints);
+        operationPanel.add(addRowButton, constraints);
 
-        disableButton = new JButton();
-        disableButton.setText(messageSource.getMessage("dialog.discounts.card.all.button.disable", null, localeHolder.getLocale()));
-        disableButton.setHorizontalTextPosition(JButton.CENTER);
-        disableButton.setPreferredSize(new Dimension(150, 25));
-        disableButton.setMaximumSize(new Dimension(150, 25));
-        disableButton.setMinimumSize(new Dimension(150, 25));
-        disableButton.addActionListener(new ActionListener() {
+        deleteRowButton = new JButton();
+        deleteRowButton.setText(messageSource.getMessage("dialog.discounts.card.addNew.button.deleteRow", null, localeHolder.getLocale()));
+        deleteRowButton.setHorizontalTextPosition(JButton.CENTER);
+        deleteRowButton.setPreferredSize(new Dimension(150, 25));
+        deleteRowButton.setMaximumSize(new Dimension(150, 25));
+        deleteRowButton.setMinimumSize(new Dimension(150, 25));
+        deleteRowButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                handler.disableButtonClicked();
+                handler.deleteRowButtonClicked();
             }
         });
         constraints.fill = GridBagConstraints.HORIZONTAL;
@@ -123,7 +122,7 @@ public class AllDiscountCardsDialog extends AbstractDialog {
         constraints.gridwidth = GridBagConstraints.REMAINDER;
         constraints.anchor = GridBagConstraints.SOUTH;
         constraints.weightx = 1.0;
-        operationPanel.add(disableButton, constraints);
+        operationPanel.add(deleteRowButton, constraints);
 
         constraints.gridx = 0;
         constraints.gridy = 0;
@@ -143,15 +142,15 @@ public class AllDiscountCardsDialog extends AbstractDialog {
         constraints.weighty = 1.0;
         southPanel.add(operationPanel, constraints);
 
-        constraints.gridx = 1;
-        constraints.gridy = 1;
-        constraints.fill = GridBagConstraints.BOTH;
-        constraints.gridwidth = GridBagConstraints.REMAINDER;
-        constraints.gridheight = GridBagConstraints.REMAINDER;
-        constraints.anchor = GridBagConstraints.WEST;
-        constraints.weightx = 1.0;
-        constraints.weighty = 1.0;
-        southPanel.add(filtersPanel, constraints);
+//        constraints.gridx = 1;
+//        constraints.gridy = 1;
+//        constraints.fill = GridBagConstraints.BOTH;
+//        constraints.gridwidth = GridBagConstraints.REMAINDER;
+//        constraints.gridheight = GridBagConstraints.REMAINDER;
+//        constraints.anchor = GridBagConstraints.WEST;
+//        constraints.weightx = 1.0;
+//        constraints.weighty = 1.0;
+//        southPanel.add(filtersPanel, constraints);
 
         desktopPanel.add(southPanel, BorderLayout.SOUTH);
 
@@ -160,6 +159,20 @@ public class AllDiscountCardsDialog extends AbstractDialog {
 //        south panel for buttons
         buttonPanel = new JPanel();
         buttonPanel.setLayout(new FlowLayout(FlowLayout.TRAILING));
+
+        acceptCardsButton = new JButton();
+        acceptCardsButton.setHorizontalTextPosition(JButton.CENTER);
+        acceptCardsButton.setPreferredSize(new Dimension(150, 25));
+        acceptCardsButton.setMaximumSize(new Dimension(150, 25));
+        acceptCardsButton.setMinimumSize(new Dimension(150, 25));
+        acceptCardsButton.setText(messageSource.getMessage("dialog.discounts.card.button.acceptCard", null, localeHolder.getLocale()));
+        acceptCardsButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handler.acceptCardsButtonClicked();
+            }
+        });
+        buttonPanel.add(acceptCardsButton);
 
         cancelButton = new JButton();
         cancelButton.setHorizontalTextPosition(JButton.CENTER);
@@ -176,10 +189,13 @@ public class AllDiscountCardsDialog extends AbstractDialog {
         buttonPanel.add(cancelButton);
 
         rootContainer.add(buttonPanel, BorderLayout.SOUTH);
-
     }
 
     public DiscountCardsTableModel getTableModel() {
         return tableModel;
+    }
+
+    public DiscountCardTableComponent getCardTableComponent() {
+        return cardTableComponent;
     }
 }

@@ -30,10 +30,10 @@ public class DiscountCardJdo {
     @FilterColumn(labelKey = "dialog.discounts.card.all.label.search.by.number", type = FilterType.NUMBER)
     private int number;
 
-    @ViewColumn(titleKey = "dialog.discounts.card.all.column.title.number")
+    @ViewColumn(titleKey = "dialog.discounts.card.all.column.title.name", columnWidth = 200)
     private String name;
 
-    @ViewColumn(titleKey = "dialog.discounts.card.all.column.title.phone")
+    @ViewColumn(titleKey = "dialog.discounts.card.all.column.title.phone", columnWidth = 150)
     private String phone;
 
     @ViewColumn(titleKey = "dialog.discounts.card.all.column.title.address")

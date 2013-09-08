@@ -62,12 +62,14 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
     private static final List<String> FORBIDDEN_ROLES = new ArrayList<String>();
 
     static {
-          FORBIDDEN_ROLES.add("ROLE_SELLER");
+        FORBIDDEN_ROLES.add("ROLE_SELLER");
     }
 
     @Override
     public void onApplicationEvent(ArticleUpdateEvent event) {
-        tableData = articleDao.get(queryName);
+        if (queryName != null) {
+            tableData = articleDao.get(queryName);
+        }
     }
 
     public List<ArticleJdo> getTableData() {
@@ -80,7 +82,7 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
     public FiltersPurpose getFiltersPurpose() {
         if (ArticleJdo.FIND_SOLD.equals(queryName)) {
             return FiltersPurpose.SOLD_PRODUCTS;
-        } else if (ArticleJdo.FIND_NOT_SOLD.equals(queryName)){
+        } else if (ArticleJdo.FIND_NOT_SOLD.equals(queryName)) {
             return FiltersPurpose.SELL_PRODUCTS;
         } else {
             return FiltersPurpose.ADD_NEW_PRODUCTS;
@@ -224,7 +226,7 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
                         columnHeaderToWidth.put(columnHeader, new Integer(width));
                         continue label;
                     } else if (!viewColumn.titleKey().isEmpty() &&
-                            columnHeader.equals(messageSource.getMessage(viewColumn.titleKey(), null, localeHolder.getLocale()))){
+                            columnHeader.equals(messageSource.getMessage(viewColumn.titleKey(), null, localeHolder.getLocale()))) {
                         width = viewColumn.columnWidth();
                         columnHeaderToWidth.put(columnHeader, new Integer(width));
                         continue label;
@@ -236,11 +238,11 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
     }
 
     /**
-     *  Returns true if the user has permissions.
+     * Returns true if the user has permissions.
      *
-     *  @param  rowIndex  the row being queried
-     *  @param  columnIndex the column being queried
-     *  @return true the user has permissions.
+     * @param rowIndex    the row being queried
+     * @param columnIndex the column being queried
+     * @return true the user has permissions.
      */
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -251,17 +253,17 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
     }
 
     /**
-     *  This empty implementation is provided so users don't have to implement
-     *  this method if their data model is not editable.
+     * This empty implementation is provided so users don't have to implement
+     * this method if their data model is not editable.
      *
-     *  @param  aValue   value to assign to cell
-     *  @param  rowIndex   row of cell
-     *  @param  columnIndex  column of cell
+     * @param aValue      value to assign to cell
+     * @param rowIndex    row of cell
+     * @param columnIndex column of cell
      */
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
         ArticleJdo articleJdo = getArticleJdoByRowIndex(rowIndex);
-        String value = (String)aValue;
+        String value = (String) aValue;
         SimpleDateFormat calendarFormatter = new SimpleDateFormat("dd.MM.yyyy");
         calendarFormatter.setLenient(false);
         try {
@@ -273,7 +275,7 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
                     field.set(articleJdo, new Integer(1));
                     int quantity = Integer.parseInt(value);
                     for (int i = 1; i < quantity; ++i) {
-                        ArticleJdo newArticle = (ArticleJdo)articleJdo.clone();
+                        ArticleJdo newArticle = (ArticleJdo) articleJdo.clone();
                         newArticle.setSpreadsheetRow(0);
                         newArticle.setId(0);
                         tableData.add(newArticle);
@@ -300,11 +302,11 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
                 field.set(articleJdo, Long.parseLong(value));
             } else if (Calendar.class == field.getType()) {
                 Calendar calendar = Calendar.getInstance();
-                String formattedValue = value.replace("," , ".").trim();
+                String formattedValue = value.replace(",", ".").trim();
                 calendar.setTime(calendarFormatter.parse(formattedValue));
                 field.set(articleJdo, calendar);
             } else if (Date.class == field.getType()) {
-                String formattedValue = value.replace("," , ".").trim();
+                String formattedValue = value.replace(",", ".").trim();
                 field.set(articleJdo, DateConverter.convertStringToDate(formattedValue));
             } else {
                 field.set(articleJdo, value);
@@ -325,10 +327,10 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
 
 
     /**
-     *  Returns <code>Object.class</code> regardless of <code>columnIndex</code>.
+     * Returns <code>Object.class</code> regardless of <code>columnIndex</code>.
      *
-     *  @param columnIndex  the column being queried
-     *  @return the {@code Class} object representing the class or interface
+     * @param columnIndex the column being queried
+     * @return the {@code Class} object representing the class or interface
      * that declares the field represented by this {@code Field} object.
      */
     @Override
@@ -338,6 +340,7 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
 
     /**
      * Updates table and remote spreadsheet with the changed article
+     *
      * @param changedArticle
      */
     private void updateTable(ArticleJdo changedArticle) {

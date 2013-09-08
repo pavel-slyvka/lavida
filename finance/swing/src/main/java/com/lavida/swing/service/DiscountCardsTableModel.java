@@ -1,14 +1,15 @@
 package com.lavida.swing.service;
 
-import com.lavida.service.DiscountCardService;
 import com.lavida.service.FiltersPurpose;
 import com.lavida.service.UserService;
 import com.lavida.service.ViewColumn;
 import com.lavida.service.entity.DiscountCardJdo;
 import com.lavida.service.utils.DateConverter;
 import com.lavida.swing.LocaleHolder;
+import com.lavida.swing.event.DiscountCardUpdateEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationListener;
 import org.springframework.context.MessageSource;
 
 import javax.annotation.PostConstruct;
@@ -24,7 +25,7 @@ import java.util.*;
  *
  * @author Ruslan
  */
-public class DiscountCardsTableModel extends AbstractTableModel {
+public class DiscountCardsTableModel extends AbstractTableModel implements ApplicationListener<DiscountCardUpdateEvent> {
     private static final Logger logger = LoggerFactory.getLogger(DiscountCardsTableModel.class);
 
     private List<String> headerTitles;
@@ -49,7 +50,7 @@ public class DiscountCardsTableModel extends AbstractTableModel {
     private UserService userService;
 
     @Resource
-    private DiscountCardService discountCardService;
+    private DiscountCardServiceSwingWrapper discountCardServiceSwingWrapper;
 
     private String query;
     private int totalCountCards;
@@ -62,7 +63,7 @@ public class DiscountCardsTableModel extends AbstractTableModel {
         this.headerTitles = new ArrayList<String>();
         this.columnIndexToDateFormat = new HashMap<Integer, SimpleDateFormat>();
         if (query != null) {
-            this.tableData = discountCardService.get(query);
+            this.tableData = discountCardServiceSwingWrapper.get(query);
         } else {
             this.tableData = new ArrayList<DiscountCardJdo>();
         }
@@ -291,8 +292,8 @@ public class DiscountCardsTableModel extends AbstractTableModel {
      */
     private void updateTable(DiscountCardJdo discountCardJdo) {
         if (query != null) {
-            discountCardService.update(discountCardJdo);
-            tableData = discountCardService.get(query);
+            discountCardServiceSwingWrapper.update(discountCardJdo);
+            tableData = discountCardServiceSwingWrapper.get(query);
         }
         fireTableDataChanged();
     }
@@ -319,9 +320,13 @@ public class DiscountCardsTableModel extends AbstractTableModel {
 
     public List<DiscountCardJdo> getTableData() {
         if (tableData == null && query != null) {
-            tableData = discountCardService.get(query);
+            tableData = discountCardServiceSwingWrapper.get(query);
         }
         return tableData;
+    }
+
+    public void setTableData(List<DiscountCardJdo> tableData) {
+        this.tableData = tableData;
     }
 
     public DiscountCardJdo getSelectedCard() {
@@ -350,5 +355,13 @@ public class DiscountCardsTableModel extends AbstractTableModel {
 
     public void setTotalSumUAH(double totalSumUAH) {
         this.totalSumUAH = totalSumUAH;
+    }
+
+    @Override
+    public void onApplicationEvent(DiscountCardUpdateEvent event) {
+        if (query != null) {
+            tableData = discountCardServiceSwingWrapper.get(query);
+            fireTableDataChanged();
+        }
     }
 }

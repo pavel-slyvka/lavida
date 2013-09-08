@@ -352,6 +352,7 @@ public class MainForm extends AbstractForm {
     public void filterMenuBarByRoles (List<String> userRoles) {
         if (isForbidden(userRoles, FORBIDDEN_ROLES)) {
             addNewProductsItem.setEnabled(false);
+            addNewDiscountCardItem.setEnabled(false);
         }
     }
 
