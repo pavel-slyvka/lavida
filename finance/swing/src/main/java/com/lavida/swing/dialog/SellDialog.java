@@ -43,8 +43,10 @@ public class SellDialog extends AbstractDialog {
 
     private JPanel buttonPanel, inputPanel, oursPanel, commentPanel, tagsPanel;
     private JLabel codeLabel, nameLabel, brandLabel, sizeLabel, priceLabel, commentLabel, codeField, nameField,
-            brandField, sizeField, priceField, shopLabel, discountLabel, totalCostLabel, saleDateLabel, sellerNameLabel;
-    private JTextField shopTextField, discountTextField, totalCostTextField, commentTextField, saleDateTextField;
+            brandField, sizeField, priceField, shopLabel, discountLabel, totalCostLabel, saleDateLabel, sellerNameLabel,
+    discountCardNumberLabel;
+    private JTextField shopTextField, discountTextField, totalCostTextField, commentTextField, saleDateTextField,
+            discountCardNumberTextField;
     private JButton sellButton, cancelButton;
     private JCheckBox oursCheckBox, presentCheckBox;
     private JComboBox sellerNames;
@@ -55,7 +57,7 @@ public class SellDialog extends AbstractDialog {
         super.initializeForm();
         dialog.setTitle(messageSource.getMessage("sellDialog.dialog.title", null, localeHolder.getLocale()));
         dialog.setResizable(true);
-        dialog.setSize(400, 550);
+        dialog.setSize(400, 600);
         dialog.setLocationRelativeTo(null);
     }
 
@@ -169,6 +171,33 @@ public class SellDialog extends AbstractDialog {
         constraints.weightx = 1.0;
         inputPanel.add(priceField, constraints);
 
+        discountCardNumberLabel = new JLabel();
+        discountCardNumberLabel.setText(messageSource.getMessage("sellDialog.label.discount.card.number", null, localeHolder.getLocale()));
+        discountCardNumberLabel.setLabelFor(discountCardNumberTextField);
+        constraints.fill = GridBagConstraints.NONE;
+        constraints.gridwidth = GridBagConstraints.RELATIVE;
+        constraints.anchor = GridBagConstraints.EAST;
+        constraints.weightx = 0.0;
+        inputPanel.add(discountCardNumberLabel, constraints);
+
+        discountCardNumberTextField = new JTextField(50);
+        discountCardNumberTextField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                super.keyTyped(e);
+                int key = e.getKeyCode();
+                if (key == KeyEvent.VK_ENTER) {
+                    handler.discountCardNumberTextEntered();
+                    discountTextField.requestFocusInWindow();
+                }
+            }
+        });
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.gridwidth = GridBagConstraints.REMAINDER;
+        constraints.anchor = GridBagConstraints.EAST;
+        constraints.weightx = 1.0;
+        inputPanel.add(discountCardNumberTextField, constraints);
+
         discountLabel = new JLabel();
         discountLabel.setText(messageSource.getMessage("sellDialog.label.discount.title", null, localeHolder.getLocale()));
         discountLabel.setLabelFor(discountTextField);
@@ -246,7 +275,7 @@ public class SellDialog extends AbstractDialog {
 
         oursPanel = new JPanel(new FlowLayout());
         constraints.gridx = 0;
-        constraints.gridy = 9;
+        constraints.gridy = 10;
         constraints.gridwidth = GridBagConstraints.REMAINDER;
         constraints.anchor = GridBagConstraints.CENTER;
         constraints.weightx = 1.0;
@@ -294,7 +323,7 @@ public class SellDialog extends AbstractDialog {
 
         commentPanel = new JPanel(new GridLayout(2, 1));
         constraints.gridx = 0;
-        constraints.gridy = 10;
+        constraints.gridy = 11;
         commentLabel = new JLabel();
         commentLabel.setText(messageSource.getMessage("sellDialog.label.comment.title", null, localeHolder.getLocale()));
         commentPanel.add(commentLabel);
@@ -320,7 +349,7 @@ public class SellDialog extends AbstractDialog {
             tagsPanel.add(checkBox);
         }
         constraints.gridx = 0;
-        constraints.gridy = 11;
+        constraints.gridy = 12;
         inputPanel.add(tagsPanel, constraints);
 
 //        seller choosing
@@ -332,7 +361,7 @@ public class SellDialog extends AbstractDialog {
         constraints.anchor = GridBagConstraints.EAST;
         constraints.weightx = 0.0;
         constraints.gridx = 0;
-        constraints.gridy = 12;
+        constraints.gridy = 13;
         inputPanel.add(sellerNameLabel, constraints);
 
         List<SellerJdo> sellers = sellerService.getAll();
@@ -348,7 +377,7 @@ public class SellDialog extends AbstractDialog {
         constraints.anchor = GridBagConstraints.EAST;
         constraints.weightx = 1.0;
         constraints.gridx = 1;
-        constraints.gridy = 12;
+        constraints.gridy = 13;
         inputPanel.add(sellerNames, constraints);
 
         rootContainer.add(inputPanel, BorderLayout.CENTER);
@@ -422,5 +451,9 @@ public class SellDialog extends AbstractDialog {
 
     public JComboBox getSellerNames() {
         return sellerNames;
+    }
+
+    public JTextField getDiscountCardNumberTextField() {
+        return discountCardNumberTextField;
     }
 }

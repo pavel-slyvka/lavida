@@ -1,10 +1,12 @@
 package com.lavida.swing.handler;
 
 import com.lavida.service.entity.ArticleJdo;
+import com.lavida.service.entity.DiscountCardJdo;
 import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.dialog.SellDialog;
 import com.lavida.swing.service.ArticleServiceSwingWrapper;
 import com.lavida.swing.service.ArticlesTableModel;
+import com.lavida.swing.service.DiscountCardServiceSwingWrapper;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
@@ -15,6 +17,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * Created: 12:04 12.08.13
@@ -36,6 +40,9 @@ public class SellDialogHandler {
 
     @Resource
     private ArticleServiceSwingWrapper articleServiceSwingWrapper;
+
+    @Resource
+    private DiscountCardServiceSwingWrapper discountCardServiceSwingWrapper;
 
     @Resource(name = "notSoldArticleTableModel")
     private ArticlesTableModel tableModel;
@@ -61,6 +68,7 @@ public class SellDialogHandler {
             return;
         }
         articleJdo.setSaleDate(saleDateCalendar);
+        articleJdo.setSalePrice(Double.parseDouble(dialog.getTotalCostTextField().getText()));
         articleJdo.setSold(messageSource.getMessage("sellDialog.button.sell.clicked.sold", null, localeHolder.getLocale()));
         articleJdo.setComment(dialog.getCommentTextField().getText().trim());
         dialog.getCommentTextField().setText("");
@@ -84,7 +92,7 @@ public class SellDialogHandler {
         articleJdo.setShop((dialog.getShopTextField().getText().trim() == null) ? null :
                 dialog.getShopTextField().getText().trim());
         dialog.getShopTextField().setText(messageSource.getMessage("sellDialog.text.field.shop.text", null, localeHolder.getLocale()));
-        String seller = (String)dialog.getSellerNames().getSelectedItem();
+        String seller = (String) dialog.getSellerNames().getSelectedItem();
         tableModel.setSellerName(seller);
         dialog.getSellerNames().setSelectedItem(seller);
         articleJdo.setSellerName(seller);
@@ -132,5 +140,39 @@ public class SellDialogHandler {
         double price = Double.parseDouble(dialog.getPriceField().getText());
         double totalCost = price - discount;
         dialog.getTotalCostTextField().setText(new DecimalFormat("##.##").format(totalCost));
+    }
+
+    public void discountCardNumberTextEntered() {
+        String cardNumberStr = dialog.getDiscountCardNumberTextField().getText().trim();
+        if (!cardNumberStr.matches("[0-9]")) {
+            dialog.getDiscountCardNumberTextField().setText("");
+            dialog.showMessage("mainForm.exception.message.dialog.title", "dialog.sell.handler.discount.card.number.not.correct.message");
+            return;
+        }
+        int cardNumber = Integer.parseInt(cardNumberStr);
+        if (!cardNumberExists(cardNumber)) {
+            dialog.getDiscountCardNumberTextField().setText("");
+            dialog.showMessage("mainForm.exception.message.dialog.title", "dialog.sell.handler.discount.card.number.not.exists.message");
+            return;
+        }
+        DiscountCardJdo discountCardJdo = discountCardServiceSwingWrapper.getByNumber(cardNumber);
+        double discountRate = discountCardJdo.getDiscountRate();
+        double price = Double.parseDouble(dialog.getPriceField().getText());
+        double discountVale = price * discountRate / 100;
+        dialog.getDiscountTextField().setText(String.valueOf(discountVale));
+        discountTextEntered();
+    }
+
+    /**
+     * Checks if the discount card is registered and not disabled.
+     * @param cardNumber  the number of the card to be checked.
+     * @return true if the discount card is registered and not disabled.
+     */
+    private boolean cardNumberExists(int cardNumber) {
+        DiscountCardJdo discountCardJdo =discountCardServiceSwingWrapper.getByNumber(cardNumber);
+        if (discountCardJdo != null && discountCardJdo.getDisablingDate() == null) {
+            return true;
+        } else
+            return false;
     }
 }
