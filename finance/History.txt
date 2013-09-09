@@ -9,9 +9,11 @@ HISTORY of the LA VIDA Finance
   - to manage postponed operations (save to the XML file, load from the XML file, delete from the local database);
   - to edit tables fields with synchronous updating the remote Google spreadsheet;
   - to add new products to the remote Google spreadsheet;
+  - to add new discount cards to the local database, to view all discount cards;
 - Created UI components:
   - MenuBar with items: postponed, products, settings, discounts;
   - AddNewProductsDialog, ColumnsViewSettingsDialog;
+  - AddNewDiscountCardsDialog, AllDiscountCardsDialog;
 
 0.1           27-08-2013
 -------------------------
