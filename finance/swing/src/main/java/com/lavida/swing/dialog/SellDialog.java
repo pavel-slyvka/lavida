@@ -2,12 +2,9 @@ package com.lavida.swing.dialog;
 
 import com.lavida.service.SellerService;
 import com.lavida.service.TagService;
-import com.lavida.service.ViewColumn;
 import com.lavida.service.entity.ArticleJdo;
 import com.lavida.service.entity.SellerJdo;
 import com.lavida.service.entity.TagJdo;
-import com.lavida.service.utils.CalendarConverter;
-import com.lavida.service.utils.DateConverter;
 import com.lavida.swing.handler.SellDialogHandler;
 import com.lavida.swing.service.ArticlesTableModel;
 import org.springframework.stereotype.Component;
@@ -24,6 +21,7 @@ import java.util.List;
 /**
  * Created: 10:39 15.08.13
  * the dialog for selling operation.
+ *
  * @author Ruslan
  */
 @Component
@@ -44,7 +42,7 @@ public class SellDialog extends AbstractDialog {
     private JPanel buttonPanel, inputPanel, oursPanel, commentPanel, tagsPanel;
     private JLabel codeLabel, nameLabel, brandLabel, sizeLabel, priceLabel, commentLabel, codeField, nameField,
             brandField, sizeField, priceField, shopLabel, discountLabel, totalCostLabel, saleDateLabel, sellerNameLabel,
-    discountCardNumberLabel;
+            discountCardNumberLabel;
     private JTextField shopTextField, discountTextField, totalCostTextField, commentTextField, saleDateTextField,
             discountCardNumberTextField;
     private JButton sellButton, cancelButton;
@@ -300,7 +298,7 @@ public class SellDialog extends AbstractDialog {
         buttonGroup.add(oursCheckBox);
         buttonGroup.add(presentCheckBox);
 
-        clientCheckBox.addItemListener( new ItemListener() {
+        clientCheckBox.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent e) {
                 int state = e.getStateChange();
@@ -392,7 +390,7 @@ public class SellDialog extends AbstractDialog {
 
         List<SellerJdo> sellers = sellerService.getAll();
         String[] sellerNamesArray = new String[sellers.size() + 1];
-        for(int i = 0; i < sellers.size(); ++i) {
+        for (int i = 0; i < sellers.size(); ++i) {
             sellerNamesArray[i] = sellers.get(i).getName();
         }
         sellerNames = new JComboBox(sellerNamesArray);

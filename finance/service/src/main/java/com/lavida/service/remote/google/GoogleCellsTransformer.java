@@ -5,13 +5,13 @@ import com.google.gdata.data.spreadsheet.CellEntry;
 import com.google.gdata.data.spreadsheet.CellFeed;
 import com.lavida.service.entity.ArticleJdo;
 import com.lavida.service.remote.SpreadsheetColumn;
-import com.lavida.service.utils.CalendarConverter;
 import com.lavida.service.utils.DateConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -69,7 +69,7 @@ public class GoogleCellsTransformer {
                             } else if (Long.class == field.getType()) {
                                 field.set(articleJdo, Long.parseLong(value));
                             } else if (Calendar.class == field.getType()) {
-                                field.set(articleJdo, CalendarConverter.convertStringToCalendar(value));
+                                field.set(articleJdo, convertCellStringToCalendar(value));
                             } else if (Date.class == field.getType()) {
                                 field.set(articleJdo, DateConverter.convertStringToDate(value));
                             } else {
@@ -86,6 +86,20 @@ public class GoogleCellsTransformer {
             }
         }
         return articleJdo;
+    }
+
+    private Calendar convertCellStringToCalendar(String strDate) throws ParseException {
+        Calendar cal = null;
+
+        if (strDate != null) {
+//                DateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
+            DateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
+            Date date = formatter.parse(strDate);
+            cal = Calendar.getInstance();
+            cal.setTime(date);
+        }
+
+        return cal;
     }
 
     public String cellToValue(CellFeed cellFeed, Map<Integer, String> googleHeadersMap, String googleHeader) {

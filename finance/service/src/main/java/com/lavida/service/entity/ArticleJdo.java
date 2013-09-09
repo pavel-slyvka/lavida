@@ -5,8 +5,6 @@ import com.lavida.service.FilterColumn;
 import com.lavida.service.FilterType;
 import com.lavida.service.ViewColumn;
 import com.lavida.service.remote.SpreadsheetColumn;
-import com.lavida.service.utils.CalendarConverter;
-import com.lavida.service.utils.DateConverter;
 
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -424,7 +422,7 @@ public class ArticleJdo implements Cloneable {
         if (quantity != that.quantity) return false;
         if (Double.compare(that.raisedSalePrice, raisedSalePrice) != 0) return false;
         if (spreadsheetRow != that.spreadsheetRow) return false;
-        if (spreadsheetNum != that.spreadsheetNum) return false;
+        if (spreadsheetNum != null ? !spreadsheetNum.equals(that.spreadsheetNum) : that.spreadsheetNum != null) return false;
         if (Double.compare(that.transportCostEUR, transportCostEUR) != 0) return false;
         if (brand != null ? !brand.equals(that.brand) : that.brand != null) return false;
         if (code != null ? !code.equals(that.code) : that.code != null) return false;

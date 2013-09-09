@@ -1,13 +1,8 @@
 package com.lavida.service.xml;
 
-import com.lavida.service.ArticleService;
 import com.lavida.service.entity.ArticleJdo;
-import com.lavida.service.utils.CalendarConverter;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
