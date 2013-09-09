@@ -34,6 +34,7 @@ public class SoldProductsDialog extends AbstractDialog {
             buttonPanel;
     private JButton refundButton, cancelButton;
     private JCheckBox currentDateCheckBox;
+    private JLabel errorMessage;
 
     @Override
     protected void initializeForm() {
@@ -162,6 +163,10 @@ public class SoldProductsDialog extends AbstractDialog {
         buttonPanel = new JPanel();
         buttonPanel.setLayout(new FlowLayout(FlowLayout.TRAILING));
 
+        errorMessage = new JLabel();
+        errorMessage.setForeground(Color.RED);
+        buttonPanel.add(errorMessage);
+
         cancelButton = new JButton();
         cancelButton.setHorizontalTextPosition(JButton.CENTER);
         cancelButton.setPreferredSize(new Dimension(150, 25));
@@ -199,5 +204,9 @@ public class SoldProductsDialog extends AbstractDialog {
 
     public ArticlesTableModel getTableModel() {
         return tableModel;
+    }
+
+    public JLabel getErrorMessage() {
+        return errorMessage;
     }
 }

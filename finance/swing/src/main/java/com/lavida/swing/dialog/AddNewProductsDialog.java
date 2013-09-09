@@ -31,6 +31,7 @@ public class AddNewProductsDialog extends AbstractDialog {
     private JPanel operationPanel, southPanel, desktopPanel, analyzePanel, mainPanel,
             buttonPanel;
     private JButton addRowButton, deleteRowButton, acceptProductsButton, cancelButton;
+    private JLabel errorMessage;
 
     @Override
     protected void initializeForm() {
@@ -144,6 +145,11 @@ public class AddNewProductsDialog extends AbstractDialog {
         buttonPanel = new JPanel();
         buttonPanel.setLayout(new FlowLayout(FlowLayout.TRAILING));
 
+        errorMessage = new JLabel();
+        errorMessage.setForeground(Color.RED);
+        buttonPanel.add(errorMessage);
+
+
         acceptProductsButton = new JButton();
         acceptProductsButton.setHorizontalTextPosition(JButton.CENTER);
         acceptProductsButton.setPreferredSize(new Dimension(150, 25));
@@ -183,5 +189,9 @@ public class AddNewProductsDialog extends AbstractDialog {
 
     public ArticleTableComponent getArticleTableComponent() {
         return articleTableComponent;
+    }
+
+    public JLabel getErrorMessage() {
+        return errorMessage;
     }
 }

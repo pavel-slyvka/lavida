@@ -32,6 +32,7 @@ public class AllDiscountCardsDialog extends AbstractDialog {
             buttonPanel;
     private JButton activateButton, disableButton, cancelButton;
     private DiscountCardTableComponent cardTableComponent = new DiscountCardTableComponent();
+    private JLabel errorMessage;
 
     @Override
     protected void initializeForm() {
@@ -161,6 +162,10 @@ public class AllDiscountCardsDialog extends AbstractDialog {
         buttonPanel = new JPanel();
         buttonPanel.setLayout(new FlowLayout(FlowLayout.TRAILING));
 
+        errorMessage = new JLabel();
+        errorMessage.setForeground(Color.RED);
+        buttonPanel.add(errorMessage);
+
         cancelButton = new JButton();
         cancelButton.setHorizontalTextPosition(JButton.CENTER);
         cancelButton.setPreferredSize(new Dimension(150, 25));
@@ -181,5 +186,9 @@ public class AllDiscountCardsDialog extends AbstractDialog {
 
     public DiscountCardsTableModel getTableModel() {
         return tableModel;
+    }
+
+    public JLabel getErrorMessage() {
+        return errorMessage;
     }
 }

@@ -34,6 +34,7 @@ public class RefundDialog extends AbstractDialog {
             codeField, nameField, brandField, sizeField, priceField;
     private JTextField commentTextField;
     private JButton refundButton, cancelButton;
+    private JLabel errorMessage;
 
     @Override
     protected void initializeForm() {
@@ -149,6 +150,17 @@ public class RefundDialog extends AbstractDialog {
 
         inputPanel.add(commentPanel, constraints);
 
+        errorMessage = new JLabel();
+        errorMessage.setForeground(Color.RED);
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.gridwidth = GridBagConstraints.REMAINDER;
+        constraints.gridheight = GridBagConstraints.RELATIVE;
+        constraints.anchor = GridBagConstraints.EAST;
+        constraints.weightx = 1.0;
+        constraints.gridx = 0;
+        constraints.gridy = 6;
+        inputPanel.add(errorMessage, constraints);
+
         rootContainer.add(inputPanel, BorderLayout.CENTER);
 
 //        button panel
@@ -198,5 +210,9 @@ public class RefundDialog extends AbstractDialog {
 
     public SoldProductsDialog getSoldProductsDialog() {
         return soldProductsDialog;
+    }
+
+    public JLabel getErrorMessage() {
+        return errorMessage;
     }
 }

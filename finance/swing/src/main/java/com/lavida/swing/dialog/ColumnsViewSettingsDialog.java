@@ -34,6 +34,7 @@ public class ColumnsViewSettingsDialog extends AbstractDialog {
     //    private List<String>  visibleTableColumnHeaders, notVisibleTableColumnHeaders;
     private Map<String, TableColumn> mainFormHeadersAndColumns;
     private Map<String, TableColumn> soldProductsHeadersAndColumns;
+    private JLabel errorMessage;
 
     @Override
     protected void initializeForm() {
@@ -91,7 +92,7 @@ public class ColumnsViewSettingsDialog extends AbstractDialog {
 
         rootContainer.setLayout(new BorderLayout());
 //      input panel
-        inputPanel = new JPanel(new GridLayout(1, 2));
+        inputPanel = new JPanel(new GridLayout(2, 2));
         inputPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.HORIZONTAL;
@@ -207,6 +208,18 @@ public class ColumnsViewSettingsDialog extends AbstractDialog {
 
         inputPanel.add(notVisibleColumnsPanel);
 
+        errorMessage = new JLabel();
+        errorMessage.setForeground(Color.RED);
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.gridwidth = GridBagConstraints.REMAINDER;
+        constraints.gridheight = GridBagConstraints.RELATIVE;
+        constraints.anchor = GridBagConstraints.EAST;
+        constraints.weightx = 1.0;
+        constraints.gridx = 1;
+        constraints.gridy = 0;
+        inputPanel.add(errorMessage, constraints);
+
+
 //        button panel
         FlowLayout flowLayout = new FlowLayout();
         flowLayout.setAlignment(FlowLayout.RIGHT);
@@ -268,5 +281,9 @@ public class ColumnsViewSettingsDialog extends AbstractDialog {
 
     public JButton getShowColumnButton() {
         return showColumnButton;
+    }
+
+    public JLabel getErrorMessage() {
+        return errorMessage;
     }
 }

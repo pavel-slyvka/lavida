@@ -52,6 +52,7 @@ public class SellDialog extends AbstractDialog {
     private JCheckBox oursCheckBox, presentCheckBox, clientCheckBox;
     private JComboBox sellerNames;
     private List<JCheckBox> tagCheckBoxes = new ArrayList<JCheckBox>();
+    private JLabel errorMessage;
 
     @Override
     protected void initializeForm() {
@@ -405,6 +406,18 @@ public class SellDialog extends AbstractDialog {
         constraints.gridy = 13;
         inputPanel.add(sellerNames, constraints);
 
+        errorMessage = new JLabel();
+        errorMessage.setForeground(Color.RED);
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.gridwidth = GridBagConstraints.REMAINDER;
+        constraints.gridheight = GridBagConstraints.RELATIVE;
+        constraints.anchor = GridBagConstraints.EAST;
+        constraints.weightx = 1.0;
+        constraints.gridx = 0;
+        constraints.gridy = 14;
+        inputPanel.add(errorMessage, constraints);
+
+
         rootContainer.add(inputPanel, BorderLayout.CENTER);
 
 //        button panel
@@ -484,5 +497,9 @@ public class SellDialog extends AbstractDialog {
 
     public JCheckBox getClientCheckBox() {
         return clientCheckBox;
+    }
+
+    public JLabel getErrorMessage() {
+        return errorMessage;
     }
 }

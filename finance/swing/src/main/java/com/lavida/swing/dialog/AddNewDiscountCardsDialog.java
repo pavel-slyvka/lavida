@@ -26,8 +26,9 @@ public class AddNewDiscountCardsDialog extends AbstractDialog {
     @Resource(name = "addNewDiscountCardsTableModel")
     private DiscountCardsTableModel tableModel;
 
-    private JPanel operationPanel, southPanel, desktopPanel, filtersPanel, analyzePanel, mainPanel,
+    private JPanel operationPanel, southPanel, desktopPanel, analyzePanel, mainPanel,
             buttonPanel;
+    private JLabel errorMessage;
     private JButton addRowButton, deleteRowButton, acceptCardsButton, cancelButton;
     private DiscountCardTableComponent cardTableComponent = new DiscountCardTableComponent();
 
@@ -160,6 +161,10 @@ public class AddNewDiscountCardsDialog extends AbstractDialog {
         buttonPanel = new JPanel();
         buttonPanel.setLayout(new FlowLayout(FlowLayout.TRAILING));
 
+        errorMessage = new JLabel();
+        errorMessage.setForeground(Color.RED);
+        buttonPanel.add(errorMessage);
+
         acceptCardsButton = new JButton();
         acceptCardsButton.setHorizontalTextPosition(JButton.CENTER);
         acceptCardsButton.setPreferredSize(new Dimension(150, 25));
@@ -197,5 +202,9 @@ public class AddNewDiscountCardsDialog extends AbstractDialog {
 
     public DiscountCardTableComponent getCardTableComponent() {
         return cardTableComponent;
+    }
+
+    public JLabel getErrorMessage() {
+        return errorMessage;
     }
 }

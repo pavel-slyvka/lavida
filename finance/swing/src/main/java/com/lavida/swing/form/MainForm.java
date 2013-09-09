@@ -42,7 +42,7 @@ public class MainForm extends AbstractForm {
     private JPanel operationPanel, refreshPanel, southPanel, desktopPanel, filtersPanel, analyzePanel, mainPanel,
             buttonPanel, statusBarPanel;
     private Button refreshButton, recommitButton, sellButton, showSoldProductsButton;
-    private JLabel postponedOperations, postponedMessage;
+    private JLabel postponedOperations, postponedMessage, errorMessage;
     private JMenuBar menuBar;
     private JMenu postponedMenu, productsMenu, settingsMenu, discountsMenu;
     private JMenuItem savePostponedItem, loadPostponedItem, deletePostponedItem,
@@ -215,8 +215,13 @@ public class MainForm extends AbstractForm {
         postponedMessage.setVerticalTextPosition(JLabel.TOP);
         postponedMessage.setForeground(Color.RED);
         handler.showPostponedOperationsMessage();
+
+        errorMessage = new JLabel();
+        errorMessage.setForeground(Color.RED);
+
         statusBarPanel.add(postponedOperations);
         statusBarPanel.add(postponedMessage);
+        statusBarPanel.add(errorMessage);
 
         rootContainer.add(statusBarPanel, BorderLayout.SOUTH);
     }
@@ -404,5 +409,8 @@ public class MainForm extends AbstractForm {
         return false;
     }
 
+    public JLabel getErrorMessage() {
+        return errorMessage;
+    }
 }
 
