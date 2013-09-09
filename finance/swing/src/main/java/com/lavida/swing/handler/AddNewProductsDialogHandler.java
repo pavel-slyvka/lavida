@@ -2,13 +2,10 @@ package com.lavida.swing.handler;
 
 import com.google.gdata.util.ServiceException;
 import com.lavida.service.entity.ArticleJdo;
-import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.dialog.AddNewProductsDialog;
-import com.lavida.swing.dialog.SoldProductsDialog;
 import com.lavida.swing.service.ArticleServiceSwingWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -31,12 +28,6 @@ public class AddNewProductsDialogHandler {
     private AddNewProductsDialog dialog;
 
     @Resource
-    private MessageSource messageSource;
-
-    @Resource
-    private LocaleHolder localeHolder;
-
-    @Resource
     private ArticleServiceSwingWrapper articleServiceSwingWrapper;
 
 
@@ -44,7 +35,6 @@ public class AddNewProductsDialogHandler {
         ArticleJdo articleJdo = new ArticleJdo();
         dialog.getTableModel().getTableData().add(articleJdo);
         dialog.getTableModel().fireTableDataChanged();
-//        dialog.getArticleTableComponent().updateAnalyzeComponent();
     }
 
     public void deleteRowButtonClicked() {
@@ -52,7 +42,6 @@ public class AddNewProductsDialogHandler {
         dialog.getTableModel().getTableData().remove(selectedArticle);
         dialog.getTableModel().setSelectedArticle(null);
         dialog.getTableModel().fireTableDataChanged();
-//        dialog.getArticleTableComponent().updateAnalyzeComponent();
     }
 
     public void cancelButtonClicked() {
@@ -81,6 +70,6 @@ public class AddNewProductsDialogHandler {
         }
         dialog.getTableModel().getTableData().removeAll(newArticles);
         dialog.getTableModel().fireTableDataChanged();
-        dialog.getArticleTableComponent().updateAnalyzeComponent();
+        dialog.getArticleTableComponent().getArticleFiltersComponent().updateAnalyzeComponent();
     }
 }

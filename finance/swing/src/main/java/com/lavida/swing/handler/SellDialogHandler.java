@@ -68,7 +68,8 @@ public class SellDialogHandler {
             return;
         }
         articleJdo.setSaleDate(saleDateCalendar);
-        articleJdo.setSalePrice(Double.parseDouble(dialog.getTotalCostTextField().getText()));
+        articleJdo.setSalePrice(Double.parseDouble(dialog.getTotalCostTextField().getText().replace(",", ".")));
+        dialog.getDiscountCardNumberTextField().setText("");
         articleJdo.setSold(messageSource.getMessage("sellDialog.button.sell.clicked.sold", null, localeHolder.getLocale()));
         articleJdo.setComment(dialog.getCommentTextField().getText().trim());
         dialog.getCommentTextField().setText("");
@@ -139,7 +140,7 @@ public class SellDialogHandler {
         double discount = Double.parseDouble(discountStr);
         double price = Double.parseDouble(dialog.getPriceField().getText());
         double totalCost = price - discount;
-        dialog.getTotalCostTextField().setText(new DecimalFormat("##.##").format(totalCost));
+        dialog.getTotalCostTextField().setText(new DecimalFormat("00.00").format(totalCost).replace(",", "."));
     }
 
     public void discountCardNumberTextEntered() {

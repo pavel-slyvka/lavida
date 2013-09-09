@@ -1,9 +1,7 @@
 package com.lavida.swing.dialog;
 
-import com.lavida.swing.form.component.AddNewArticleTableComponent;
 import com.lavida.swing.form.component.ArticleTableComponent;
 import com.lavida.swing.handler.AddNewProductsDialogHandler;
-import com.lavida.swing.service.AddNewArticleTableModel;
 import com.lavida.swing.service.ArticlesTableModel;
 import org.springframework.stereotype.Component;
 
@@ -23,14 +21,14 @@ import java.awt.event.ActionListener;
 public class AddNewProductsDialog extends AbstractDialog {
 
     @Resource(name = "addNewArticleTableModel")
-    private AddNewArticleTableModel tableModel;
+    private ArticlesTableModel tableModel;
 
     @Resource
     private AddNewProductsDialogHandler handler;
 
-    private AddNewArticleTableComponent articleTableComponent = new AddNewArticleTableComponent();
+    private ArticleTableComponent articleTableComponent = new ArticleTableComponent();
 
-    private JPanel operationPanel, southPanel, desktopPanel, filtersPanel, analyzePanel, mainPanel,
+    private JPanel operationPanel, southPanel, desktopPanel, analyzePanel, mainPanel,
             buttonPanel;
     private JButton addRowButton, deleteRowButton, acceptProductsButton, cancelButton;
 
@@ -66,7 +64,8 @@ public class AddNewProductsDialog extends AbstractDialog {
         southPanel.setBorder(BorderFactory.createEmptyBorder());
 
         //      analyze panel for total analyses
-        analyzePanel = articleTableComponent.getAnalyzeComponent().getAnalyzePanel();
+        analyzePanel = articleTableComponent.getArticleFiltersComponent().getArticleAnalyzeComponent().getAnalyzePanel();
+
         analyzePanel.setPreferredSize(new Dimension(890, 25));
         analyzePanel.setMinimumSize(new Dimension(800, 25));
         analyzePanel.setMaximumSize(new Dimension(1500, 25));
@@ -177,11 +176,12 @@ public class AddNewProductsDialog extends AbstractDialog {
 
     }
 
-    public AddNewArticleTableModel getTableModel() {
+
+    public ArticlesTableModel getTableModel() {
         return tableModel;
     }
 
-    public AddNewArticleTableComponent getArticleTableComponent() {
+    public ArticleTableComponent getArticleTableComponent() {
         return articleTableComponent;
     }
 }

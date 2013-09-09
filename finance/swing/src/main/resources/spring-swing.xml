@@ -38,7 +38,7 @@
         <property name="queryName" ref="ArticleJdo.FIND_SOLD" />
     </bean>
 
-    <bean id="addNewArticleTableModel" class="com.lavida.swing.service.AddNewArticleTableModel"/>
+    <bean id="addNewArticleTableModel" class="com.lavida.swing.service.ArticlesTableModel"/>
 
     <bean id="addNewDiscountCardsTableModel" class="com.lavida.swing.service.DiscountCardsTableModel">
     </bean>

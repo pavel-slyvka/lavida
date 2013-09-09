@@ -8,6 +8,8 @@ import org.springframework.context.MessageSource;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.TableColumnModel;
 import java.awt.*;
 import java.util.Iterator;
@@ -20,7 +22,7 @@ import java.util.Set;
  *
  * @author Pavel
  */
-public class ArticleTableComponent {
+public class ArticleTableComponent  implements TableModelListener{
     private ArticlesTableModel tableModel;
     private MessageSource messageSource;
     private LocaleHolder localeHolder;
@@ -35,6 +37,7 @@ public class ArticleTableComponent {
         this.messageSource = messageSource;
         this.localeHolder = localeHolder;
         tableModel.initAnalyzeFields();
+        tableModel.addTableModelListener(this);
 
 //      main panel for table of goods
         mainPanel = new JPanel();
@@ -108,5 +111,14 @@ public class ArticleTableComponent {
 
     public JTable getArticlesTable() {
         return articlesTable;
+    }
+
+    @Override
+    public void tableChanged(TableModelEvent e) {
+        if (e != null) {
+            getArticleFiltersComponent().updateAnalyzeComponent();
+            return;
+        }
+
     }
 }

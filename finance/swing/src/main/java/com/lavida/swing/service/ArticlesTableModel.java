@@ -73,7 +73,7 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
     }
 
     public List<ArticleJdo> getTableData() {
-        if (tableData == null) {
+        if (tableData == null && queryName != null) {
             tableData = articleDao.get(queryName);
         }
         return tableData;
@@ -138,6 +138,11 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
         this.articleFieldsSequence = new ArrayList<String>();
         this.headerTitles = new ArrayList<String>();
         this.columnIndexToDateFormat = new HashMap<Integer, SimpleDateFormat>();
+        if (queryName != null) {
+            this.tableData = articleDao.get(queryName);
+        } else {
+            this.tableData = new ArrayList<ArticleJdo>();
+        }
         for (Field field : ArticleJdo.class.getDeclaredFields()) {
             ViewColumn viewColumn = field.getAnnotation(ViewColumn.class);
             if (viewColumn != null) {
@@ -344,20 +349,21 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
      * @param changedArticle
      */
     private void updateTable(ArticleJdo changedArticle) {
-        try {
-            articleServiceSwingWrapper.updateToSpreadsheet(changedArticle, null);
-            articleServiceSwingWrapper.update(changedArticle);
-            fireTableDataChanged();
-        } catch (IOException e) {
-            logger.warn(e.getMessage(), e);
-            changedArticle.setPostponedOperationDate(new Date());
-            articleServiceSwingWrapper.update(changedArticle);
-        } catch (ServiceException e) {
-            logger.warn(e.getMessage(), e);
-            changedArticle.setPostponedOperationDate(new Date());
-            articleServiceSwingWrapper.update(changedArticle);
+        if (queryName != null) {
+            try {
+                articleServiceSwingWrapper.updateToSpreadsheet(changedArticle, null);
+                articleServiceSwingWrapper.update(changedArticle);
+            } catch (IOException e) {
+                logger.warn(e.getMessage(), e);
+                changedArticle.setPostponedOperationDate(new Date());
+                articleServiceSwingWrapper.update(changedArticle);
+            } catch (ServiceException e) {
+                logger.warn(e.getMessage(), e);
+                changedArticle.setPostponedOperationDate(new Date());
+                articleServiceSwingWrapper.update(changedArticle);
+            }
         }
-
+        fireTableDataChanged();
     }
 
     public void setSelectedArticle(ArticleJdo selectedArticle) {
