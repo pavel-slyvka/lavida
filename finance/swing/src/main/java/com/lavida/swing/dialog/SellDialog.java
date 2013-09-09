@@ -48,7 +48,8 @@ public class SellDialog extends AbstractDialog {
     private JTextField shopTextField, discountTextField, totalCostTextField, commentTextField, saleDateTextField,
             discountCardNumberTextField;
     private JButton sellButton, cancelButton;
-    private JCheckBox oursCheckBox, presentCheckBox;
+    private ButtonGroup buttonGroup;
+    private JCheckBox oursCheckBox, presentCheckBox, clientCheckBox;
     private JComboBox sellerNames;
     private List<JCheckBox> tagCheckBoxes = new ArrayList<JCheckBox>();
 
@@ -282,12 +283,35 @@ public class SellDialog extends AbstractDialog {
         oursPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(messageSource.
                 getMessage("sellDialog.panel.ours.title", null, localeHolder.getLocale())),
                 BorderFactory.createEmptyBorder(5, 15, 5, 15)));
+
+        clientCheckBox = new JCheckBox();
         oursCheckBox = new JCheckBox();
         presentCheckBox = new JCheckBox();
+        clientCheckBox.setText(messageSource.getMessage("sellDialog.checkBox.client.text", null, localeHolder.getLocale()));
+        clientCheckBox.setSelected(true);
         oursCheckBox.setText(messageSource.getMessage("sellDialog.checkBox.ours.text", null, localeHolder.getLocale()));
         oursCheckBox.setActionCommand(messageSource.getMessage("sellDialog.checkBox.ours.text", null, localeHolder.getLocale()));
         presentCheckBox.setText(messageSource.getMessage("sellDialog.checkBox.present.text", null, localeHolder.getLocale()));
         presentCheckBox.setActionCommand(messageSource.getMessage("sellDialog.checkBox.present.text", null, localeHolder.getLocale()));
+
+        buttonGroup = new ButtonGroup();
+        buttonGroup.add(clientCheckBox);
+        buttonGroup.add(oursCheckBox);
+        buttonGroup.add(presentCheckBox);
+
+        clientCheckBox.addItemListener( new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                int state = e.getStateChange();
+                if (state == ItemEvent.SELECTED) {
+                    handler.clientCheckBoxSelected();
+                    handler.discountTextEntered();
+                } else if (state == ItemEvent.DESELECTED) {
+                    handler.checkBoxDeSelected();
+                    handler.discountTextEntered();
+                }
+            }
+        });
 
         oursCheckBox.addItemListener(new ItemListener() {
             @Override
@@ -317,6 +341,7 @@ public class SellDialog extends AbstractDialog {
             }
         });
 
+        oursPanel.add(clientCheckBox);
         oursPanel.add(oursCheckBox);
         oursPanel.add(presentCheckBox);
         inputPanel.add(oursPanel, constraints);
@@ -455,5 +480,9 @@ public class SellDialog extends AbstractDialog {
 
     public JTextField getDiscountCardNumberTextField() {
         return discountCardNumberTextField;
+    }
+
+    public JCheckBox getClientCheckBox() {
+        return clientCheckBox;
     }
 }

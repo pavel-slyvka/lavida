@@ -76,12 +76,13 @@ public class SellDialogHandler {
         if (dialog.getOursCheckBox().isSelected()) {
             articleJdo.setSalePrice(articleJdo.getCalculatedSalePrice());
             articleJdo.setSellType(dialog.getOursCheckBox().getActionCommand());
-            dialog.getOursCheckBox().setSelected(false);
+//            dialog.getOursCheckBox().setSelected(false);
         } else if (dialog.getPresentCheckBox().isSelected()) {
             articleJdo.setSalePrice(Double.parseDouble(dialog.getPriceField().getText().trim()));
             articleJdo.setSellType(dialog.getPresentCheckBox().getActionCommand());
-            dialog.getPresentCheckBox().setSelected(false);
+//            dialog.getPresentCheckBox().setSelected(false);
         }
+        dialog.getClientCheckBox().setSelected(true);
         StringBuilder tagsBuilder = new StringBuilder();
         for (JCheckBox checkBox : dialog.getTagCheckBoxes()) {
             if (checkBox.isSelected()) {
@@ -166,14 +167,19 @@ public class SellDialogHandler {
 
     /**
      * Checks if the discount card is registered and not disabled.
-     * @param cardNumber  the number of the card to be checked.
+     *
+     * @param cardNumber the number of the card to be checked.
      * @return true if the discount card is registered and not disabled.
      */
     private boolean cardNumberExists(int cardNumber) {
-        DiscountCardJdo discountCardJdo =discountCardServiceSwingWrapper.getByNumber(cardNumber);
+        DiscountCardJdo discountCardJdo = discountCardServiceSwingWrapper.getByNumber(cardNumber);
         if (discountCardJdo != null && discountCardJdo.getDisablingDate() == null) {
             return true;
         } else
             return false;
+    }
+
+    public void clientCheckBoxSelected() {
+        discountCardNumberTextEntered();
     }
 }

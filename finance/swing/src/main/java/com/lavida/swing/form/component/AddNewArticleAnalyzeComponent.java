@@ -18,6 +18,7 @@ import java.util.List;
  *
  * @author Ruslan
  */
+@Deprecated
 public class AddNewArticleAnalyzeComponent {
     private static final List<String> FORBIDDEN_ROLES = new ArrayList<String>();
     static {

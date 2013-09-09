@@ -21,6 +21,7 @@ import java.util.*;
  *
  * @author Ruslan
  */
+@Deprecated
 public class AddNewArticleTableComponent implements TableModelListener {
     private AddNewArticleTableModel tableModel;
     private MessageSource messageSource;
