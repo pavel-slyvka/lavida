@@ -227,7 +227,8 @@ public class ArticleFiltersComponent {
      *
      * @return
      */
-    private Date getCorrectedDate(String enteredDate) {
+    private Date getCorrectedDate(String enteredDate) throws NoSuchElementException {
+        enteredDate = enteredDate.replaceAll("[^0-9.,]", "");
         Queue<String> dateParts = new ArrayDeque<String>(3);
         StringBuilder number = new StringBuilder();
         for (char symbol : enteredDate.toCharArray()) {
@@ -244,6 +245,8 @@ public class ArticleFiltersComponent {
 
         Calendar currentDate = Calendar.getInstance();
         switch (dateParts.size()) {
+            case 0:
+                dateParts.add (Integer.toString(currentDate.get(Calendar.DATE)));
             case 1:
                 dateParts.add(Integer.toString(currentDate.get(Calendar.MONTH) + 1));
             case 2:
