@@ -145,7 +145,7 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
         }
         for (Field field : ArticleJdo.class.getDeclaredFields()) {
             ViewColumn viewColumn = field.getAnnotation(ViewColumn.class);
-            if (viewColumn != null) {
+            if (viewColumn != null && viewColumn.show()) {
                 field.setAccessible(true);
                 this.articleFieldsSequence.add(field.getName());
                 if (viewColumn.titleKey().isEmpty()) {
@@ -168,8 +168,8 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
         List<String> forbiddenHeaders = new ArrayList<String>();
         for (Field field : ArticleJdo.class.getDeclaredFields()) {
             ViewColumn viewColumn = field.getAnnotation(ViewColumn.class);
-            if (viewColumn != null) {
-                if (!viewColumn.show() || isForbidden(userRoles, viewColumn.forbiddenRoles())) {
+            if (viewColumn != null && viewColumn.show()) {
+                if ( isForbidden(userRoles, viewColumn.forbiddenRoles())) {
                     forbiddenHeaders.add(viewColumn.titleKey().isEmpty() ? field.getName()
                             : messageSource.getMessage(viewColumn.titleKey(), null, locale));
                 }
