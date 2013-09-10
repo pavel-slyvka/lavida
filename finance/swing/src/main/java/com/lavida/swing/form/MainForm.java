@@ -183,6 +183,8 @@ public class MainForm extends AbstractForm {
         postponedOperations.setVerticalTextPosition(JLabel.TOP);
         postponedOperations.setText(messageSource.getMessage(
                 "mainForm.panel.statusBar.postponed.operations.label.title", null, localeHolder.getLocale()));
+        postponedOperations.setForeground(Color.RED);
+        postponedOperations.setVisible(false);
 
         postponedMessage = new JLabel();
         postponedMessage.setVerticalTextPosition(JLabel.TOP);
@@ -192,14 +194,9 @@ public class MainForm extends AbstractForm {
         errorMessage = new JLabel();
         errorMessage.setForeground(Color.RED);
 
-        JSeparator separator = new JSeparator(JSeparator.VERTICAL);
-        separator.setPreferredSize(new Dimension(1, 15));
-        separator.setMinimumSize(new Dimension(1, 15));
-        separator.setMaximumSize(new Dimension(1, 15));
 
         statusBarPanel.add(postponedOperations);
         statusBarPanel.add(postponedMessage);
-        statusBarPanel.add(separator);
         statusBarPanel.add(errorMessage);
 
         rootContainer.add(statusBarPanel, BorderLayout.SOUTH);
@@ -349,6 +346,10 @@ public class MainForm extends AbstractForm {
         }
     }
 
+    public JLabel getPostponedOperations() {
+        return postponedOperations;
+    }
+
     public JLabel getPostponedMessage() {
         return postponedMessage;
     }
@@ -399,6 +400,18 @@ public class MainForm extends AbstractForm {
 
     public JLabel getErrorMessage() {
         return errorMessage;
+    }
+
+    public JMenuItem getSavePostponedItem() {
+        return savePostponedItem;
+    }
+
+    public JMenuItem getRecommitPostponedItem() {
+        return recommitPostponedItem;
+    }
+
+    public JMenuItem getDeletePostponedItem() {
+        return deletePostponedItem;
     }
 }
 

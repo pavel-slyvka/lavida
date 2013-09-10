@@ -173,9 +173,17 @@ public class MainFormHandler {
         if (count > 0) {
             form.getPostponedMessage().setText(String.valueOf(count));
             form.getPostponedMessage().setVisible(true);
+            form.getPostponedOperations().setVisible(true);
+            form.getSavePostponedItem().setEnabled(true);
+            form.getRecommitPostponedItem().setEnabled(true);
+            form.getDeletePostponedItem().setEnabled(true);
         } else {
             form.getPostponedMessage().setText(String.valueOf(count));
             form.getPostponedMessage().setVisible(false);
+            form.getPostponedOperations().setVisible(false);
+            form.getSavePostponedItem().setEnabled(false);
+            form.getRecommitPostponedItem().setEnabled(false);
+            form.getDeletePostponedItem().setEnabled(false);
         }
     }
 
