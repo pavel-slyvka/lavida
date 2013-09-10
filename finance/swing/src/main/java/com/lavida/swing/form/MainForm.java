@@ -219,8 +219,14 @@ public class MainForm extends AbstractForm {
         errorMessage = new JLabel();
         errorMessage.setForeground(Color.RED);
 
+        JSeparator separator = new JSeparator(JSeparator.VERTICAL);
+        separator.setPreferredSize(new Dimension(1, 15));
+        separator.setMinimumSize(new Dimension(1, 15));
+        separator.setMaximumSize(new Dimension(1, 15));
+
         statusBarPanel.add(postponedOperations);
         statusBarPanel.add(postponedMessage);
+        statusBarPanel.add(separator);
         statusBarPanel.add(errorMessage);
 
         rootContainer.add(statusBarPanel, BorderLayout.SOUTH);

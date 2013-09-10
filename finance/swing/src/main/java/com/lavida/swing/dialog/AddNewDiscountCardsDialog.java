@@ -63,26 +63,28 @@ public class AddNewDiscountCardsDialog extends AbstractDialog {
 
 
 //        south panel for desktopPanel
-        southPanel = new JPanel(new GridBagLayout());
-        southPanel.setBorder(BorderFactory.createEmptyBorder());
+        southPanel = new JPanel();
+        southPanel.setLayout(new BoxLayout(southPanel, BoxLayout.PAGE_AXIS));
+        southPanel.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
 
 //      analyze panel for total analyses
         analyzePanel = cardTableComponent.getCardFiltersComponent().getCardAnalyzeComponent().getAnalyzePanel();
+        analyzePanel.setLayout(new BoxLayout(analyzePanel, BoxLayout.LINE_AXIS));
         analyzePanel.setPreferredSize(new Dimension(890, 25));
         analyzePanel.setMinimumSize(new Dimension(800, 25));
         analyzePanel.setMaximumSize(new Dimension(1500, 25));
 
-//      panel for search operations
-//        filtersPanel= cardTableComponent.getCardFiltersComponent().getFiltersPanel();
+        JPanel operations = new JPanel();
+        operations.setLayout(new BoxLayout(operations, BoxLayout.LINE_AXIS));
 
         operationPanel = new JPanel();
-        operationPanel.setLayout(new GridBagLayout());
-        GridBagConstraints constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.insets = new Insets(1, 5, 1, 5);
+        operationPanel.setLayout(new BoxLayout(operationPanel, BoxLayout.PAGE_AXIS));
+        operationPanel.setPreferredSize(new Dimension(170, 85));
+        operationPanel.setMaximumSize(new Dimension(170, 85));
+        operationPanel.setMinimumSize(new Dimension(170, 85));
         operationPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(messageSource.
                 getMessage("mainForm.panel.operation.title", null, localeHolder.getLocale())),
-                BorderFactory.createEmptyBorder()));
+                BorderFactory.createEmptyBorder(0, 5, 0, 5)));
         addRowButton = new JButton();
         addRowButton.setHorizontalTextPosition(JButton.CENTER);
         addRowButton.setPreferredSize(new Dimension(150, 25));
@@ -96,15 +98,6 @@ public class AddNewDiscountCardsDialog extends AbstractDialog {
             }
         });
 
-
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.gridx = 0;
-        constraints.gridy = 0;
-        constraints.gridwidth = GridBagConstraints.REMAINDER;
-        constraints.anchor = GridBagConstraints.SOUTH;
-        constraints.weightx = 1.0;
-        operationPanel.add(addRowButton, constraints);
-
         deleteRowButton = new JButton();
         deleteRowButton.setText(messageSource.getMessage("dialog.discounts.card.addNew.button.deleteRow", null, localeHolder.getLocale()));
         deleteRowButton.setHorizontalTextPosition(JButton.CENTER);
@@ -117,41 +110,15 @@ public class AddNewDiscountCardsDialog extends AbstractDialog {
                 handler.deleteRowButtonClicked();
             }
         });
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.gridx = 0;
-        constraints.gridy = 2;
-        constraints.gridwidth = GridBagConstraints.REMAINDER;
-        constraints.anchor = GridBagConstraints.SOUTH;
-        constraints.weightx = 1.0;
-        operationPanel.add(deleteRowButton, constraints);
 
-        constraints.gridx = 0;
-        constraints.gridy = 0;
-        constraints.fill = GridBagConstraints.REMAINDER;
-        constraints.gridwidth = GridBagConstraints.REMAINDER;
-        constraints.anchor = GridBagConstraints.WEST;
-        constraints.weightx = 0.0;
-        constraints.weighty = 0.0;
-        southPanel.add(analyzePanel, constraints);
+        operationPanel.add(addRowButton);
+        operationPanel.add(Box.createVerticalStrut(5));
+        operationPanel.add(deleteRowButton);
+        operations.add(operationPanel);
+        operations.add(Box.createHorizontalGlue());
 
-        constraints.gridx = 0;
-        constraints.gridy = 1;
-        constraints.fill = GridBagConstraints.VERTICAL;
-        constraints.gridwidth = GridBagConstraints.RELATIVE;
-        constraints.anchor = GridBagConstraints.WEST;
-        constraints.weightx = 0.0;
-        constraints.weighty = 1.0;
-        southPanel.add(operationPanel, constraints);
-
-//        constraints.gridx = 1;
-//        constraints.gridy = 1;
-//        constraints.fill = GridBagConstraints.BOTH;
-//        constraints.gridwidth = GridBagConstraints.REMAINDER;
-//        constraints.gridheight = GridBagConstraints.REMAINDER;
-//        constraints.anchor = GridBagConstraints.WEST;
-//        constraints.weightx = 1.0;
-//        constraints.weighty = 1.0;
-//        southPanel.add(filtersPanel, constraints);
+        southPanel.add(analyzePanel);
+        southPanel.add(operations);
 
         desktopPanel.add(southPanel, BorderLayout.SOUTH);
 
@@ -159,11 +126,24 @@ public class AddNewDiscountCardsDialog extends AbstractDialog {
 
 //        south panel for buttons
         buttonPanel = new JPanel();
-        buttonPanel.setLayout(new FlowLayout(FlowLayout.TRAILING));
+        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.LINE_AXIS));
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
         errorMessage = new JLabel();
         errorMessage.setForeground(Color.RED);
-        buttonPanel.add(errorMessage);
+        errorMessage.setHorizontalAlignment(JLabel.LEFT);
+
+        JPanel errorPanel = new JPanel();
+        errorPanel.setLayout(new BoxLayout(errorPanel, BoxLayout.LINE_AXIS));
+        errorPanel.setPreferredSize(new Dimension(200, 30));
+        errorPanel.setMinimumSize(new Dimension(100, 30));
+        errorPanel.setMaximumSize(new Dimension(500, 50));
+        errorPanel.add(errorMessage);
+        buttonPanel.add(errorPanel);
+        buttonPanel.add(Box.createHorizontalGlue());
+
+        JPanel buttons = new JPanel();
+        buttons.setLayout(new BoxLayout(buttons, BoxLayout.LINE_AXIS));
 
         acceptCardsButton = new JButton();
         acceptCardsButton.setHorizontalTextPosition(JButton.CENTER);
@@ -177,7 +157,6 @@ public class AddNewDiscountCardsDialog extends AbstractDialog {
                 handler.acceptCardsButtonClicked();
             }
         });
-        buttonPanel.add(acceptCardsButton);
 
         cancelButton = new JButton();
         cancelButton.setHorizontalTextPosition(JButton.CENTER);
@@ -191,8 +170,11 @@ public class AddNewDiscountCardsDialog extends AbstractDialog {
                 handler.cancelButtonClicked();
             }
         });
-        buttonPanel.add(cancelButton);
 
+        buttons.add(acceptCardsButton);
+        buttons.add(Box.createHorizontalStrut(5));
+        buttons.add(cancelButton);
+        buttonPanel.add(buttons);
         rootContainer.add(buttonPanel, BorderLayout.SOUTH);
     }
 
