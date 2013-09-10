@@ -92,13 +92,16 @@ public class ColumnsViewSettingsDialog extends AbstractDialog {
 
         rootContainer.setLayout(new BorderLayout());
 //      input panel
-        inputPanel = new JPanel(new GridLayout(2, 2));
+        inputPanel = new JPanel(new GridLayout(1, 2));
         inputPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.insets = new Insets(5, 0, 5, 0);
 
         visibleColumnsPanel = new JPanel(new GridBagLayout());
+        visibleColumnsPanel.setPreferredSize(new Dimension(220, 270));
+        visibleColumnsPanel.setMaximumSize(new Dimension(520, 570));
+        visibleColumnsPanel.setMinimumSize(new Dimension(120, 170));
         visibleColumnsPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(messageSource.
                 getMessage("dialog.settings.view.columns.label.columns.visible", null, localeHolder.getLocale())),
                 BorderFactory.createEmptyBorder(5, 5, 5, 5)));
@@ -120,7 +123,7 @@ public class ColumnsViewSettingsDialog extends AbstractDialog {
         visibleListScrollPane = new JScrollPane(visibleColumnsList);
         visibleListScrollPane.setPreferredSize(new Dimension(200, 200));
         visibleListScrollPane.setMaximumSize(new Dimension(500, 500));
-        visibleListScrollPane.setMinimumSize(new Dimension(50, 200));
+        visibleListScrollPane.setMinimumSize(new Dimension(100, 50));
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.gridwidth = GridBagConstraints.REMAINDER;
         constraints.gridheight = GridBagConstraints.RELATIVE;
@@ -153,6 +156,9 @@ public class ColumnsViewSettingsDialog extends AbstractDialog {
         inputPanel.add(visibleColumnsPanel);
 
         notVisibleColumnsPanel = new JPanel(new GridBagLayout());
+        notVisibleColumnsPanel.setPreferredSize(new Dimension(220, 270));
+        notVisibleColumnsPanel.setMaximumSize(new Dimension(520, 570));
+        notVisibleColumnsPanel.setMinimumSize(new Dimension(120, 170));
         notVisibleColumnsPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(messageSource.
                 getMessage("dialog.settings.view.columns.label.columns.notVisible", null, localeHolder.getLocale())),
                 BorderFactory.createEmptyBorder(5, 5, 5, 5)));
@@ -175,7 +181,7 @@ public class ColumnsViewSettingsDialog extends AbstractDialog {
         notVisibleListScrollPane = new JScrollPane(notVisibleColumnsList);
         notVisibleListScrollPane.setPreferredSize(new Dimension(200, 200));
         notVisibleListScrollPane.setMaximumSize(new Dimension(500, 500));
-        notVisibleListScrollPane.setMinimumSize(new Dimension(50, 200));
+        notVisibleListScrollPane.setMinimumSize(new Dimension(100, 50));
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.gridwidth = GridBagConstraints.RELATIVE;
         constraints.gridheight = GridBagConstraints.RELATIVE;
@@ -208,24 +214,26 @@ public class ColumnsViewSettingsDialog extends AbstractDialog {
 
         inputPanel.add(notVisibleColumnsPanel);
 
-        errorMessage = new JLabel();
-        errorMessage.setForeground(Color.RED);
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.gridwidth = GridBagConstraints.REMAINDER;
-        constraints.gridheight = GridBagConstraints.RELATIVE;
-        constraints.anchor = GridBagConstraints.EAST;
-        constraints.weightx = 1.0;
-        constraints.gridx = 1;
-        constraints.gridy = 0;
-        inputPanel.add(errorMessage, constraints);
-
-
 //        button panel
-        FlowLayout flowLayout = new FlowLayout();
-        flowLayout.setAlignment(FlowLayout.RIGHT);
-        buttonPanel = new JPanel(flowLayout);
+        buttonPanel = new JPanel();
+        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.LINE_AXIS));
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
+        errorMessage = new JLabel();
+        errorMessage.setForeground(Color.RED);
+        errorMessage.setHorizontalAlignment(JLabel.LEFT);
+
+        JPanel errorPanel = new JPanel();
+        errorPanel.setLayout(new BoxLayout(errorPanel, BoxLayout.LINE_AXIS));
+        errorPanel.setPreferredSize(new Dimension(200, 30));
+        errorPanel.setMinimumSize(new Dimension(100, 30));
+        errorPanel.setMaximumSize(new Dimension(500, 50));
+        errorPanel.add(errorMessage);
+        buttonPanel.add(errorPanel);
+        buttonPanel.add(Box.createHorizontalGlue());
+
+        JPanel buttons = new JPanel();
+        buttons.setLayout(new BoxLayout(buttons, BoxLayout.LINE_AXIS));
         applyButton = new JButton(messageSource.getMessage("dialog.settings.view.columns.button.apply", null,
                 localeHolder.getLocale()));
         applyButton.addActionListener(new ActionListener() {
@@ -242,9 +250,10 @@ public class ColumnsViewSettingsDialog extends AbstractDialog {
                 handler.cancelButtonClicked();
             }
         });
-        buttonPanel.add(applyButton);
-        buttonPanel.add(cancelButton);
-
+        buttons.add(applyButton);
+        buttons.add(Box.createHorizontalStrut(5));
+        buttons.add(cancelButton);
+        buttonPanel.add(buttons);
 
         rootContainer.add(inputPanel, BorderLayout.CENTER);
         rootContainer.add(buttonPanel, BorderLayout.SOUTH);
