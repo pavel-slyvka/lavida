@@ -129,7 +129,7 @@ public class MainFormHandler {
         }
     }
 
-    public void recommitButtonClicked() {
+    public void recommitPostponedItemClicked() {
         List<ArticleJdo> articles = articleServiceSwingWrapper.getAll();
         for (ArticleJdo articleJdo : articles) {
             if (articleJdo.getPostponedOperationDate() != null) {
@@ -369,8 +369,7 @@ public class MainFormHandler {
         addNewProductsDialog.show();
     }
 
-    public void columnsViewItemClicked() {
-//        columnsViewSettingsDialog.initializeLists( form.getArticleTableComponent().getArticlesTable());
+    public void articleColumnsViewItemClicked() {
         columnsViewSettingsDialog.show();
     }
 
