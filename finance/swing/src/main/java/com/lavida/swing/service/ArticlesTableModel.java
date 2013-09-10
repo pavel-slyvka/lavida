@@ -19,6 +19,7 @@ import javax.annotation.Resource;
 import javax.swing.table.AbstractTableModel;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -147,12 +148,41 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
             ViewColumn viewColumn = field.getAnnotation(ViewColumn.class);
             if (viewColumn != null && viewColumn.show()) {
                 field.setAccessible(true);
-                this.articleFieldsSequence.add(field.getName());
-                if (viewColumn.titleKey().isEmpty()) {
-                    this.headerTitles.add(field.getName());
-                } else {
-                    this.headerTitles.add(messageSource.getMessage(viewColumn.titleKey(), null, localeHolder.getLocale()));
+                if (ArticleJdo.FIND_NOT_SOLD.equals(queryName) &&
+                        !(viewColumn.titleKey().equals("mainForm.table.articles.column.sell.marker.title") ||
+                                viewColumn.titleKey().equals("mainForm.table.articles.column.sell.date.title") ||
+                                viewColumn.titleKey().equals("mainForm.table.articles.column.sellerName.title") ||
+                                viewColumn.titleKey().equals("mainForm.table.articles.column.tags.title") ||
+                                viewColumn.titleKey().equals("mainForm.table.articles.column.refund.title"))) {
+                    this.articleFieldsSequence.add(field.getName());
+                    if (viewColumn.titleKey().isEmpty()) {
+                        this.headerTitles.add(field.getName());
+                    } else {
+                        this.headerTitles.add(messageSource.getMessage(viewColumn.titleKey(), null, localeHolder.getLocale()));
+                    }
+                } else if (ArticleJdo.FIND_SOLD.equals(queryName)) {
+                    this.articleFieldsSequence.add(field.getName());
+                    if (viewColumn.titleKey().isEmpty()) {
+                        this.headerTitles.add(field.getName());
+                    } else {
+                        this.headerTitles.add(messageSource.getMessage(viewColumn.titleKey(), null, localeHolder.getLocale()));
+                    }
+                } else if (queryName == null &&
+                        !(viewColumn.titleKey().equals("mainForm.table.articles.column.sell.marker.title") ||
+                                viewColumn.titleKey().equals("mainForm.table.articles.column.sell.date.title") ||
+                                viewColumn.titleKey().equals("mainForm.table.articles.column.sellerName.title") ||
+                                viewColumn.titleKey().equals("mainForm.table.articles.column.tags.title") ||
+                                viewColumn.titleKey().equals("mainForm.table.articles.column.raised.price.uah.title") ||
+                                viewColumn.titleKey().equals("mainForm.table.articles.column.old.price.uah.title") ||
+                                viewColumn.titleKey().equals("mainForm.table.articles.column.refund.title"))) {
+                    this.articleFieldsSequence.add(field.getName());
+                    if (viewColumn.titleKey().isEmpty()) {
+                        this.headerTitles.add(field.getName());
+                    } else {
+                        this.headerTitles.add(messageSource.getMessage(viewColumn.titleKey(), null, localeHolder.getLocale()));
+                    }
                 }
+
                 if (field.getType() == Calendar.class) {          // todo for Date fields
                     this.columnIndexToDateFormat.put(headerTitles.size() - 1,      //todo no patterns in articleJdo fields
                             new SimpleDateFormat(viewColumn.datePattern()));
@@ -169,7 +199,7 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
         for (Field field : ArticleJdo.class.getDeclaredFields()) {
             ViewColumn viewColumn = field.getAnnotation(ViewColumn.class);
             if (viewColumn != null && viewColumn.show()) {
-                if ( isForbidden(userRoles, viewColumn.forbiddenRoles())) {
+                if (isForbidden(userRoles, viewColumn.forbiddenRoles())) {
                     forbiddenHeaders.add(viewColumn.titleKey().isEmpty() ? field.getName()
                             : messageSource.getMessage(viewColumn.titleKey(), null, locale));
                 }
@@ -307,12 +337,18 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
                 field.set(articleJdo, Long.parseLong(value));
             } else if (Calendar.class == field.getType()) {
                 Calendar calendar = Calendar.getInstance();
-                String formattedValue = value.replace(",", ".").trim();
-                calendar.setTime(calendarFormatter.parse(formattedValue));
-                field.set(articleJdo, calendar);
+                if (!value.isEmpty()) {
+                    String formattedValue = value.replace(",", ".").trim();
+                    if (formattedValue.matches("\\d{2}.\\d{2}.\\d{4}")) {
+                        calendar.setTime(calendarFormatter.parse(formattedValue));
+                        field.set(articleJdo, calendar);
+                    }
+                }
             } else if (Date.class == field.getType()) {
-                String formattedValue = value.replace(",", ".").trim();
-                field.set(articleJdo, DateConverter.convertStringToDate(formattedValue));
+                if (!value.isEmpty()) {
+                    String formattedValue = value.replace(",", ".").trim();
+                    field.set(articleJdo, DateConverter.convertStringToDate(formattedValue));
+                }
             } else {
                 field.set(articleJdo, value);
             }

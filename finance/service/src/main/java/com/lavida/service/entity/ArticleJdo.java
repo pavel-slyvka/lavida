@@ -29,8 +29,8 @@ import java.util.Date;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "articleType", namespace = "http://www.xml.lavida.com/schema/articles.com")
 public class ArticleJdo implements Cloneable {
-    public static final String FIND_NOT_SOLD = "ArticleJdo.findSold";
-    public static final String FIND_SOLD = "ArticleJdo.findNotSold";
+    public static final String FIND_NOT_SOLD = "ArticleJdo.findNotSold";
+    public static final String FIND_SOLD = "ArticleJdo.findSold";
 
     @Id
     @GeneratedValue (strategy = GenerationType.IDENTITY)
