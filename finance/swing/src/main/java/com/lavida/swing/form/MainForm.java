@@ -39,14 +39,13 @@ public class MainForm extends AbstractForm {
         FORBIDDEN_ROLES.add("ROLE_SELLER");
     }
 
-    private JPanel operationPanel, refreshPanel, southPanel, desktopPanel, filtersPanel, analyzePanel, mainPanel,
-            buttonPanel, statusBarPanel;
-    private Button refreshButton, recommitButton, sellButton, showSoldProductsButton;
+    private JPanel operationPanel, southPanel, desktopPanel, filtersPanel, analyzePanel, mainPanel, statusBarPanel;
+    private Button refreshButton, sellButton, showSoldProductsButton;
     private JLabel postponedOperations, postponedMessage, errorMessage;
     private JMenuBar menuBar;
     private JMenu postponedMenu, productsMenu, settingsMenu, discountsMenu;
-    private JMenuItem savePostponedItem, loadPostponedItem, deletePostponedItem,
-            addNewProductsItem, columnsViewItem, addNewDiscountCardItem, allDiscountCardsItem;
+    private JMenuItem savePostponedItem, loadPostponedItem, recommitPostponedItem, deletePostponedItem,
+            addNewProductsItem, articleColumnsViewItem, addNewDiscountCardItem, allDiscountCardsItem;
     private ArticleTableComponent articleTableComponent = new ArticleTableComponent();
 
     @Override
@@ -93,39 +92,6 @@ public class MainForm extends AbstractForm {
 //      panel for search operations
         filtersPanel = articleTableComponent.getArticleFiltersComponent().getFiltersPanel();
 
-        buttonPanel = new JPanel(new GridLayout(2, 1));
-//      panel for refresh and save operations with data
-        refreshPanel = new JPanel();
-        refreshPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(messageSource.
-                getMessage("mainForm.panel.refresh.title", null, localeHolder.getLocale())),
-                BorderFactory.createEmptyBorder(0, 5, 0, 5)));
-        refreshPanel.setLayout(new BoxLayout(refreshPanel, BoxLayout.Y_AXIS));
-        refreshButton = new Button(messageSource.getMessage("mainForm.button.refresh.title", null,
-                localeHolder.getLocale()));
-        refreshButton.setMnemonic(KeyEvent.VK_T);  // Alt+T hot keys
-        refreshButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                handler.refreshButtonClicked();
-            }
-        });
-        refreshPanel.add(refreshButton);
-
-        refreshPanel.add(Box.createVerticalStrut(5));
-//        refreshPanel.add(new JSeparator(JSeparator.HORIZONTAL));
-        refreshPanel.add(Box.createVerticalStrut(5));
-
-        recommitButton = new Button(messageSource.getMessage("mainForm.button.recommit.title", null, localeHolder.getLocale()));
-        recommitButton.setMnemonic(KeyEvent.VK_K); // Alt + K hot keys
-        recommitButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                handler.recommitButtonClicked();
-            }
-        });
-        refreshPanel.add(recommitButton);
-
-
 //        operation panel for selling and returning goods.
         operationPanel = new JPanel();
         operationPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(messageSource.
@@ -134,30 +100,37 @@ public class MainForm extends AbstractForm {
         operationPanel.setLayout(new BoxLayout(operationPanel, BoxLayout.Y_AXIS));
 
         sellButton = new Button(messageSource.getMessage("mainForm.button.sell.title", null, localeHolder.getLocale()));
-        sellButton.setMnemonic(KeyEvent.VK_S); // Alt + S hot keys
         sellButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 handler.sellButtonClicked();
             }
         });
-        operationPanel.add(sellButton);
-
-        operationPanel.add(Box.createVerticalStrut(5));
-//        operationPanel.add(new JSeparator(JSeparator.HORIZONTAL));
-        operationPanel.add(Box.createVerticalStrut(5));
 
         showSoldProductsButton = new Button(messageSource.getMessage("mainForm.button.show.sold.products.title", null, localeHolder.getLocale()));
-        showSoldProductsButton.setMnemonic(KeyEvent.VK_X); // Alt + X hot keys
         showSoldProductsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 handler.showSoldProductsButtonClicked();
             }
         });
+
+        refreshButton = new Button(messageSource.getMessage("mainForm.button.refresh.title", null,
+                localeHolder.getLocale()));
+        refreshButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handler.refreshButtonClicked();
+            }
+        });
+
+        operationPanel.add(Box.createVerticalGlue());
+        operationPanel.add(sellButton);
+        operationPanel.add(Box.createVerticalGlue());
         operationPanel.add(showSoldProductsButton);
-        buttonPanel.add(refreshPanel);
-        buttonPanel.add(operationPanel);
+        operationPanel.add(Box.createVerticalGlue());
+        operationPanel.add(refreshButton);
+        operationPanel.add(Box.createVerticalGlue());
 
         southPanel = new JPanel(new GridBagLayout());
         southPanel.setBorder(BorderFactory.createEmptyBorder());
@@ -178,7 +151,7 @@ public class MainForm extends AbstractForm {
         constraints.anchor = GridBagConstraints.WEST;
         constraints.weightx = 0.0;
         constraints.weighty = 0.0;
-        southPanel.add(buttonPanel, constraints);
+        southPanel.add(operationPanel, constraints);
 
         constraints.gridx = 1;
         constraints.gridy = 1;
@@ -253,7 +226,6 @@ public class MainForm extends AbstractForm {
 
         loadPostponedItem = new JMenuItem();
         loadPostponedItem.setText(messageSource.getMessage("mainForm.menu.postponed.load.title", null, localeHolder.getLocale()));
-        loadPostponedItem.add(new JSeparator());
         loadPostponedItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -261,9 +233,18 @@ public class MainForm extends AbstractForm {
             }
         });
 
+        recommitPostponedItem = new JMenuItem();
+        recommitPostponedItem.setText(messageSource.getMessage("mainForm.button.recommit.title", null, localeHolder.getLocale()));
+        recommitPostponedItem.add(new JSeparator());
+        recommitPostponedItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handler.recommitPostponedItemClicked();
+            }
+        });
+
         deletePostponedItem = new JMenuItem();
         deletePostponedItem.setText(messageSource.getMessage("mainForm.menu.postponed.delete.title", null, localeHolder.getLocale()));
-        deletePostponedItem.add(new JSeparator());
         deletePostponedItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -273,6 +254,7 @@ public class MainForm extends AbstractForm {
 
         postponedMenu.add(savePostponedItem);
         postponedMenu.add(loadPostponedItem);
+        postponedMenu.add(recommitPostponedItem);
         postponedMenu.add(deletePostponedItem);
 
 //        products menu
@@ -293,15 +275,15 @@ public class MainForm extends AbstractForm {
         settingsMenu = new JMenu();
         settingsMenu.setText(messageSource.getMessage("mainForm.menu.settings.title", null, localeHolder.getLocale()));
 
-        columnsViewItem = new JMenuItem();
-        columnsViewItem.setText(messageSource.getMessage("mainForm.menu.settings.item.view.columns", null, localeHolder.getLocale()));
-        columnsViewItem.addActionListener(new ActionListener() {
+        articleColumnsViewItem = new JMenuItem();
+        articleColumnsViewItem.setText(messageSource.getMessage("mainForm.menu.settings.item.view.columns", null, localeHolder.getLocale()));
+        articleColumnsViewItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                handler.columnsViewItemClicked();
+                handler.articleColumnsViewItemClicked();
             }
         });
-        settingsMenu.add(columnsViewItem);
+        settingsMenu.add(articleColumnsViewItem);
 
 //        discounts menu
         discountsMenu = new JMenu();
