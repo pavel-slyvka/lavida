@@ -161,11 +161,22 @@ public class SoldProductsDialog extends AbstractDialog {
 
 //        south panel for buttons
         buttonPanel = new JPanel();
-        buttonPanel.setLayout(new FlowLayout(FlowLayout.TRAILING));
+        buttonPanel = new JPanel();
+        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.LINE_AXIS));
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
         errorMessage = new JLabel();
         errorMessage.setForeground(Color.RED);
-        buttonPanel.add(errorMessage);
+        errorMessage.setHorizontalAlignment(JLabel.LEFT);
+
+        JPanel errorPanel = new JPanel();
+        errorPanel.setLayout(new BoxLayout(errorPanel, BoxLayout.LINE_AXIS));
+        errorPanel.setPreferredSize(new Dimension(200, 30));
+        errorPanel.setMinimumSize(new Dimension(100, 30));
+        errorPanel.setMaximumSize(new Dimension(500, 50));
+        errorPanel.add(errorMessage);
+        buttonPanel.add(errorPanel);
+        buttonPanel.add(Box.createHorizontalGlue());
 
         cancelButton = new JButton();
         cancelButton.setHorizontalTextPosition(JButton.CENTER);
