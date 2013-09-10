@@ -45,7 +45,7 @@ public class ArticleJdo implements Cloneable {
     private String spreadsheetNum;
 
     @SpreadsheetColumn(column = "code")
-    @ViewColumn(titleKey = "mainForm.table.articles.column.code.title")
+    @ViewColumn(titleKey = "mainForm.table.articles.column.code.title", columnWidth = 75)
     @FilterColumn(labelKey = "mainForm.label.search.by.code", orderForSell = 1, orderForSold = 1)
     @XmlElement
     private String code;
@@ -65,12 +65,12 @@ public class ArticleJdo implements Cloneable {
     private String brand;
 
     @SpreadsheetColumn(column = "quantity")
-    @ViewColumn(titleKey = "mainForm.table.articles.column.quantity.title")
+    @ViewColumn(titleKey = "mainForm.table.articles.column.quantity.title", columnWidth = 75)
     @XmlElement
     private int quantity;
 
     @SpreadsheetColumn(column = "size")
-    @ViewColumn(titleKey = "mainForm.table.articles.column.size.title")
+    @ViewColumn(titleKey = "mainForm.table.articles.column.size.title", columnWidth = 65)
     @FilterColumn(type = FilterType.PART_TEXT,labelKey = "mainForm.label.search.by.size", orderForSell = 4,
             orderForSold = 4)
     @XmlElement
@@ -85,48 +85,49 @@ public class ArticleJdo implements Cloneable {
     private Calendar deliveryDate;
 
     @SpreadsheetColumn(column = "purchasePriceEUR")
-    @ViewColumn(titleKey = "mainForm.table.articles.column.purchase.price.eur.title", forbiddenRoles = "ROLE_SELLER")
+    @ViewColumn(titleKey = "mainForm.table.articles.column.purchase.price.eur.title", columnWidth = 150, forbiddenRoles = "ROLE_SELLER")
     @XmlElement
     private double purchasePriceEUR;
 
     @SpreadsheetColumn(column = "transportCostEUR")
-    @ViewColumn(titleKey = "mainForm.table.articles.column.transport.cost.eur.title", forbiddenRoles = "ROLE_SELLER")
+    @ViewColumn(titleKey = "mainForm.table.articles.column.transport.cost.eur.title", columnWidth = 175, forbiddenRoles = "ROLE_SELLER")
     @XmlElement
     private double transportCostEUR;
 
     @SpreadsheetColumn(column = "totalCostEUR")
-    @ViewColumn(titleKey = "mainForm.table.articles.column.purchase.cost.total.eur.title", forbiddenRoles = "ROLE_SELLER")
+    @ViewColumn(titleKey = "mainForm.table.articles.column.purchase.cost.total.eur.title", columnWidth = 125, forbiddenRoles = "ROLE_SELLER")
     @XmlElement
     private double totalCostEUR;
 
     @SpreadsheetColumn(column = "totalCostUAH")
-    @ViewColumn(titleKey = "mainForm.table.articles.column.purchase.cost.total.uah.title", forbiddenRoles = "ROLE_SELLER")
+    @ViewColumn(titleKey = "mainForm.table.articles.column.purchase.cost.total.uah.title", columnWidth = 120, forbiddenRoles = "ROLE_SELLER")
     @XmlElement
     private double totalCostUAH;
 
     @SpreadsheetColumn(column = "multiplier")
-    @ViewColumn(titleKey = "mainForm.table.articles.column.multiplier.title", forbiddenRoles = "ROLE_SELLER")
+    @ViewColumn(titleKey = "mainForm.table.articles.column.multiplier.title", columnWidth = 150, forbiddenRoles = "ROLE_SELLER")
     @XmlElement
     private double multiplier;
 
     @SpreadsheetColumn(column = "calculatedSalePrice")
+    @ViewColumn(titleKey = "mainForm.table.articles.column.calculatedSalePrice.title", columnWidth = 200, forbiddenRoles = "ROLE_SELLER")
     @XmlElement
     private double calculatedSalePrice;
 
     @SpreadsheetColumn(column = "salePrice")
-    @ViewColumn(titleKey = "mainForm.table.articles.column.sell.price.uah.title")
+    @ViewColumn(titleKey = "mainForm.table.articles.column.sell.price.uah.title", columnWidth = 115)
     @FilterColumn(type = FilterType.NUMBER_DIAPASON, labelKey = "mainForm.label.search.by.price", orderForSell = 6,
             orderForSold = 6)
     @XmlElement
     private double salePrice;
 
     @SpreadsheetColumn(column = "raisedSalePrice")
-    @ViewColumn(titleKey = "mainForm.table.articles.column.raised.price.uah.title", forbiddenRoles = "ROLE_SELLER")
+    @ViewColumn(titleKey = "mainForm.table.articles.column.raised.price.uah.title", columnWidth = 120, forbiddenRoles = "ROLE_SELLER")
     @XmlElement
     private double raisedSalePrice;
 
     @SpreadsheetColumn(column = "oldSalePrice")
-    @ViewColumn(titleKey = "mainForm.table.articles.column.old.price.uah.title", forbiddenRoles = "ROLE_SELLER")
+    @ViewColumn(titleKey = "mainForm.table.articles.column.old.price.uah.title", columnWidth = 160, forbiddenRoles = "ROLE_SELLER")
     @XmlElement
     private double oldSalePrice;
 
@@ -149,21 +150,12 @@ public class ArticleJdo implements Cloneable {
     private Calendar saleDate;
 
     @SpreadsheetColumn(column = "refundDate" , datePattern = "MM/dd/yyyy HH:mm:ss")
-    @ViewColumn(titleKey = "mainForm.table.articles.column.refund.title", forbiddenRoles = "ROLE_SELLER",
+    @ViewColumn(titleKey = "mainForm.table.articles.column.refund.title", columnWidth = 120, forbiddenRoles = "ROLE_SELLER",
             datePattern = "dd.MM.yyyy HH:mm:ss")
     @Temporal(TemporalType.TIMESTAMP)
     @XmlElement
     private Date refundDate;
 
-    @SpreadsheetColumn(column = "tags")
-    @ViewColumn(titleKey = "mainForm.table.articles.column.tags.title", forbiddenRoles = "ROLE_SELLER")
-    @XmlElement
-    private String tags;
-
-    @SpreadsheetColumn(column = "comment")
-    @ViewColumn(titleKey = "mainForm.table.articles.column.comment.title")
-    @XmlElement
-    private String comment;
 
     @Temporal(TemporalType.TIMESTAMP)
     @XmlElement
@@ -172,16 +164,26 @@ public class ArticleJdo implements Cloneable {
     @SpreadsheetColumn(column = "shop")
     @XmlElement
     @ViewColumn(titleKey = "mainForm.table.articles.column.shop.title")
-    @FilterColumn(type = FilterType.PART_TEXT,labelKey = "mainForm.label.search.by.shop", showForSell = false,
+    @FilterColumn(type = FilterType.PART_TEXT,labelKey = "mainForm.label.search.by.shop", orderForSell = 7,
             orderForSold = 8)
     private String shop;
 
     @SpreadsheetColumn(column = "sellerName")
-    @ViewColumn(titleKey = "mainForm.table.articles.column.sellerName.title")
+    @ViewColumn(titleKey = "mainForm.table.articles.column.sellerName.title", columnWidth = 150)
     @FilterColumn(type = FilterType.PART_TEXT,labelKey = "mainForm.label.search.by.sellerName", showForSell = false,
             orderForSold = 9)
     @XmlElement
     private String sellerName;
+
+    @SpreadsheetColumn(column = "tags")
+    @ViewColumn(titleKey = "mainForm.table.articles.column.tags.title", columnWidth = 150, forbiddenRoles = "ROLE_SELLER")
+    @XmlElement
+    private String tags;
+
+    @SpreadsheetColumn(column = "comment")
+    @ViewColumn(titleKey = "mainForm.table.articles.column.comment.title", columnWidth = 150)
+    @XmlElement
+    private String comment;
 
     public ArticleJdo() {
     }
