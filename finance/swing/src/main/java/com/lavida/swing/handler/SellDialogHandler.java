@@ -178,6 +178,8 @@ public class SellDialogHandler {
     }
 
     public void clientCheckBoxSelected() {
-        discountCardNumberTextEntered();
+        if (!dialog.getDiscountCardNumberTextField().getText().trim().isEmpty()) {
+            discountCardNumberTextEntered();
+        }
     }
 }

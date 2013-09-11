@@ -205,7 +205,7 @@ public class DiscountCardsTableModel extends AbstractTableModel implements Appli
      */
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        return isForbidden(userService.getCurrentUserRoles(), FORBIDDEN_ROLES);
+        return !isForbidden(userService.getCurrentUserRoles(), FORBIDDEN_ROLES);
     }
 
     /**

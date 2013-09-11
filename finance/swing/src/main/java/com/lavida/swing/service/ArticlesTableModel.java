@@ -281,7 +281,7 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
      */
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        return isForbidden(userService.getCurrentUserRoles(), FORBIDDEN_ROLES);
+        return !isForbidden(userService.getCurrentUserRoles(), FORBIDDEN_ROLES);
     }
 
     /**
