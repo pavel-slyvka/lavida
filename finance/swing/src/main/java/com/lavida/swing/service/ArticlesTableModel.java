@@ -19,7 +19,6 @@ import javax.annotation.Resource;
 import javax.swing.table.AbstractTableModel;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -151,7 +150,7 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
                 if (ArticleJdo.FIND_NOT_SOLD.equals(queryName) &&
                         !(viewColumn.titleKey().equals("mainForm.table.articles.column.sell.marker.title") ||
                                 viewColumn.titleKey().equals("mainForm.table.articles.column.sell.date.title") ||
-                                viewColumn.titleKey().equals("mainForm.table.articles.column.sellerName.title") ||
+                                viewColumn.titleKey().equals("mainForm.table.articles.column.seller.title") ||
                                 viewColumn.titleKey().equals("mainForm.table.articles.column.tags.title") ||
                                 viewColumn.titleKey().equals("mainForm.table.articles.column.refund.title"))) {
                     this.articleFieldsSequence.add(field.getName());
@@ -170,7 +169,7 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
                 } else if (queryName == null &&
                         !(viewColumn.titleKey().equals("mainForm.table.articles.column.sell.marker.title") ||
                                 viewColumn.titleKey().equals("mainForm.table.articles.column.sell.date.title") ||
-                                viewColumn.titleKey().equals("mainForm.table.articles.column.sellerName.title") ||
+                                viewColumn.titleKey().equals("mainForm.table.articles.column.seller.title") ||
                                 viewColumn.titleKey().equals("mainForm.table.articles.column.tags.title") ||
                                 viewColumn.titleKey().equals("mainForm.table.articles.column.raised.price.uah.title") ||
                                 viewColumn.titleKey().equals("mainForm.table.articles.column.old.price.uah.title") ||

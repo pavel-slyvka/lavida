@@ -17,8 +17,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
-import java.util.regex.Pattern;
 
 /**
  * Created: 12:04 12.08.13
@@ -97,7 +95,7 @@ public class SellDialogHandler {
         String seller = (String) dialog.getSellerNames().getSelectedItem();
         tableModel.setSellerName(seller);
         dialog.getSellerNames().setSelectedItem(seller);
-        articleJdo.setSellerName(seller);
+        articleJdo.setSeller(seller);
 
         articleServiceSwingWrapper.update(articleJdo);
         try {

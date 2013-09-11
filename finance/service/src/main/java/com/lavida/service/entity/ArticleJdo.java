@@ -169,11 +169,11 @@ public class ArticleJdo implements Cloneable {
     private String shop;
 
     @SpreadsheetColumn(column = "sellerName")
-    @ViewColumn(titleKey = "mainForm.table.articles.column.sellerName.title", columnWidth = 150)
+    @ViewColumn(titleKey = "mainForm.table.articles.column.seller.title", columnWidth = 150)
     @FilterColumn(type = FilterType.PART_TEXT,labelKey = "mainForm.label.search.by.sellerName", showForSell = false,
             orderForSold = 9)
     @XmlElement
-    private String sellerName;
+    private String seller;
 
     @SpreadsheetColumn(column = "tags")
     @ViewColumn(titleKey = "mainForm.table.articles.column.tags.title", columnWidth = 150, forbiddenRoles = "ROLE_SELLER")
@@ -181,7 +181,7 @@ public class ArticleJdo implements Cloneable {
     private String tags;
 
     @SpreadsheetColumn(column = "comment")
-    @ViewColumn(titleKey = "mainForm.table.articles.column.comment.title", columnWidth = 150)
+    @ViewColumn(titleKey = "mainForm.table.articles.column.comment.title", columnWidth = 300)
     @XmlElement
     private String comment;
 
@@ -397,12 +397,12 @@ public class ArticleJdo implements Cloneable {
         this.calculatedSalePrice = calculatedSalePrice;
     }
 
-    public String getSellerName() {
-        return sellerName;
+    public String getSeller() {
+        return seller;
     }
 
-    public void setSellerName(String sellerName) {
-        this.sellerName = sellerName;
+    public void setSeller(String sellerName) {
+        this.seller = sellerName;
     }
 
     @Override
@@ -439,7 +439,7 @@ public class ArticleJdo implements Cloneable {
         if (shop != null ? !shop.equals(that.shop) : that.shop != null) return false;
         if (size != null ? !size.equals(that.size) : that.size != null) return false;
         if (sold != null ? !sold.equals(that.sold) : that.sold != null) return false;
-        if ((sellerName != null)? !sellerName.equals(that.sellerName) :that.sellerName != null) return false;
+        if ((seller != null)? !seller.equals(that.seller) :that.seller != null) return false;
         return true;
     }
 
@@ -480,7 +480,7 @@ public class ArticleJdo implements Cloneable {
         result = 31 * result + (tags != null ? tags.hashCode() : 0);
         result = 31 * result + (shop != null ? shop.hashCode() : 0);
         result = 31 * result + (spreadsheetNum != null ? spreadsheetNum.hashCode() : 0);
-        result = 31 * result + (sellerName != null ? sellerName.hashCode() : 0);
+        result = 31 * result + (seller != null ? seller.hashCode() : 0);
         return result;
     }
 
@@ -518,7 +518,7 @@ public class ArticleJdo implements Cloneable {
                 ", postponedOperationDate=" + postponedOperationDate +
                 ", tags='" + tags + '\'' +
                 ", shop='" + shop + '\'' +
-                ", sellerName='" + sellerName + '\'' +
+                ", sellerName='" + seller + '\'' +
                 '}';
     }
 }
