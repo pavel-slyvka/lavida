@@ -306,10 +306,10 @@ public class MainForm extends AbstractForm {
         });
         discountsMenu.add(allDiscountCardsItem);
 
-        menuBar.add(postponedMenu);
         menuBar.add(productsMenu);
-        menuBar.add(settingsMenu);
         menuBar.add(discountsMenu);
+        menuBar.add(settingsMenu);
+        menuBar.add(postponedMenu);
 
     }
 

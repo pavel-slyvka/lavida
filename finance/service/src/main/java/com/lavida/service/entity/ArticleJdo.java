@@ -168,7 +168,7 @@ public class ArticleJdo implements Cloneable {
             orderForSold = 8)
     private String shop;
 
-    @SpreadsheetColumn(column = "sellerName")
+    @SpreadsheetColumn(column = "seller")
     @ViewColumn(titleKey = "mainForm.table.articles.column.seller.title", columnWidth = 150)
     @FilterColumn(type = FilterType.PART_TEXT,labelKey = "mainForm.label.search.by.sellerName", showForSell = false,
             orderForSold = 9)
