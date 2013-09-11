@@ -457,7 +457,7 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
      */
     @Override
     public Class<?> getColumnClass(int columnIndex) {
-        return String.class;
+        return Object.class;
     }
 
     /**

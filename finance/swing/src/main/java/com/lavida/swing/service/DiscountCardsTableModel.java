@@ -217,7 +217,7 @@ public class DiscountCardsTableModel extends AbstractTableModel implements Appli
      */
     @Override
     public Class<?> getColumnClass(int columnIndex) {
-        return String.class;
+        return Object.class;
     }
 
     /**
