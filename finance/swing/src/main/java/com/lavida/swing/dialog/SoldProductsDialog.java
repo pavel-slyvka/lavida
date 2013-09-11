@@ -12,7 +12,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.util.*;
 
 /**
  * Created: 15:29 18.08.13
@@ -30,11 +29,10 @@ public class SoldProductsDialog extends AbstractDialog {
 
     private ArticleTableComponent articleTableComponent = new ArticleTableComponent();
 
-    private JPanel operationPanel, southPanel, desktopPanel, filtersPanel, analyzePanel, mainPanel,
-            buttonPanel;
+    private JPanel  southPanel, desktopPanel, filtersPanel, analyzePanel, mainPanel, buttonPanel;
     private JButton refundButton, cancelButton;
     private JCheckBox currentDateCheckBox;
-    private JLabel errorMessage;
+//    private JLabel errorMessage;
 
     @Override
     protected void initializeForm() {
@@ -102,31 +100,6 @@ public class SoldProductsDialog extends AbstractDialog {
 //      panel for search operations
         filtersPanel= articleTableComponent.getArticleFiltersComponent().getFiltersPanel();
 
-        operationPanel = new JPanel();
-        operationPanel.setLayout(new GridBagLayout());
-        operationPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(messageSource.
-                getMessage("mainForm.panel.operation.title", null, localeHolder.getLocale())),
-                BorderFactory.createEmptyBorder()));
-        refundButton = new JButton();
-        refundButton.setHorizontalTextPosition(JButton.CENTER);
-        refundButton.setPreferredSize(new Dimension(150, 25));
-        refundButton.setMaximumSize(new Dimension(150, 25));
-        refundButton.setMinimumSize(new Dimension(150, 25));
-        refundButton.setText(messageSource.getMessage("dialog.sold.products.button.refund.title", null, localeHolder.getLocale()));
-        refundButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                handler.refundButtonClicked();
-            }
-        });
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.gridx = 0;
-        constraints.gridy = 0;
-        constraints.gridwidth = GridBagConstraints.REMAINDER;
-        constraints.anchor = GridBagConstraints.SOUTH;
-        constraints.weightx = 1.0;
-        operationPanel.add(refundButton, constraints);
-
         constraints.gridx = 0;
         constraints.gridy = 0;
         constraints.fill = GridBagConstraints.REMAINDER;
@@ -137,15 +110,6 @@ public class SoldProductsDialog extends AbstractDialog {
         southPanel.add(analyzePanel, constraints);
 
         constraints.gridx = 0;
-        constraints.gridy = 1;
-        constraints.fill = GridBagConstraints.VERTICAL;
-        constraints.gridwidth = GridBagConstraints.RELATIVE;
-        constraints.anchor = GridBagConstraints.WEST;
-        constraints.weightx = 0.0;
-        constraints.weighty = 1.0;
-        southPanel.add(operationPanel, constraints);
-
-        constraints.gridx = 1;
         constraints.gridy = 1;
         constraints.fill = GridBagConstraints.BOTH;
         constraints.gridwidth = GridBagConstraints.REMAINDER;
@@ -165,18 +129,30 @@ public class SoldProductsDialog extends AbstractDialog {
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.LINE_AXIS));
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-        errorMessage = new JLabel();
-        errorMessage.setForeground(Color.RED);
-        errorMessage.setHorizontalAlignment(JLabel.LEFT);
+        refundButton = new JButton();
+        refundButton.setHorizontalTextPosition(JButton.CENTER);
+        refundButton.setPreferredSize(new Dimension(150, 25));
+        refundButton.setMaximumSize(new Dimension(150, 25));
+        refundButton.setMinimumSize(new Dimension(150, 25));
+        refundButton.setText(messageSource.getMessage("dialog.sold.products.button.refund.title", null, localeHolder.getLocale()));
+        refundButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handler.refundButtonClicked();
+            }
+        });
 
-        JPanel errorPanel = new JPanel();
-        errorPanel.setLayout(new BoxLayout(errorPanel, BoxLayout.LINE_AXIS));
-        errorPanel.setPreferredSize(new Dimension(200, 30));
-        errorPanel.setMinimumSize(new Dimension(100, 30));
-        errorPanel.setMaximumSize(new Dimension(500, 50));
-        errorPanel.add(errorMessage);
-        buttonPanel.add(errorPanel);
-        buttonPanel.add(Box.createHorizontalGlue());
+
+//        errorMessage = new JLabel();
+//        errorMessage.setForeground(Color.RED);
+//        errorMessage.setHorizontalAlignment(JLabel.LEFT);
+//
+//        JPanel errorPanel = new JPanel();
+//        errorPanel.setLayout(new BoxLayout(errorPanel, BoxLayout.LINE_AXIS));
+//        errorPanel.setPreferredSize(new Dimension(200, 30));
+//        errorPanel.setMinimumSize(new Dimension(100, 30));
+//        errorPanel.setMaximumSize(new Dimension(500, 50));
+//        errorPanel.add(errorMessage);
 
         cancelButton = new JButton();
         cancelButton.setHorizontalTextPosition(JButton.CENTER);
@@ -190,6 +166,10 @@ public class SoldProductsDialog extends AbstractDialog {
                 handler.cancelButtonClicked();
             }
         });
+
+        buttonPanel.add(refundButton);
+//        buttonPanel.add(errorPanel);
+        buttonPanel.add(Box.createHorizontalGlue());
         buttonPanel.add(cancelButton);
 
         rootContainer.add(buttonPanel, BorderLayout.SOUTH);
@@ -198,7 +178,7 @@ public class SoldProductsDialog extends AbstractDialog {
     /**
      * Filters the JTable by permissions of roles (ROLE_SELLER). It removes certain columns.
      *
-     * @param userRoles
+     * @param userRoles the list of user's roles
      */
     public void filterTableByRoles(java.util.List<String> userRoles) {
         articleTableComponent.filterTableByRoles(userRoles);
@@ -217,7 +197,7 @@ public class SoldProductsDialog extends AbstractDialog {
         return tableModel;
     }
 
-    public JLabel getErrorMessage() {
-        return errorMessage;
-    }
+//    public JLabel getErrorMessage() {
+//        return errorMessage;
+//    }
 }
