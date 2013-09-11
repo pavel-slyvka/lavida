@@ -19,6 +19,7 @@ import javax.annotation.Resource;
 import javax.swing.table.AbstractTableModel;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -182,8 +183,8 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
                     }
                 }
 
-                if (field.getType() == Calendar.class) {          // todo for Date fields
-                    this.columnIndexToDateFormat.put(headerTitles.size() - 1,      //todo no patterns in articleJdo fields
+                if (field.getType() == Calendar.class) {
+                    this.columnIndexToDateFormat.put(headerTitles.size() - 1,
                             new SimpleDateFormat(viewColumn.datePattern()));
                 } else if (field.getType() == Date.class) {
                     this.columnIndexToDateFormat.put(headerTitles.size() - 1,
@@ -251,18 +252,18 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
         Map<String, Integer> columnHeaderToWidth = new HashMap<String, Integer>(headerTitles.size());
         label:
         for (String columnHeader : headerTitles) {
-            Integer width = 0;
+            Integer width ;
             for (Field field : ArticleJdo.class.getDeclaredFields()) {
                 ViewColumn viewColumn = field.getAnnotation(ViewColumn.class);
                 if (viewColumn != null) {
                     if (viewColumn.titleKey().isEmpty() && columnHeader.equals(field.getName())) {
                         width = viewColumn.columnWidth();
-                        columnHeaderToWidth.put(columnHeader, new Integer(width));
+                        columnHeaderToWidth.put(columnHeader, width);
                         continue label;
                     } else if (!viewColumn.titleKey().isEmpty() &&
                             columnHeader.equals(messageSource.getMessage(viewColumn.titleKey(), null, localeHolder.getLocale()))) {
                         width = viewColumn.columnWidth();
-                        columnHeaderToWidth.put(columnHeader, new Integer(width));
+                        columnHeaderToWidth.put(columnHeader, width);
                         continue label;
                     }
                 }
@@ -280,10 +281,7 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
      */
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        if (isForbidden(userService.getCurrentUserRoles(), FORBIDDEN_ROLES)) {
-            return false;
-        }
-        return true;
+        return isForbidden(userService.getCurrentUserRoles(), FORBIDDEN_ROLES);
     }
 
     /**
@@ -297,13 +295,6 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
         ArticleJdo articleJdo = getArticleJdoByRowIndex(rowIndex);
-        ArticleJdo oldArticle = null;
-        try {
-            oldArticle = (ArticleJdo) articleJdo.clone();
-        } catch (CloneNotSupportedException e) {
-            logger.warn(e.getMessage(), e);
-            throw new RuntimeException(e);
-        }
         String value = (String) aValue;
         SimpleDateFormat calendarFormatter = new SimpleDateFormat("dd.MM.yyyy");
         calendarFormatter.setLenient(false);
@@ -312,10 +303,10 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
             field.setAccessible(true);
             if (int.class == field.getType()) {
                 int typeValue = Integer.parseInt(value);
-//                if (typeValue != field.getInt(articleJdo)) {
+                if (typeValue != field.getInt(articleJdo)) {
                     field.setInt(articleJdo, typeValue);
                     if (field.getName().equals("quantity") && Integer.parseInt(value) > 1) {
-                        field.set(articleJdo, new Integer(1));
+                        field.set(articleJdo, 1);
                         int quantity = Integer.parseInt(value);
                         for (int i = 1; i < quantity; ++i) {
                             ArticleJdo newArticle = (ArticleJdo) articleJdo.clone();
@@ -325,89 +316,104 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
                             updateTable(newArticle);
                         }
                     }
-//                }
+                } else return;
             } else if (boolean.class == field.getType()) {
                 boolean typeValue = Boolean.parseBoolean(value);
-//                if (typeValue != field.getBoolean(articleJdo)) {
+                if (typeValue != field.getBoolean(articleJdo)) {
                     field.setBoolean(articleJdo, typeValue);
-//                }
+                } else return;
             } else if (double.class == field.getType()) {
                 double typeValue = fixIfNeedAndParseDouble(value);
-//                if (typeValue != field.getDouble(articleJdo)) {
+                if (typeValue != field.getDouble(articleJdo)) {
                     field.setDouble(articleJdo, typeValue);
-//                }
+                } else return;
             } else if (char.class == field.getType()) {
                 char typeValue = value.charAt(0);
-//                if (typeValue != field.getChar(articleJdo)) {
+                if (typeValue != field.getChar(articleJdo)) {
                     field.setChar(articleJdo, typeValue);
-//                }
+                } else return;
             } else if (long.class == field.getType()) {
                 long typeValue = Long.parseLong(value);
-//                if (typeValue != field.getLong(articleJdo)) {
+                if (typeValue != field.getLong(articleJdo)) {
                     field.setLong(articleJdo, typeValue);
-//                }
+                } else return;
             } else if (Integer.class == field.getType()) {
                 Integer typeValue = Integer.parseInt(value);
-//                if (!typeValue.equals(field.get(articleJdo))) {
+                if (!typeValue.equals(field.get(articleJdo))) {
                     field.set(articleJdo, typeValue);
-//                }
+                } else return;
             } else if (Boolean.class == field.getType()) {
                 Boolean typeValue = Boolean.parseBoolean(value);
-//                if (!typeValue.equals(field.get(articleJdo))) {
+                if (!typeValue.equals(field.get(articleJdo))) {
                     field.set(articleJdo, typeValue);
-//                }
+                } else return;
             } else if (Double.class == field.getType()) {
                 Double typeValue = fixIfNeedAndParseDouble(value);
-//                if (!typeValue.equals(field.get(articleJdo))) {
+                if (!typeValue.equals(field.get(articleJdo))) {
                     field.set(articleJdo, typeValue);
-//                }
+                } else return;
             } else if (Character.class == field.getType()) {
                 Character typeValue = value.charAt(0);
-//                if (!typeValue.equals(field.get(articleJdo))) {
+                if (!typeValue.equals(field.get(articleJdo))) {
                     field.set(articleJdo, typeValue);
-//                }
+                } else return;
             } else if (Long.class == field.getType()) {
                 Long typeValue = Long.parseLong(value);
-//                if (!typeValue.equals(field.get(articleJdo))) {
+                if (!typeValue.equals(field.get(articleJdo))) {
                     field.set(articleJdo, typeValue);
-//                }
+                } else return;
             } else if (Calendar.class == field.getType()) {
                 Calendar typeValue = Calendar.getInstance();
                 if (!value.isEmpty()) {
                     String formattedValue = value.replace(",", ".").trim();
                     if (formattedValue.matches("\\d{2}.\\d{2}.\\d{4}")) {
-                        typeValue.setTime(calendarFormatter.parse(formattedValue));
-//                        if (!typeValue.equals(field.get(articleJdo))) {
+                        Date time;
+                        try{
+                            time = calendarFormatter.parse(formattedValue);
+                        } catch (ParseException e) {
+                            logger.warn(e.getMessage(), e);
+                            return;
+                        }
+                        typeValue.setTime(time);
+                        if (!typeValue.equals(field.get(articleJdo))) {
                             field.set(articleJdo, typeValue);
-//                        }
+                        } else return;
                     }
                 } else {
-                    field.set(articleJdo, null);
+                    if (field.get(articleJdo) != null) {
+                        field.set(articleJdo, null);
+                    } else return;
                 }
             } else if (Date.class == field.getType()) {
                 if (!value.isEmpty()) {
                     String formattedValue = value.replace(",", ".").trim();
                     if (formattedValue.matches("\\d{2}.\\d{2}.\\d{4} \\d{2}:\\d{2}:\\d{2}")) {
-                        Date typeValue = DateConverter.convertStringToDate(formattedValue);
-//                        if (!typeValue.equals(field.get(articleJdo))) {
+                        Date typeValue;
+                        try {
+                            typeValue = DateConverter.convertStringToDate(formattedValue);
+                        } catch (ParseException e) {
+                            logger.warn(e.getMessage(), e);
+                            return;
+                        }
+                        if (!typeValue.equals(field.get(articleJdo))) {
                             field.set(articleJdo, typeValue);
-//                        }
+                        } else return;
                     }
                 } else {
-                    field.set(articleJdo, null);
+                    if (field.get(articleJdo) != null) {
+                        field.set(articleJdo, null);
+                    } else return;
                 }
             } else {
-//                if (!value.equals(field.get(articleJdo))) {
+                if (!value.equals(field.get(articleJdo))) {
                     field.set(articleJdo, value);
-//                }
+                } else return;
             }
         } catch (Exception e) {
             logger.warn(e.getMessage(), e);
             throw new RuntimeException(e);
         }
-        if (!oldArticle.equals(articleJdo)) {
             updateTable(articleJdo);
-        }
     }
 
     private double fixIfNeedAndParseDouble(String doubleString) {  // todo make reusable with GoogleCellsTransformer
@@ -433,7 +439,7 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
     /**
      * Updates table and remote spreadsheet with the changed article
      *
-     * @param changedArticle
+     * @param changedArticle  the articleJdo to be updated.
      */
     private void updateTable(ArticleJdo changedArticle) {
         if (queryName != null) {

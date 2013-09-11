@@ -193,6 +193,10 @@ public class DiscountCardJdo {
         return result;
     }
 
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
 
     @Override
     public String toString() {

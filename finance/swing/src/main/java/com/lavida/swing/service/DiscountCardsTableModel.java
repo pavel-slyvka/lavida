@@ -16,6 +16,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.swing.table.AbstractTableModel;
 import java.lang.reflect.Field;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -132,18 +133,18 @@ public class DiscountCardsTableModel extends AbstractTableModel implements Appli
         Map<String, Integer> columnHeaderToWidth = new HashMap<String, Integer>(headerTitles.size());
         label:
         for (String columnHeader : headerTitles) {
-            Integer width = 0;
+            Integer width ;
             for (Field field : DiscountCardJdo.class.getDeclaredFields()) {
                 ViewColumn viewColumn = field.getAnnotation(ViewColumn.class);
                 if (viewColumn != null) {
                     if (viewColumn.titleKey().isEmpty() && columnHeader.equals(field.getName())) {
                         width = viewColumn.columnWidth();
-                        columnHeaderToWidth.put(columnHeader, new Integer(width));
+                        columnHeaderToWidth.put(columnHeader, width);
                         continue label;
                     } else if (!viewColumn.titleKey().isEmpty() &&
                             columnHeader.equals(messageSource.getMessage(viewColumn.titleKey(), null, localeHolder.getLocale()))) {
                         width = viewColumn.columnWidth();
-                        columnHeaderToWidth.put(columnHeader, new Integer(width));
+                        columnHeaderToWidth.put(columnHeader, width);
                         continue label;
                     }
                 }
@@ -204,10 +205,7 @@ public class DiscountCardsTableModel extends AbstractTableModel implements Appli
      */
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        if (isForbidden(userService.getCurrentUserRoles(), FORBIDDEN_ROLES)) {
-            return false;
-        }
-        return true;
+        return isForbidden(userService.getCurrentUserRoles(), FORBIDDEN_ROLES);
     }
 
     /**
@@ -240,36 +238,101 @@ public class DiscountCardsTableModel extends AbstractTableModel implements Appli
             Field field = DiscountCardJdo.class.getDeclaredField(discountCardFieldsSequence.get(columnIndex));
             field.setAccessible(true);
             if (int.class == field.getType()) {
-                field.setInt(discountCardJdo, Integer.parseInt(value));
+                int typeValue = Integer.parseInt(value);
+                if (typeValue != field.getInt(discountCardJdo)) {
+                    field.setInt(discountCardJdo, typeValue);
+                } else return;
             } else if (boolean.class == field.getType()) {
-                field.setBoolean(discountCardJdo, Boolean.parseBoolean(value));
+                boolean typeValue = Boolean.parseBoolean(value);
+                if (typeValue != field.getBoolean(discountCardJdo)) {
+                    field.setBoolean(discountCardJdo, typeValue);
+                } else return;
             } else if (double.class == field.getType()) {
-                field.setDouble(discountCardJdo, fixIfNeedAndParseDouble(value));
+                double typeValue = fixIfNeedAndParseDouble(value);
+                if (typeValue != field.getDouble(discountCardJdo)) {
+                    field.setDouble(discountCardJdo, typeValue);
+                } else return;
             } else if (char.class == field.getType()) {
-                field.setChar(discountCardJdo, value.charAt(0));
+                char typeValue = value.charAt(0);
+                if (typeValue != field.getChar(discountCardJdo)) {
+                    field.setChar(discountCardJdo, typeValue);
+                } else return;
             } else if (long.class == field.getType()) {
-                field.setLong(discountCardJdo, Long.parseLong(value));
+                long typeValue = Long.parseLong(value);
+                if (typeValue != field.getLong(discountCardJdo)) {
+                    field.setLong(discountCardJdo, typeValue);
+                } else return;
             } else if (Integer.class == field.getType()) {
-                field.set(discountCardJdo, Integer.parseInt(value));
+                Integer typeValue = Integer.parseInt(value);
+                if (!typeValue.equals(field.get(discountCardJdo))) {
+                    field.set(discountCardJdo, typeValue);
+                } else return;
             } else if (Boolean.class == field.getType()) {
-                field.set(discountCardJdo, Boolean.parseBoolean(value));
+                Boolean typeValue = Boolean.parseBoolean(value);
+                if (!typeValue.equals(field.get(discountCardJdo))) {
+                    field.set(discountCardJdo, typeValue);
+                } else return;
             } else if (Double.class == field.getType()) {
-                field.set(discountCardJdo, fixIfNeedAndParseDouble(value));
+                Double typeValue = fixIfNeedAndParseDouble(value);
+                if (!typeValue.equals(field.get(discountCardJdo))) {
+                    field.set(discountCardJdo, typeValue);
+                } else return;
             } else if (Character.class == field.getType()) {
-                field.set(discountCardJdo, value.charAt(0));
+                Character typeValue = value.charAt(0);
+                if (!typeValue.equals(field.get(discountCardJdo))) {
+                    field.set(discountCardJdo, typeValue);
+                } else return;
             } else if (Long.class == field.getType()) {
-                field.set(discountCardJdo, Long.parseLong(value));
+                Long typeValue = Long.parseLong(value);
+                if (!typeValue.equals(field.get(discountCardJdo))) {
+                    field.set(discountCardJdo, typeValue);
+                } else return;
             } else if (Calendar.class == field.getType()) {
-                Calendar calendar = Calendar.getInstance();
-                String formattedValue = value.replace(",", ".").trim();
-                calendar.setTime(!formattedValue.isEmpty() ? (calendarFormatter.parse(formattedValue)) : null);
-                field.set(discountCardJdo, calendar);
+                Calendar typeValue = Calendar.getInstance();
+                if (!value.isEmpty()) {
+                    String formattedValue = value.replace(",", ".").trim();
+                    if (formattedValue.matches("\\d{2}.\\d{2}.\\d{4}")) {
+                        Date time;
+                        try{
+                            time = calendarFormatter.parse(formattedValue);
+                        } catch (ParseException e) {
+                            logger.warn(e.getMessage(), e);
+                            return;
+                        }
+                        typeValue.setTime(time);
+                        if (!typeValue.equals(field.get(discountCardJdo))) {
+                            field.set(discountCardJdo, typeValue);
+                        } else return;
+                    }
+                } else {
+                    if (field.get(discountCardJdo) != null) {
+                        field.set(discountCardJdo, null);
+                    } else return;
+                }
             } else if (Date.class == field.getType()) {
-                String formattedValue = value.replace(",", ".").trim();
-                Date date = !formattedValue.isEmpty() ? DateConverter.convertStringToDate(formattedValue) : null;
-                field.set(discountCardJdo, date);
+                if (!value.isEmpty()) {
+                    String formattedValue = value.replace(",", ".").trim();
+                    if (formattedValue.matches("\\d{2}.\\d{2}.\\d{4} \\d{2}:\\d{2}:\\d{2}")) {
+                        Date typeValue;
+                        try{
+                            typeValue = DateConverter.convertStringToDate(formattedValue);
+                        } catch (ParseException e) {
+                            logger.warn(e.getMessage(), e);
+                            return;
+                        }
+                        if (!typeValue.equals(field.get(discountCardJdo))) {
+                            field.set(discountCardJdo, typeValue);
+                        } else return;
+                    }
+                } else {
+                    if (field.get(discountCardJdo) != null) {
+                        field.set(discountCardJdo, null);
+                    } else return;
+                }
             } else {
-                field.set(discountCardJdo, value);
+                if (!value.equals(field.get(discountCardJdo))) {
+                    field.set(discountCardJdo, value);
+                } else return;
             }
         } catch (Exception e) {
             logger.warn(e.getMessage(), e);
@@ -345,16 +408,8 @@ public class DiscountCardsTableModel extends AbstractTableModel implements Appli
         return totalCountCards;
     }
 
-    public void setTotalCountCards(int totalCountCards) {
-        this.totalCountCards = totalCountCards;
-    }
-
     public double getTotalSumUAH() {
         return totalSumUAH;
-    }
-
-    public void setTotalSumUAH(double totalSumUAH) {
-        this.totalSumUAH = totalSumUAH;
     }
 
     @Override
