@@ -85,9 +85,9 @@ public class MainForm extends AbstractForm {
 
 //      analyze panel for total analyses
         analyzePanel = articleTableComponent.getArticleFiltersComponent().getArticleAnalyzeComponent().getAnalyzePanel();
-        analyzePanel.setPreferredSize(new Dimension(890, 25));
-        analyzePanel.setMinimumSize(new Dimension(800, 25));
-        analyzePanel.setMaximumSize(new Dimension(1500, 25));
+//        analyzePanel.setPreferredSize(new Dimension(300, 200));
+//        analyzePanel.setMinimumSize(new Dimension(300, 200));
+//        analyzePanel.setMaximumSize(new Dimension(1000, 1000));
 
 //      panel for search operations
         filtersPanel = articleTableComponent.getArticleFiltersComponent().getFiltersPanel();
@@ -97,7 +97,7 @@ public class MainForm extends AbstractForm {
         operationPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(messageSource.
                 getMessage("mainForm.panel.operation.title", null, localeHolder.getLocale())),
                 BorderFactory.createEmptyBorder(0, 5, 0, 5)));
-        operationPanel.setLayout(new BoxLayout(operationPanel, BoxLayout.Y_AXIS));
+        operationPanel.setLayout(new BoxLayout(operationPanel, BoxLayout.LINE_AXIS));
 
         sellButton = new Button(messageSource.getMessage("mainForm.button.sell.title", null, localeHolder.getLocale()));
         sellButton.addActionListener(new ActionListener() {
@@ -124,44 +124,45 @@ public class MainForm extends AbstractForm {
             }
         });
 
-        operationPanel.add(Box.createVerticalGlue());
+        operationPanel.add(Box.createHorizontalGlue());
         operationPanel.add(sellButton);
-        operationPanel.add(Box.createVerticalGlue());
+        operationPanel.add(Box.createHorizontalGlue());
         operationPanel.add(showSoldProductsButton);
-        operationPanel.add(Box.createVerticalGlue());
+        operationPanel.add(Box.createHorizontalGlue());
         operationPanel.add(refreshButton);
-        operationPanel.add(Box.createVerticalGlue());
+        operationPanel.add(Box.createHorizontalGlue());
 
         southPanel = new JPanel(new GridBagLayout());
         southPanel.setBorder(BorderFactory.createEmptyBorder());
+        constraints.insets = new Insets(0, 5, 0, 5);
 
         constraints.gridx = 0;
         constraints.gridy = 0;
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.gridwidth = GridBagConstraints.REMAINDER;
-        constraints.anchor = GridBagConstraints.WEST;
-        constraints.weightx = 0.0;
-        constraints.weighty = 0.0;
-        southPanel.add(analyzePanel, constraints);
-
-        constraints.gridx = 0;
-        constraints.gridy = 1;
         constraints.fill = GridBagConstraints.VERTICAL;
         constraints.gridwidth = GridBagConstraints.RELATIVE;
         constraints.anchor = GridBagConstraints.WEST;
         constraints.weightx = 0.0;
-        constraints.weighty = 0.0;
-        southPanel.add(operationPanel, constraints);
+        constraints.weighty = 1.0;
+        southPanel.add(analyzePanel, constraints);
 
         constraints.gridx = 1;
-        constraints.gridy = 1;
+        constraints.gridy = 0;
         constraints.fill = GridBagConstraints.BOTH;
         constraints.gridwidth = GridBagConstraints.REMAINDER;
-        constraints.gridheight = GridBagConstraints.REMAINDER;
+        constraints.gridheight = GridBagConstraints.RELATIVE;
         constraints.anchor = GridBagConstraints.WEST;
         constraints.weightx = 1.0;
         constraints.weighty = 1.0;
         southPanel.add(filtersPanel, constraints);
+
+        constraints.gridx = 0;
+        constraints.gridy = 1;
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.gridwidth = GridBagConstraints.REMAINDER;
+        constraints.anchor = GridBagConstraints.WEST;
+        constraints.weightx = 1.0;
+        constraints.weighty = 0.0;
+        southPanel.add(operationPanel, constraints);
 
         desktopPanel.add(southPanel, BorderLayout.SOUTH);
 

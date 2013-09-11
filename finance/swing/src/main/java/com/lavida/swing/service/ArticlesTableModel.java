@@ -39,8 +39,7 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
     private Map<Integer, SimpleDateFormat> columnIndexToDateFormat;
     private ArticleJdo selectedArticle;
     private int totalCountArticles;
-    private double totalOriginalCostEUR;
-    private double totalPriceUAH;
+    private double totalPurchaseCostEUR, totalCostEUR, totalPriceUAH, totalCostUAH, minimalMultiplier, normalMultiplier;
     private String sellerName;
 
     @Resource
@@ -258,17 +257,38 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
      */
     public void initAnalyzeFields() {
         int totalCount = 0;
-        double totalCost = 0;
+        double totalCostEUR = 0;
         double totalPrice = 0;
+        double totalPurchaseCostEUR = 0;
+        double totalCostUAH = 0;
+        double normalMultiplierSum = 0;
+        double normalMultiplier = 0;
+        double minimalMultiplier = 0;
+
         List<ArticleJdo> articleJdoList = getTableData();
-        for (ArticleJdo articleJdo : articleJdoList) {
-            ++totalCount;
-            totalCost += (articleJdo.getTransportCostEUR() + articleJdo.getPurchasePriceEUR());
-            totalPrice += (articleJdo.getSalePrice());
+        if (articleJdoList.size() > 0) {
+            minimalMultiplier = articleJdoList.get(0).getMultiplier();
+            for (ArticleJdo articleJdo : articleJdoList) {
+                ++totalCount;
+                totalPurchaseCostEUR += articleJdo.getPurchasePriceEUR();
+                totalCostEUR += articleJdo.getTotalCostEUR();
+                totalCostUAH += articleJdo.getTotalCostUAH();
+                totalPrice += (articleJdo.getSalePrice());
+                if (minimalMultiplier > articleJdo.getMultiplier()) {
+                    minimalMultiplier = articleJdo.getMultiplier();
+                }
+                normalMultiplierSum += articleJdo.getMultiplier();
+            }
+            normalMultiplier = normalMultiplierSum / totalCount;
         }
+
         this.totalCountArticles = totalCount;
-        this.totalOriginalCostEUR = totalCost;
+        this.totalCostEUR = totalCostEUR;
         this.totalPriceUAH = totalPrice;
+        this.totalPurchaseCostEUR = totalPurchaseCostEUR;
+        this.totalCostUAH = totalCostUAH;
+        this.minimalMultiplier = minimalMultiplier;
+        this.normalMultiplier = normalMultiplier;
     }
 
 
@@ -499,8 +519,8 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
         return totalCountArticles;
     }
 
-    public double getTotalOriginalCostEUR() {
-        return totalOriginalCostEUR;
+    public double getTotalCostEUR() {
+        return totalCostEUR;
     }
 
     public double getTotalPriceUAH() {
@@ -521,5 +541,21 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
 
     public List<String> getHeaderTitles() {
         return headerTitles;
+    }
+
+    public double getTotalPurchaseCostEUR() {
+        return totalPurchaseCostEUR;
+    }
+
+    public double getTotalCostUAH() {
+        return totalCostUAH;
+    }
+
+    public double getMinimalMultiplier() {
+        return minimalMultiplier;
+    }
+
+    public double getNormalMultiplier() {
+        return normalMultiplier;
     }
 }

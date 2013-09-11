@@ -93,24 +93,24 @@ public class SoldProductsDialog extends AbstractDialog {
 
 //      analyze panel for total analyses
         analyzePanel = articleTableComponent.getArticleFiltersComponent().getArticleAnalyzeComponent().getAnalyzePanel();
-        analyzePanel.setPreferredSize(new Dimension(890, 25));
-        analyzePanel.setMinimumSize(new Dimension(800, 25));
-        analyzePanel.setMaximumSize(new Dimension(1500, 25));
+//        analyzePanel.setPreferredSize(new Dimension(300, 200));
+//        analyzePanel.setMinimumSize(new Dimension(300, 200));
+//        analyzePanel.setMaximumSize(new Dimension(1000, 1000));
 
 //      panel for search operations
         filtersPanel= articleTableComponent.getArticleFiltersComponent().getFiltersPanel();
 
         constraints.gridx = 0;
         constraints.gridy = 0;
-        constraints.fill = GridBagConstraints.REMAINDER;
-        constraints.gridwidth = GridBagConstraints.REMAINDER;
+        constraints.fill = GridBagConstraints.VERTICAL;
+        constraints.gridwidth = GridBagConstraints.RELATIVE;
         constraints.anchor = GridBagConstraints.WEST;
         constraints.weightx = 0.0;
-        constraints.weighty = 0.0;
+        constraints.weighty = 1.0;
         southPanel.add(analyzePanel, constraints);
 
-        constraints.gridx = 0;
-        constraints.gridy = 1;
+        constraints.gridx = 1;
+        constraints.gridy = 0;
         constraints.fill = GridBagConstraints.BOTH;
         constraints.gridwidth = GridBagConstraints.REMAINDER;
         constraints.gridheight = GridBagConstraints.REMAINDER;

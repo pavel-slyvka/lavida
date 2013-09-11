@@ -265,22 +265,39 @@ public class ArticleFiltersComponent {
      * Updates fields of the articleAnalyzeComponent.
      */
     public void updateAnalyzeComponent() {
-        int totalCountArticles = 0;
-        double totalOriginalCostEUR = 0;
+        int totalCount = 0;
+        double totalCostEUR = 0;
         double totalPriceUAH = 0;
-
+        double totalPurchaseCostEUR = 0;
+        double totalCostUAH = 0;
+        double normalMultiplierSum = 0;
+        double normalMultiplier = 0;
+        double minimalMultiplier = 0;
         int viewRows = sorter.getViewRowCount();
         List<ArticleJdo> selectedArticles = new ArrayList<ArticleJdo>();
         for (int i = 0; i < viewRows; i++) {
             int row = sorter.convertRowIndexToModel(i);
             selectedArticles.add(tableModel.getArticleJdoByRowIndex(row));
         }
-        for (ArticleJdo articleJdo : selectedArticles) {
-            ++totalCountArticles;
-            totalOriginalCostEUR += (articleJdo.getTransportCostEUR() + articleJdo.getPurchasePriceEUR());
-            totalPriceUAH += (articleJdo.getSalePrice());
-        }
-        articleAnalyzeComponent.updateFields(totalCountArticles, totalOriginalCostEUR, totalPriceUAH);
+
+         if (selectedArticles.size() > 0) {
+             minimalMultiplier = selectedArticles.get(0).getMultiplier();
+             for (ArticleJdo articleJdo : selectedArticles) {
+                 ++totalCount;
+                 totalPurchaseCostEUR += articleJdo.getPurchasePriceEUR();
+                 totalCostEUR += articleJdo.getTotalCostEUR();
+                 totalCostUAH += articleJdo.getTotalCostUAH();
+                 totalPriceUAH += (articleJdo.getSalePrice());
+                 if (minimalMultiplier > articleJdo.getMultiplier()) {
+                     minimalMultiplier = articleJdo.getMultiplier();
+                 }
+                 normalMultiplierSum += articleJdo.getMultiplier();
+             }
+             normalMultiplier = normalMultiplierSum / totalCount;
+         }
+
+        articleAnalyzeComponent.updateFields(totalCount, totalPurchaseCostEUR, totalCostEUR, totalCostUAH,
+                minimalMultiplier, normalMultiplier, totalPriceUAH);
     }
 
     class FilterElementsListener implements DocumentListener {

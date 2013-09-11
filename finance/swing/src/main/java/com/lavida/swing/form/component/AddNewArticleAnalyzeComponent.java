@@ -2,7 +2,6 @@ package com.lavida.swing.form.component;
 
 import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.service.AddNewArticleTableModel;
-import com.lavida.swing.service.ArticlesTableModel;
 import org.springframework.context.MessageSource;
 
 import javax.swing.*;
@@ -69,10 +68,10 @@ public class AddNewArticleAnalyzeComponent {
         totalOriginalCostPanel.setMinimumSize(new Dimension(200, 25));
         totalOriginalCostPanel.setMaximumSize(new Dimension(300, 25));
         totalOriginalCostPanel.setBorder(BorderFactory.createEmptyBorder());
-        totalOriginalCostLabel = new JLabel(messageSource.getMessage("component.article.analyze.label.total.cost.original.title",
+        totalOriginalCostLabel = new JLabel(messageSource.getMessage("component.article.analyze.label.total.cost.EUR",
                 null, localeHolder.getLocale()));
         totalOriginalCostLabel.setBorder(BorderFactory.createEmptyBorder(-2,0,0,0));
-        totalOriginalCostLabel.setText(messageSource.getMessage("component.article.analyze.label.total.cost.original.title",
+        totalOriginalCostLabel.setText(messageSource.getMessage("component.article.analyze.label.total.cost.EUR",
                 null, localeHolder.getLocale()));
         totalOriginalCostLabel.setLabelFor(totalOriginalCostField);
         totalOriginalCostPanel.add(totalOriginalCostLabel);
