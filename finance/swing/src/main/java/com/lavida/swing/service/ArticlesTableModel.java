@@ -199,9 +199,33 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
         for (Field field : ArticleJdo.class.getDeclaredFields()) {
             ViewColumn viewColumn = field.getAnnotation(ViewColumn.class);
             if (viewColumn != null && viewColumn.show()) {
-                if (isForbidden(userRoles, viewColumn.forbiddenRoles())) {
-                    forbiddenHeaders.add(viewColumn.titleKey().isEmpty() ? field.getName()
-                            : messageSource.getMessage(viewColumn.titleKey(), null, locale));
+                if (ArticleJdo.FIND_NOT_SOLD.equals(queryName) &&
+                        !(viewColumn.titleKey().equals("mainForm.table.articles.column.sell.marker.title") ||
+                                viewColumn.titleKey().equals("mainForm.table.articles.column.sell.date.title") ||
+                                viewColumn.titleKey().equals("mainForm.table.articles.column.seller.title") ||
+                                viewColumn.titleKey().equals("mainForm.table.articles.column.tags.title") ||
+                                viewColumn.titleKey().equals("mainForm.table.articles.column.refund.title"))) {
+                    if (isForbidden(userRoles, viewColumn.forbiddenRoles())) {
+                        forbiddenHeaders.add(viewColumn.titleKey().isEmpty() ? field.getName()
+                                : messageSource.getMessage(viewColumn.titleKey(), null, locale));
+                    }
+                } else if (ArticleJdo.FIND_SOLD.equals(queryName)) {
+                    if (isForbidden(userRoles, viewColumn.forbiddenRoles())) {
+                        forbiddenHeaders.add(viewColumn.titleKey().isEmpty() ? field.getName()
+                                : messageSource.getMessage(viewColumn.titleKey(), null, locale));
+                    }
+                } else if (queryName == null &&
+                        !(viewColumn.titleKey().equals("mainForm.table.articles.column.sell.marker.title") ||
+                                viewColumn.titleKey().equals("mainForm.table.articles.column.sell.date.title") ||
+                                viewColumn.titleKey().equals("mainForm.table.articles.column.seller.title") ||
+                                viewColumn.titleKey().equals("mainForm.table.articles.column.tags.title") ||
+                                viewColumn.titleKey().equals("mainForm.table.articles.column.raised.price.uah.title") ||
+                                viewColumn.titleKey().equals("mainForm.table.articles.column.old.price.uah.title") ||
+                                viewColumn.titleKey().equals("mainForm.table.articles.column.refund.title"))) {
+                    if (isForbidden(userRoles, viewColumn.forbiddenRoles())) {
+                        forbiddenHeaders.add(viewColumn.titleKey().isEmpty() ? field.getName()
+                                : messageSource.getMessage(viewColumn.titleKey(), null, locale));
+                    }
                 }
             }
         }
@@ -252,7 +276,7 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
         Map<String, Integer> columnHeaderToWidth = new HashMap<String, Integer>(headerTitles.size());
         label:
         for (String columnHeader : headerTitles) {
-            Integer width ;
+            Integer width;
             for (Field field : ArticleJdo.class.getDeclaredFields()) {
                 ViewColumn viewColumn = field.getAnnotation(ViewColumn.class);
                 if (viewColumn != null) {
@@ -368,7 +392,7 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
                     String formattedValue = value.replace(",", ".").trim();
                     if (formattedValue.matches("\\d{2}.\\d{2}.\\d{4}")) {
                         Date time;
-                        try{
+                        try {
                             time = calendarFormatter.parse(formattedValue);
                         } catch (ParseException e) {
                             logger.warn(e.getMessage(), e);
@@ -413,7 +437,7 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
             logger.warn(e.getMessage(), e);
             throw new RuntimeException(e);
         }
-            updateTable(articleJdo);
+        updateTable(articleJdo);
     }
 
     private double fixIfNeedAndParseDouble(String doubleString) {  // todo make reusable with GoogleCellsTransformer
@@ -439,7 +463,7 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
     /**
      * Updates table and remote spreadsheet with the changed article
      *
-     * @param changedArticle  the articleJdo to be updated.
+     * @param changedArticle the articleJdo to be updated.
      */
     private void updateTable(ArticleJdo changedArticle) {
         if (queryName != null) {
