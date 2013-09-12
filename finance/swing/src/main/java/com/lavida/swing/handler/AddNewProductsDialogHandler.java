@@ -76,7 +76,15 @@ public class AddNewProductsDialogHandler {
 
     public void acceptProductsButtonClicked() {
         List<ArticleJdo> newArticles = dialog.getTableModel().getTableData();
-        for (ArticleJdo newArticle : newArticles) {
+        while (newArticles.size() > 0) {
+            ArticleJdo newArticle = newArticles.get(0);
+            if (newArticle.getCode().isEmpty() || newArticle.getDeliveryDate() == null
+                    || newArticle.getTotalCostUAH() == 0) {
+                dialog.showMessage("mainForm.exception.message.dialog.title", "dialog.add.new.product.code.deliveryDate.totalCostUAH.not.filled.message");
+                dialog.getTableModel().fireTableDataChanged();
+                dialog.getArticleTableComponent().getArticleFiltersComponent().updateAnalyzeComponent();
+                return;
+            }
             try {
                 articleServiceSwingWrapper.updateToSpreadsheet(newArticle, null);
                 articleServiceSwingWrapper.update(newArticle);
@@ -89,6 +97,7 @@ public class AddNewProductsDialogHandler {
                 newArticle.setPostponedOperationDate(new Date());
                 articleServiceSwingWrapper.update(newArticle);
             }
+            newArticles.remove(newArticle);
         }
         dialog.getTableModel().getTableData().removeAll(newArticles);
         dialog.getTableModel().fireTableDataChanged();
@@ -96,9 +105,14 @@ public class AddNewProductsDialogHandler {
     }
 
     public void copyRowButtonClicked() {
-        ArticleJdo selectedArticle = dialog.getTableModel().getSelectedArticle();
-        dialog.getTableModel().getTableData().add(selectedArticle);
-        dialog.getTableModel().setSelectedArticle(null);
+        ArticleJdo copiedArticle;
+        try {
+            copiedArticle = (ArticleJdo) dialog.getTableModel().getSelectedArticle().clone();
+        } catch (CloneNotSupportedException e) {
+            logger.warn(e.getMessage(), e);
+            return;
+        }
+        dialog.getTableModel().getTableData().add(copiedArticle);
         dialog.getTableModel().fireTableDataChanged();
 
     }

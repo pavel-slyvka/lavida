@@ -325,7 +325,11 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
      */
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        return !isForbidden(userService.getCurrentUserRoles(), FORBIDDEN_ROLES);
+        if (articleFieldsSequence.get(columnIndex).equals("totalCostEUR") ||
+                articleFieldsSequence.get(columnIndex).equals("calculatedSalePrice")) {
+            return false;
+        } else
+            return !isForbidden(userService.getCurrentUserRoles(), FORBIDDEN_ROLES);
     }
 
     /**
@@ -370,6 +374,17 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
                 double typeValue = fixIfNeedAndParseDouble(value);
                 if (typeValue != field.getDouble(articleJdo)) {
                     field.setDouble(articleJdo, typeValue);
+                    if (field.getName().equals("transportCostEUR") || field.getName().equals("purchasePriceEUR")) {
+                        articleJdo.setTotalCostEUR(articleJdo.getPurchasePriceEUR() + articleJdo.getTransportCostEUR());
+                        articleJdo.setTotalCostUAH(articleJdo.getTotalCostEUR() * 11.0);
+                        articleJdo.setCalculatedSalePrice(articleJdo.getTotalCostUAH() * articleJdo.getMultiplier());
+                        if (articleJdo.getSalePrice() == 0) {
+                            articleJdo.setSalePrice(articleJdo.getCalculatedSalePrice());
+                        }
+                    }
+                    if (field.getName().equals("multiplier") || field.getName().equals("totalCostUAH")) {
+                        articleJdo.setCalculatedSalePrice(articleJdo.getTotalCostUAH() * articleJdo.getMultiplier());
+                    }
                 } else return;
             } else if (char.class == field.getType()) {
                 char typeValue = value.charAt(0);
@@ -395,6 +410,17 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
                 Double typeValue = fixIfNeedAndParseDouble(value);
                 if (!typeValue.equals(field.get(articleJdo))) {
                     field.set(articleJdo, typeValue);
+                    if (field.getName().equals("transportCostEUR") || field.getName().equals("purchasePriceEUR")) {
+                        articleJdo.setTotalCostEUR(articleJdo.getPurchasePriceEUR() + articleJdo.getTransportCostEUR());
+                        articleJdo.setTotalCostUAH(articleJdo.getTotalCostEUR() * 11.0);
+                        articleJdo.setCalculatedSalePrice(articleJdo.getTotalCostUAH() * articleJdo.getMultiplier());
+                        if (articleJdo.getSalePrice() == 0) {
+                            articleJdo.setSalePrice(articleJdo.getCalculatedSalePrice());
+                        }
+                    }
+                    if (field.getName().equals("multiplier")|| field.getName().equals("totalCostUAH")) {
+                        articleJdo.setCalculatedSalePrice(articleJdo.getTotalCostUAH() * articleJdo.getMultiplier());
+                    }
                 } else return;
             } else if (Character.class == field.getType()) {
                 Character typeValue = value.charAt(0);
