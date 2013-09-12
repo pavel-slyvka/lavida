@@ -43,7 +43,7 @@ public class AddNewProductsDialogHandler {
         ArticleJdo articleJdo = new ArticleJdo();
         articleJdo.setQuantity(1);
         articleJdo.setMultiplier(2.0);
-        articleJdo.setShop(messageSource.getMessage("sellDialog.text.field.shop.text", null, localeHolder.getLocale()));
+        articleJdo.setShop(messageSource.getMessage("sellDialog.text.field.shop.LaVida", null, localeHolder.getLocale()));
         if (dialog.getTableModel().getTableData().size() > 0) {
             if (dialog.getTableModel().getTableData().get(0).getDeliveryDate() == null) {
                 dialog.showMessage("mainForm.exception.message.dialog.title", "dialog.add.new.product.deliveryDate.not.filled.message");

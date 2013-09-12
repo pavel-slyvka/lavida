@@ -21,7 +21,9 @@ import java.util.Scanner;
  */
 @Component
 public class CreateUserJob extends AbstractJob {
-    public static final String ROLE_SELLER = "ROLE_SELLER";
+    public static final String ROLE_SELLER_LA_VIDA = "ROLE_SELLER_LA_VIDA";
+    public static final String ROLE_SELLER_SLAVYANKA = "ROLE_SELLER_SLAVYANKA";
+    public static final String ROLE_SELLER_NOVOMOSKOVSK = "ROLE_SELLER_NOVOMOSKOVSK";
     public static final String ROLE_MANAGER = "ROLE_MANAGER";
 
     @Resource
@@ -73,9 +75,15 @@ public class CreateUserJob extends AbstractJob {
             System.out.println(messageSource.getMessage("job.user.create.enter.role", null, locale));
             String roleNumber = scanner.next();
             if ("1".equals(roleNumber.trim())) {
-                role = ROLE_SELLER;
+                role = ROLE_SELLER_LA_VIDA;
                 break;
             } else if ("2".equals(roleNumber.trim())) {
+                role = ROLE_SELLER_SLAVYANKA;
+                break;
+            } else if ("3".equals(roleNumber.trim())) {
+                role = ROLE_SELLER_NOVOMOSKOVSK;
+                break;
+            } else if ("4".equals(roleNumber.trim())) {
                 role = ROLE_MANAGER;
                 break;
             } else {

@@ -38,7 +38,9 @@ public class DiscountCardsTableModel extends AbstractTableModel implements Appli
     private static final List<String> FORBIDDEN_ROLES = new ArrayList<String>();
 
     static {
-        FORBIDDEN_ROLES.add("ROLE_SELLER");
+        FORBIDDEN_ROLES.add("ROLE_SELLER_LA_VIDA");
+        FORBIDDEN_ROLES.add("ROLE_SELLER_SLAVYANKA");
+        FORBIDDEN_ROLES.add("ROLE_SELLER_NOVOMOSKOVSK");
     }
 
     @Resource

@@ -52,6 +52,8 @@ public class SellDialog extends AbstractDialog {
     private List<JCheckBox> tagCheckBoxes = new ArrayList<JCheckBox>();
     private JLabel errorMessage;
 
+    private String defaultShop;
+
     @Override
     protected void initializeForm() {
         super.initializeForm();
@@ -71,7 +73,8 @@ public class SellDialog extends AbstractDialog {
         discountTextField.setText("0.0");
         handler.discountTextEntered();
         saleDateTextField.setText(new SimpleDateFormat("dd.MM.yyyy").format(Calendar.getInstance().getTime()));
-        shopTextField.setText(messageSource.getMessage("sellDialog.text.field.shop.text", null, localeHolder.getLocale()));
+//        shopTextField.setText(messageSource.getMessage("sellDialog.text.field.shop.text", null, localeHolder.getLocale()));
+        shopTextField.setText(defaultShop);
         oursCheckBox.setSelected(false);
         presentCheckBox.setSelected(false);
         for (JCheckBox checkbox : tagCheckBoxes) {
@@ -449,6 +452,29 @@ public class SellDialog extends AbstractDialog {
 
     }
 
+    /**
+     * Sets the value to the defaultShop field according to the user's first role.
+     * @param userRoles the list of user's roles.
+     */
+    public void initializeByUser (List<String> userRoles) {
+        for (String role : userRoles) {
+            if ("ROLE_SELLER_LA_VIDA".equals(role)) {
+                this.setDefaultShop(messageSource.getMessage("sellDialog.text.field.shop.LaVida", null,
+                        localeHolder.getLocale()));
+                return;
+            } else if ("ROLE_SELLER_SLAVYANKA".equals(role)) {
+                this.setDefaultShop(messageSource.getMessage("sellDialog.text.field.shop.Slavyanka", null,
+                        localeHolder.getLocale()));
+                return;
+            } else if ("ROLE_SELLER_NOVOMOSKOVSK".equals(role)) {
+                this.setDefaultShop(messageSource.getMessage("sellDialog.text.field.shop.Novomoskovsk", null,
+                        localeHolder.getLocale()));
+                return;
+            }
+
+        }
+    }
+
     public JLabel getPriceField() {
         return priceField;
     }
@@ -499,5 +525,13 @@ public class SellDialog extends AbstractDialog {
 
     public JLabel getErrorMessage() {
         return errorMessage;
+    }
+
+    public String getDefaultShop() {
+        return defaultShop;
+    }
+
+    public void setDefaultShop(String defaultShop) {
+        this.defaultShop = defaultShop;
     }
 }

@@ -23,6 +23,7 @@ import java.util.*;
  *
  * @author Ruslan
  */
+@Deprecated
 public class AddNewArticleTableModel extends AbstractTableModel {
     private static final Logger logger = LoggerFactory.getLogger(AddNewArticleTableModel.class);
 
@@ -46,7 +47,9 @@ public class AddNewArticleTableModel extends AbstractTableModel {
     private static final List<String> FORBIDDEN_ROLES = new ArrayList<String>();
 
     static {
-        FORBIDDEN_ROLES.add("ROLE_SELLER");
+        FORBIDDEN_ROLES.add("ROLE_SELLER_LA_VIDA");
+        FORBIDDEN_ROLES.add("ROLE_SELLER_SLAVYANKA");
+        FORBIDDEN_ROLES.add("ROLE_SELLER_NOVOMOSKOVSK");
     }
 
     public List<ArticleJdo> getTableData() {

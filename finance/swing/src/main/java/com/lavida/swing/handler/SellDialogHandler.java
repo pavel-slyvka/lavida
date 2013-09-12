@@ -91,7 +91,7 @@ public class SellDialogHandler {
         articleJdo.setTags(new String(tagsBuilder));
         articleJdo.setShop((dialog.getShopTextField().getText().trim() == null) ? null :
                 dialog.getShopTextField().getText().trim());
-        dialog.getShopTextField().setText(messageSource.getMessage("sellDialog.text.field.shop.text", null, localeHolder.getLocale()));
+        dialog.getShopTextField().setText(messageSource.getMessage("sellDialog.text.field.shop.LaVida", null, localeHolder.getLocale()));
         String seller = (String) dialog.getSellerNames().getSelectedItem();
         tableModel.setSellerName(seller);
         dialog.getSellerNames().setSelectedItem(seller);

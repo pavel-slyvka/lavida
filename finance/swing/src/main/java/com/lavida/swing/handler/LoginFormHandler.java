@@ -1,6 +1,8 @@
 package com.lavida.swing.handler;
 
 import com.lavida.service.UserService;
+import com.lavida.swing.dialog.SellDialog;
+import com.lavida.swing.dialog.SoldProductsDialog;
 import com.lavida.swing.form.MainForm;
 import com.lavida.swing.exception.UserValidationException;
 import com.lavida.swing.form.LoginForm;
@@ -32,6 +34,12 @@ public class LoginFormHandler {
     @Resource
     private MainForm mainForm;
 
+    @Resource
+    private SellDialog sellDialog;
+
+    @Resource
+    private SoldProductsDialog soldProductsDialog;
+
     /**
      * EventListener for submit button checks user credentials from database "lavida".
      * If input fields are empty or incorrect the error message will be shown in error label.
@@ -42,12 +50,15 @@ public class LoginFormHandler {
             validateCredentials(loginEntered, passwordEntered);
             userService.login(loginEntered, passwordEntered);
             mainForm.filterTableByRoles(userService.getCurrentUserRoles());
+            mainForm.getTableModel().filterTableDataByRole(userService.getCurrentUserRoles());
+            soldProductsDialog.getTableModel().filterTableDataByRole(userService.getCurrentUserRoles());
+            sellDialog.initializeByUser(userService.getCurrentUserRoles());
             mainForm.filterAnalyzePanelByRoles(userService.getCurrentUserRoles());
             mainForm.filterMenuBarByRoles(userService.getCurrentUserRoles());
-            mainForm.getSoldProductsDialog().filterTableByRoles(userService.getCurrentUserRoles());
+            soldProductsDialog.filterTableByRoles(userService.getCurrentUserRoles());
             mainForm.getHandler().getColumnsViewSettingsDialog().initializeLists(
                     mainForm.getArticleTableComponent().getArticlesTable(),
-                    mainForm.getSoldProductsDialog().getArticleTableComponent().getArticlesTable());
+                    soldProductsDialog.getArticleTableComponent().getArticlesTable());
             mainForm.show();
             form.hide();
         } catch (UserValidationException e1) {

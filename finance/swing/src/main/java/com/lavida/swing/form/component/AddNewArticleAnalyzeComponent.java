@@ -21,7 +21,9 @@ import java.util.List;
 public class AddNewArticleAnalyzeComponent {
     private static final List<String> FORBIDDEN_ROLES = new ArrayList<String>();
     static {
-        FORBIDDEN_ROLES.add("ROLE_SELLER");
+        FORBIDDEN_ROLES.add("ROLE_SELLER_LA_VIDA");
+        FORBIDDEN_ROLES.add("ROLE_SELLER_SLAVYANKA");
+        FORBIDDEN_ROLES.add("ROLE_SELLER_NOVOMOSKOVSK");
     }
 
     private AddNewArticleTableModel tableModel;

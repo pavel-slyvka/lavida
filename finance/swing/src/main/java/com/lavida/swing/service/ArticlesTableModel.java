@@ -62,11 +62,17 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
     private static final List<String> FORBIDDEN_ROLES = new ArrayList<String>();
 
     static {
-        FORBIDDEN_ROLES.add("ROLE_SELLER");
+        FORBIDDEN_ROLES.add("ROLE_SELLER_LA_VIDA");
+        FORBIDDEN_ROLES.add("ROLE_SELLER_SLAVYANKA");
+        FORBIDDEN_ROLES.add("ROLE_SELLER_NOVOMOSKOVSK");
     }
 
     @Override
     public void onApplicationEvent(ArticleUpdateEvent event) {
+        updateTableData();
+    }
+
+    private void updateTableData () {
         if (queryName != null) {
             tableData = articleDao.get(queryName);
         }
@@ -80,9 +86,11 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
     }
 
     public FiltersPurpose getFiltersPurpose() {
-        if (ArticleJdo.FIND_SOLD.equals(queryName)) {
+        if (ArticleJdo.FIND_SOLD.equals(queryName) || ArticleJdo.FIND_SOLD_LA_VIDA.equals(queryName) ||
+                ArticleJdo.FIND_SOLD_SLAVYANKA.equals(queryName) || ArticleJdo.FIND_SOLD_NOVOMOSKOVSK.equals(queryName)) {
             return FiltersPurpose.SOLD_PRODUCTS;
-        } else if (ArticleJdo.FIND_NOT_SOLD.equals(queryName)) {
+        } else if (ArticleJdo.FIND_NOT_SOLD.equals(queryName) || ArticleJdo.FIND_NOT_SOLD_LA_VIDA.equals(queryName) ||
+                ArticleJdo.FIND_NOT_SOLD_SLAVYANKA.equals(queryName) || ArticleJdo.FIND_NOT_SOLD_NOVOMOSKOVSK.equals(queryName)) {
             return FiltersPurpose.SELL_PRODUCTS;
         } else {
             return FiltersPurpose.ADD_NEW_PRODUCTS;
@@ -418,7 +426,7 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
                             articleJdo.setSalePrice(articleJdo.getCalculatedSalePrice());
                         }
                     }
-                    if (field.getName().equals("multiplier")|| field.getName().equals("totalCostUAH")) {
+                    if (field.getName().equals("multiplier") || field.getName().equals("totalCostUAH")) {
                         articleJdo.setCalculatedSalePrice(articleJdo.getTotalCostUAH() * articleJdo.getMultiplier());
                     }
                 } else return;
@@ -527,6 +535,52 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
             }
         }
         fireTableDataChanged();
+    }
+
+    /**
+     * Changes the ArticlesTableModel queryName according to the user's first role.
+     * @param userRoles the list of user's roles.
+     */
+    public void filterTableDataByRole (List<String> userRoles) {
+        if (ArticleJdo.FIND_NOT_SOLD.equals(queryName)) {
+            for (String role : userRoles) {
+                if ("ROLE_SELLER_LA_VIDA".equals(role)) {
+                    this.setQueryName(ArticleJdo.FIND_NOT_SOLD_LA_VIDA);
+                    updateTableData();
+                    fireTableDataChanged();
+                    return;
+                } else if ("ROLE_SELLER_SLAVYANKA".equals(role)) {
+                    this.setQueryName(ArticleJdo.FIND_NOT_SOLD_SLAVYANKA);
+                    updateTableData();
+                    fireTableDataChanged();
+                    return;
+                } else if ("ROLE_SELLER_NOVOMOSKOVSK".equals(role)) {
+                    this.setQueryName(ArticleJdo.FIND_NOT_SOLD_NOVOMOSKOVSK);
+                    updateTableData();
+                    fireTableDataChanged();
+                    return;
+                }
+            }
+        } else if (ArticleJdo.FIND_SOLD.equals(queryName)) {
+            for (String role : userRoles) {
+                if ("ROLE_SELLER_LA_VIDA".equals(role)) {
+                    this.setQueryName(ArticleJdo.FIND_SOLD_LA_VIDA);
+                    updateTableData();
+                    fireTableDataChanged();
+                    return;
+                } else if ("ROLE_SELLER_SLAVYANKA".equals(role)) {
+                    this.setQueryName(ArticleJdo.FIND_SOLD_SLAVYANKA);
+                    updateTableData();
+                    fireTableDataChanged();
+                    return;
+                } else if ("ROLE_SELLER_NOVOMOSKOVSK".equals(role)) {
+                    this.setQueryName(ArticleJdo.FIND_SOLD_NOVOMOSKOVSK);
+                    updateTableData();
+                    fireTableDataChanged();
+                    return;
+                }
+            }
+        }
     }
 
     public void setSelectedArticle(ArticleJdo selectedArticle) {
