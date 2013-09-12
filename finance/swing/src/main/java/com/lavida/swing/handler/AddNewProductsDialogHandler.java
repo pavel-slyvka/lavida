@@ -2,10 +2,12 @@ package com.lavida.swing.handler;
 
 import com.google.gdata.util.ServiceException;
 import com.lavida.service.entity.ArticleJdo;
+import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.dialog.AddNewProductsDialog;
 import com.lavida.swing.service.ArticleServiceSwingWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -30,11 +32,31 @@ public class AddNewProductsDialogHandler {
     @Resource
     private ArticleServiceSwingWrapper articleServiceSwingWrapper;
 
+    @Resource
+    protected MessageSource messageSource;
+
+    @Resource
+    protected LocaleHolder localeHolder;
+
 
     public void addRowButtonClicked() {
         ArticleJdo articleJdo = new ArticleJdo();
+        articleJdo.setQuantity(1);
+        articleJdo.setMultiplier(2.0);
+        articleJdo.setShop(messageSource.getMessage("sellDialog.text.field.shop.text", null, localeHolder.getLocale()));
+        if (dialog.getTableModel().getTableData().size() > 0) {
+            if (dialog.getTableModel().getTableData().get(0).getDeliveryDate() == null) {
+                dialog.showMessage("mainForm.exception.message.dialog.title", "dialog.add.new.product.deliveryDate.not.filled.message");
+                return;
+            } else {
+                articleJdo.setDeliveryDate(dialog.getTableModel().getTableData().get(0).getDeliveryDate());
+            }
+        }
         dialog.getTableModel().getTableData().add(articleJdo);
         dialog.getTableModel().fireTableDataChanged();
+        int row = dialog.getTableModel().getTableData().size() - 1;
+        dialog.getArticleTableComponent().getArticlesTable().editCellAt(row, 0);
+        dialog.getArticleTableComponent().getArticlesTable().transferFocus();
     }
 
     public void deleteRowButtonClicked() {
@@ -71,5 +93,13 @@ public class AddNewProductsDialogHandler {
         dialog.getTableModel().getTableData().removeAll(newArticles);
         dialog.getTableModel().fireTableDataChanged();
         dialog.getArticleTableComponent().getArticleFiltersComponent().updateAnalyzeComponent();
+    }
+
+    public void copyRowButtonClicked() {
+        ArticleJdo selectedArticle = dialog.getTableModel().getSelectedArticle();
+        dialog.getTableModel().getTableData().add(selectedArticle);
+        dialog.getTableModel().setSelectedArticle(null);
+        dialog.getTableModel().fireTableDataChanged();
+
     }
 }

@@ -30,7 +30,7 @@ public class AddNewProductsDialog extends AbstractDialog {
 
     private JPanel operationPanel, southPanel, desktopPanel, analyzePanel, mainPanel,
             buttonPanel;
-    private JButton addRowButton, deleteRowButton, acceptProductsButton, cancelButton;
+    private JButton addRowButton, deleteRowButton, acceptProductsButton, cancelButton, copyRowButton;
     private JLabel errorMessage;
 
     @Override
@@ -107,10 +107,25 @@ public class AddNewProductsDialog extends AbstractDialog {
             }
         });
 
+        copyRowButton = new JButton();
+        copyRowButton.setHorizontalTextPosition(JButton.CENTER);
+        copyRowButton.setPreferredSize(new Dimension(150, 25));
+        copyRowButton.setMaximumSize(new Dimension(150, 25));
+        copyRowButton.setMinimumSize(new Dimension(150, 25));
+        copyRowButton.setText(messageSource.getMessage("dialog.add.new.products.button.row.copy", null, localeHolder.getLocale()));
+        copyRowButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handler.copyRowButtonClicked();
+            }
+        });
+
         operationPanel.add(Box.createVerticalGlue());
         operationPanel.add(addRowButton);
         operationPanel.add(Box.createVerticalGlue());
         operationPanel.add(deleteRowButton);
+        operationPanel.add(Box.createVerticalGlue());
+        operationPanel.add(copyRowButton);
         operationPanel.add(Box.createVerticalGlue());
 
         constraints.gridx = 0;
