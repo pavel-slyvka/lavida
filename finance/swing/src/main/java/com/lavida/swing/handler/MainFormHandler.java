@@ -188,7 +188,9 @@ public class MainFormHandler {
     }
 
     public void showSoldProductsButtonClicked() {
-        soldProductsDialog.filterAnalyzePanelByRoles(userService.getCurrentUserRoles());
+//        soldProductsDialog.filterAnalyzePanelByRoles(userService.getCurrentUserRoles());
+//        soldProductsDialog.getArticleTableComponent().getArticleFiltersComponent().
+//                removeFiltersByRoles(userService.getCurrentUserRoles());
         soldProductsDialog.show();
     }
 

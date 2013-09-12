@@ -34,12 +34,6 @@ public class LoginFormHandler {
     @Resource
     private MainForm mainForm;
 
-    @Resource
-    private SellDialog sellDialog;
-
-    @Resource
-    private SoldProductsDialog soldProductsDialog;
-
     /**
      * EventListener for submit button checks user credentials from database "lavida".
      * If input fields are empty or incorrect the error message will be shown in error label.
@@ -50,15 +44,12 @@ public class LoginFormHandler {
             validateCredentials(loginEntered, passwordEntered);
             userService.login(loginEntered, passwordEntered);
             mainForm.filterTableByRoles(userService.getCurrentUserRoles());
-            mainForm.getTableModel().filterTableDataByRole(userService.getCurrentUserRoles());
-            soldProductsDialog.getTableModel().filterTableDataByRole(userService.getCurrentUserRoles());
-            sellDialog.initializeByUser(userService.getCurrentUserRoles());
+            mainForm.filterTableDataByRole(userService.getCurrentUserRoles());
             mainForm.filterAnalyzePanelByRoles(userService.getCurrentUserRoles());
             mainForm.filterMenuBarByRoles(userService.getCurrentUserRoles());
-            soldProductsDialog.filterTableByRoles(userService.getCurrentUserRoles());
-            mainForm.getHandler().getColumnsViewSettingsDialog().initializeLists(
-                    mainForm.getArticleTableComponent().getArticlesTable(),
-                    soldProductsDialog.getArticleTableComponent().getArticlesTable());
+            mainForm.removeFiltersByRoles(userService.getCurrentUserRoles());
+            mainForm.initializeSellDialogByUser(userService.getCurrentUserRoles());
+            mainForm.initializeArticleTableColumnLists();
             mainForm.show();
             form.hide();
         } catch (UserValidationException e1) {
@@ -87,10 +78,5 @@ public class LoginFormHandler {
         } else if (!login.matches(REGULAR_EXPRESSION_FOR_CREDENTIALS) || !password.matches(REGULAR_EXPRESSION_FOR_CREDENTIALS)) {
             throw new UserValidationException(UserValidationException.INCORRECT_FORMAT_MESSAGE_RU);
         }
-//        UserJdo user = userService.getByLogin(login);
-//        if (user == null) {
-//            throw new UserValidationException(UserValidationException.INCORRECT_PRINCIPAL_MESSAGE_RU);
-//        }
-
     }
 }

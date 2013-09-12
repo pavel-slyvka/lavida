@@ -227,12 +227,18 @@ public class ArticleAnalyzeComponent {
 
     public void filterAnalyzeComponentByRoles(java.util.List<String> userRoles) {
         if (hasForbiddenRole(userRoles)) {
-//             totalOriginalCostPanel.setVisible(false);
-//             totalPricePanel.setVisible(false);
             totalCostEURLabel.setVisible(false);
             totalCostEURField.setVisible(false);
             totalPriceLabel.setVisible(false);
             totalPriceField.setVisible(false);
+            totalPurchaseCostEURLabel.setVisible(false);
+            totalPurchaseCostEURField.setVisible(false);
+            totalCostUAHLabel.setVisible(false);
+            totalCostUAHField.setVisible(false);
+            minimalMultiplierLabel.setVisible(false);
+            minimalMultiplierField.setVisible(false);
+            normalMultiplierLabel.setVisible(false);
+            normalMultiplierField.setVisible(false);
 
         }
 

@@ -1,5 +1,6 @@
 package com.lavida.swing.form;
 
+import com.lavida.swing.dialog.SellDialog;
 import com.lavida.swing.dialog.SoldProductsDialog;
 import com.lavida.swing.form.component.ArticleTableComponent;
 import com.lavida.swing.handler.MainFormHandler;
@@ -32,7 +33,8 @@ public class MainForm extends AbstractForm {
     @Resource
     private SoldProductsDialog soldProductsDialog;
 
-
+    @Resource
+    private SellDialog sellDialog;
 
     private static final List<String> FORBIDDEN_ROLES = new ArrayList<String>();
     static {
@@ -335,17 +337,40 @@ public class MainForm extends AbstractForm {
      */
     public void filterTableByRoles(List<String> userRoles) {
         articleTableComponent.filterTableByRoles(userRoles);
+        soldProductsDialog.filterTableByRoles(userRoles);
+
+    }
+
+    public void initializeSellDialogByUser (List<String> userRoles) {
+             sellDialog.initializeByUser(userRoles);
+    }
+
+    public void initializeArticleTableColumnLists () {
+        handler.getColumnsViewSettingsDialog().initializeLists(
+                getArticleTableComponent().getArticlesTable(),
+                soldProductsDialog.getArticleTableComponent().getArticlesTable());
     }
 
     public void filterAnalyzePanelByRoles(List<String> userRoles) {
         articleTableComponent.getArticleFiltersComponent().getArticleAnalyzeComponent().
                 filterAnalyzeComponentByRoles(userRoles);
+        soldProductsDialog.getArticleTableComponent().getArticleFiltersComponent().getArticleAnalyzeComponent().
+                filterAnalyzeComponentByRoles(userRoles);
+    }
+
+    public void removeFiltersByRoles (List<String> userRoles) {
+        articleTableComponent.getArticleFiltersComponent().removeFiltersByRoles(userRoles);
+        soldProductsDialog.getArticleTableComponent().getArticleFiltersComponent().removeFiltersByRoles(userRoles);
+    }
+
+    public void filterTableDataByRole (List<String> userRoles) {
+        getTableModel().filterTableDataByRole(userRoles);
+        soldProductsDialog.getTableModel().filterTableDataByRole(userRoles);
     }
 
     public void filterMenuBarByRoles (List<String> userRoles) {
         if (isForbidden(userRoles, FORBIDDEN_ROLES)) {
             addNewProductsItem.setEnabled(false);
-            addNewDiscountCardItem.setEnabled(false);
         }
     }
 

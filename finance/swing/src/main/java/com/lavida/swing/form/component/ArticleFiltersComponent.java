@@ -30,8 +30,20 @@ import java.util.Queue;
  * @author Pavel
  */
 public class ArticleFiltersComponent {
+    private static final List<String> FORBIDDEN_ROLES = new ArrayList<String>();
+
+    static {
+        FORBIDDEN_ROLES.add("ROLE_SELLER_LA_VIDA");
+        FORBIDDEN_ROLES.add("ROLE_SELLER_SLAVYANKA");
+        FORBIDDEN_ROLES.add("ROLE_SELLER_NOVOMOSKOVSK");
+    }
+
+
     private ArticlesTableModel tableModel;
+    private MessageSource messageSource;
+    private LocaleHolder localeHolder;
     private List<FilterUnit> filters;
+    //    private Map<Integer, >
     private JPanel filtersPanel;
     private JButton clearSearchButton;
     private TableRowSorter<ArticlesTableModel> sorter;
@@ -39,6 +51,8 @@ public class ArticleFiltersComponent {
 
     public void initializeComponents(ArticlesTableModel tableModel, MessageSource messageSource, LocaleHolder localeHolder) {
         this.tableModel = tableModel;
+        this.messageSource = messageSource;
+        this.localeHolder = localeHolder;
         this.filters = new ArrayList<FilterUnit>();
         FiltersPurpose filtersPurpose = tableModel.getFiltersPurpose();
 
@@ -246,7 +260,7 @@ public class ArticleFiltersComponent {
         Calendar currentDate = Calendar.getInstance();
         switch (dateParts.size()) {
             case 0:
-                dateParts.add (Integer.toString(currentDate.get(Calendar.DATE)));
+                dateParts.add(Integer.toString(currentDate.get(Calendar.DATE)));
             case 1:
                 dateParts.add(Integer.toString(currentDate.get(Calendar.MONTH) + 1));
             case 2:
@@ -280,21 +294,21 @@ public class ArticleFiltersComponent {
             selectedArticles.add(tableModel.getArticleJdoByRowIndex(row));
         }
 
-         if (selectedArticles.size() > 0) {
-             minimalMultiplier = selectedArticles.get(0).getMultiplier();
-             for (ArticleJdo articleJdo : selectedArticles) {
-                 ++totalCount;
-                 totalPurchaseCostEUR += articleJdo.getPurchasePriceEUR();
-                 totalCostEUR += articleJdo.getTotalCostEUR();
-                 totalCostUAH += articleJdo.getTotalCostUAH();
-                 totalPriceUAH += (articleJdo.getSalePrice());
-                 if (minimalMultiplier > articleJdo.getMultiplier()) {
-                     minimalMultiplier = articleJdo.getMultiplier();
-                 }
-                 normalMultiplierSum += articleJdo.getMultiplier();
-             }
-             normalMultiplier = normalMultiplierSum / totalCount;
-         }
+        if (selectedArticles.size() > 0) {
+            minimalMultiplier = selectedArticles.get(0).getMultiplier();
+            for (ArticleJdo articleJdo : selectedArticles) {
+                ++totalCount;
+                totalPurchaseCostEUR += articleJdo.getPurchasePriceEUR();
+                totalCostEUR += articleJdo.getTotalCostEUR();
+                totalCostUAH += articleJdo.getTotalCostUAH();
+                totalPriceUAH += (articleJdo.getSalePrice());
+                if (minimalMultiplier > articleJdo.getMultiplier()) {
+                    minimalMultiplier = articleJdo.getMultiplier();
+                }
+                normalMultiplierSum += articleJdo.getMultiplier();
+            }
+            normalMultiplier = normalMultiplierSum / totalCount;
+        }
 
         articleAnalyzeComponent.updateFields(totalCount, totalPurchaseCostEUR, totalCostEUR, totalCostUAH,
                 minimalMultiplier, normalMultiplier, totalPriceUAH);
@@ -318,6 +332,37 @@ public class ArticleFiltersComponent {
             applyFilters();
             updateAnalyzeComponent();
         }
+    }
+
+    /**
+     * Removes filters from the filterPanel according to users' roles.
+     * @param userRoles the list of user's role.
+     */
+    public void removeFiltersByRoles(List<String> userRoles) {
+        if (hasForbiddenRole(userRoles)) {
+            Component[] components = filtersPanel.getComponents();
+            for (Component component : components) {
+                if (component instanceof JLabel) {
+                    JLabel label = (JLabel) component;
+                    if (label.getText().equals(messageSource.getMessage("mainForm.label.search.by.shop",
+                            null, localeHolder.getLocale()))) {
+                        JTextField textField = (JTextField) label.getLabelFor();
+                        textField.setEnabled(false);
+                        textField.setVisible(false);
+                        label.setVisible(false);
+                    }
+                }
+            }
+        }
+    }
+
+    private boolean hasForbiddenRole(java.util.List<String> userRoles) {
+        for (String role : userRoles) {
+            if (FORBIDDEN_ROLES.contains(role)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public JPanel getFiltersPanel() {
