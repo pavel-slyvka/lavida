@@ -3,7 +3,6 @@ package com.lavida.swing.handler;
 import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.dialog.RefundDialog;
 import com.lavida.swing.dialog.SoldProductsDialog;
-import com.lavida.swing.form.component.ArticleFiltersComponent;
 import com.lavida.swing.form.component.FilterUnit;
 import com.lavida.swing.service.ArticlesTableModel;
 import org.springframework.context.MessageSource;
@@ -87,4 +86,5 @@ public class SoldProductsDialogHandler {
             }
         }
     }
+
 }

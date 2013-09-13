@@ -2,6 +2,8 @@ package com.lavida.service;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * FilterColumn
@@ -34,4 +36,10 @@ public @interface FilterColumn {
     int orderForAddNew() default 0;
 
     int orderForAllDiscountCards() default 0;
+
+    int checkBoxesNumber() default 0;
+
+    String[] checkBoxesText() default {};
+
+    String[] checkBoxesAction() default {};
 }

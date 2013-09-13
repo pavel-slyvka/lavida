@@ -10,8 +10,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 
 /**
  * Created: 15:29 18.08.13
@@ -29,9 +27,6 @@ public class SoldProductsDialog extends AbstractDialog {
 
     private ArticleTableComponent articleTableComponent = new ArticleTableComponent();
 
-    private JPanel  southPanel, desktopPanel, filtersPanel, analyzePanel, mainPanel, buttonPanel;
-    private JButton refundButton, cancelButton;
-    private JCheckBox currentDateCheckBox;
 //    private JLabel errorMessage;
 
     @Override
@@ -47,6 +42,7 @@ public class SoldProductsDialog extends AbstractDialog {
     @Override
     protected void initializeComponents() {
         rootContainer.setLayout(new BorderLayout());
+        JPanel  southPanel, desktopPanel, filtersPanel, analyzePanel, mainPanel, buttonPanel;
 
 //      desktop pane
         desktopPanel = new JPanel();
@@ -55,47 +51,20 @@ public class SoldProductsDialog extends AbstractDialog {
 
         articleTableComponent.initializeComponents(tableModel, messageSource, localeHolder);
 
-
-//      panel for search operations
-        currentDateCheckBox = new JCheckBox();
-        currentDateCheckBox.setText(messageSource.getMessage("dialog.sold.products.checkBox.current.date.title",
-                null, localeHolder.getLocale()));
-        currentDateCheckBox.addItemListener(new ItemListener() {
-            @Override
-            public void itemStateChanged(ItemEvent e) {
-                int state = e.getStateChange();
-                if (state == ItemEvent.SELECTED) {
-                    handler.currentDateCheckBoxSelected();
-                } else if (state == ItemEvent.DESELECTED) {
-                    handler.currentDateCheckBoxDeSelected();
-                }
-            }
-        });
-        GridBagConstraints constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.insets = new Insets(1, 5, 1, 5);
-        constraints.gridx = 1;
-        constraints.gridy = articleTableComponent.getArticleFiltersComponent().getFilters().size();
-        constraints.gridwidth = GridBagConstraints.REMAINDER;
-        constraints.anchor = GridBagConstraints.EAST;
-        constraints.weightx = 1.0;
-        articleTableComponent.getArticleFiltersComponent().getFiltersPanel().add(currentDateCheckBox, constraints);
-
 //      main panel for table of goods
         mainPanel = articleTableComponent.getMainPanel();
         mainPanel.setBorder(BorderFactory.createEmptyBorder(1,5,0,5));
         desktopPanel.add(mainPanel, BorderLayout.CENTER);
 
-
 //        south panel for desktopPanel
         southPanel = new JPanel(new GridBagLayout());
         southPanel.setBorder(BorderFactory.createEmptyBorder());
+        GridBagConstraints constraints = new GridBagConstraints();
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.insets = new Insets(1, 5, 1, 5);
 
 //      analyze panel for total analyses
         analyzePanel = articleTableComponent.getArticleFiltersComponent().getArticleAnalyzeComponent().getAnalyzePanel();
-//        analyzePanel.setPreferredSize(new Dimension(300, 200));
-//        analyzePanel.setMinimumSize(new Dimension(300, 200));
-//        analyzePanel.setMaximumSize(new Dimension(1000, 1000));
 
 //      panel for search operations
         filtersPanel= articleTableComponent.getArticleFiltersComponent().getFiltersPanel();
@@ -125,11 +94,10 @@ public class SoldProductsDialog extends AbstractDialog {
 
 //        south panel for buttons
         buttonPanel = new JPanel();
-        buttonPanel = new JPanel();
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.LINE_AXIS));
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-        refundButton = new JButton();
+        JButton refundButton = new JButton();
         refundButton.setHorizontalTextPosition(JButton.CENTER);
         refundButton.setPreferredSize(new Dimension(150, 25));
         refundButton.setMaximumSize(new Dimension(150, 25));
@@ -154,7 +122,7 @@ public class SoldProductsDialog extends AbstractDialog {
 //        errorPanel.setMaximumSize(new Dimension(500, 50));
 //        errorPanel.add(errorMessage);
 
-        cancelButton = new JButton();
+        JButton cancelButton = new JButton();
         cancelButton.setHorizontalTextPosition(JButton.CENTER);
         cancelButton.setPreferredSize(new Dimension(150, 25));
         cancelButton.setMaximumSize(new Dimension(150, 25));
@@ -184,10 +152,10 @@ public class SoldProductsDialog extends AbstractDialog {
         articleTableComponent.filterTableByRoles(userRoles);
     }
 
-    public void filterAnalyzePanelByRoles(java.util.List<String> userRoles) {
-        articleTableComponent.getArticleFiltersComponent().getArticleAnalyzeComponent().
-                filterAnalyzeComponentByRoles(userRoles);
-    }
+//    public void filterAnalyzePanelByRoles(java.util.List<String> userRoles) {
+//        articleTableComponent.getArticleFiltersComponent().getArticleAnalyzeComponent().
+//                filterAnalyzeComponentByRoles(userRoles);
+//    }
 
     public ArticleTableComponent getArticleTableComponent() {
         return articleTableComponent;
@@ -200,4 +168,6 @@ public class SoldProductsDialog extends AbstractDialog {
 //    public JLabel getErrorMessage() {
 //        return errorMessage;
 //    }
+
+
 }

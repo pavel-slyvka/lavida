@@ -16,6 +16,7 @@ public class FilterUnit {
     public String columnTitle;
     public String columnDatePattern;
     public int order;
+    public JCheckBox[] checkBoxes;
 
     @Override
     public String toString() {
@@ -26,6 +27,7 @@ public class FilterUnit {
                 ", columnTitle='" + columnTitle + '\'' +
                 ", columnDatePattern='" + columnDatePattern + '\'' +
                 ", order=" + order +
+                ", checkBoxes=" + checkBoxes +
                 '}';
     }
 
