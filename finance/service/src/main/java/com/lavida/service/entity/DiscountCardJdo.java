@@ -18,7 +18,7 @@ import java.util.Calendar;
         @NamedQuery(name = DiscountCardJdo.FIND_BY_NUMBER, query = "select d from DiscountCardJdo d where d.number = :number ")
         , @NamedQuery(name = DiscountCardJdo.FIND_ALL, query = "select d from DiscountCardJdo d ")
 })
-public class DiscountCardJdo {
+public class DiscountCardJdo implements Cloneable{
     public static final String FIND_BY_NUMBER = "DiscountCardJdo.findByNumber";
     public static final String FIND_ALL = "DiscountCardJdo.findAll";
 

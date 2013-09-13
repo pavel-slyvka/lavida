@@ -10,6 +10,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
+import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import java.awt.*;
 import java.util.Iterator;
@@ -22,7 +24,7 @@ import java.util.Set;
  *
  * @author Pavel
  */
-public class ArticleTableComponent  implements TableModelListener{
+public class ArticleTableComponent implements TableModelListener {
     private ArticlesTableModel tableModel;
     private MessageSource messageSource;
     private LocaleHolder localeHolder;
@@ -30,7 +32,21 @@ public class ArticleTableComponent  implements TableModelListener{
     private JPanel mainPanel;
     private JTable articlesTable;
     private JScrollPane tableScrollPane;
+    private JComboBox brandBox, sizeBox, shopBox;
     private ArticleFiltersComponent articleFiltersComponent = new ArticleFiltersComponent();
+
+    private String[] brandArray = {"H&M", "Mango", "Zara", "PULL&BEAR", "Westrags", "Bershka", "GoodLuck", "HTrand",
+            "FeelingModa", "TodayFashion", "KR", "Glamour", "MGessi", "ProntoModa", "PuroLino", "Fashion",
+            "RockerModa", "RealityJeans", "MASFashion", "PlayIN", "ModaFashion", "DanceForever", "AssaGold",
+            "SweetMiss", "BestCopine", "Desmon", "Sahiba", "Amo&Roma", "Moda", "LantisJeans", "Victoria",
+            "A&P", "Milano", "Luna", "ItalyModa", "Elena", "Unics", "RouuaRssi", "Gabarra", "Emmetrenta",
+            "DKoton", "Sabiba"};
+
+    private String[] sizeArray = {"34", "36", "38", "40", "42", "44", "46", "48", "50", "52", "54",  "25/32", "26/32",
+            "27/32", "28/32", "29/32", "30/32", "31/32", "32/32", "S", "XS", "M", "L", "XL", "XXL", "XXXL",
+            "Universal", "S/M", "S/L", "L/XL", "XL/XXL", "XXL/XXXL"};
+
+    private String[] shopArray = {"LA VIDA", "СЛАВЯНСКИЙ", "НОВОМОСКОВСК"};
 
     public void initializeComponents(ArticlesTableModel articlesTableModel, MessageSource messageSource, LocaleHolder localeHolder) {
         this.tableModel = articlesTableModel;
@@ -46,6 +62,9 @@ public class ArticleTableComponent  implements TableModelListener{
 
         articlesTable = new JTable(tableModel);
         articlesTable.setCellEditor(new DefaultCellEditor(new JTextField()));
+
+        initTableColumnsEditors();
+
         initTableColumnsWidth();
         articlesTable.doLayout();
         articlesTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
@@ -79,6 +98,28 @@ public class ArticleTableComponent  implements TableModelListener{
 
     }
 
+    private void initTableColumnsEditors() {
+        brandBox = new JComboBox(brandArray);
+        brandBox.setEditable(true);
+        TableCellEditor brandEditor = new DefaultCellEditor(brandBox);
+        TableColumn brandColumn = articlesTable.getColumn(messageSource.getMessage("mainForm.table.articles.column.brand.title", null, localeHolder.getLocale()));
+        brandColumn.setCellEditor(brandEditor);
+
+        sizeBox = new JComboBox(sizeArray);
+        sizeBox.setEditable(true);
+        TableCellEditor sizeEditor = new DefaultCellEditor(sizeBox);
+        TableColumn sizeColumn = articlesTable.getColumn(messageSource.getMessage("mainForm.table.articles.column.size.title",
+                 null, localeHolder.getLocale()));
+        sizeColumn.setCellEditor(sizeEditor);
+
+        shopBox = new JComboBox(shopArray);
+        shopBox.setEditable(true);
+        TableCellEditor shopEditor = new DefaultCellEditor(shopBox);
+        TableColumn shopColumn = articlesTable.getColumn(messageSource.getMessage("mainForm.table.articles.column.shop.title",
+                 null, localeHolder.getLocale()));
+        shopColumn.setCellEditor(shopEditor);
+    }
+
     /**
      * Filters the JTable by permissions of roles (ROLE_SELLER). It removes certain columns.
      *
@@ -97,7 +138,7 @@ public class ArticleTableComponent  implements TableModelListener{
     private void initTableColumnsWidth() {
         Map<String, Integer> columnHeaderToWidth = tableModel.getColumnHeaderToWidth();
         for (Map.Entry<String, Integer> entry : columnHeaderToWidth.entrySet()) {
-                articlesTable.getColumn(entry.getKey()).setPreferredWidth(entry.getValue());
+            articlesTable.getColumn(entry.getKey()).setPreferredWidth(entry.getValue());
         }
     }
 
