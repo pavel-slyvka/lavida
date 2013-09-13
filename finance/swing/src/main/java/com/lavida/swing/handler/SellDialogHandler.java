@@ -66,9 +66,22 @@ public class SellDialogHandler {
             return;
         }
         articleJdo.setSaleDate(saleDateCalendar);
-        articleJdo.setSalePrice(Double.parseDouble(dialog.getTotalCostTextField().getText().replace(",", ".")));
-        dialog.getDiscountCardNumberTextField().setText("");
+        double totalCostUAH = Double.parseDouble(dialog.getTotalCostTextField().getText().replace(",", "."));
+        articleJdo.setSalePrice(totalCostUAH);
+        if (!dialog.getDiscountCardNumberTextField().getText().trim().isEmpty()) {
+            int discountCardNumber = Integer.parseInt(dialog.getDiscountCardNumberTextField().getText().trim());
+            DiscountCardJdo discountCardJdo = discountCardServiceSwingWrapper.getByNumber(discountCardNumber);
+            discountCardJdo.setSumTotalUAH(discountCardJdo.getSumTotalUAH() + totalCostUAH);
+            discountCardServiceSwingWrapper.update(discountCardJdo);
+
+            dialog.getDiscountCardNumberTextField().setText("");
+        }
         articleJdo.setSold(messageSource.getMessage("sellDialog.button.sell.clicked.sold", null, localeHolder.getLocale()));
+        if (dialog.getCommentTextField().getText().trim().isEmpty() && dialog.getOursCheckBox().isSelected()) {
+            dialog.showMessage("mainForm.exception.message.dialog.title", "sellDialog.handler.ours.comment.not.entered");
+            dialog.getCommentTextField().requestFocusInWindow();
+            return;
+        }
         articleJdo.setComment(dialog.getCommentTextField().getText().trim());
         dialog.getCommentTextField().setText("");
         if (dialog.getOursCheckBox().isSelected()) {
@@ -89,9 +102,9 @@ public class SellDialogHandler {
             }
         }
         articleJdo.setTags(new String(tagsBuilder));
-        articleJdo.setShop((dialog.getShopTextField().getText().trim() == null) ? null :
-                dialog.getShopTextField().getText().trim());
-        dialog.getShopTextField().setText(messageSource.getMessage("sellDialog.text.field.shop.LaVida", null, localeHolder.getLocale()));
+        articleJdo.setShop((dialog.getShopComboBox().getSelectedItem() == null) ? null :
+                (String)dialog.getShopComboBox().getSelectedItem());
+        dialog.getShopComboBox().setSelectedItem(dialog.getDefaultShop());
         String seller = (String) dialog.getSellerNames().getSelectedItem();
         tableModel.setSellerName(seller);
         dialog.getSellerNames().setSelectedItem(seller);
@@ -119,13 +132,20 @@ public class SellDialogHandler {
 
 
     public void oursCheckBoxSelected() {
+        dialog.getDiscountCardNumberTextField().setText("");
+        dialog.getDiscountCardNumberTextField().setEnabled(false);
         dialog.getPriceField().setText(String.valueOf(0));
         dialog.getDiscountTextField().setText(String.valueOf(0));
+        dialog.getDiscountTextField().setEnabled(false);
+        dialog.getCommentTextField().setText("");
     }
 
     public void checkBoxDeSelected() {
         ArticleJdo articleJdo = tableModel.getSelectedArticle();
         dialog.getPriceField().setText(String.valueOf(articleJdo.getSalePrice()));
+        dialog.getDiscountTextField().setEnabled(true);
+        dialog.getDiscountCardNumberTextField().setEnabled(true);
+
     }
 
     public void presentCheckBoxSelected() {
@@ -161,6 +181,14 @@ public class SellDialogHandler {
         double discountVale = price * discountRate / 100;
         dialog.getDiscountTextField().setText(String.valueOf(discountVale));
         discountTextEntered();
+        if (discountVale > 0) {
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append(messageSource.getMessage("sellDialog.comment.discountCard.number", null, localeHolder.getLocale()));
+            stringBuilder.append(" " + cardNumber + ", ");
+            stringBuilder.append(discountVale );
+            stringBuilder.append(messageSource.getMessage("sellDialog.comment.discountCard.UAH", null, localeHolder.getLocale()));
+            dialog.getCommentTextField().setText(new String(stringBuilder));
+        }
     }
 
     /**
@@ -181,5 +209,14 @@ public class SellDialogHandler {
         if (!dialog.getDiscountCardNumberTextField().getText().trim().isEmpty()) {
             discountCardNumberTextEntered();
         }
+    }
+
+    public void cancelButtonClicked() {
+        dialog.hide();
+        dialog.getDiscountCardNumberTextField().setText("");
+        dialog.getMainForm().getTableModel().setSelectedArticle(null);
+        dialog.getMainForm().getForm().setVisible(true);
+        dialog.getMainForm().update();
+
     }
 }

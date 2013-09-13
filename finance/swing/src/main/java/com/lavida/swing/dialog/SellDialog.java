@@ -43,16 +43,17 @@ public class SellDialog extends AbstractDialog {
     private JLabel codeLabel, nameLabel, brandLabel, sizeLabel, priceLabel, commentLabel, codeField, nameField,
             brandField, sizeField, priceField, shopLabel, discountLabel, totalCostLabel, saleDateLabel, sellerNameLabel,
             discountCardNumberLabel;
-    private JTextField shopTextField, discountTextField, totalCostTextField, commentTextField, saleDateTextField,
+    private JTextField  discountTextField, totalCostTextField, commentTextField, saleDateTextField,
             discountCardNumberTextField;
     private JButton sellButton, cancelButton;
     private ButtonGroup buttonGroup;
     private JCheckBox oursCheckBox, presentCheckBox, clientCheckBox;
-    private JComboBox sellerNames;
+    private JComboBox sellerNames, shopComboBox ;
     private List<JCheckBox> tagCheckBoxes = new ArrayList<JCheckBox>();
     private JLabel errorMessage;
 
     private String defaultShop;
+    private String[] shopArray = {"LA VIDA", "СЛАВЯНСКИЙ", "НОВОМОСКОВСК"};
 
     @Override
     protected void initializeForm() {
@@ -73,8 +74,7 @@ public class SellDialog extends AbstractDialog {
         discountTextField.setText("0.0");
         handler.discountTextEntered();
         saleDateTextField.setText(new SimpleDateFormat("dd.MM.yyyy").format(Calendar.getInstance().getTime()));
-//        shopTextField.setText(messageSource.getMessage("sellDialog.text.field.shop.text", null, localeHolder.getLocale()));
-        shopTextField.setText(defaultShop);
+        shopComboBox.setSelectedItem(defaultShop);
         oursCheckBox.setSelected(false);
         presentCheckBox.setSelected(false);
         for (JCheckBox checkbox : tagCheckBoxes) {
@@ -246,19 +246,21 @@ public class SellDialog extends AbstractDialog {
 
         shopLabel = new JLabel();
         shopLabel.setText(messageSource.getMessage("sellDialog.label.shop.title", null, localeHolder.getLocale()));
-        shopLabel.setLabelFor(shopTextField);
+        shopLabel.setLabelFor(shopComboBox);
         constraints.fill = GridBagConstraints.NONE;
         constraints.gridwidth = GridBagConstraints.RELATIVE;
         constraints.anchor = GridBagConstraints.EAST;
         constraints.weightx = 0.0;
         inputPanel.add(shopLabel, constraints);
 
-        shopTextField = new JTextField();
+        shopComboBox = new JComboBox(shopArray);
+        shopComboBox.setEditable(false);
+        shopComboBox.setSelectedItem("LA VIDA");
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.gridwidth = GridBagConstraints.REMAINDER;
         constraints.anchor = GridBagConstraints.EAST;
         constraints.weightx = 1.0;
-        inputPanel.add(shopTextField, constraints);
+        inputPanel.add(shopComboBox, constraints);
 
         saleDateLabel = new JLabel();
         saleDateLabel.setText(messageSource.getMessage("sellDialog.label.saleDate.title", null, localeHolder.getLocale()));
@@ -439,10 +441,7 @@ public class SellDialog extends AbstractDialog {
         cancelButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                hide();
-                mainForm.getTableModel().setSelectedArticle(null);
-                mainForm.getForm().setVisible(true);
-                mainForm.update();
+                handler.cancelButtonClicked();
             }
         });
         buttonPanel.add(sellButton);
@@ -461,14 +460,22 @@ public class SellDialog extends AbstractDialog {
             if ("ROLE_SELLER_LA_VIDA".equals(role)) {
                 this.setDefaultShop(messageSource.getMessage("sellDialog.text.field.shop.LaVida", null,
                         localeHolder.getLocale()));
+                shopComboBox.setEnabled(false);
                 return;
             } else if ("ROLE_SELLER_SLAVYANKA".equals(role)) {
                 this.setDefaultShop(messageSource.getMessage("sellDialog.text.field.shop.Slavyanka", null,
                         localeHolder.getLocale()));
+                shopComboBox.setEnabled(false);
                 return;
             } else if ("ROLE_SELLER_NOVOMOSKOVSK".equals(role)) {
                 this.setDefaultShop(messageSource.getMessage("sellDialog.text.field.shop.Novomoskovsk", null,
                         localeHolder.getLocale()));
+                shopComboBox.setEnabled(false);
+                return;
+            } else if ("ROLE_MANAGER".equals(role)) {
+                this.setDefaultShop(messageSource.getMessage("sellDialog.text.field.shop.LaVida", null,
+                        localeHolder.getLocale()));
+                shopComboBox.setEnabled(true);
                 return;
             }
 
@@ -495,8 +502,8 @@ public class SellDialog extends AbstractDialog {
         return tagCheckBoxes;
     }
 
-    public JTextField getShopTextField() {
-        return shopTextField;
+    public JComboBox getShopComboBox() {
+        return shopComboBox;
     }
 
     public JTextField getDiscountTextField() {
