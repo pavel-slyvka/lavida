@@ -16,12 +16,15 @@ import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.lang.reflect.Field;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
 import java.util.Queue;
+import java.util.regex.Pattern;
 
 /**
  * ArticleFiltersComponent
@@ -46,6 +49,7 @@ public class ArticleFiltersComponent {
     //    private Map<Integer, >
     private JPanel filtersPanel;
     private JButton clearSearchButton;
+    private JCheckBox currentDateCheckBox;
     private TableRowSorter<ArticlesTableModel> sorter;
     private ArticleAnalyzeComponent articleAnalyzeComponent = new ArticleAnalyzeComponent();
 
@@ -94,10 +98,34 @@ public class ArticleFiltersComponent {
 
                     if (!filterColumn.labelKey().isEmpty()) {
                         filterUnit.label = new JLabel(messageSource.getMessage(filterColumn.labelKey(), null, localeHolder.getLocale()));
+                        filterUnit.textField = new JTextField(filterColumn.editSize());
+                        filterUnit.textField.getDocument().addDocumentListener(filterElementsListener);
                     }
 
-                    filterUnit.textField = new JTextField(filterColumn.editSize());
-                    filterUnit.textField.getDocument().addDocumentListener(filterElementsListener);
+                    if (filterColumn.checkBoxesNumber() > 0) {
+                        filterUnit.checkBoxes = new JCheckBox[filterColumn.checkBoxesNumber()];
+                        for (int i = 0; i < filterColumn.checkBoxesNumber(); ++i) {
+                            String text = messageSource.getMessage(filterColumn.checkBoxesText()[i], null, localeHolder.getLocale());
+                            String actionCommand = messageSource.getMessage(filterColumn.checkBoxesAction()[i], null, localeHolder.getLocale());
+                            filterUnit.checkBoxes[i] = new JCheckBox(text);
+                            filterUnit.checkBoxes[i].setActionCommand(actionCommand);
+                            filterUnit.checkBoxes[i].addItemListener(new ItemListener() {
+                                @Override
+                                public void itemStateChanged(ItemEvent e) {
+                                    int state = e.getStateChange();
+                                    if (state == ItemEvent.SELECTED) {
+                                        applyFilters();
+                                        updateAnalyzeComponent();
+
+                                    } else if (state == ItemEvent.DESELECTED) {
+                                        applyFilters();
+                                        updateAnalyzeComponent();
+                                    }
+
+                                }
+                            });
+                        }
+                    }
                     filters.add(filterUnit);
                 }
             }
@@ -109,17 +137,65 @@ public class ArticleFiltersComponent {
             }
         });
         for (int i = 0; i < filters.size(); ++i) {
-            filters.get(i).label.setLabelFor(filters.get(i).textField);
-            constraints.fill = GridBagConstraints.NONE;
+            if (filters.get(i).label != null) {
+                filters.get(i).label.setLabelFor(filters.get(i).textField);
+                constraints.fill = GridBagConstraints.NONE;
+                constraints.gridwidth = GridBagConstraints.RELATIVE;
+                constraints.anchor = GridBagConstraints.EAST;
+                constraints.weightx = 0.0;
+                filtersPanel.add(filters.get(i).label, constraints);
+                constraints.fill = GridBagConstraints.HORIZONTAL;
+                constraints.gridwidth = GridBagConstraints.REMAINDER;
+                constraints.anchor = GridBagConstraints.EAST;
+                constraints.weightx = 1.0;
+                filtersPanel.add(filters.get(i).textField, constraints);
+            } else if (filters.get(i).checkBoxes != null) {
+                JPanel checkBoxPanel = new JPanel();
+                checkBoxPanel.setLayout(new BoxLayout(checkBoxPanel, BoxLayout.LINE_AXIS));
+                checkBoxPanel.add(Box.createHorizontalGlue());
+                for (int j = 0; j < filters.get(i).checkBoxes.length; ++j) {
+                    checkBoxPanel.add(filters.get(i).checkBoxes[j]);
+                    checkBoxPanel.add(Box.createHorizontalGlue());
+                }
+                constraints.fill = GridBagConstraints.HORIZONTAL;
+                constraints.gridwidth = GridBagConstraints.REMAINDER;
+                constraints.anchor = GridBagConstraints.EAST;
+                constraints.weightx = 1.0;
+                filtersPanel.add(checkBoxPanel, constraints);
+            }
+        }
+        if (soldPurpose) {
+            currentDateCheckBox = new JCheckBox();
+            currentDateCheckBox.setText(messageSource.getMessage("dialog.sold.products.checkBox.current.date.title",
+                    null, localeHolder.getLocale()));
+            final String saleDateColumn = messageSource.getMessage("mainForm.table.articles.column.sell.date.title", null, localeHolder.getLocale());
+            currentDateCheckBox.addItemListener(new ItemListener() {
+
+                @Override
+                public void itemStateChanged(ItemEvent e) {
+                    int state = e.getStateChange();
+                    if (state == ItemEvent.SELECTED) {
+                        String currentDate = new SimpleDateFormat("dd.MM.yyyy").format(Calendar.getInstance().getTime());
+                        for (FilterUnit filterUnit : filters) {
+                            if (saleDateColumn.equalsIgnoreCase(filterUnit.columnTitle)) {
+                                filterUnit.textField.setText(currentDate);
+                            }
+                        }
+                    } else if (state == ItemEvent.DESELECTED) {
+                        for (FilterUnit filterUnit : filters) {
+                            if (saleDateColumn.equalsIgnoreCase(filterUnit.columnTitle)) {
+                                filterUnit.textField.setText("");
+                            }
+                        }
+                    }
+                }
+            });
+            constraints.gridx = 0;
+            constraints.gridy = filters.size() + 1;
             constraints.gridwidth = GridBagConstraints.RELATIVE;
             constraints.anchor = GridBagConstraints.EAST;
             constraints.weightx = 0.0;
-            filtersPanel.add(filters.get(i).label, constraints);
-            constraints.fill = GridBagConstraints.HORIZONTAL;
-            constraints.gridwidth = GridBagConstraints.REMAINDER;
-            constraints.anchor = GridBagConstraints.EAST;
-            constraints.weightx = 1.0;
-            filtersPanel.add(filters.get(i).textField, constraints);
+            filtersPanel.add(currentDateCheckBox, constraints);
         }
 
         clearSearchButton = new JButton(messageSource.getMessage("mainForm.button.clear.title", null,
@@ -136,7 +212,14 @@ public class ArticleFiltersComponent {
             @Override
             public void actionPerformed(ActionEvent e) {
                 for (FilterUnit filterUnit : filters) {
-                    filterUnit.textField.setText("");
+                    if (filterUnit.label != null) {
+                        filterUnit.textField.setText("");
+                    } else if (filterUnit.checkBoxes != null) {
+                        for (int j = 0; j < filterUnit.checkBoxes.length; ++j) {
+                            filterUnit.checkBoxes[j].setSelected(false);
+                        }
+
+                    }
                 }
             }
         });
@@ -167,9 +250,13 @@ public class ArticleFiltersComponent {
 
             RowFilter<ArticlesTableModel, Integer> filter = null;
             if (FilterType.PART_TEXT == filterUnit.filterType) {
-                filter = RowFilter.regexFilter(("(?iu)" + filterUnit.textField.getText().trim()), columnIndex);
+                if (filterUnit.textField.getText().length() > 0) {
+                    filter = RowFilter.regexFilter(("(?iu)" + filterUnit.textField.getText().trim()), columnIndex);
+                }
             } else if (FilterType.FULL_TEXT == filterUnit.filterType) {
-                filter = RowFilter.regexFilter(filterUnit.textField.getText().trim(), columnIndex);
+                if (filterUnit.textField.getText().length() > 0) {
+                    filter = RowFilter.regexFilter(filterUnit.textField.getText().trim(), columnIndex);
+                }
             } else if (FilterType.NUMBER == filterUnit.filterType
                     || FilterType.NUMBER_DIAPASON == filterUnit.filterType && !filterUnit.textField.getText().contains("-")) {
                 if (filterUnit.textField.getText().length() > 0) {
@@ -221,7 +308,21 @@ public class ArticleFiltersComponent {
                         };
                     }
                 }
+            } else if (FilterType.CHECKBOXES == filterUnit.filterType) {
+                List<RowFilter<ArticlesTableModel, Integer>> checkBoxFilters = new ArrayList<RowFilter<ArticlesTableModel, Integer>>();
+                RowFilter<ArticlesTableModel, Integer> checkBoxFilter;
+                for (JCheckBox checkBox : filterUnit.checkBoxes) {
+                    if (checkBox.isSelected()) {
+                        checkBoxFilter = RowFilter.regexFilter((checkBox.getActionCommand()), columnIndex);
+//                        checkBoxFilter = RowFilter.regexFilter(Pattern.quote(checkBox.getActionCommand()), columnIndex);
+                        checkBoxFilters.add(checkBoxFilter);
+                    }
+                }
+                if (checkBoxFilters.size() > 0) {
+                    filter = RowFilter.andFilter(checkBoxFilters);
+                }
             }
+
             if (filter != null) {
                 andFilters.add(filter);
             }
@@ -239,7 +340,7 @@ public class ArticleFiltersComponent {
     /**
      * Returns date in the format: neededDatePattern, in case if year or month isn't entered, current year/month is put.
      *
-     * @return
+     * @return date in the format: neededDatePattern.
      */
     private Date getCorrectedDate(String enteredDate) throws NoSuchElementException {
         enteredDate = enteredDate.replaceAll("[^0-9.,]", "");
@@ -336,6 +437,7 @@ public class ArticleFiltersComponent {
 
     /**
      * Removes filters from the filterPanel according to users' roles.
+     *
      * @param userRoles the list of user's role.
      */
     public void removeFiltersByRoles(List<String> userRoles) {

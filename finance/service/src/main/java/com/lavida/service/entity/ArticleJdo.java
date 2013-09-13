@@ -158,6 +158,9 @@ public class ArticleJdo implements Cloneable {
 
     @SpreadsheetColumn(column = "sellType")
     @ViewColumn(titleKey = "mainForm.table.articles.column.sell.marker.title")
+    @FilterColumn(type = FilterType.CHECKBOXES, showForSell = false, orderForSold = 10,
+            checkBoxesText = {"dialog.sold.products.checkBox.clients", "dialog.sold.products.checkBox.presents", "dialog.sold.products.checkBox.ours"},
+    checkBoxesAction = {"sellDialog.checkBox.ours.action.command", "sellDialog.checkBox.present.text", "sellDialog.checkBox.ours.text"}, checkBoxesNumber = 3)
     @XmlElement
     private String sellType;
 
