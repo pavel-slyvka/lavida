@@ -109,6 +109,7 @@ public class ArticleFiltersComponent {
                             String actionCommand = messageSource.getMessage(filterColumn.checkBoxesAction()[i], null, localeHolder.getLocale());
                             filterUnit.checkBoxes[i] = new JCheckBox(text);
                             filterUnit.checkBoxes[i].setActionCommand(actionCommand);
+                            filterUnit.checkBoxes[i].setSelected(true);
                             filterUnit.checkBoxes[i].addItemListener(new ItemListener() {
                                 @Override
                                 public void itemStateChanged(ItemEvent e) {
@@ -216,7 +217,7 @@ public class ArticleFiltersComponent {
                         filterUnit.textField.setText("");
                     } else if (filterUnit.checkBoxes != null) {
                         for (int j = 0; j < filterUnit.checkBoxes.length; ++j) {
-                            filterUnit.checkBoxes[j].setSelected(false);
+                            filterUnit.checkBoxes[j].setSelected(true);
                         }
 
                     }
@@ -245,7 +246,7 @@ public class ArticleFiltersComponent {
      */
     private void applyFilters() {
         List<RowFilter<ArticlesTableModel, Integer>> andFilters = new ArrayList<RowFilter<ArticlesTableModel, Integer>>();
-        for (FilterUnit filterUnit : filters) {
+        for (final FilterUnit filterUnit : filters) {
             final int columnIndex = tableModel.findColumn(filterUnit.columnTitle);
 
             RowFilter<ArticlesTableModel, Integer> filter = null;
@@ -309,17 +310,17 @@ public class ArticleFiltersComponent {
                     }
                 }
             } else if (FilterType.CHECKBOXES == filterUnit.filterType) {
-                List<RowFilter<ArticlesTableModel, Integer>> checkBoxFilters = new ArrayList<RowFilter<ArticlesTableModel, Integer>>();
-                RowFilter<ArticlesTableModel, Integer> checkBoxFilter;
-                for (JCheckBox checkBox : filterUnit.checkBoxes) {
-                    if (checkBox.isSelected()) {
-                        checkBoxFilter = RowFilter.regexFilter((checkBox.getActionCommand()), columnIndex);
-//                        checkBoxFilter = RowFilter.regexFilter(Pattern.quote(checkBox.getActionCommand()), columnIndex);
-                        checkBoxFilters.add(checkBoxFilter);
-                    }
-                }
-                if (checkBoxFilters.size() > 0) {
-                    filter = RowFilter.andFilter(checkBoxFilters);
+                if (!filterUnit.checkBoxes[0].isSelected() || !filterUnit.checkBoxes[1].isSelected()
+                        || !filterUnit.checkBoxes[2].isSelected()) {
+                    filter = new RowFilter<ArticlesTableModel, Integer>() {
+                        @Override
+                        public boolean include(Entry<? extends ArticlesTableModel, ? extends Integer> entry) {
+                            Object sellTypeObj = tableModel.getRawValueAt(entry.getIdentifier(), columnIndex);
+                            return filterUnit.checkBoxes[0].isSelected() && (sellTypeObj == null || ((String)sellTypeObj).trim().isEmpty())
+                                    || filterUnit.checkBoxes[1].isSelected() && "В подарок".equals(sellTypeObj)
+                                    || filterUnit.checkBoxes[2].isSelected() && "Своим".equals(sellTypeObj);
+                        }
+                    };
                 }
             }
 
