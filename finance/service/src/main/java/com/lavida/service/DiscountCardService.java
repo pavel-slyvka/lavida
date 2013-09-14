@@ -58,8 +58,8 @@ public class DiscountCardService {
     public static void main(String[] args) {
         ApplicationContext context = new ClassPathXmlApplicationContext("spring-security.xml");
         DiscountCardService service = context.getBean(DiscountCardService.class);
-        service.save(new DiscountCardJdo(1, "name1", "phone1", "address1", "eMail1", 0, 0, Calendar.getInstance(), null));
-        service.save(new DiscountCardJdo(2, "name2", "phone2", "address2", "eMail2", 0, 0, Calendar.getInstance(), null));
+        service.save(new DiscountCardJdo(1, "name1", "phone1", "address1", "eMail1", 0, 0, 0, Calendar.getInstance(), null, null));
+        service.save(new DiscountCardJdo(2, "name2", "phone2", "address2", "eMail2", 0, 0, 0, Calendar.getInstance(), null, null));
         System.out.println(service.getAll());
     }
 

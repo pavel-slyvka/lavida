@@ -199,7 +199,7 @@ public class SellDialogHandler {
      */
     private boolean cardNumberExists(int cardNumber) {
         DiscountCardJdo discountCardJdo = discountCardServiceSwingWrapper.getByNumber(cardNumber);
-        if (discountCardJdo != null && discountCardJdo.getDisablingDate() == null) {
+        if (discountCardJdo != null && discountCardJdo.getActivationDate() != null) {
             return true;
         } else
             return false;

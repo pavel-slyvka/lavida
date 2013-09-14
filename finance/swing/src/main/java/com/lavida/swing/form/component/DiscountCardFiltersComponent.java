@@ -6,6 +6,7 @@ import com.lavida.service.FiltersPurpose;
 import com.lavida.service.ViewColumn;
 import com.lavida.service.entity.DiscountCardJdo;
 import com.lavida.swing.LocaleHolder;
+import com.lavida.swing.service.ArticlesTableModel;
 import com.lavida.swing.service.DiscountCardsTableModel;
 import org.springframework.context.MessageSource;
 
@@ -16,6 +17,8 @@ import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.lang.reflect.Field;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -76,10 +79,35 @@ public class DiscountCardFiltersComponent {
 
                     if (!filterColumn.labelKey().isEmpty()) {
                         filterUnit.label = new JLabel(messageSource.getMessage(filterColumn.labelKey(), null, localeHolder.getLocale()));
+                        filterUnit.textField = new JTextField(filterColumn.editSize());
+                        filterUnit.textField.getDocument().addDocumentListener(filterElementsListener);
+                    }
+                    if (filterColumn.checkBoxesNumber() > 0) {
+                        filterUnit.checkBoxes = new JCheckBox[filterColumn.checkBoxesNumber()];
+                        for (int i = 0; i < filterColumn.checkBoxesNumber(); ++i) {
+                            String text = messageSource.getMessage(filterColumn.checkBoxesText()[i], null, localeHolder.getLocale());
+                            String actionCommand = messageSource.getMessage(filterColumn.checkBoxesAction()[i], null, localeHolder.getLocale());
+                            filterUnit.checkBoxes[i] = new JCheckBox(text);
+                            filterUnit.checkBoxes[i].setActionCommand(actionCommand);
+                            filterUnit.checkBoxes[i].setSelected(true);
+                            filterUnit.checkBoxes[i].addItemListener(new ItemListener() {
+                                @Override
+                                public void itemStateChanged(ItemEvent e) {
+                                    int state = e.getStateChange();
+                                    if (state == ItemEvent.SELECTED) {
+                                        applyFilters();
+                                        updateAnalyzeComponent();
+
+                                    } else if (state == ItemEvent.DESELECTED) {
+                                        applyFilters();
+                                        updateAnalyzeComponent();
+                                    }
+
+                                }
+                            });
+                        }
                     }
 
-                    filterUnit.textField = new JTextField(filterColumn.editSize());
-                    filterUnit.textField.getDocument().addDocumentListener(filterElementsListener);
                     filters.add(filterUnit);
                 }
             }
@@ -91,6 +119,7 @@ public class DiscountCardFiltersComponent {
             }
         });
         for (int i = 0; i < filters.size(); ++i) {
+            if (filters.get(i).label != null) {
             filters.get(i).label.setLabelFor(filters.get(i).textField);
             constraints.fill = GridBagConstraints.NONE;
             constraints.gridwidth = GridBagConstraints.RELATIVE;
@@ -102,6 +131,20 @@ public class DiscountCardFiltersComponent {
             constraints.anchor = GridBagConstraints.EAST;
             constraints.weightx = 1.0;
             filtersPanel.add(filters.get(i).textField, constraints);
+            } else if (filters.get(i).checkBoxes != null) {
+                JPanel checkBoxPanel = new JPanel();
+                checkBoxPanel.setLayout(new BoxLayout(checkBoxPanel, BoxLayout.LINE_AXIS));
+                checkBoxPanel.add(Box.createHorizontalGlue());
+                for (int j = 0; j < filters.get(i).checkBoxes.length; ++j) {
+                    checkBoxPanel.add(filters.get(i).checkBoxes[j]);
+                    checkBoxPanel.add(Box.createHorizontalGlue());
+                }
+                constraints.fill = GridBagConstraints.HORIZONTAL;
+                constraints.gridwidth = GridBagConstraints.REMAINDER;
+                constraints.anchor = GridBagConstraints.EAST;
+                constraints.weightx = 1.0;
+                filtersPanel.add(checkBoxPanel, constraints);
+            }
         }
 
         clearSearchButton = new JButton(messageSource.getMessage("mainForm.button.clear.title", null,
@@ -118,7 +161,14 @@ public class DiscountCardFiltersComponent {
             @Override
             public void actionPerformed(ActionEvent e) {
                 for (FilterUnit filterUnit : filters) {
-                    filterUnit.textField.setText("");
+                    if (filterUnit.label != null) {
+                        filterUnit.textField.setText("");
+                    } else if (filterUnit.checkBoxes != null) {
+                        for (int j = 0; j < filterUnit.checkBoxes.length; ++j) {
+                            filterUnit.checkBoxes[j].setSelected(true);
+                        }
+
+                    }
                 }
             }
         });
@@ -144,7 +194,7 @@ public class DiscountCardFiltersComponent {
      */
     private void applyFilters() {
         List<RowFilter<DiscountCardsTableModel, Integer>> andFilters = new ArrayList<RowFilter<DiscountCardsTableModel, Integer>>();
-        for (FilterUnit filterUnit : filters) {
+        for (final FilterUnit filterUnit : filters) {
             final int columnIndex = tableModel.findColumn(filterUnit.columnTitle);
 
             RowFilter<DiscountCardsTableModel, Integer> filter = null;
@@ -203,12 +253,44 @@ public class DiscountCardFiltersComponent {
                         };
                     }
                 }
+            } else if (FilterType.CHECKBOXES == filterUnit.filterType) {
+                if (anyDeselected(filterUnit.checkBoxes)) {
+                    filter = new RowFilter<DiscountCardsTableModel, Integer>() {
+                        @Override
+                        public boolean include(Entry<? extends DiscountCardsTableModel, ? extends Integer> entry) {
+                            Object columnObject = tableModel.getRawValueAt(entry.getIdentifier(), columnIndex);
+                            return correspondsToCheckBoxes(filterUnit.checkBoxes, columnObject);
+                        }
+                    };
+                }
             }
             if (filter != null) {
                 andFilters.add(filter);
             }
             sorter.setRowFilter(RowFilter.andFilter(andFilters));
         }
+    }
+
+    private boolean anyDeselected (JCheckBox[] checkBoxes) {
+        for (JCheckBox checkBox : checkBoxes) {
+            if (!checkBox.isSelected()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean correspondsToCheckBoxes (JCheckBox[] checkBoxes, Object object) {
+        if (object instanceof Calendar || object == null) {
+            SimpleDateFormat calendarFormatter = new SimpleDateFormat("dd.MM.yyyy");
+            String calendarStr = (object != null) ? calendarFormatter.format(((Calendar)object).getTime()) : "";
+            for (JCheckBox checkBox :checkBoxes) {
+                if (checkBox.isSelected() && calendarStr.matches(checkBox.getActionCommand())) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private Date addDays(Date date, int daysCount) {

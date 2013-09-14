@@ -50,6 +50,20 @@ public abstract class AbstractDialog implements MessageSourceAware {
                 JOptionPane.WARNING_MESSAGE);
     }
 
+    /**
+     * Shows confirm dialog.
+     *
+     * @param titleKey   the title of the messageDialog.
+     * @param messageKey the contents of the messageDialog.
+     */
+    public int showConfirmDialog(String titleKey, String messageKey) {
+        return JOptionPane.showConfirmDialog(dialog,
+                messageSource.getMessage(messageKey, null, localeHolder.getLocale()),
+                messageSource.getMessage(titleKey, null, localeHolder.getLocale()),
+                JOptionPane.YES_NO_CANCEL_OPTION);
+    }
+
+
     public void hide() {
         dialog.dispose();
     }

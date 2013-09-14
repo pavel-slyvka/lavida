@@ -74,12 +74,29 @@ public class DiscountCardsTableModel extends AbstractTableModel implements Appli
             ViewColumn viewColumn = field.getAnnotation(ViewColumn.class);
             if (viewColumn != null) {
                 field.setAccessible(true);
-                this.discountCardFieldsSequence.add(field.getName());
-                if (viewColumn.titleKey().isEmpty()) {
-                    this.headerTitles.add(field.getName());
-                } else {
-                    this.headerTitles.add(messageSource.getMessage(viewColumn.titleKey(), null, localeHolder.getLocale()));
+                if (DiscountCardJdo.FIND_ALL.equals(query)) {
+                    this.discountCardFieldsSequence.add(field.getName());
+                    if (viewColumn.titleKey().isEmpty()) {
+                        this.headerTitles.add(field.getName());
+                    } else {
+                        this.headerTitles.add(messageSource.getMessage(viewColumn.titleKey(), null, localeHolder.getLocale()));
+                    }
+                } else if (query == null &&
+                        !(viewColumn.titleKey().equals("dialog.discounts.card.all.column.title.postponedDate") ||
+                                viewColumn.titleKey().equals("dialog.discounts.card.all.column.title.activationDate") ||
+                                viewColumn.titleKey().equals("dialog.discounts.card.all.column.title.registrationDate") ||
+                                viewColumn.titleKey().equals("dialog.discounts.card.all.column.title.bonusUAH") ||
+                                viewColumn.titleKey().equals("dialog.discounts.card.all.column.title.discountRate") ||
+                                viewColumn.titleKey().equals("dialog.discounts.card.all.column.title.sumTotalUAH"))
+                    ) {
+                    this.discountCardFieldsSequence.add(field.getName());
+                    if (viewColumn.titleKey().isEmpty()) {
+                        this.headerTitles.add(field.getName());
+                    } else {
+                        this.headerTitles.add(messageSource.getMessage(viewColumn.titleKey(), null, localeHolder.getLocale()));
+                    }
                 }
+
                 if (field.getType() == Calendar.class) {
                     this.columnIndexToDateFormat.put(headerTitles.size() - 1,
                             new SimpleDateFormat(viewColumn.datePattern()));
@@ -95,10 +112,24 @@ public class DiscountCardsTableModel extends AbstractTableModel implements Appli
         List<String> forbiddenHeaders = new ArrayList<String>();
         for (Field field : DiscountCardJdo.class.getDeclaredFields()) {
             ViewColumn viewColumn = field.getAnnotation(ViewColumn.class);
-            if (viewColumn != null) {
-                if (!viewColumn.show() || isForbidden(userRoles, viewColumn.forbiddenRoles())) {
-                    forbiddenHeaders.add(viewColumn.titleKey().isEmpty() ? field.getName()
-                            : messageSource.getMessage(viewColumn.titleKey(), null, locale));
+            if (viewColumn != null && viewColumn.show()) {
+                if (DiscountCardJdo.FIND_ALL.equals(query)) {
+                    if (!viewColumn.show() || isForbidden(userRoles, viewColumn.forbiddenRoles())) {
+                        forbiddenHeaders.add(viewColumn.titleKey().isEmpty() ? field.getName()
+                                : messageSource.getMessage(viewColumn.titleKey(), null, locale));
+                    }
+                } else if (query == null &&
+                        !(viewColumn.titleKey().equals("dialog.discounts.card.all.column.title.postponedDate") ||
+                                viewColumn.titleKey().equals("dialog.discounts.card.all.column.title.activationDate") ||
+                                viewColumn.titleKey().equals("dialog.discounts.card.all.column.title.registrationDate") ||
+                                viewColumn.titleKey().equals("dialog.discounts.card.all.column.title.bonusUAH") ||
+                                viewColumn.titleKey().equals("dialog.discounts.card.all.column.title.discountRate") ||
+                                viewColumn.titleKey().equals("dialog.discounts.card.all.column.title.sumTotalUAH"))
+                         ) {
+                    if (!viewColumn.show() || isForbidden(userRoles, viewColumn.forbiddenRoles())) {
+                        forbiddenHeaders.add(viewColumn.titleKey().isEmpty() ? field.getName()
+                                : messageSource.getMessage(viewColumn.titleKey(), null, locale));
+                    }
                 }
             }
         }
@@ -135,7 +166,7 @@ public class DiscountCardsTableModel extends AbstractTableModel implements Appli
         Map<String, Integer> columnHeaderToWidth = new HashMap<String, Integer>(headerTitles.size());
         label:
         for (String columnHeader : headerTitles) {
-            Integer width ;
+            Integer width;
             for (Field field : DiscountCardJdo.class.getDeclaredFields()) {
                 ViewColumn viewColumn = field.getAnnotation(ViewColumn.class);
                 if (viewColumn != null) {
@@ -207,7 +238,16 @@ public class DiscountCardsTableModel extends AbstractTableModel implements Appli
      */
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        return !isForbidden(userService.getCurrentUserRoles(), FORBIDDEN_ROLES);
+        if (discountCardFieldsSequence.get(columnIndex).equals("sumTotalUAH") ||
+                discountCardFieldsSequence.get(columnIndex).equals("registrationDate") ||
+                discountCardFieldsSequence.get(columnIndex).equals("activationDate") ||
+                discountCardFieldsSequence.get(columnIndex).equals("postponedDate")) {
+            return false;
+        } else if (discountCardFieldsSequence.get(columnIndex).equals("discountRate") ||
+                discountCardFieldsSequence.get(columnIndex).equals("bonusUAH")) {
+            return !isForbidden(userService.getCurrentUserRoles(), FORBIDDEN_ROLES);
+        }
+        return true;
     }
 
     /**
@@ -252,7 +292,16 @@ public class DiscountCardsTableModel extends AbstractTableModel implements Appli
             } else if (double.class == field.getType()) {
                 double typeValue = fixIfNeedAndParseDouble(value);
                 if (typeValue != field.getDouble(discountCardJdo)) {
-                    field.setDouble(discountCardJdo, typeValue);
+                    if (field.getName().equals("discountRate")) {
+                        if (typeValue > 10.0) {
+                            typeValue = 10.0;
+                        } else if (typeValue < 0.0) {
+                            typeValue = 0.0;
+                        }
+                        field.setDouble(discountCardJdo, typeValue);
+                    } else {
+                        field.setDouble(discountCardJdo, typeValue);
+                    }
                 } else return;
             } else if (char.class == field.getType()) {
                 char typeValue = value.charAt(0);
@@ -277,7 +326,16 @@ public class DiscountCardsTableModel extends AbstractTableModel implements Appli
             } else if (Double.class == field.getType()) {
                 Double typeValue = fixIfNeedAndParseDouble(value);
                 if (!typeValue.equals(field.get(discountCardJdo))) {
-                    field.set(discountCardJdo, typeValue);
+                    if (field.getName().equals("discountRate")) {
+                        if (typeValue > 10.0) {
+                            typeValue = 10.0;
+                        } else if (typeValue < 0.0) {
+                            typeValue = 0.0;
+                        }
+                        field.setDouble(discountCardJdo, typeValue);
+                    } else {
+                        field.setDouble(discountCardJdo, typeValue);
+                    }
                 } else return;
             } else if (Character.class == field.getType()) {
                 Character typeValue = value.charAt(0);
@@ -295,7 +353,7 @@ public class DiscountCardsTableModel extends AbstractTableModel implements Appli
                     String formattedValue = value.replace(",", ".").trim();
                     if (formattedValue.matches("\\d{2}.\\d{2}.\\d{4}")) {
                         Date time;
-                        try{
+                        try {
                             time = calendarFormatter.parse(formattedValue);
                         } catch (ParseException e) {
                             logger.warn(e.getMessage(), e);
@@ -316,7 +374,7 @@ public class DiscountCardsTableModel extends AbstractTableModel implements Appli
                     String formattedValue = value.replace(",", ".").trim();
                     if (formattedValue.matches("\\d{2}.\\d{2}.\\d{4} \\d{2}:\\d{2}:\\d{2}")) {
                         Date typeValue;
-                        try{
+                        try {
                             typeValue = DateConverter.convertStringToDate(formattedValue);
                         } catch (ParseException e) {
                             logger.warn(e.getMessage(), e);
