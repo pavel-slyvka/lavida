@@ -199,4 +199,8 @@ public class AllDiscountCardsDialog extends AbstractDialog {
     public JLabel getErrorMessage() {
         return errorMessage;
     }
+
+    public DiscountCardTableComponent getCardTableComponent() {
+        return cardTableComponent;
+    }
 }

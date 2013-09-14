@@ -51,7 +51,7 @@ public class DiscountCardJdo implements Cloneable {
     private double sumTotalUAH;
 
     @ViewColumn(titleKey = "dialog.discounts.card.all.column.title.discountRate", columnWidth = 100)
-    @FilterColumn(labelKey = "dialog.discounts.card.all.label.search.by.discountRate", type = FilterType.NUMBER,
+    @FilterColumn(labelKey = "dialog.discounts.card.all.label.search.by.discountRate", type = FilterType.NUMBER_DIAPASON,
             orderForAllDiscountCards = 3)
     private double discountRate;
 

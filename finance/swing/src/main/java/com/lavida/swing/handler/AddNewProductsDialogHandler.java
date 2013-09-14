@@ -99,7 +99,6 @@ public class AddNewProductsDialogHandler {
             }
             newArticles.remove(newArticle);
         }
-        dialog.getTableModel().getTableData().removeAll(newArticles);
         dialog.getTableModel().fireTableDataChanged();
         dialog.getArticleTableComponent().getArticleFiltersComponent().updateAnalyzeComponent();
     }

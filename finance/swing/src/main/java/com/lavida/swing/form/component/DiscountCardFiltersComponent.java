@@ -210,8 +210,7 @@ public class DiscountCardFiltersComponent {
                     filter = RowFilter.numberFilter(RowFilter.ComparisonType.EQUAL, number, columnIndex);
                 }
             } else if (FilterType.NUMBER_DIAPASON == filterUnit.filterType) {
-                if (filterUnit.textField.getText().length() > 0) {
-                    String[] numbers = filterUnit.textField.getText().split("-", 2);
+                if (filterUnit.textField.getText().length() > 0) {                    String[] numbers = filterUnit.textField.getText().split("-", 2);
                     if (numbers.length > 1 && !numbers[0].trim().isEmpty() && !numbers[1].trim().isEmpty()) {
                         String numbers0 = numbers[0].replace(",", ".").replaceAll("[^0-9.]", "");
                         String numbers1 = numbers[1].replace(",", ".").replaceAll("[^0-9.]", "");

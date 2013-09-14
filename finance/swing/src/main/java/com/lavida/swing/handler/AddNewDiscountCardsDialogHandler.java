@@ -37,6 +37,9 @@ public class AddNewDiscountCardsDialogHandler {
         DiscountCardJdo discountCardJdo = new DiscountCardJdo();
         dialog.getTableModel().getTableData().add(discountCardJdo);
         dialog.getTableModel().fireTableDataChanged();
+        int row = dialog.getTableModel().getTableData().size() - 1;
+        dialog.getCardTableComponent().getDiscountCardsTable().editCellAt(row, 0);
+        dialog.getCardTableComponent().getDiscountCardsTable().transferFocus();
     }
 
     public void deleteRowButtonClicked() {
@@ -48,12 +51,31 @@ public class AddNewDiscountCardsDialogHandler {
 
     public void acceptCardsButtonClicked() {
         List<DiscountCardJdo> discountCardJdoList = dialog.getTableModel().getTableData();
-        for (DiscountCardJdo discountCardJdo : discountCardJdoList) {
-            discountCardJdo.setRegistrationDate(Calendar.getInstance());
-            discountCardJdo.setActivationDate(Calendar.getInstance());
-            discountCardServiceSwingWrapper.save(discountCardJdo);
+        while (discountCardJdoList.size() > 0) {
+            DiscountCardJdo discountCardJdo = discountCardJdoList.get(0);
+            int cardNumber = discountCardJdo.getNumber();
+            if (cardNumber > 0) {
+                DiscountCardJdo existingCard = discountCardServiceSwingWrapper.getByNumber(cardNumber);
+                if (existingCard == null) {
+                    discountCardJdo.setRegistrationDate(Calendar.getInstance());
+                    discountCardJdo.setActivationDate(Calendar.getInstance());
+                    discountCardServiceSwingWrapper.save(discountCardJdo);
+                } else {
+                    discountCardJdo.setNumber(0);
+                    dialog.showMessage("mainForm.exception.message.dialog.title", "dialog.sell.handler.discount.card.number.exists.message");
+                    dialog.getTableModel().fireTableDataChanged();
+                    dialog.getCardTableComponent().getCardFiltersComponent().updateAnalyzeComponent();
+                    return;
+                }
+            } else {
+                discountCardJdo.setNumber(0);
+                dialog.showMessage("mainForm.exception.message.dialog.title", "dialog.sell.handler.discount.card.number.enter.message");
+                dialog.getTableModel().fireTableDataChanged();
+                dialog.getCardTableComponent().getCardFiltersComponent().updateAnalyzeComponent();
+                return;
+            }
+            discountCardJdoList.remove(discountCardJdo);
         }
-        dialog.getTableModel().getTableData().removeAll(discountCardJdoList);
         dialog.getTableModel().fireTableDataChanged();
         dialog.getCardTableComponent().getCardFiltersComponent().updateAnalyzeComponent();
     }

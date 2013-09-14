@@ -1,5 +1,7 @@
 package com.lavida.swing.form;
 
+import com.lavida.swing.dialog.AddNewDiscountCardsDialog;
+import com.lavida.swing.dialog.AllDiscountCardsDialog;
 import com.lavida.swing.dialog.SellDialog;
 import com.lavida.swing.dialog.SoldProductsDialog;
 import com.lavida.swing.form.component.ArticleTableComponent;
@@ -35,6 +37,12 @@ public class MainForm extends AbstractForm {
 
     @Resource
     private SellDialog sellDialog;
+
+    @Resource
+    private AllDiscountCardsDialog allDiscountCardsDialog;
+
+    @Resource
+    private AddNewDiscountCardsDialog addNewDiscountCardsDialog;
 
     private static final List<String> FORBIDDEN_ROLES = new ArrayList<String>();
     static {
@@ -355,6 +363,10 @@ public class MainForm extends AbstractForm {
         articleTableComponent.getArticleFiltersComponent().getArticleAnalyzeComponent().
                 filterAnalyzeComponentByRoles(userRoles);
         soldProductsDialog.getArticleTableComponent().getArticleFiltersComponent().getArticleAnalyzeComponent().
+                filterAnalyzeComponentByRoles(userRoles);
+        allDiscountCardsDialog.getCardTableComponent().getCardFiltersComponent().getCardAnalyzeComponent().
+                filterAnalyzeComponentByRoles(userRoles);
+        addNewDiscountCardsDialog.getCardTableComponent().getCardFiltersComponent().getCardAnalyzeComponent().
                 filterAnalyzeComponentByRoles(userRoles);
     }
 

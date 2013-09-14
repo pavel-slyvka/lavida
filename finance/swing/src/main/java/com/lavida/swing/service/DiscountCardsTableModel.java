@@ -88,7 +88,7 @@ public class DiscountCardsTableModel extends AbstractTableModel implements Appli
                                 viewColumn.titleKey().equals("dialog.discounts.card.all.column.title.bonusUAH") ||
                                 viewColumn.titleKey().equals("dialog.discounts.card.all.column.title.discountRate") ||
                                 viewColumn.titleKey().equals("dialog.discounts.card.all.column.title.sumTotalUAH"))
-                    ) {
+                        ) {
                     this.discountCardFieldsSequence.add(field.getName());
                     if (viewColumn.titleKey().isEmpty()) {
                         this.headerTitles.add(field.getName());
@@ -125,7 +125,7 @@ public class DiscountCardsTableModel extends AbstractTableModel implements Appli
                                 viewColumn.titleKey().equals("dialog.discounts.card.all.column.title.bonusUAH") ||
                                 viewColumn.titleKey().equals("dialog.discounts.card.all.column.title.discountRate") ||
                                 viewColumn.titleKey().equals("dialog.discounts.card.all.column.title.sumTotalUAH"))
-                         ) {
+                        ) {
                     if (!viewColumn.show() || isForbidden(userRoles, viewColumn.forbiddenRoles())) {
                         forbiddenHeaders.add(viewColumn.titleKey().isEmpty() ? field.getName()
                                 : messageSource.getMessage(viewColumn.titleKey(), null, locale));
@@ -280,7 +280,12 @@ public class DiscountCardsTableModel extends AbstractTableModel implements Appli
             Field field = DiscountCardJdo.class.getDeclaredField(discountCardFieldsSequence.get(columnIndex));
             field.setAccessible(true);
             if (int.class == field.getType()) {
-                int typeValue = Integer.parseInt(value);
+                int typeValue;
+                if (value.isEmpty()) {
+                    typeValue = 0;
+                } else {
+                    typeValue = Integer.parseInt(value);
+                }
                 if (typeValue != field.getInt(discountCardJdo)) {
                     field.setInt(discountCardJdo, typeValue);
                 } else return;
@@ -290,7 +295,12 @@ public class DiscountCardsTableModel extends AbstractTableModel implements Appli
                     field.setBoolean(discountCardJdo, typeValue);
                 } else return;
             } else if (double.class == field.getType()) {
-                double typeValue = fixIfNeedAndParseDouble(value);
+                double typeValue;
+                if (value.isEmpty()) {
+                    typeValue = 0.0;
+                } else {
+                    typeValue = fixIfNeedAndParseDouble(value);
+                }
                 if (typeValue != field.getDouble(discountCardJdo)) {
                     if (field.getName().equals("discountRate")) {
                         if (typeValue > 10.0) {
@@ -314,7 +324,12 @@ public class DiscountCardsTableModel extends AbstractTableModel implements Appli
                     field.setLong(discountCardJdo, typeValue);
                 } else return;
             } else if (Integer.class == field.getType()) {
-                Integer typeValue = Integer.parseInt(value);
+                Integer typeValue;
+                if (value.isEmpty()) {
+                    typeValue = 0;
+                } else {
+                    typeValue = Integer.parseInt(value);
+                }
                 if (!typeValue.equals(field.get(discountCardJdo))) {
                     field.set(discountCardJdo, typeValue);
                 } else return;
@@ -324,7 +339,12 @@ public class DiscountCardsTableModel extends AbstractTableModel implements Appli
                     field.set(discountCardJdo, typeValue);
                 } else return;
             } else if (Double.class == field.getType()) {
-                Double typeValue = fixIfNeedAndParseDouble(value);
+                Double typeValue;
+                if (value.isEmpty()) {
+                    typeValue = 0.0;
+                } else {
+                    typeValue = fixIfNeedAndParseDouble(value);
+                }
                 if (!typeValue.equals(field.get(discountCardJdo))) {
                     if (field.getName().equals("discountRate")) {
                         if (typeValue > 10.0) {
