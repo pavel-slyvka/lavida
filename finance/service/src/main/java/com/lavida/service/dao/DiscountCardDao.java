@@ -3,6 +3,7 @@ package com.lavida.service.dao;
 import com.lavida.service.entity.DiscountCardJdo;
 import org.springframework.stereotype.Repository;
 
+import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import java.util.List;
 
@@ -18,7 +19,13 @@ public class DiscountCardDao extends AbstractDao<DiscountCardJdo> {
     public DiscountCardJdo getByNumber(int number) {
         TypedQuery<DiscountCardJdo> query = entityManager.createNamedQuery(DiscountCardJdo.FIND_BY_NUMBER, DiscountCardJdo.class).
                 setParameter("number", number);
-        return query.getSingleResult();
+        DiscountCardJdo discountCardJdo;
+        try {
+         discountCardJdo = query.getSingleResult();
+        } catch (NoResultException e) {
+          discountCardJdo = null;
+        }
+        return discountCardJdo;
     }
 
     public List<DiscountCardJdo> get (String query) {

@@ -50,6 +50,7 @@ public class AddNewDiscountCardsDialogHandler {
         List<DiscountCardJdo> discountCardJdoList = dialog.getTableModel().getTableData();
         for (DiscountCardJdo discountCardJdo : discountCardJdoList) {
             discountCardJdo.setRegistrationDate(Calendar.getInstance());
+            discountCardJdo.setActivationDate(Calendar.getInstance());
             discountCardServiceSwingWrapper.save(discountCardJdo);
         }
         dialog.getTableModel().getTableData().removeAll(discountCardJdoList);

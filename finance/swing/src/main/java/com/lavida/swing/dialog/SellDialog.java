@@ -228,6 +228,7 @@ public class SellDialog extends AbstractDialog {
         inputPanel.add(discountTextField, constraints);
 
         totalCostLabel = new JLabel();
+        totalCostLabel.setForeground(Color.BLUE);
         totalCostLabel.setText(messageSource.getMessage("sellDialog.label.totalCost.title", null, localeHolder.getLocale()));
         totalCostLabel.setLabelFor(totalCostTextField);
         constraints.fill = GridBagConstraints.NONE;
@@ -237,6 +238,9 @@ public class SellDialog extends AbstractDialog {
         inputPanel.add(totalCostLabel, constraints);
 
         totalCostTextField = new JTextField(50);
+        totalCostTextField.setForeground(Color.BLUE);
+        Font boldFont = new Font(totalCostTextField.getFont().getName(), Font.BOLD, totalCostTextField.getFont().getSize());
+        totalCostTextField.setFont(boldFont);
         totalCostTextField.setEditable(false);
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.gridwidth = GridBagConstraints.REMAINDER;

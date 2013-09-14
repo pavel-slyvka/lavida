@@ -32,13 +32,21 @@ public class RefundDialogHandler {
      * @param articleJdo the selected articleJdo to be refunded.
      */
     public void refundButtonClicked (ArticleJdo articleJdo){
+        if (refundDialog.getCommentTextField().getText().trim().isEmpty()) {
+            refundDialog.showMessage("mainForm.exception.message.dialog.title", "refundDialog.handler.comment.not.entered");
+            refundDialog.getCommentTextField().requestFocusInWindow();
+            return;
+        }
+        articleJdo.setComment(refundDialog.getCommentTextField().getText().trim());
+        if (articleJdo.getOldSalePrice() > 0.0) {
+            articleJdo.setSalePrice(articleJdo.getOldSalePrice());
+            articleJdo.setOldSalePrice(0.0);
+        }
         articleJdo.setSold(null);
         articleJdo.setSellType(null);
         articleJdo.setRefundDate(new Date());
         articleJdo.setSaleDate(null);
-        articleJdo.setComment(refundDialog.getCommentTextField().getText().trim());
         articleJdo.setTags(null);
-        articleJdo.setShop(null);
         articleServiceSwingWrapper.update(articleJdo);
         try {
             articleServiceSwingWrapper.updateToSpreadsheet(articleJdo, new Boolean(false));
