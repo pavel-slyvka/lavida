@@ -4,7 +4,6 @@ import com.lavida.service.entity.DiscountCardJdo;
 import com.lavida.swing.dialog.AddNewDiscountCardsDialog;
 import com.lavida.swing.service.DiscountCardServiceSwingWrapper;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StreamUtils;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
@@ -45,6 +44,9 @@ public class AddNewDiscountCardsDialogHandler {
     }
 
     public void deleteRowButtonClicked() {
+        if (dialog.getCardTableComponent().getDiscountCardsTable().isEditing()) {
+            return;
+        }
         DiscountCardJdo discountCardJdo = dialog.getTableModel().getSelectedCard();
         dialog.getTableModel().getTableData().remove(discountCardJdo);
         dialog.getTableModel().setSelectedCard(null);
@@ -52,6 +54,9 @@ public class AddNewDiscountCardsDialogHandler {
     }
 
     public void acceptCardsButtonClicked() {
+        if (dialog.getCardTableComponent().getDiscountCardsTable().isEditing()) {
+            return;
+        }
         List<DiscountCardJdo> discountCardJdoList = dialog.getTableModel().getTableData();
         while (discountCardJdoList.size() > 0) {
             DiscountCardJdo discountCardJdo = discountCardJdoList.get(0);

@@ -390,6 +390,5 @@ public class MainFormHandler {
 
     public void allDiscountCardsItemClicked() {
         allDiscountCardsDialog.show();
-
     }
 }
