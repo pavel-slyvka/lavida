@@ -361,7 +361,7 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
             if (int.class == field.getType()) {
                 int typeValue;
                 if (value.isEmpty()) {
-                    typeValue = 0;
+                    typeValue = 1;
                 } else {
                     typeValue = Integer.parseInt(value);
                 }
@@ -395,7 +395,8 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
                 if (typeValue != field.getDouble(articleJdo)) {
                     field.setDouble(articleJdo, typeValue);
                     if (field.getName().equals("transportCostEUR") || field.getName().equals("purchasePriceEUR")) {
-                        double totalCostEUR = articleJdo.getPurchasePriceEUR() + articleJdo.getTransportCostEUR();
+                        double totalCostEUR = articleJdo.getPurchasePriceEUR() + articleJdo.getTransportCostEUR()
+                                + 0.065*(articleJdo.getPurchasePriceEUR() + articleJdo.getTransportCostEUR());
                         totalCostEUR = BigDecimal.valueOf(totalCostEUR).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue();
                         articleJdo.setTotalCostEUR(totalCostEUR);
                         double totalCostUAH = totalCostEUR * 11.0;
