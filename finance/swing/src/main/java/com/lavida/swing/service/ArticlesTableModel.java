@@ -407,7 +407,7 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
                         articleJdo.setCalculatedSalePrice(calculatedSalePrice);
                     }
                     if (field.getName().equals("multiplier") || field.getName().equals("totalCostUAH")) {
-                        double calculatedSalePrice = articleJdo.getTotalCostUAH() * articleJdo.getMultiplier();
+                        double calculatedSalePrice = articleJdo.getTotalCostUAH() * articleJdo.getMultiplier() * 1.1;
                         calculatedSalePrice = BigDecimal.valueOf(calculatedSalePrice).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue();
                         articleJdo.setCalculatedSalePrice(calculatedSalePrice);
                     }
