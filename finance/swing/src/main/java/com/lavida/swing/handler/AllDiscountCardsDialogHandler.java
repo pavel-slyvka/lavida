@@ -2,16 +2,12 @@ package com.lavida.swing.handler;
 
 import com.lavida.service.entity.DiscountCardJdo;
 import com.lavida.swing.dialog.AllDiscountCardsDialog;
-import com.lavida.swing.form.component.FileChooserComponent;
 import com.lavida.swing.service.DiscountCardServiceSwingWrapper;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import javax.swing.*;
-import java.io.File;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 
 /**
  * The handler for the {@link com.lavida.swing.dialog.AllDiscountCardsDialog}.
@@ -72,10 +68,6 @@ public class AllDiscountCardsDialogHandler {
                     case JOptionPane.NO_OPTION:
                         break;
                     case JOptionPane.CLOSED_OPTION:
-                        dialog.getTableModel().setSelectedCard(null);
-                        dialog.getTableModel().fireTableDataChanged();
-                        break;
-                    case JOptionPane.CANCEL_OPTION:
                         dialog.getTableModel().setSelectedCard(null);
                         dialog.getTableModel().fireTableDataChanged();
                         break;

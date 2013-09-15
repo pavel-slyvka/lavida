@@ -16,7 +16,7 @@ import java.util.List;
 @Repository
 public class DiscountCardDao extends AbstractDao<DiscountCardJdo> {
 
-    public DiscountCardJdo getByNumber(int number) {
+    public DiscountCardJdo getByNumber(String number) {
         TypedQuery<DiscountCardJdo> query = entityManager.createNamedQuery(DiscountCardJdo.FIND_BY_NUMBER, DiscountCardJdo.class).
                 setParameter("number", number);
         DiscountCardJdo discountCardJdo;

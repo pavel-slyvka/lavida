@@ -8,6 +8,7 @@ import javax.swing.*;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import java.awt.*;
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -100,8 +101,10 @@ public class DiscountCardAnalyzeComponent {
      * @return
      */
     private String roundTwoDecimals (double number) {
-        DecimalFormat decimalFormat = new DecimalFormat("#.##");
-        return decimalFormat.format(number);
+        number = BigDecimal.valueOf(number).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue();
+//        DecimalFormat decimalFormat = new DecimalFormat("#.##");
+//        return decimalFormat.format(number);
+        return String.valueOf(number);
     }
 
     public void filterAnalyzeComponentByRoles(java.util.List<String> userRoles) {

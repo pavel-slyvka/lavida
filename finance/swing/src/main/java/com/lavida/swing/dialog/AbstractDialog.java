@@ -60,7 +60,7 @@ public abstract class AbstractDialog implements MessageSourceAware {
         return JOptionPane.showConfirmDialog(dialog,
                 messageSource.getMessage(messageKey, null, localeHolder.getLocale()),
                 messageSource.getMessage(titleKey, null, localeHolder.getLocale()),
-                JOptionPane.YES_NO_CANCEL_OPTION);
+                JOptionPane.YES_NO_OPTION);
     }
 
 

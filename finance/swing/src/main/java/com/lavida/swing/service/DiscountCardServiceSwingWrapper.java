@@ -44,7 +44,7 @@ public class DiscountCardServiceSwingWrapper  implements ApplicationContextAware
         applicationContext.publishEvent(new DiscountCardUpdateEvent(this));
     }
 
-    public DiscountCardJdo getByNumber (int number) {
+    public DiscountCardJdo getByNumber (String number) {
         return discountCardService.getByNumber(number);
     }
 

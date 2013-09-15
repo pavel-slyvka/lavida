@@ -3,13 +3,17 @@ HISTORY of the LA VIDA Finance
 
 0.2
 -------------------------
+- Added information (total purchase price EUR, total cost UAH, minimal multiplier, normal multiplier) to the
+  articles analyze panel;
+- Added checkBoxes(clients, presents, ours) to the article filter panel;
 - Added the system for discounting prices;
 - Added change-log file  History.txt ;
 - Added abilities :
   - to manage postponed operations (save to the XML file, load from the XML file, delete from the local database);
-  - to edit tables fields with synchronous updating the remote Google spreadsheet;
+  - to edit tables fields with synchronous updating the remote Google spreadsheet for products;
   - to add new products to the remote Google spreadsheet;
   - to add new discount cards to the local database, to view all discount cards;
+  - to set default column's width;
 - Created UI components:
   - MenuBar with items: postponed, products, settings, discounts;
   - AddNewProductsDialog, ColumnsViewSettingsDialog;

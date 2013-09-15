@@ -43,6 +43,7 @@ public class AddNewProductsDialogHandler {
         ArticleJdo articleJdo = new ArticleJdo();
         articleJdo.setQuantity(1);
         articleJdo.setMultiplier(2.0);
+        articleJdo.setSalePrice(-1.0);
         articleJdo.setShop(messageSource.getMessage("sellDialog.text.field.shop.LaVida", null, localeHolder.getLocale()));
         if (dialog.getTableModel().getTableData().size() > 0) {
             if (dialog.getTableModel().getTableData().get(0).getDeliveryDate() == null) {
@@ -80,7 +81,7 @@ public class AddNewProductsDialogHandler {
         while (newArticles.size() > 0) {
             ArticleJdo newArticle = newArticles.get(0);
             if (newArticle.getCode().isEmpty() || newArticle.getDeliveryDate() == null
-                    || newArticle.getTotalCostUAH() == 0) {
+                    || newArticle.getTotalCostUAH() == 0 || newArticle.getSalePrice() == -1.0) {
                 dialog.showMessage("mainForm.exception.message.dialog.title", "dialog.add.new.product.code.deliveryDate.totalCostUAH.not.filled.message");
                 dialog.getTableModel().fireTableDataChanged();
                 dialog.getArticleTableComponent().getArticleFiltersComponent().updateAnalyzeComponent();

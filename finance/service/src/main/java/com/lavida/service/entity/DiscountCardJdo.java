@@ -29,29 +29,29 @@ public class DiscountCardJdo implements Cloneable {
     private int id;
 
     @ViewColumn(titleKey = "dialog.discounts.card.all.column.title.number", columnWidth = 50)
-    @FilterColumn(labelKey = "dialog.discounts.card.all.label.search.by.number", type = FilterType.NUMBER,
+    @FilterColumn(labelKey = "dialog.discounts.card.all.label.search.by.number", type = FilterType.PART_TEXT,
             orderForAllDiscountCards = 1)
-    private int number;
+    private String number;
 
-    @ViewColumn(titleKey = "dialog.discounts.card.all.column.title.name", columnWidth = 200)
+    @ViewColumn(titleKey = "dialog.discounts.card.all.column.title.name", columnWidth = 300)
     private String name;
 
     @ViewColumn(titleKey = "dialog.discounts.card.all.column.title.phone", columnWidth = 150)
     private String phone;
 
-    @ViewColumn(titleKey = "dialog.discounts.card.all.column.title.address", columnWidth = 150)
+    @ViewColumn(titleKey = "dialog.discounts.card.all.column.title.address", columnWidth = 300)
     private String address;
 
-    @ViewColumn(titleKey = "dialog.discounts.card.all.column.title.eMail", columnWidth = 100)
+    @ViewColumn(titleKey = "dialog.discounts.card.all.column.title.eMail", columnWidth = 150)
     private String eMail;
 
     @ViewColumn(titleKey = "dialog.discounts.card.all.column.title.sumTotalUAH", columnWidth = 100)
-    @FilterColumn(labelKey = "dialog.discounts.card.all.label.search.by.sumTotalUAH", type = FilterType.NUMBER_DIAPASON,
+    @FilterColumn(labelKey = "dialog.discounts.card.all.label.search.by.sumTotalUAH", type = FilterType.NUMBER_MORE,
             orderForAllDiscountCards = 2)
     private double sumTotalUAH;
 
     @ViewColumn(titleKey = "dialog.discounts.card.all.column.title.discountRate", columnWidth = 100)
-    @FilterColumn(labelKey = "dialog.discounts.card.all.label.search.by.discountRate", type = FilterType.NUMBER_DIAPASON,
+    @FilterColumn(labelKey = "dialog.discounts.card.all.label.search.by.discountRate", type = FilterType.NUMBER_MORE,
             orderForAllDiscountCards = 3)
     private double discountRate;
 
@@ -68,13 +68,13 @@ public class DiscountCardJdo implements Cloneable {
     private Calendar activationDate;
 
     @ViewColumn(titleKey = "dialog.discounts.card.all.column.title.postponedDate", datePattern = "dd.MM.yyyy HH:mm:ss"
-            , columnWidth = 100)
+            , columnWidth = 150)
     private Date postponedDate;
 
     public DiscountCardJdo() {
     }
 
-    public DiscountCardJdo(int number, String name, String phone, String address, String eMail, double sumTotalUAH,
+    public DiscountCardJdo(String number, String name, String phone, String address, String eMail, double sumTotalUAH,
                            double discountRate, double bonusUAH, Calendar registrationDate, Calendar activationDate,
                            Date postponedDate) {
         this.number = number;
@@ -98,11 +98,11 @@ public class DiscountCardJdo implements Cloneable {
         this.id = id;
     }
 
-    public int getNumber() {
+    public String getNumber() {
         return number;
     }
 
-    public void setNumber(int number) {
+    public void setNumber(String number) {
         this.number = number;
     }
 
@@ -196,13 +196,13 @@ public class DiscountCardJdo implements Cloneable {
         if (Double.compare(that.bonusUAH, bonusUAH) != 0) return false;
         if (Double.compare(that.discountRate, discountRate) != 0) return false;
         if (id != that.id) return false;
-        if (number != that.number) return false;
         if (Double.compare(that.sumTotalUAH, sumTotalUAH) != 0) return false;
         if (activationDate != null ? !activationDate.equals(that.activationDate) : that.activationDate != null)
             return false;
         if (address != null ? !address.equals(that.address) : that.address != null) return false;
         if (eMail != null ? !eMail.equals(that.eMail) : that.eMail != null) return false;
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        if (number != null ? !number.equals(that.number) : that.number != null) return false;
         if (phone != null ? !phone.equals(that.phone) : that.phone != null) return false;
         if (postponedDate != null ? !postponedDate.equals(that.postponedDate) : that.postponedDate != null)
             return false;
@@ -217,7 +217,7 @@ public class DiscountCardJdo implements Cloneable {
         int result;
         long temp;
         result = id;
-        result = 31 * result + number;
+        result = 31 * result + (number != null ? number.hashCode() : 0);
         result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + (phone != null ? phone.hashCode() : 0);
         result = 31 * result + (address != null ? address.hashCode() : 0);

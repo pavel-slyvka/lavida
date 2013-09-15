@@ -53,22 +53,22 @@ public class AddNewDiscountCardsDialogHandler {
         List<DiscountCardJdo> discountCardJdoList = dialog.getTableModel().getTableData();
         while (discountCardJdoList.size() > 0) {
             DiscountCardJdo discountCardJdo = discountCardJdoList.get(0);
-            int cardNumber = discountCardJdo.getNumber();
-            if (cardNumber > 0) {
+            String cardNumber = discountCardJdo.getNumber();
+            if (cardNumber != null || !cardNumber.isEmpty()) {
                 DiscountCardJdo existingCard = discountCardServiceSwingWrapper.getByNumber(cardNumber);
                 if (existingCard == null) {
                     discountCardJdo.setRegistrationDate(Calendar.getInstance());
                     discountCardJdo.setActivationDate(Calendar.getInstance());
                     discountCardServiceSwingWrapper.save(discountCardJdo);
                 } else {
-                    discountCardJdo.setNumber(0);
+                    discountCardJdo.setNumber(null);
                     dialog.showMessage("mainForm.exception.message.dialog.title", "dialog.sell.handler.discount.card.number.exists.message");
                     dialog.getTableModel().fireTableDataChanged();
                     dialog.getCardTableComponent().getCardFiltersComponent().updateAnalyzeComponent();
                     return;
                 }
             } else {
-                discountCardJdo.setNumber(0);
+                discountCardJdo.setNumber(null);
                 dialog.showMessage("mainForm.exception.message.dialog.title", "dialog.sell.handler.discount.card.number.enter.message");
                 dialog.getTableModel().fireTableDataChanged();
                 dialog.getCardTableComponent().getCardFiltersComponent().updateAnalyzeComponent();

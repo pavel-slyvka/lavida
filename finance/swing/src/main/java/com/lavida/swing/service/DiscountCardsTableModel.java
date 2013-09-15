@@ -16,6 +16,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.swing.table.AbstractTableModel;
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -300,6 +301,7 @@ public class DiscountCardsTableModel extends AbstractTableModel implements Appli
                     typeValue = 0.0;
                 } else {
                     typeValue = fixIfNeedAndParseDouble(value);
+                    typeValue = BigDecimal.valueOf(typeValue).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue();
                 }
                 if (typeValue != field.getDouble(discountCardJdo)) {
                     if (field.getName().equals("discountRate")) {
@@ -344,6 +346,7 @@ public class DiscountCardsTableModel extends AbstractTableModel implements Appli
                     typeValue = 0.0;
                 } else {
                     typeValue = fixIfNeedAndParseDouble(value);
+                    typeValue = BigDecimal.valueOf(typeValue).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue();
                 }
                 if (!typeValue.equals(field.get(discountCardJdo))) {
                     if (field.getName().equals("discountRate")) {

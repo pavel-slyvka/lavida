@@ -120,17 +120,17 @@ public class DiscountCardFiltersComponent {
         });
         for (int i = 0; i < filters.size(); ++i) {
             if (filters.get(i).label != null) {
-            filters.get(i).label.setLabelFor(filters.get(i).textField);
-            constraints.fill = GridBagConstraints.NONE;
-            constraints.gridwidth = GridBagConstraints.RELATIVE;
-            constraints.anchor = GridBagConstraints.EAST;
-            constraints.weightx = 0.0;
-            filtersPanel.add(filters.get(i).label, constraints);
-            constraints.fill = GridBagConstraints.HORIZONTAL;
-            constraints.gridwidth = GridBagConstraints.REMAINDER;
-            constraints.anchor = GridBagConstraints.EAST;
-            constraints.weightx = 1.0;
-            filtersPanel.add(filters.get(i).textField, constraints);
+                filters.get(i).label.setLabelFor(filters.get(i).textField);
+                constraints.fill = GridBagConstraints.NONE;
+                constraints.gridwidth = GridBagConstraints.RELATIVE;
+                constraints.anchor = GridBagConstraints.EAST;
+                constraints.weightx = 0.0;
+                filtersPanel.add(filters.get(i).label, constraints);
+                constraints.fill = GridBagConstraints.HORIZONTAL;
+                constraints.gridwidth = GridBagConstraints.REMAINDER;
+                constraints.anchor = GridBagConstraints.EAST;
+                constraints.weightx = 1.0;
+                filtersPanel.add(filters.get(i).textField, constraints);
             } else if (filters.get(i).checkBoxes != null) {
                 JPanel checkBoxPanel = new JPanel();
                 checkBoxPanel.setLayout(new BoxLayout(checkBoxPanel, BoxLayout.LINE_AXIS));
@@ -210,7 +210,8 @@ public class DiscountCardFiltersComponent {
                     filter = RowFilter.numberFilter(RowFilter.ComparisonType.EQUAL, number, columnIndex);
                 }
             } else if (FilterType.NUMBER_DIAPASON == filterUnit.filterType) {
-                if (filterUnit.textField.getText().length() > 0) {                    String[] numbers = filterUnit.textField.getText().split("-", 2);
+                if (filterUnit.textField.getText().length() > 0) {
+                    String[] numbers = filterUnit.textField.getText().split("-", 2);
                     if (numbers.length > 1 && !numbers[0].trim().isEmpty() && !numbers[1].trim().isEmpty()) {
                         String numbers0 = numbers[0].replace(",", ".").replaceAll("[^0-9.]", "");
                         String numbers1 = numbers[1].replace(",", ".").replaceAll("[^0-9.]", "");
@@ -225,6 +226,21 @@ public class DiscountCardFiltersComponent {
                         };
                     }
                 }
+            } else if (FilterType.NUMBER_MORE == filterUnit.filterType) {
+                if (filterUnit.textField.getText().length() > 0) {
+                    String numberStr = filterUnit.textField.getText().trim().replace(",", ".").replaceAll("[^0-9.]", "");
+                    final Double number = Double.parseDouble(numberStr);
+                    filter = new RowFilter<DiscountCardsTableModel, Integer>() {
+                        @Override
+                        public boolean include(Entry<? extends DiscountCardsTableModel, ? extends Integer> entry) {
+                            Double numberEntry = (Double) tableModel.getRawValueAt(entry.getIdentifier(), columnIndex);
+                            return numberEntry >= number;
+                        }
+                    };
+
+                }
+
+
             } else if (FilterType.DATE == filterUnit.filterType
                     || FilterType.DATE_DIAPASON == filterUnit.filterType && !filterUnit.textField.getText().contains("-")) {
                 if (filterUnit.textField.getText().length() > 0) {
@@ -270,7 +286,7 @@ public class DiscountCardFiltersComponent {
         }
     }
 
-    private boolean anyDeselected (JCheckBox[] checkBoxes) {
+    private boolean anyDeselected(JCheckBox[] checkBoxes) {
         for (JCheckBox checkBox : checkBoxes) {
             if (!checkBox.isSelected()) {
                 return true;
@@ -279,11 +295,11 @@ public class DiscountCardFiltersComponent {
         return false;
     }
 
-    private boolean correspondsToCheckBoxes (JCheckBox[] checkBoxes, Object object) {
+    private boolean correspondsToCheckBoxes(JCheckBox[] checkBoxes, Object object) {
         if (object instanceof Calendar || object == null) {
             SimpleDateFormat calendarFormatter = new SimpleDateFormat("dd.MM.yyyy");
-            String calendarStr = (object != null) ? calendarFormatter.format(((Calendar)object).getTime()) : "";
-            for (JCheckBox checkBox :checkBoxes) {
+            String calendarStr = (object != null) ? calendarFormatter.format(((Calendar) object).getTime()) : "";
+            for (JCheckBox checkBox : checkBoxes) {
                 if (checkBox.isSelected() && calendarStr.matches(checkBox.getActionCommand())) {
                     return true;
                 }

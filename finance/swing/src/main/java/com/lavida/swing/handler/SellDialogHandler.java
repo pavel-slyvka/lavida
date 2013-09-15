@@ -48,7 +48,7 @@ public class SellDialogHandler {
     /**
      * Performs selling operation.
      *
-     * @param articleJdo
+     * @param articleJdo the article to be sold.
      */
     public void sellButtonClicked(ArticleJdo articleJdo) {
         if (dialog.getCommentTextField().getText().trim().isEmpty() && (dialog.getOursCheckBox().isSelected() ||
@@ -62,8 +62,8 @@ public class SellDialogHandler {
         dialog.getCommentTextField().setText("");
         double totalCostUAH = Double.parseDouble(dialog.getTotalCostTextField().getText().replace(",", "."));
         if (!dialog.getDiscountCardNumberTextField().getText().trim().isEmpty()) {
-            int discountCardNumber = Integer.parseInt(dialog.getDiscountCardNumberTextField().getText().trim());
-            DiscountCardJdo discountCardJdo = discountCardServiceSwingWrapper.getByNumber(discountCardNumber);
+            String cardNumber = dialog.getDiscountCardNumberTextField().getText().trim();
+            DiscountCardJdo discountCardJdo = discountCardServiceSwingWrapper.getByNumber(cardNumber);
             if (discountCardJdo != null) {
                 if (discountCardJdo.getActivationDate() != null) {
                     discountCardJdo.setSumTotalUAH(discountCardJdo.getSumTotalUAH() + totalCostUAH);
@@ -117,7 +117,8 @@ public class SellDialogHandler {
         StringBuilder tagsBuilder = new StringBuilder();
         for (JCheckBox checkBox : dialog.getTagCheckBoxes()) {
             if (checkBox.isSelected()) {
-                tagsBuilder.append(checkBox.getActionCommand() + "; ");
+                tagsBuilder.append(checkBox.getActionCommand());
+                tagsBuilder.append("; ");
                 checkBox.setSelected(false);
             }
         }
@@ -184,14 +185,13 @@ public class SellDialogHandler {
     }
 
     public void discountCardNumberTextEntered() {
-        String cardNumberStr = dialog.getDiscountCardNumberTextField().getText().trim();
-        if (!cardNumberStr.matches("[0-9]")) {
+        String cardNumber = dialog.getDiscountCardNumberTextField().getText().trim();
+        if (!cardNumber.matches("[0-9]")) {
             dialog.getDiscountCardNumberTextField().setText("");
             dialog.getDiscountCardNumberTextField().requestFocusInWindow();
             dialog.showMessage("mainForm.exception.message.dialog.title", "dialog.sell.handler.discount.card.number.not.correct.message");
             return;
         }
-        int cardNumber = Integer.parseInt(cardNumberStr);
         DiscountCardJdo discountCardJdo = discountCardServiceSwingWrapper.getByNumber(cardNumber);
         if (discountCardJdo != null) {
             if (discountCardJdo.getActivationDate() == null) {
@@ -214,7 +214,9 @@ public class SellDialogHandler {
         if (discountVale > 0) {
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.append(messageSource.getMessage("sellDialog.comment.discountCard.number", null, localeHolder.getLocale()));
-            stringBuilder.append(" " + cardNumber + ", ");
+            stringBuilder.append(" " );
+            stringBuilder.append(cardNumber);
+            stringBuilder.append(", ");
             stringBuilder.append(discountVale);
             stringBuilder.append(messageSource.getMessage("sellDialog.comment.discountCard.UAH", null, localeHolder.getLocale()));
             dialog.getCommentTextField().setText(new String(stringBuilder));
