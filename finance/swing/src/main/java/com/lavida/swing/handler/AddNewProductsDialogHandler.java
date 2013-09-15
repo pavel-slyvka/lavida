@@ -42,7 +42,7 @@ public class AddNewProductsDialogHandler {
     public void addRowButtonClicked() {
         ArticleJdo articleJdo = new ArticleJdo();
         articleJdo.setQuantity(1);
-        articleJdo.setMultiplier(2.0);
+        articleJdo.setMultiplier(2.5);
         articleJdo.setSalePrice(-1.0);
         articleJdo.setShop(messageSource.getMessage("sellDialog.text.field.shop.LaVida", null, localeHolder.getLocale()));
         if (dialog.getTableModel().getTableData().size() > 0) {

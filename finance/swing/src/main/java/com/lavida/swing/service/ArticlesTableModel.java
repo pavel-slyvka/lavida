@@ -402,7 +402,7 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
                         double totalCostUAH = totalCostEUR * 11.0;
                         totalCostUAH = BigDecimal.valueOf(totalCostUAH).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue();
                         articleJdo.setTotalCostUAH(totalCostUAH);
-                        double calculatedSalePrice = totalCostUAH * articleJdo.getMultiplier();
+                        double calculatedSalePrice = totalCostUAH * articleJdo.getMultiplier() * 1.1;
                         calculatedSalePrice = BigDecimal.valueOf(calculatedSalePrice).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue();
                         articleJdo.setCalculatedSalePrice(calculatedSalePrice);
                     }
