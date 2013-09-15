@@ -57,6 +57,7 @@ public class AddNewProductsDialogHandler {
         int row = dialog.getTableModel().getTableData().size() - 1;
         dialog.getArticleTableComponent().getArticlesTable().editCellAt(row, 0);
         dialog.getArticleTableComponent().getArticlesTable().transferFocus();
+        dialog.getTableModel().setSelectedArticle(null);
     }
 
     public void deleteRowButtonClicked() {
@@ -88,11 +89,7 @@ public class AddNewProductsDialogHandler {
             try {
                 articleServiceSwingWrapper.updateToSpreadsheet(newArticle, null);
                 articleServiceSwingWrapper.update(newArticle);
-            } catch (IOException e) {
-                logger.warn(e.getMessage(), e);
-                newArticle.setPostponedOperationDate(new Date());
-                articleServiceSwingWrapper.update(newArticle);
-            } catch (ServiceException e) {
+            } catch (IOException | ServiceException e) {
                 logger.warn(e.getMessage(), e);
                 newArticle.setPostponedOperationDate(new Date());
                 articleServiceSwingWrapper.update(newArticle);
