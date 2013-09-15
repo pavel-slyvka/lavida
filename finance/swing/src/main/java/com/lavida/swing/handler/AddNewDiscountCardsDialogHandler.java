@@ -4,6 +4,8 @@ import com.lavida.service.entity.DiscountCardJdo;
 import com.lavida.swing.dialog.AddNewDiscountCardsDialog;
 import com.lavida.swing.service.DiscountCardServiceSwingWrapper;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StreamUtils;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -54,7 +56,7 @@ public class AddNewDiscountCardsDialogHandler {
         while (discountCardJdoList.size() > 0) {
             DiscountCardJdo discountCardJdo = discountCardJdoList.get(0);
             String cardNumber = discountCardJdo.getNumber();
-            if (cardNumber != null || !cardNumber.isEmpty()) {
+            if (!StringUtils.isEmpty(cardNumber)) {
                 DiscountCardJdo existingCard = discountCardServiceSwingWrapper.getByNumber(cardNumber);
                 if (existingCard == null) {
                     discountCardJdo.setRegistrationDate(Calendar.getInstance());
