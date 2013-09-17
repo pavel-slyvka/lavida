@@ -389,6 +389,7 @@ public class ArticleFiltersComponent {
         double normalMultiplierSum = 0;
         double normalMultiplier = 0;
         double minimalMultiplier = 0;
+        double totalTransportCostEUR = 0;
         int viewRows = sorter.getViewRowCount();
         List<ArticleJdo> selectedArticles = new ArrayList<ArticleJdo>();
         for (int i = 0; i < viewRows; i++) {
@@ -401,6 +402,7 @@ public class ArticleFiltersComponent {
             for (ArticleJdo articleJdo : selectedArticles) {
                 ++totalCount;
                 totalPurchaseCostEUR += articleJdo.getPurchasePriceEUR();
+                totalTransportCostEUR += articleJdo.getTransportCostEUR();
                 totalCostEUR += articleJdo.getTotalCostEUR();
                 totalCostUAH += articleJdo.getTotalCostUAH();
                 totalPriceUAH += (articleJdo.getSalePrice());
@@ -413,7 +415,7 @@ public class ArticleFiltersComponent {
         }
 
         articleAnalyzeComponent.updateFields(totalCount, totalPurchaseCostEUR, totalCostEUR, totalCostUAH,
-                minimalMultiplier, normalMultiplier, totalPriceUAH);
+                minimalMultiplier, normalMultiplier, totalPriceUAH, totalTransportCostEUR);
     }
 
     class FilterElementsListener implements DocumentListener {

@@ -31,17 +31,16 @@ public class ArticleAnalyzeComponent {
     private MessageSource messageSource;
     private LocaleHolder localeHolder;
 
-    private JPanel analyzePanel, totalCountPanel, totalOriginalCostPanel, totalPricePanel;
+    private JPanel analyzePanel;
     private JLabel totalCountLabel, totalCountField, totalCostEURLabel, totalCostEURField,
             totalPriceLabel, totalPriceField, totalPurchaseCostEURLabel, totalPurchaseCostEURField,
             totalCostUAHLabel, totalCostUAHField, minimalMultiplierLabel, minimalMultiplierField,
-            normalMultiplierLabel, normalMultiplierField;
+            normalMultiplierLabel, normalMultiplierField, totalTransportCostEURLabel, totalTransportCostEURField;
 
     public void initializeComponents(ArticlesTableModel articlesTableModel, MessageSource messageSource, LocaleHolder localeHolder) {
         this.tableModel = articlesTableModel;
         this.messageSource = messageSource;
         this.localeHolder = localeHolder;
-
 
 //        panel for analyzing total cost, price, count of products etc., shown in the table
         Border fieldsBorder = BorderFactory.createBevelBorder(BevelBorder.LOWERED);
@@ -137,22 +136,49 @@ public class ArticleAnalyzeComponent {
         minimalMultiplierLabel = new JLabel();
         minimalMultiplierLabel.setBorder(BorderFactory.createEmptyBorder());
         minimalMultiplierLabel.setText(messageSource.getMessage("component.article.analyze.label.multiplier.minimal",
-                 null, localeHolder.getLocale()));
+                null, localeHolder.getLocale()));
         minimalMultiplierLabel.setLabelFor(minimalMultiplierField);
-        constraints.fill = GridBagConstraints.NONE;
-        constraints.gridwidth = GridBagConstraints.RELATIVE;
-        constraints.anchor = GridBagConstraints.EAST;
-        constraints.weightx = 0.0;
-        analyzePanel.add(minimalMultiplierLabel, constraints);
 
         minimalMultiplierField = new JLabel();
         minimalMultiplierField.setBorder(fieldsBorder);
         minimalMultiplierField.setText(roundTwoDecimals(tableModel.getMinimalMultiplier()));
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.gridwidth = GridBagConstraints.REMAINDER;
-        constraints.anchor = GridBagConstraints.EAST;
-        constraints.weightx = 1.0;
-        analyzePanel.add(minimalMultiplierField, constraints);
+
+        totalTransportCostEURLabel = new JLabel();
+        totalTransportCostEURLabel.setBorder(BorderFactory.createEmptyBorder());
+        totalTransportCostEURLabel.setText(messageSource.getMessage("component.article.analyze.label.total.cost.transport.EUR",
+                null, localeHolder.getLocale()));
+        totalTransportCostEURLabel.setLabelFor(totalTransportCostEURField);
+
+        totalTransportCostEURField = new JLabel();
+        totalTransportCostEURField.setBorder(fieldsBorder);
+        totalTransportCostEURField.setText(roundTwoDecimals(tableModel.getTotalTransportCostEUR()));
+
+        if (tableModel.getQueryName() != null) {
+            constraints.fill = GridBagConstraints.NONE;
+            constraints.gridwidth = GridBagConstraints.RELATIVE;
+            constraints.anchor = GridBagConstraints.EAST;
+            constraints.weightx = 0.0;
+            analyzePanel.add(minimalMultiplierLabel, constraints);
+
+            constraints.fill = GridBagConstraints.HORIZONTAL;
+            constraints.gridwidth = GridBagConstraints.REMAINDER;
+            constraints.anchor = GridBagConstraints.EAST;
+            constraints.weightx = 1.0;
+            analyzePanel.add(minimalMultiplierField, constraints);
+        } else {
+            constraints.fill = GridBagConstraints.NONE;
+            constraints.gridwidth = GridBagConstraints.RELATIVE;
+            constraints.anchor = GridBagConstraints.EAST;
+            constraints.weightx = 0.0;
+            analyzePanel.add(totalTransportCostEURLabel, constraints);
+
+            constraints.fill = GridBagConstraints.HORIZONTAL;
+            constraints.gridwidth = GridBagConstraints.REMAINDER;
+            constraints.anchor = GridBagConstraints.EAST;
+            constraints.weightx = 1.0;
+            analyzePanel.add(totalTransportCostEURField, constraints);
+
+        }
 
         normalMultiplierLabel = new JLabel();
         normalMultiplierLabel.setBorder(BorderFactory.createEmptyBorder());
@@ -199,12 +225,12 @@ public class ArticleAnalyzeComponent {
     /**
      * Update fields ( totalCountField, totalCostEURField, totalPriceField) with inputted values.
      *
-     * @param totalCount int , total count of articles shown in the totalCountField;
-     * @param totalCostEUR  double, total original cost of articles shown in the totalCostEURField;
-     * @param totalPrice double, total price of articles shown in the totalPriceField.
+     * @param totalCount   int , total count of articles shown in the totalCountField;
+     * @param totalCostEUR double, total original cost of articles shown in the totalCostEURField;
+     * @param totalPrice   double, total price of articles shown in the totalPriceField.
      */
     public void updateFields(int totalCount, double totalPurchaseCostEUR, double totalCostEUR, double totalCostUAH,
-                             double minimalMultiplier, double normalMultiplier, double totalPrice) {
+                             double minimalMultiplier, double normalMultiplier, double totalPrice, double totalTransportCostEUR) {
         totalCountField.setText(String.valueOf(totalCount));
         totalPurchaseCostEURField.setText(roundTwoDecimals(totalPurchaseCostEUR));
         totalCostEURField.setText(roundTwoDecimals(totalCostEUR));
@@ -212,6 +238,7 @@ public class ArticleAnalyzeComponent {
         minimalMultiplierField.setText(roundTwoDecimals(minimalMultiplier));
         normalMultiplierField.setText(roundTwoDecimals(normalMultiplier));
         totalPriceField.setText(roundTwoDecimals(totalPrice));
+        totalTransportCostEURField.setText(roundTwoDecimals(totalTransportCostEUR));
     }
 
     /**
@@ -239,6 +266,8 @@ public class ArticleAnalyzeComponent {
             minimalMultiplierField.setVisible(false);
             normalMultiplierLabel.setVisible(false);
             normalMultiplierField.setVisible(false);
+            totalTransportCostEURField.setVisible(false);
+            totalTransportCostEURLabel.setVisible(false);
 
         }
 

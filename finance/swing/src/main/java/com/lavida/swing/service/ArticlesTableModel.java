@@ -40,7 +40,8 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
     private Map<Integer, SimpleDateFormat> columnIndexToDateFormat;
     private ArticleJdo selectedArticle;
     private int totalCountArticles;
-    private double totalPurchaseCostEUR, totalCostEUR, totalPriceUAH, totalCostUAH, minimalMultiplier, normalMultiplier;
+    private double totalPurchaseCostEUR, totalCostEUR, totalPriceUAH, totalCostUAH, minimalMultiplier, normalMultiplier,
+            totalTransportCostEUR;
     private String sellerName;
 
     @Resource
@@ -273,6 +274,7 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
         double normalMultiplierSum = 0;
         double normalMultiplier = 0;
         double minimalMultiplier = 0;
+        double totalTransportCostEUR = 0;
 
         List<ArticleJdo> articleJdoList = getTableData();
         if (articleJdoList.size() > 0) {
@@ -280,6 +282,7 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
             for (ArticleJdo articleJdo : articleJdoList) {
                 ++totalCount;
                 totalPurchaseCostEUR += articleJdo.getPurchasePriceEUR();
+                totalTransportCostEUR += articleJdo.getTransportCostEUR();
                 totalCostEUR += articleJdo.getTotalCostEUR();
                 totalCostUAH += articleJdo.getTotalCostUAH();
                 totalPrice += (articleJdo.getSalePrice());
@@ -298,6 +301,7 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
         this.totalCostUAH = totalCostUAH;
         this.minimalMultiplier = minimalMultiplier;
         this.normalMultiplier = normalMultiplier;
+        this.totalTransportCostEUR = totalTransportCostEUR;
     }
 
 
@@ -681,5 +685,13 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
 
     public double getNormalMultiplier() {
         return normalMultiplier;
+    }
+
+    public double getTotalTransportCostEUR() {
+        return totalTransportCostEUR;
+    }
+
+    public String getQueryName() {
+        return queryName;
     }
 }
