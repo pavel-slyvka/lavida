@@ -53,11 +53,24 @@ public abstract class AbstractDialog implements MessageSourceAware {
 
     protected abstract void initializeComponents();
 
-    public void showMessage(String titleKey, String messageKey) {
+    public void showWarningMessage(String titleKey, String messageKey) {
         JOptionPane.showMessageDialog(dialog,
                 messageSource.getMessage(messageKey, null, localeHolder.getLocale()),
                 messageSource.getMessage(titleKey, null, localeHolder.getLocale()),
                 JOptionPane.WARNING_MESSAGE);
+    }
+//    public void showWarningMessage(String titleKey, String messageKey) {
+//        JOptionPane.showMessageDialog(form,
+//                messageSource.getMessage(messageKey, null, localeHolder.getLocale()),
+//                messageSource.getMessage(titleKey, null, localeHolder.getLocale()),
+//                JOptionPane.WARNING_MESSAGE);
+//    }
+
+    public void showInformationMessage(String titleKey, String messageBody) {
+        JOptionPane.showMessageDialog(dialog, messageBody,
+                messageSource.getMessage(titleKey, null, localeHolder.getLocale()),
+                JOptionPane.INFORMATION_MESSAGE);
+
     }
 
     /**

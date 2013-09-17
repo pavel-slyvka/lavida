@@ -32,6 +32,10 @@ public class AddNewProductsDialog extends AbstractDialog {
             buttonPanel;
     private JButton addRowButton, deleteRowButton, acceptProductsButton, cancelButton, copyRowButton;
     private JLabel errorMessage;
+    private JMenuBar menuBar;
+    private JMenu fileMenu;
+    private JMenuItem printItem;
+
 
     @Override
     protected void initializeForm() {
@@ -51,6 +55,9 @@ public class AddNewProductsDialog extends AbstractDialog {
         desktopPanel = new JPanel();
         desktopPanel.setLayout(new BorderLayout());
         desktopPanel.setBorder(BorderFactory.createEmptyBorder());
+
+        initializeMenuBar();
+        dialog.setJMenuBar(menuBar);
 
         articleTableComponent.initializeComponents(tableModel, messageSource, localeHolder);
 
@@ -204,6 +211,26 @@ public class AddNewProductsDialog extends AbstractDialog {
         buttons.add(cancelButton);
         buttonPanel.add(buttons);
         rootContainer.add(buttonPanel, BorderLayout.SOUTH);
+    }
+
+    private void initializeMenuBar() {
+        menuBar = new JMenuBar();
+
+        fileMenu = new JMenu();
+        fileMenu.setText(messageSource.getMessage("mainForm.menu.file", null, localeHolder.getLocale()));
+
+        printItem = new JMenuItem();
+        printItem.setText(messageSource.getMessage("mainForm.menu.file.print", null, localeHolder.getLocale()));
+        printItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handler.printItemClicked();
+            }
+        });
+
+        fileMenu.add(printItem);
+
+        menuBar.add(fileMenu);
     }
 
 

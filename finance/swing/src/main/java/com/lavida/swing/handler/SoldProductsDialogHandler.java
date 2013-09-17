@@ -5,10 +5,15 @@ import com.lavida.swing.dialog.RefundDialog;
 import com.lavida.swing.dialog.SoldProductsDialog;
 import com.lavida.swing.form.component.FilterUnit;
 import com.lavida.swing.service.ArticlesTableModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import javax.swing.*;
+import java.awt.print.PrinterException;
+import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
@@ -21,9 +26,10 @@ import java.util.List;
  */
 @Component
 public class SoldProductsDialogHandler {
+    private static final Logger logger = LoggerFactory.getLogger(SoldProductsDialogHandler.class);
 
     @Resource
-    private SoldProductsDialog soldProductsDialog;
+    private SoldProductsDialog dialog;
 
     @Resource
     private RefundDialog refundDialog;
@@ -46,7 +52,7 @@ public class SoldProductsDialogHandler {
             refundDialog.show();
 
         } else {
-            soldProductsDialog.showMessage("mainForm.exception.message.dialog.title", "mainForm.handler.sold.article.not.chosen");
+            dialog.showWarningMessage("mainForm.exception.message.dialog.title", "mainForm.handler.sold.article.not.chosen");
         }
     }
 
@@ -54,7 +60,7 @@ public class SoldProductsDialogHandler {
      * Handles the CancelButton clicking.
      */
     public void cancelButtonClicked() {
-        soldProductsDialog.getDialog().setVisible(false);
+        dialog.getDialog().setVisible(false);
     }
 
     /**
@@ -63,7 +69,7 @@ public class SoldProductsDialogHandler {
     public void currentDateCheckBoxSelected() {
         String currentDate = new SimpleDateFormat("dd.MM.yyyy").format(Calendar.getInstance().getTime());
 
-        List<FilterUnit> filters = soldProductsDialog.getArticleTableComponent().
+        List<FilterUnit> filters = dialog.getArticleTableComponent().
                 getArticleFiltersComponent().getFilters();
         for (FilterUnit filterUnit : filters) {
             if (messageSource.getMessage("mainForm.table.articles.column.sell.date.title", null, localeHolder.getLocale()).
@@ -77,13 +83,36 @@ public class SoldProductsDialogHandler {
      * Handles the CurrentDateCheckBox deselecting.
      */
     public void currentDateCheckBoxDeSelected() {
-        List<FilterUnit> filters = soldProductsDialog.getArticleTableComponent().
+        List<FilterUnit> filters = dialog.getArticleTableComponent().
                 getArticleFiltersComponent().getFilters();
         for (FilterUnit filterUnit : filters) {
             if (messageSource.getMessage("mainForm.table.articles.column.sell.date.title", null, localeHolder.getLocale()).
                     equalsIgnoreCase(filterUnit.columnTitle)) {
                 filterUnit.textField.setText("");
             }
+        }
+    }
+
+    public void printItemClicked() {
+        MessageFormat header = new MessageFormat(messageSource.getMessage("dialog.sold.menu.file.print.header", null, localeHolder.getLocale()));
+        MessageFormat footer = new MessageFormat(messageSource.getMessage("mainForm.menu.file.print.footer", null, localeHolder.getLocale()));
+        boolean fitPageWidth = true;
+        boolean showPrintDialog = true;
+        boolean interactive = true;
+        JTable.PrintMode printMode = fitPageWidth ? JTable.PrintMode.FIT_WIDTH : JTable.PrintMode.NORMAL;
+        try {
+            boolean complete = dialog.getArticleTableComponent().getArticlesTable().print(printMode, header, footer,
+                    showPrintDialog, null, interactive, null);
+            if (complete) {
+                dialog.showInformationMessage("mainForm.menu.file.print.message.title",
+                        messageSource.getMessage("mainForm.menu.file.print.finished.message.body", null, localeHolder.getLocale()));
+            } else {
+                dialog.showInformationMessage("mainForm.menu.file.print.message.title",
+                        messageSource.getMessage("mainForm.menu.file.print.cancel.message.body", null, localeHolder.getLocale()));
+            }
+        } catch (PrinterException e) {
+            logger.warn(e.getMessage(), e);
+            dialog.showWarningMessage("mainForm.exception.message.dialog.title", "mainForm.handler.print.exception.message");
         }
     }
 

@@ -25,9 +25,11 @@ import javax.annotation.Resource;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.xml.bind.JAXBException;
+import java.awt.print.PrinterException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -153,7 +155,7 @@ public class MainFormHandler {
         messageBuilder.append(discountCardsUpdateInfo.getDeletedCount());
         messageBuilder.append(". \n");
 
-        form.showMessageBox("mainForm.panel.refresh.message.title", new String(messageBuilder));
+        form.showInformationMessage("mainForm.panel.refresh.message.title", new String(messageBuilder));
     }
 
     public void sellButtonClicked() {
@@ -162,7 +164,7 @@ public class MainFormHandler {
             sellDialog.show();
 
         } else {
-            form.showMessage("mainForm.exception.message.dialog.title", "mainForm.handler.sold.article.not.chosen");
+            form.showWarningMessage("mainForm.exception.message.dialog.title", "mainForm.handler.sold.article.not.chosen");
         }
     }
 
@@ -183,11 +185,11 @@ public class MainFormHandler {
                     articleServiceSwingWrapper.update(articleJdo);
                 } catch (IOException e) {
                     logger.warn(e.getMessage(), e);
-                    form.showMessage("mainForm.exception.message.dialog.title", "sellDialog.handler.sold.article.not.saved.to.worksheet");
+                    form.showWarningMessage("mainForm.exception.message.dialog.title", "sellDialog.handler.sold.article.not.saved.to.worksheet");
                     throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.GOOGLE_IO_EXCEPTION, e, form);
                 } catch (ServiceException e) {
                     logger.warn(e.getMessage(), e);
-                    form.showMessage("mainForm.exception.message.dialog.title", "sellDialog.handler.sold.article.not.saved.to.worksheet");
+                    form.showWarningMessage("mainForm.exception.message.dialog.title", "sellDialog.handler.sold.article.not.saved.to.worksheet");
                     throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.GOOGLE_SERVICE_EXCEPTION, e, form);
                 }
             }
@@ -278,10 +280,10 @@ public class MainFormHandler {
             postponedXmlService.marshal(postponedType, file);
         } catch (JAXBException e) {
             logger.warn(e.getMessage(), e);
-            form.showMessage("mainForm.exception.message.dialog.title", "mainForm.exception.xml.JAXB.message");
+            form.showWarningMessage("mainForm.exception.message.dialog.title", "mainForm.exception.xml.JAXB.message");
         } catch (IOException e) {
             logger.warn(e.getMessage(), e);
-            form.showMessage("mainForm.exception.message.dialog.title", "mainForm.exception.io.xml.file");
+            form.showWarningMessage("mainForm.exception.message.dialog.title", "mainForm.exception.io.xml.file");
         }
     }
 
@@ -434,11 +436,11 @@ public class MainFormHandler {
             postponedType = postponedXmlService.unmarshal(file);
         } catch (JAXBException e) {
             e.printStackTrace();
-            form.showMessage("mainForm.exception.message.dialog.title", "mainForm.exception.xml.JAXB.message");
+            form.showWarningMessage("mainForm.exception.message.dialog.title", "mainForm.exception.xml.JAXB.message");
             return;
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-            form.showMessage("mainForm.exception.message.dialog.title", "mainForm.exception.io.xml.file");
+            form.showWarningMessage("mainForm.exception.message.dialog.title", "mainForm.exception.io.xml.file");
             return;
         }
         loadedArticles = postponedType.getArticles();
@@ -450,7 +452,7 @@ public class MainFormHandler {
             }
             showPostponedOperationsMessage();
         } else {
-            form.showMessage("mainForm.attention.message.dialog.title", "mainForm.handler.postponed.articles.not.exist.message");
+            form.showWarningMessage("mainForm.attention.message.dialog.title", "mainForm.handler.postponed.articles.not.exist.message");
         }
         if (loadedDiscountCards.size() > 0) {
             List<DiscountCardJdo> forUpdateDiscountCards = discountCardServiceSwingWrapper.mergePostponedWithDatabase(loadedDiscountCards);
@@ -459,7 +461,7 @@ public class MainFormHandler {
             }
             showPostponedOperationsMessage();
         } else {
-            form.showMessage("mainForm.attention.message.dialog.title", "mainForm.handler.postponed.discountCards.not.exist.message");
+            form.showWarningMessage("mainForm.attention.message.dialog.title", "mainForm.handler.postponed.discountCards.not.exist.message");
         }
     }
 
@@ -484,5 +486,28 @@ public class MainFormHandler {
 
     public void allDiscountCardsItemClicked() {
         allDiscountCardsDialog.show();
+    }
+
+    public void printItemClicked() {
+        MessageFormat header = new MessageFormat(messageSource.getMessage("mainForm.menu.file.print.header", null, localeHolder.getLocale()));
+        MessageFormat footer = new MessageFormat(messageSource.getMessage("mainForm.menu.file.print.footer", null, localeHolder.getLocale()));
+        boolean fitPageWidth = true;
+        boolean showPrintDialog = true;
+        boolean interactive = true;
+        JTable.PrintMode printMode = fitPageWidth ? JTable.PrintMode.FIT_WIDTH : JTable.PrintMode.NORMAL;
+        try {
+            boolean complete = form.getArticleTableComponent().getArticlesTable().print(printMode, header, footer,
+                    showPrintDialog, null, interactive, null);
+            if (complete) {
+                form.showInformationMessage("mainForm.menu.file.print.message.title",
+                        messageSource.getMessage("mainForm.menu.file.print.finished.message.body", null, localeHolder.getLocale()));
+            } else {
+                form.showInformationMessage("mainForm.menu.file.print.message.title",
+                        messageSource.getMessage("mainForm.menu.file.print.cancel.message.body", null, localeHolder.getLocale()));
+            }
+        } catch (PrinterException e) {
+            logger.warn(e.getMessage(), e);
+            form.showWarningMessage("mainForm.exception.message.dialog.title", "mainForm.handler.print.exception.message");
+        }
     }
 }

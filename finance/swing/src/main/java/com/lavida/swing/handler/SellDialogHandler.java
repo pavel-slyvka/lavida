@@ -58,7 +58,7 @@ public class SellDialogHandler {
     public void sellButtonClicked(ArticleJdo articleJdo) {
         if (dialog.getCommentTextField().getText().trim().isEmpty() && (dialog.getOursCheckBox().isSelected() ||
                 dialog.getPresentCheckBox().isSelected())) {
-            dialog.showMessage("mainForm.exception.message.dialog.title", "sellDialog.handler.ours.comment.not.entered");
+            dialog.showWarningMessage("mainForm.exception.message.dialog.title", "sellDialog.handler.ours.comment.not.entered");
             dialog.getCommentTextField().requestFocusInWindow();
             dialog.getMainForm().update();
             return;
@@ -85,13 +85,13 @@ public class SellDialogHandler {
                     discountCardServiceSwingWrapper.update(discountCardJdo);
                     dialog.getDiscountCardNumberTextField().setText("");
                 } else {
-                    dialog.showMessage("mainForm.exception.message.dialog.title", "sellDialog.handler.discountCard.isNot.active");
+                    dialog.showWarningMessage("mainForm.exception.message.dialog.title", "sellDialog.handler.discountCard.isNot.active");
                     dialog.getDiscountCardNumberTextField().setText("");
                     dialog.getDiscountCardNumberTextField().requestFocusInWindow();
                     return;
                 }
             } else {
-                dialog.showMessage("mainForm.exception.message.dialog.title", "dialog.sell.handler.discount.card.number.not.exists.message");
+                dialog.showWarningMessage("mainForm.exception.message.dialog.title", "dialog.sell.handler.discount.card.number.not.exists.message");
                 dialog.getDiscountCardNumberTextField().setText("");
                 dialog.getDiscountCardNumberTextField().requestFocusInWindow();
                 return;
@@ -106,7 +106,7 @@ public class SellDialogHandler {
             saleDateCalendar.setTime(saleDate);
         } catch (ParseException e) {
             e.printStackTrace();
-            dialog.showMessage("mainForm.exception.message.dialog.title", "sellDialog.handler.saleDate.not.correct.format");
+            dialog.showWarningMessage("mainForm.exception.message.dialog.title", "sellDialog.handler.saleDate.not.correct.format");
             dialog.hide();
             dialog.getMainForm().getTableModel().setSelectedArticle(null);
             dialog.getMainForm().update();
@@ -155,7 +155,7 @@ public class SellDialogHandler {
             articleJdo.setPostponedOperationDate(new Date());
             articleServiceSwingWrapper.update(articleJdo);
             dialog.hide();
-            dialog.showMessage("mainForm.exception.message.dialog.title", "sellDialog.handler.sold.article.not.saved.to.worksheet");
+            dialog.showWarningMessage("mainForm.exception.message.dialog.title", "sellDialog.handler.sold.article.not.saved.to.worksheet");
             dialog.getMainForm().getHandler().showPostponedOperationsMessage();
             dialog.getMainForm().getTableModel().setSelectedArticle(null);
             dialog.getMainForm().update();
@@ -204,19 +204,19 @@ public class SellDialogHandler {
         if (!cardNumber.matches("[0-9]")) {
             dialog.getDiscountCardNumberTextField().setText("");
             dialog.getDiscountCardNumberTextField().requestFocusInWindow();
-            dialog.showMessage("mainForm.exception.message.dialog.title", "dialog.sell.handler.discount.card.number.not.correct.message");
+            dialog.showWarningMessage("mainForm.exception.message.dialog.title", "dialog.sell.handler.discount.card.number.not.correct.message");
             return;
         }
         DiscountCardJdo discountCardJdo = discountCardServiceSwingWrapper.getByNumber(cardNumber);
         if (discountCardJdo != null) {
             if (discountCardJdo.getActivationDate() == null) {
-                dialog.showMessage("mainForm.exception.message.dialog.title", "sellDialog.handler.discountCard.isNot.active");
+                dialog.showWarningMessage("mainForm.exception.message.dialog.title", "sellDialog.handler.discountCard.isNot.active");
                 dialog.getDiscountCardNumberTextField().setText("");
                 dialog.getDiscountCardNumberTextField().requestFocusInWindow();
                 return;
             }
         } else {
-            dialog.showMessage("mainForm.exception.message.dialog.title", "dialog.sell.handler.discount.card.number.not.exists.message");
+            dialog.showWarningMessage("mainForm.exception.message.dialog.title", "dialog.sell.handler.discount.card.number.not.exists.message");
             dialog.getDiscountCardNumberTextField().setText("");
             dialog.getDiscountCardNumberTextField().requestFocusInWindow();
             return;

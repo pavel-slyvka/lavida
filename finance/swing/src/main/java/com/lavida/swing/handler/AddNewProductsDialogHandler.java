@@ -11,7 +11,10 @@ import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import javax.swing.*;
+import java.awt.print.PrinterException;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -47,7 +50,7 @@ public class AddNewProductsDialogHandler {
         articleJdo.setShop(messageSource.getMessage("sellDialog.text.field.shop.LaVida", null, localeHolder.getLocale()));
         if (dialog.getTableModel().getTableData().size() > 0) {
             if (dialog.getTableModel().getTableData().get(0).getDeliveryDate() == null) {
-                dialog.showMessage("mainForm.exception.message.dialog.title", "dialog.add.new.product.deliveryDate.not.filled.message");
+                dialog.showWarningMessage("mainForm.exception.message.dialog.title", "dialog.add.new.product.deliveryDate.not.filled.message");
                 return;
             } else {
                 articleJdo.setDeliveryDate(dialog.getTableModel().getTableData().get(0).getDeliveryDate());
@@ -82,7 +85,7 @@ public class AddNewProductsDialogHandler {
             ArticleJdo newArticle = newArticles.get(0);
             if (newArticle.getCode().isEmpty() || newArticle.getDeliveryDate() == null
                     || newArticle.getTotalCostUAH() == 0 || newArticle.getSalePrice() == -1.0) {
-                dialog.showMessage("mainForm.exception.message.dialog.title", "dialog.add.new.product.code.deliveryDate.totalCostUAH.not.filled.message");
+                dialog.showWarningMessage("mainForm.exception.message.dialog.title", "dialog.add.new.product.code.deliveryDate.totalCostUAH.not.filled.message");
                 dialog.getTableModel().fireTableDataChanged();
                 dialog.getArticleTableComponent().getArticleFiltersComponent().updateAnalyzeComponent();
                 return;
@@ -111,6 +114,30 @@ public class AddNewProductsDialogHandler {
         }
         dialog.getTableModel().getTableData().add(copiedArticle);
         dialog.getTableModel().fireTableDataChanged();
+
+    }
+
+    public void printItemClicked() {
+        MessageFormat header = new MessageFormat(messageSource.getMessage("dialog.add.new.products.menu.file.print.header", null, localeHolder.getLocale()));
+        MessageFormat footer = new MessageFormat(messageSource.getMessage("mainForm.menu.file.print.footer", null, localeHolder.getLocale()));
+        boolean fitPageWidth = true;
+        boolean showPrintDialog = true;
+        boolean interactive = true;
+        JTable.PrintMode printMode = fitPageWidth ? JTable.PrintMode.FIT_WIDTH : JTable.PrintMode.NORMAL;
+        try {
+            boolean complete = dialog.getArticleTableComponent().getArticlesTable().print(printMode, header, footer,
+                    showPrintDialog, null, interactive, null);
+            if (complete) {
+                dialog.showInformationMessage("mainForm.menu.file.print.message.title",
+                        messageSource.getMessage("mainForm.menu.file.print.finished.message.body", null, localeHolder.getLocale()));
+            } else {
+                dialog.showInformationMessage("mainForm.menu.file.print.message.title",
+                        messageSource.getMessage("mainForm.menu.file.print.cancel.message.body", null, localeHolder.getLocale()));
+            }
+        } catch (PrinterException e) {
+            logger.warn(e.getMessage(), e);
+            dialog.showWarningMessage("mainForm.exception.message.dialog.title", "mainForm.handler.print.exception.message");
+        }
 
     }
 }

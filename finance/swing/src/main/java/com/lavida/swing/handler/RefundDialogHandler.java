@@ -33,7 +33,7 @@ public class RefundDialogHandler {
      */
     public void refundButtonClicked (ArticleJdo articleJdo){
         if (refundDialog.getCommentTextField().getText().trim().isEmpty()) {
-            refundDialog.showMessage("mainForm.exception.message.dialog.title", "refundDialog.handler.comment.not.entered");
+            refundDialog.showWarningMessage("mainForm.exception.message.dialog.title", "refundDialog.handler.comment.not.entered");
             refundDialog.getCommentTextField().requestFocusInWindow();
             return;
         }
@@ -58,7 +58,7 @@ public class RefundDialogHandler {
             refundDialog.getSoldProductsDialog().getTableModel().setSelectedArticle(null);
             refundDialog.getMainForm().update();
             refundDialog.getMainForm().getHandler().showPostponedOperationsMessage();
-            refundDialog.showMessage("mainForm.exception.message.dialog.title", "sellDialog.handler.sold.article.not.saved.to.worksheet");
+            refundDialog.showWarningMessage("mainForm.exception.message.dialog.title", "sellDialog.handler.sold.article.not.saved.to.worksheet");
             refundDialog.getSoldProductsDialog().getDialog().repaint();
             return;
         }

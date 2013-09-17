@@ -2,15 +2,20 @@ package com.lavida.swing.handler;
 
 import com.google.gdata.util.ServiceException;
 import com.lavida.service.entity.DiscountCardJdo;
+import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.dialog.AddNewDiscountCardsDialog;
 import com.lavida.swing.service.DiscountCardServiceSwingWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
+import javax.swing.*;
+import java.awt.print.PrinterException;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -31,6 +36,11 @@ public class AddNewDiscountCardsDialogHandler {
     @Resource
     private DiscountCardServiceSwingWrapper discountCardServiceSwingWrapper;
 
+    @Resource
+    protected MessageSource messageSource;
+
+    @Resource
+    protected LocaleHolder localeHolder;
 
     public void cancelButtonClicked() {
         dialog.getTableModel().setSelectedCard(null);
@@ -82,14 +92,14 @@ public class AddNewDiscountCardsDialogHandler {
                     discountCardServiceSwingWrapper.save(discountCardJdo);
                 } else {
                     discountCardJdo.setNumber(null);
-                    dialog.showMessage("mainForm.exception.message.dialog.title", "dialog.sell.handler.discount.card.number.exists.message");
+                    dialog.showWarningMessage("mainForm.exception.message.dialog.title", "dialog.sell.handler.discount.card.number.exists.message");
                     dialog.getTableModel().fireTableDataChanged();
                     dialog.getCardTableComponent().getCardFiltersComponent().updateAnalyzeComponent();
                     return;
                 }
             } else {
                 discountCardJdo.setNumber(null);
-                dialog.showMessage("mainForm.exception.message.dialog.title", "dialog.sell.handler.discount.card.number.enter.message");
+                dialog.showWarningMessage("mainForm.exception.message.dialog.title", "dialog.sell.handler.discount.card.number.enter.message");
                 dialog.getTableModel().fireTableDataChanged();
                 dialog.getCardTableComponent().getCardFiltersComponent().updateAnalyzeComponent();
                 return;
@@ -98,5 +108,30 @@ public class AddNewDiscountCardsDialogHandler {
         }
         dialog.getTableModel().fireTableDataChanged();
         dialog.getCardTableComponent().getCardFiltersComponent().updateAnalyzeComponent();
+    }
+
+    public void printItemClicked() {
+        MessageFormat header = new MessageFormat(messageSource.getMessage("dialog.discounts.card.menu.file.print.header", null, localeHolder.getLocale()));
+        MessageFormat footer = new MessageFormat(messageSource.getMessage("mainForm.menu.file.print.footer", null, localeHolder.getLocale()));
+        boolean fitPageWidth = true;
+        boolean showPrintDialog = true;
+        boolean interactive = true;
+        JTable.PrintMode printMode = fitPageWidth ? JTable.PrintMode.FIT_WIDTH : JTable.PrintMode.NORMAL;
+        try {
+            boolean complete = dialog.getCardTableComponent().getDiscountCardsTable().print(printMode, header, footer,
+                    showPrintDialog, null, interactive, null);
+            if (complete) {
+                dialog.showInformationMessage("mainForm.menu.file.print.message.title",
+                        messageSource.getMessage("mainForm.menu.file.print.finished.message.body", null, localeHolder.getLocale()));
+            } else {
+                dialog.showInformationMessage("mainForm.menu.file.print.message.title",
+                        messageSource.getMessage("mainForm.menu.file.print.cancel.message.body", null, localeHolder.getLocale()));
+            }
+        } catch (PrinterException e) {
+            logger.warn(e.getMessage(), e);
+            dialog.showWarningMessage("mainForm.exception.message.dialog.title", "mainForm.handler.print.exception.message");
+        }
+
+
     }
 }

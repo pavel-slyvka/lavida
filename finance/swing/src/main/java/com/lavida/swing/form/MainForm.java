@@ -55,9 +55,9 @@ public class MainForm extends AbstractForm {
     private Button refreshButton, sellButton, showSoldProductsButton;
     private JLabel postponedOperations, postponedMessage, errorMessage;
     private JMenuBar menuBar;
-    private JMenu postponedMenu, productsMenu, settingsMenu, discountsMenu;
+    private JMenu postponedMenu, productsMenu, settingsMenu, discountsMenu, fileMenu;
     private JMenuItem savePostponedItem, loadPostponedItem, recommitPostponedItem, deletePostponedItem,
-            addNewProductsItem, articleColumnsViewItem, addNewDiscountCardItem, allDiscountCardsItem;
+            addNewProductsItem, articleColumnsViewItem, addNewDiscountCardItem, allDiscountCardsItem, printItem;
     private ArticleTableComponent articleTableComponent = new ArticleTableComponent();
 
     @Override
@@ -319,10 +319,26 @@ public class MainForm extends AbstractForm {
         });
         discountsMenu.add(allDiscountCardsItem);
 
+        fileMenu = new JMenu();
+        fileMenu.setText(messageSource.getMessage("mainForm.menu.file", null, localeHolder.getLocale()));
+
+        printItem = new JMenuItem();
+        printItem.setText(messageSource.getMessage("mainForm.menu.file.print", null, localeHolder.getLocale()));
+        printItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handler.printItemClicked();
+            }
+        });
+
+        fileMenu.add(printItem);
+
+
         menuBar.add(productsMenu);
         menuBar.add(discountsMenu);
         menuBar.add(settingsMenu);
         menuBar.add(postponedMenu);
+        menuBar.add(fileMenu);
 
     }
 

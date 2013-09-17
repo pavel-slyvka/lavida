@@ -2,15 +2,19 @@ package com.lavida.swing.handler;
 
 import com.google.gdata.util.ServiceException;
 import com.lavida.service.entity.DiscountCardJdo;
+import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.dialog.AllDiscountCardsDialog;
 import com.lavida.swing.service.DiscountCardServiceSwingWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import javax.swing.*;
+import java.awt.print.PrinterException;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -29,6 +33,12 @@ public class AllDiscountCardsDialogHandler {
 
     @Resource
     private DiscountCardServiceSwingWrapper discountCardServiceSwingWrapper;
+
+    @Resource
+    protected MessageSource messageSource;
+
+    @Resource
+    protected LocaleHolder localeHolder;
 
     public void activateButtonClicked() {
         if (dialog.getTableModel().getSelectedCard() != null) {
@@ -62,7 +72,7 @@ public class AllDiscountCardsDialogHandler {
                 }
             }
         } else {
-            dialog.showMessage("mainForm.exception.message.dialog.title", "dialog.discounts.allCards.not.chosen");
+            dialog.showWarningMessage("mainForm.exception.message.dialog.title", "dialog.discounts.allCards.not.chosen");
         }
     }
 
@@ -94,12 +104,37 @@ public class AllDiscountCardsDialogHandler {
                 }
             }
         } else {
-            dialog.showMessage("mainForm.exception.message.dialog.title", "dialog.discounts.allCards.not.chosen");
+            dialog.showWarningMessage("mainForm.exception.message.dialog.title", "dialog.discounts.allCards.not.chosen");
         }
     }
 
     public void cancelButtonClicked() {
         dialog.getTableModel().setSelectedCard(null);
         dialog.hide();
+    }
+
+    public void printItemClicked() {
+        MessageFormat header = new MessageFormat(messageSource.getMessage("dialog.discounts.card.all.menu.file.print.header", null, localeHolder.getLocale()));
+        MessageFormat footer = new MessageFormat(messageSource.getMessage("mainForm.menu.file.print.footer", null, localeHolder.getLocale()));
+        boolean fitPageWidth = true;
+        boolean showPrintDialog = true;
+        boolean interactive = true;
+        JTable.PrintMode printMode = fitPageWidth ? JTable.PrintMode.FIT_WIDTH : JTable.PrintMode.NORMAL;
+        try {
+            boolean complete = dialog.getCardTableComponent().getDiscountCardsTable().print(printMode, header, footer,
+                    showPrintDialog, null, interactive, null);
+            if (complete) {
+                dialog.showInformationMessage("mainForm.menu.file.print.message.title",
+                        messageSource.getMessage("mainForm.menu.file.print.finished.message.body", null, localeHolder.getLocale()));
+            } else {
+                dialog.showInformationMessage("mainForm.menu.file.print.message.title",
+                        messageSource.getMessage("mainForm.menu.file.print.cancel.message.body", null, localeHolder.getLocale()));
+            }
+        } catch (PrinterException e) {
+            logger.warn(e.getMessage(), e);
+            dialog.showWarningMessage("mainForm.exception.message.dialog.title", "mainForm.handler.print.exception.message");
+        }
+
+
     }
 }
