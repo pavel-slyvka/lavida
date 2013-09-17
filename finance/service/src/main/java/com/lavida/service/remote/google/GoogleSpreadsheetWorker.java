@@ -112,6 +112,9 @@ public class GoogleSpreadsheetWorker {
     }
 
     private SpreadsheetEntry getSpreadsheetByName(List spreadsheets, String spreadsheetName) {
+        if (spreadsheetName == null) {
+            throw new RuntimeException("Spreadsheet name is null!");
+        }
         for (Object spreadsheetObject : spreadsheets) {
             if (spreadsheetObject instanceof SpreadsheetEntry) {
                 SpreadsheetEntry spreadsheet = (SpreadsheetEntry) spreadsheetObject;
