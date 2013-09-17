@@ -4,6 +4,7 @@ import com.google.gdata.data.spreadsheet.Cell;
 import com.google.gdata.data.spreadsheet.CellEntry;
 import com.google.gdata.data.spreadsheet.CellFeed;
 import com.lavida.service.entity.ArticleJdo;
+import com.lavida.service.entity.DiscountCardJdo;
 import com.lavida.service.remote.SpreadsheetColumn;
 import com.lavida.service.utils.DateConverter;
 import org.slf4j.Logger;
@@ -88,6 +89,61 @@ public class GoogleCellsTransformer {
         return articleJdo;
     }
 
+    public DiscountCardJdo cellsToDicountCardJdo(List<Cell> cells, Map<Integer, String> headers) {
+        DiscountCardJdo discountCardJdo = new DiscountCardJdo();
+        if (!cells.isEmpty()) {
+            discountCardJdo.setSpreadsheetRow(cells.get(0).getRow());
+        }
+        for (Cell cell : cells) {
+            if (headers.containsKey(cell.getCol())) {
+                String header = headers.get(cell.getCol());
+                try {
+                    for (java.lang.reflect.Field field : DiscountCardJdo.class.getDeclaredFields()) {
+                        SpreadsheetColumn spreadsheetColumn = field.getAnnotation(SpreadsheetColumn.class);
+                        if (spreadsheetColumn != null && header.equals(spreadsheetColumn.column())) {
+                            String value = cell.getValue();
+                            field.setAccessible(true);
+                            if (int.class == field.getType()) {
+                                field.setInt(discountCardJdo, Integer.parseInt(value));
+                            } else if (boolean.class == field.getType()) {
+                                field.setBoolean(discountCardJdo, Boolean.parseBoolean(value));
+                            } else if (double.class == field.getType()) {
+                                field.setDouble(discountCardJdo, fixIfNeedAndParseDouble(value));
+                            } else if (char.class == field.getType()) {
+                                field.setChar(discountCardJdo, value.charAt(0));
+                            } else if (long.class == field.getType()) {
+                                field.setLong(discountCardJdo, Long.parseLong(value));
+                            } else if (Integer.class == field.getType()) {
+                                field.set(discountCardJdo, Integer.parseInt(value));
+                            } else if (Boolean.class == field.getType()) {
+                                field.set(discountCardJdo, Boolean.parseBoolean(value));
+                            } else if (Double.class == field.getType()) {
+                                field.set(discountCardJdo, fixIfNeedAndParseDouble(value));
+                            } else if (Character.class == field.getType()) {
+                                field.set(discountCardJdo, value.charAt(0));
+                            } else if (Long.class == field.getType()) {
+                                field.set(discountCardJdo, Long.parseLong(value));
+                            } else if (Calendar.class == field.getType()) {
+                                field.set(discountCardJdo, convertCellStringToCalendar(value));
+                            } else if (Date.class == field.getType()) {
+                                field.set(discountCardJdo, DateConverter.convertStringToDate(value));
+                            } else {
+                                field.set(discountCardJdo, value);
+                            }
+                            break;
+                        }
+                    }
+                } catch (IllegalAccessException e) {
+                    logger.warn(e.getMessage(), e);
+                } catch (ParseException e) {
+                    logger.warn(e.getMessage(), e);
+                }
+            }
+        }
+        return discountCardJdo;
+    }
+
+
     private Calendar convertCellStringToCalendar(String strDate) throws ParseException {
         Calendar cal = null;
 
@@ -144,7 +200,7 @@ public class GoogleCellsTransformer {
                         if (spreadsheetColumn.column().equals(googleHeader)) {
                             field.setAccessible(true);
                             String oldCellValue = oldCellEntry.getCell().getValue();
-                            String newCellValue = articleFieldValueToString(field.get(articleJdo), spreadsheetColumn);
+                            String newCellValue = fieldValueToString(field.get(articleJdo), spreadsheetColumn);
                             if (!oldCellValue.equals(newCellValue)) {
                                 cellEntriesForUpdate.add(new CellEntry(
                                         oldCellEntry.getCell().getRow(), oldCellEntry.getCell().getCol(), newCellValue));
@@ -155,7 +211,7 @@ public class GoogleCellsTransformer {
                     Integer cellCol = getHeaderColumnNumber(headers, spreadsheetColumn.column());
                     if (cellCol != null) {
                         field.setAccessible(true);
-                        String newCellValue = articleFieldValueToString(field.get(articleJdo), spreadsheetColumn);
+                        String newCellValue = fieldValueToString(field.get(articleJdo), spreadsheetColumn);
                         cellEntriesForUpdate.add(new CellEntry(articleJdo.getSpreadsheetRow(), cellCol, newCellValue));
                     } else {
                         logger.warn(String.format("Found SpreadsheetColumn '%s' which don't have a mapping in the spreadsheet!", spreadsheetColumn.column()));
@@ -169,7 +225,46 @@ public class GoogleCellsTransformer {
         }
     }
 
-    private String articleFieldValueToString(Object fieldValue, SpreadsheetColumn spreadsheetColumn) {
+    public List<CellEntry> discountCardToCellEntriesForUpdate(DiscountCardJdo discountCardJdo, Map<Integer, String> headers, CellFeed oldFeed) {
+        try {
+            List<CellEntry> cellEntriesForUpdate = new ArrayList<CellEntry>();
+            List<CellEntry> oldCellEntries = oldFeed.getEntries();
+            l:
+            for (Field field : DiscountCardJdo.class.getDeclaredFields()) {
+                SpreadsheetColumn spreadsheetColumn = field.getAnnotation(SpreadsheetColumn.class);
+                if (spreadsheetColumn != null) {
+                    for (CellEntry oldCellEntry : oldCellEntries) {
+                        String googleHeader = headers.get(oldCellEntry.getCell().getCol());
+                        if (spreadsheetColumn.column().equals(googleHeader)) {
+                            field.setAccessible(true);
+                            String oldCellValue = oldCellEntry.getCell().getValue();
+                            String newCellValue = fieldValueToString(field.get(discountCardJdo), spreadsheetColumn);
+                            if (!oldCellValue.equals(newCellValue)) {
+                                cellEntriesForUpdate.add(new CellEntry(
+                                        oldCellEntry.getCell().getRow(), oldCellEntry.getCell().getCol(), newCellValue));
+                            }
+                            continue l;
+                        }
+                    }
+                    Integer cellCol = getHeaderColumnNumber(headers, spreadsheetColumn.column());
+                    if (cellCol != null) {
+                        field.setAccessible(true);
+                        String newCellValue = fieldValueToString(field.get(discountCardJdo), spreadsheetColumn);
+                        cellEntriesForUpdate.add(new CellEntry(discountCardJdo.getSpreadsheetRow(), cellCol, newCellValue));
+                    } else {
+                        logger.warn(String.format("Found SpreadsheetColumn '%s' which don't have a mapping in the spreadsheet!", spreadsheetColumn.column()));
+                    }
+                }
+            }
+            return cellEntriesForUpdate;
+
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    private String fieldValueToString(Object fieldValue, SpreadsheetColumn spreadsheetColumn) {
         if (fieldValue == null) {
             return "";
         } else if (fieldValue instanceof Calendar) {

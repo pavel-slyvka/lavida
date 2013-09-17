@@ -1,5 +1,6 @@
 package com.lavida.swing.service;
 
+import com.google.gdata.util.ServiceException;
 import com.lavida.service.FiltersPurpose;
 import com.lavida.service.UserService;
 import com.lavida.service.ViewColumn;
@@ -15,6 +16,7 @@ import org.springframework.context.MessageSource;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.swing.table.AbstractTableModel;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.text.ParseException;
@@ -438,6 +440,12 @@ public class DiscountCardsTableModel extends AbstractTableModel implements Appli
      */
     private void updateTable(DiscountCardJdo discountCardJdo) {
         if (query != null) {
+            try {
+                discountCardServiceSwingWrapper.updateToSpreadsheet(discountCardJdo);
+            } catch (IOException | ServiceException e) {
+                logger.warn(e.getMessage(), e);
+                discountCardJdo.setPostponedDate(new Date());
+            }
             discountCardServiceSwingWrapper.update(discountCardJdo);
             tableData = discountCardServiceSwingWrapper.get(query);
         }

@@ -89,12 +89,12 @@ public class AddNewProductsDialogHandler {
             }
             try {
                 articleServiceSwingWrapper.updateToSpreadsheet(newArticle, null);
-                articleServiceSwingWrapper.update(newArticle);
             } catch (IOException | ServiceException e) {
                 logger.warn(e.getMessage(), e);
                 newArticle.setPostponedOperationDate(new Date());
-                articleServiceSwingWrapper.update(newArticle);
+                dialog.getMainForm().getHandler().showPostponedOperationsMessage();
             }
+            articleServiceSwingWrapper.update(newArticle);
             newArticles.remove(newArticle);
         }
         dialog.getTableModel().fireTableDataChanged();

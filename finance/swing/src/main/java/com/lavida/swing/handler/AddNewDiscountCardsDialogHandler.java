@@ -1,14 +1,19 @@
 package com.lavida.swing.handler;
 
+import com.google.gdata.util.ServiceException;
 import com.lavida.service.entity.DiscountCardJdo;
 import com.lavida.swing.dialog.AddNewDiscountCardsDialog;
 import com.lavida.swing.service.DiscountCardServiceSwingWrapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -18,6 +23,7 @@ import java.util.List;
  */
 @Component
 public class AddNewDiscountCardsDialogHandler {
+    private static final Logger logger = LoggerFactory.getLogger(AddNewDiscountCardsDialogHandler.class);
 
     @Resource
     private AddNewDiscountCardsDialog dialog;
@@ -66,6 +72,13 @@ public class AddNewDiscountCardsDialogHandler {
                 if (existingCard == null) {
                     discountCardJdo.setRegistrationDate(Calendar.getInstance());
                     discountCardJdo.setActivationDate(Calendar.getInstance());
+                    try {
+                        discountCardServiceSwingWrapper.updateToSpreadsheet(discountCardJdo);
+                    } catch (IOException | ServiceException e) {
+                        logger.warn(e.getMessage(), e);
+                        discountCardJdo.setPostponedDate(new Date());
+                        dialog.getMainForm().getHandler().showPostponedOperationsMessage();
+                    }
                     discountCardServiceSwingWrapper.save(discountCardJdo);
                 } else {
                     discountCardJdo.setNumber(null);

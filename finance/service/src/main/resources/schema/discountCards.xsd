@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<xs:schema xmlns:tns="http://www.xml.lavida.com/schema/discountCards.com"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           targetNamespace="http://www.xml.lavida.com/schema/discountCards.com" version="1.0">
+
+    <xs:element name="discountCards" type="tns:discountCardsType"/>
+    <xs:complexType name="discountCardsType">
+        <xs:sequence>
+            <xs:element maxOccurs="unbounded" minOccurs="0" name="discountCard" nillable="true" type="tns:discountCardType"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:element name="discountCard" type="tns:discountCardType"/>
+    <xs:complexType name="discountCardType">
+        <xs:sequence>
+            <xs:element name="id" type="xs:int"/>
+            <xs:element name="spreadsheetRow" type="xs:int"/>
+            <xs:element name="number" type="xs:string"/>
+            <xs:element name="name" type="xs:string"/>
+            <xs:element name="phone" type="xs:string"/>
+            <xs:element name="address" type="xs:string"/>
+            <xs:element name="eMail" type="xs:string"/>
+            <xs:element name="sumTotalUAH" type="xs:double"/>
+            <xs:element name="discountRate" type="xs:double"/>
+            <xs:element name="bonusUAH" type="xs:double"/>
+            <xs:element name="registrationDate" type="xs:date"/>
+            <xs:element name="activationDate" type="xs:date"/>
+            <xs:element name="postponedDate" type="xs:dateTime"/>
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema>

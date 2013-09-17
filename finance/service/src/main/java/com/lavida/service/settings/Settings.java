@@ -21,6 +21,12 @@ public class Settings {
     @SettingsMapping(value = "google.spreadsheet.worksheet", encrypted = true)
     private int worksheetNumber;
 
+    @SettingsMapping(value = "google.discount.spreadsheet.name", encrypted = true)
+    private String discountSpreadsheetName;
+
+    @SettingsMapping(value = "google.discount.spreadsheet.worksheet", encrypted = true)
+    private int discountWorksheetNumber;
+
     @SettingsMapping(value = "notification.email.address", encrypted = true)
     private String email;
 
@@ -75,6 +81,22 @@ public class Settings {
         this.emailPass = emailPass;
     }
 
+    public String getDiscountSpreadsheetName() {
+        return discountSpreadsheetName;
+    }
+
+    public void setDiscountSpreadsheetName(String discountSpreadsheetName) {
+        this.discountSpreadsheetName = discountSpreadsheetName;
+    }
+
+    public int getDiscountWorksheetNumber() {
+        return discountWorksheetNumber;
+    }
+
+    public void setDiscountWorksheetNumber(int discountWorksheetNumber) {
+        this.discountWorksheetNumber = discountWorksheetNumber;
+    }
+
     @Override
     public String toString() {
         return "Settings{" +
@@ -82,8 +104,10 @@ public class Settings {
                 ", remotePass='" + remotePass + '\'' +
                 ", spreadsheetName='" + spreadsheetName + '\'' +
                 ", worksheetNumber=" + worksheetNumber +
-                ", email=" + email +
-                ", emailPass=" + emailPass +
+                ", discountSpreadsheetName='" + discountSpreadsheetName + '\'' +
+                ", discountWorksheetNumber=" + discountWorksheetNumber +
+                ", email='" + email + '\'' +
+                ", emailPass='" + emailPass + '\'' +
                 '}';
     }
 }

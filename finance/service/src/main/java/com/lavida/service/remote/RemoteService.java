@@ -4,6 +4,7 @@ import com.google.gdata.data.spreadsheet.CellEntry;
 import com.google.gdata.data.spreadsheet.CellFeed;
 import com.google.gdata.util.ServiceException;
 import com.lavida.service.entity.ArticleJdo;
+import com.lavida.service.entity.DiscountCardJdo;
 import com.lavida.service.remote.google.GoogleCellEntriesIterator;
 import com.lavida.service.remote.google.GoogleCellsTransformer;
 import com.lavida.service.remote.google.GoogleSpreadsheetWorker;
@@ -35,7 +36,7 @@ public class RemoteService {
 
     public List<ArticleJdo> loadArticles() throws ServiceException, IOException {
         GoogleSpreadsheetWorker worker = new GoogleSpreadsheetWorker(settingsHolder.getSettings());
-        CellFeed cellFeed = worker.getWholeDocument();
+        CellFeed cellFeed = worker.getArticleWholeDocument();
 
         GoogleCellEntriesIterator cellEntriesIterator = new GoogleCellEntriesIterator(cellFeed.getEntries());
         Map<Integer, String> headers = cellsTransformer.cellsToColNumsAndItsValueMap(cellEntriesIterator.getNextLine());
@@ -49,17 +50,34 @@ public class RemoteService {
         return articles;
     }
 
+    public List<DiscountCardJdo> loadDiscountCards() throws ServiceException, IOException {
+        GoogleSpreadsheetWorker worker = new GoogleSpreadsheetWorker(settingsHolder.getSettings());
+        CellFeed cellFeed = worker.getDiscountCardsWholeDocument();
+
+        GoogleCellEntriesIterator cellEntriesIterator = new GoogleCellEntriesIterator(cellFeed.getEntries());
+        Map<Integer, String> headers = cellsTransformer.cellsToColNumsAndItsValueMap(cellEntriesIterator.getNextLine());
+        cellsTransformer.cellsToColNumsAndItsValueMap(cellEntriesIterator.getNextLine());   // header titles.
+
+        List<DiscountCardJdo> discountCardJdoList = new ArrayList<DiscountCardJdo>();
+        while (cellEntriesIterator.hasNext()) {
+            DiscountCardJdo discountCardJdo = cellsTransformer.cellsToDicountCardJdo(cellEntriesIterator.getNextLine(), headers);
+            discountCardJdoList.add(discountCardJdo);
+        }
+        return discountCardJdoList;
+    }
+
+
     public void updateArticleToRemote(ArticleJdo articleJdo, Boolean isSold) throws IOException, ServiceException {
         GoogleSpreadsheetWorker spreadsheetWorker = new GoogleSpreadsheetWorker(settingsHolder.getSettings());
 
         // take headers
-        CellFeed headersFeed = spreadsheetWorker.getRow(1);
+        CellFeed headersFeed = spreadsheetWorker.getArticleRow(1);
         GoogleCellEntriesIterator cellEntriesIterator = new GoogleCellEntriesIterator(headersFeed.getEntries());
         Map<Integer, String> headers = cellsTransformer.cellsToColNumsAndItsValueMap(cellEntriesIterator.getNextLine());
         CellFeed articleFeed = null;
         if (articleJdo.getSpreadsheetRow() > 0) {
             // take articles feed and check (by code and size) if all correct
-            articleFeed = spreadsheetWorker.getRow(articleJdo.getSpreadsheetRow());
+            articleFeed = spreadsheetWorker.getArticleRow(articleJdo.getSpreadsheetRow());
             String codeColumnHeader = ReflectionUtils.getFieldAnnotation(ArticleJdo.class, "code", SpreadsheetColumn.class).column();
             String codeColumnValue = cellsTransformer.cellToValue(articleFeed, headers, codeColumnHeader);
             String sizeColumnHeader = ReflectionUtils.getFieldAnnotation(ArticleJdo.class, "size", SpreadsheetColumn.class).column();
@@ -143,15 +161,55 @@ public class RemoteService {
                 }
             }
         } else if (articleJdo.getSpreadsheetRow() == 0) {
-            articleJdo.setSpreadsheetRow(spreadsheetWorker.addRow());
-            articleFeed = spreadsheetWorker.getRow(articleJdo.getSpreadsheetRow());
+            articleJdo.setSpreadsheetRow(spreadsheetWorker.addArticleRow());
+            articleFeed = spreadsheetWorker.getArticleRow(articleJdo.getSpreadsheetRow());
         }
         // transform and update.
         List<CellEntry> cellEntriesForUpdate = cellsTransformer.articleToCellEntriesForUpdate(articleJdo, headers, articleFeed);
-        spreadsheetWorker.saveOrUpdateCells(cellEntriesForUpdate);
+        spreadsheetWorker.saveOrUpdateArticleCells(cellEntriesForUpdate);
     }
 
-    public void deleteArticleFromRemote (ArticleJdo articleJdo) {
+    public void updateDiscountCardToRemote(DiscountCardJdo discountCardJdo) throws IOException, ServiceException {
+        GoogleSpreadsheetWorker spreadsheetWorker = new GoogleSpreadsheetWorker(settingsHolder.getSettings());
 
+        // take headers
+        CellFeed headersFeed = spreadsheetWorker.getDiscountCardsRow(1);
+        GoogleCellEntriesIterator cellEntriesIterator = new GoogleCellEntriesIterator(headersFeed.getEntries());
+        Map<Integer, String> headers = cellsTransformer.cellsToColNumsAndItsValueMap(cellEntriesIterator.getNextLine());
+        CellFeed discountCardFeed = null;
+        if (discountCardJdo.getSpreadsheetRow() > 0) {
+            // take articles feed and check (by code and size) if all correct
+            discountCardFeed = spreadsheetWorker.getDiscountCardsRow(discountCardJdo.getSpreadsheetRow());
+            String numberColumnHeader = ReflectionUtils.getFieldAnnotation(DiscountCardJdo.class, "number", SpreadsheetColumn.class).column();
+            String numberColumnValue = cellsTransformer.cellToValue(discountCardFeed, headers, numberColumnHeader);
+
+            // DiscountCardJdo.spreadsheetRow has incorrect value -> search for correct
+                if ((numberColumnValue != null) ? !numberColumnValue.equals(discountCardJdo.getNumber()) :
+                        discountCardJdo.getNumber() != null) {
+                    Integer newSpreadsheetRowIndex = null;
+                    List<DiscountCardJdo> realDiscountCards = loadDiscountCards();
+                    for (DiscountCardJdo realDiscountCardJdo : realDiscountCards) {
+                        if ((realDiscountCardJdo.getNumber() != null) ? realDiscountCardJdo.getNumber().equals(discountCardJdo.getNumber()) :
+                                discountCardJdo.getNumber() == null) {
+                            newSpreadsheetRowIndex = realDiscountCardJdo.getSpreadsheetRow();
+                        }
+                    }
+
+                    if (newSpreadsheetRowIndex != null) {
+                        discountCardJdo.setSpreadsheetRow(newSpreadsheetRowIndex);
+
+                    } else {
+                        throw new RuntimeException("Updating discount card doesn't exist anymore!");
+                    }
+                }
+        } else if (discountCardJdo.getSpreadsheetRow() == 0) {
+            discountCardJdo.setSpreadsheetRow(spreadsheetWorker.addDiscountCardsRow());
+            discountCardFeed = spreadsheetWorker.getDiscountCardsRow(discountCardJdo.getSpreadsheetRow());
+        }
+        // transform and update.
+        List<CellEntry> cellEntriesForUpdate = cellsTransformer.discountCardToCellEntriesForUpdate(discountCardJdo, headers, discountCardFeed);
+        spreadsheetWorker.saveOrUpdateDiscountCardsCells(cellEntriesForUpdate);
     }
+
+
 }

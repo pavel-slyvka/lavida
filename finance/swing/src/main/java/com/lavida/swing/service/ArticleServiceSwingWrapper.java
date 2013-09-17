@@ -72,12 +72,10 @@ public class ArticleServiceSwingWrapper implements ApplicationContextAware {
 
     /**
      * Finds equivalent articles from the database to match loaded articles with postponed operations.
-//     * Updates articles from loaded postponed operations to the database.
      * @param loadedArticles the List < {@link com.lavida.service.entity.ArticleJdo} > with postponed operations.
      */
     public List<ArticleJdo> mergePostponedWithDatabase(List<ArticleJdo> loadedArticles) {
         return articleService.mergePostponedWithDatabase(loadedArticles);
-//        applicationContext.publishEvent(new ArticleUpdateEvent(this));
     }
 
     public void updateToSpreadsheet(ArticleJdo articleJdo, Boolean isSold) throws IOException, ServiceException {

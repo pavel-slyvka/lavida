@@ -1,15 +1,15 @@
 package com.lavida.service;
 
+import com.google.gdata.util.ServiceException;
 import com.lavida.service.dao.DiscountCardDao;
 import com.lavida.service.entity.DiscountCardJdo;
-import com.lavida.service.entity.SellerJdo;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import com.lavida.service.remote.RemoteService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.Calendar;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -23,6 +23,10 @@ public class DiscountCardService {
 
     @Resource
     private DiscountCardDao discountCardDao;
+
+    @Resource
+    private RemoteService remoteService;
+
 
     @Transactional
     public void save (DiscountCardJdo discountCardJdo) {
@@ -38,6 +42,60 @@ public class DiscountCardService {
     public void delete (int id) {
         discountCardDao.delete(DiscountCardJdo.class, id);
     }
+
+    @Transactional
+    public DiscountCardsUpdateInfo updateDatabaseFromRemote(List<DiscountCardJdo> remoteDiscountCards) {
+        List<DiscountCardJdo> dbOldDiscountCards = getAll();
+
+        List<DiscountCardJdo> discountCardsToUpdate = new ArrayList<DiscountCardJdo>();
+        List<DiscountCardJdo> discountCardsToDelete = new ArrayList<DiscountCardJdo>();
+        l:
+        for (DiscountCardJdo dbOldDiscountCard : dbOldDiscountCards) {
+            if (dbOldDiscountCard.getPostponedDate() != null) {
+                throw new RuntimeException("Postponed operations must be operated firstly!");
+            }
+            for (int i = 0; i < remoteDiscountCards.size(); ++i) {
+                DiscountCardJdo remoteArticle = remoteDiscountCards.get(i);
+                if (dbOldDiscountCard.getSpreadsheetRow() == remoteArticle.getSpreadsheetRow()) {
+                    remoteDiscountCards.remove(i);
+                    if (!dbOldDiscountCard.equals(remoteArticle)) {
+                        remoteArticle.setId(dbOldDiscountCard.getId());
+                        discountCardsToUpdate.add(remoteArticle);
+                    }
+                    continue l;
+                }
+            }
+            discountCardsToDelete.add(dbOldDiscountCard);
+        }
+
+        DiscountCardsUpdateInfo discountCardsUpdateInfo = new DiscountCardsUpdateInfo();
+        discountCardsUpdateInfo.setAddedCount(remoteDiscountCards.size());
+        discountCardsUpdateInfo.setUpdatedCount(discountCardsToUpdate.size());
+        discountCardsUpdateInfo.setDeletedCount(discountCardsToDelete.size());
+        remove(discountCardsToDelete);
+        update(discountCardsToUpdate);
+        save(remoteDiscountCards);
+        return discountCardsUpdateInfo;
+    }
+
+    void save(List<DiscountCardJdo> discountCardsToSave) {
+        for (DiscountCardJdo discountCardJdo : discountCardsToSave) {
+            save(discountCardJdo);
+        }
+    }
+
+    void update(List<DiscountCardJdo> discountCardsToUpdate) {
+        for (DiscountCardJdo discountCardJdo : discountCardsToUpdate) {
+            update(discountCardJdo);
+        }
+    }
+
+    void remove(List<DiscountCardJdo> discountCardsToRemove) {
+        for (DiscountCardJdo discountCardJdo : discountCardsToRemove) {
+            delete(discountCardJdo.getId());
+        }
+    }
+
 
     public List<DiscountCardJdo> getAll () {
         return discountCardDao.getAll(DiscountCardJdo.class);
@@ -55,12 +113,54 @@ public class DiscountCardService {
         return discountCardDao.getById(DiscountCardJdo.class, id);
     }
 
-    public static void main(String[] args) {
+ /*   public static void main(String[] args) {
         ApplicationContext context = new ClassPathXmlApplicationContext("spring-security.xml");
         DiscountCardService service = context.getBean(DiscountCardService.class);
         service.save(new DiscountCardJdo("1", "name1", "phone1", "address1", "eMail1", 0, 0, 0, Calendar.getInstance(), null, null));
         service.save(new DiscountCardJdo("2", "name2", "phone2", "address2", "eMail2", 0, 0, 0, Calendar.getInstance(), null, null));
         System.out.println(service.getAll());
+    }
+*/
+
+    public List<DiscountCardJdo> loadDiscountCardsFromRemoteServer() throws IOException, ServiceException {
+        return remoteService.loadDiscountCards();
+    }
+
+    public void updateToSpreadsheet(DiscountCardJdo discountCardJdo) throws IOException, ServiceException {
+        remoteService.updateDiscountCardToRemote(discountCardJdo);
+    }
+
+    /**
+     * Finds equivalent discount cards from the database to match loaded discount cards with postponed operations.
+     *
+     * @param loadedDiscountCards the List < {@link com.lavida.service.entity.DiscountCardJdo} > with postponed operations.
+     */
+    public List<DiscountCardJdo> mergePostponedWithDatabase(List<DiscountCardJdo> loadedDiscountCards) {
+        List<DiscountCardJdo> fromDatabaseDiscountCards = getAll();
+        List<DiscountCardJdo> forUpdateDiscountCards = new ArrayList<>();
+        label:
+        for (DiscountCardJdo loadedDiscountCard : loadedDiscountCards) {
+            if (loadedDiscountCard.getPostponedDate() != null) {
+                for (DiscountCardJdo fromDatabaseDiscountCard : fromDatabaseDiscountCards) {
+                    if ((loadedDiscountCard.getNumber() != null) ? loadedDiscountCard.getNumber().equals(
+                            fromDatabaseDiscountCard.getNumber()) : fromDatabaseDiscountCard.getNumber() == null) {
+                        fromDatabaseDiscountCard.setPostponedDate(loadedDiscountCard.getPostponedDate());
+                        fromDatabaseDiscountCard.setActivationDate(loadedDiscountCard.getActivationDate());
+                        fromDatabaseDiscountCard.setSumTotalUAH(loadedDiscountCard.getSumTotalUAH());
+                        fromDatabaseDiscountCard.setBonusUAH(loadedDiscountCard.getBonusUAH());
+                        fromDatabaseDiscountCard.setDiscountRate(loadedDiscountCard.getDiscountRate());
+                        fromDatabaseDiscountCard.setName(loadedDiscountCard.getName());
+                        fromDatabaseDiscountCard.setPhone(loadedDiscountCard.getPhone());
+                        fromDatabaseDiscountCard.setAddress(loadedDiscountCard.getAddress());
+                        fromDatabaseDiscountCard.seteMail(loadedDiscountCard.geteMail());
+
+                        forUpdateDiscountCards.add(fromDatabaseDiscountCard);
+                        continue label;
+                    }
+                }
+            }
+        }
+        return forUpdateDiscountCards;
     }
 
 }

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<xs:schema xmlns:tns="http://www.xml.lavida.com/schema/postponed.com"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:ans="http://www.xml.lavida.com/schema/articles.com"
+           xmlns:dns="http://www.xml.lavida.com/schema/discountCards.com"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           targetNamespace="http://www.xml.lavida.com/schema/postponed.com" version="1.0">
+
+    <xs:element name="postponed" type="tns:postponedType"/>
+    <xs:complexType name="postponedType">
+        <xs:sequence>
+            <xs:element maxOccurs="unbounded" minOccurs="0" name="article" nillable="true" type="ans:articleType"/>
+            <xs:element maxOccurs="unbounded" minOccurs="0" name="discountCard" nillable="true" type="dns:discountCardType"/>
+        </xs:sequence>
+    </xs:complexType>
+
+</xs:schema>

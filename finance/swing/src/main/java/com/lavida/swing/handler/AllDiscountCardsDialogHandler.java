@@ -1,13 +1,18 @@
 package com.lavida.swing.handler;
 
+import com.google.gdata.util.ServiceException;
 import com.lavida.service.entity.DiscountCardJdo;
 import com.lavida.swing.dialog.AllDiscountCardsDialog;
 import com.lavida.swing.service.DiscountCardServiceSwingWrapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import javax.swing.*;
+import java.io.IOException;
 import java.util.Calendar;
+import java.util.Date;
 
 /**
  * The handler for the {@link com.lavida.swing.dialog.AllDiscountCardsDialog}.
@@ -17,6 +22,7 @@ import java.util.Calendar;
  */
 @Component
 public class AllDiscountCardsDialogHandler {
+    private static final Logger logger = LoggerFactory.getLogger(AllDiscountCardsDialogHandler.class);
 
     @Resource
     private AllDiscountCardsDialog dialog;
@@ -32,6 +38,13 @@ public class AllDiscountCardsDialogHandler {
                 switch (result) {
                     case JOptionPane.YES_OPTION:
                         discountCardJdo.setActivationDate(Calendar.getInstance());
+                        try {
+                            discountCardServiceSwingWrapper.updateToSpreadsheet(discountCardJdo);
+                        } catch (IOException | ServiceException e) {
+                            logger.warn(e.getMessage(), e);
+                            discountCardJdo.setPostponedDate(new Date());
+                            dialog.getMainForm().getHandler().showPostponedOperationsMessage();
+                        }
                         discountCardServiceSwingWrapper.update(discountCardJdo);
                         dialog.getTableModel().setSelectedCard(null);
                         dialog.getTableModel().fireTableDataChanged();
@@ -61,6 +74,13 @@ public class AllDiscountCardsDialogHandler {
                 switch (result) {
                     case JOptionPane.YES_OPTION:
                         discountCardJdo.setActivationDate(null);
+                        try {
+                            discountCardServiceSwingWrapper.updateToSpreadsheet(discountCardJdo);
+                        } catch (IOException | ServiceException e) {
+                            logger.warn(e.getMessage(), e);
+                            discountCardJdo.setPostponedDate(new Date());
+                            dialog.getMainForm().getHandler().showPostponedOperationsMessage();
+                        }
                         discountCardServiceSwingWrapper.update(discountCardJdo);
                         dialog.getTableModel().setSelectedCard(null);
                         dialog.getTableModel().fireTableDataChanged();

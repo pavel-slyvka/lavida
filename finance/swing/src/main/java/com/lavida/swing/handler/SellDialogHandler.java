@@ -1,5 +1,6 @@
 package com.lavida.swing.handler;
 
+import com.google.gdata.util.ServiceException;
 import com.lavida.service.entity.ArticleJdo;
 import com.lavida.service.entity.DiscountCardJdo;
 import com.lavida.swing.LocaleHolder;
@@ -7,11 +8,14 @@ import com.lavida.swing.dialog.SellDialog;
 import com.lavida.swing.service.ArticleServiceSwingWrapper;
 import com.lavida.swing.service.ArticlesTableModel;
 import com.lavida.swing.service.DiscountCardServiceSwingWrapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import javax.swing.*;
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -26,6 +30,7 @@ import java.util.Date;
  */
 @Component
 public class SellDialogHandler {
+    private static final Logger logger = LoggerFactory.getLogger(SellDialogHandler.class);
 
     @Resource
     private SellDialog dialog;
@@ -67,6 +72,16 @@ public class SellDialogHandler {
             if (discountCardJdo != null) {
                 if (discountCardJdo.getActivationDate() != null) {
                     discountCardJdo.setSumTotalUAH(discountCardJdo.getSumTotalUAH() + totalCostUAH);
+                    try {
+                        discountCardServiceSwingWrapper.updateToSpreadsheet(discountCardJdo);
+                    } catch (IOException e) {
+                        logger.warn(e.getMessage(), e);
+                        discountCardJdo.setPostponedDate(new Date());
+                    } catch (ServiceException e) {
+                        logger.warn(e.getMessage(), e);
+                        discountCardJdo.setPostponedDate(new Date());
+                        dialog.getMainForm().getHandler().showPostponedOperationsMessage();
+                    }
                     discountCardServiceSwingWrapper.update(discountCardJdo);
                     dialog.getDiscountCardNumberTextField().setText("");
                 } else {
@@ -136,7 +151,7 @@ public class SellDialogHandler {
         try {
             articleServiceSwingWrapper.updateToSpreadsheet(articleJdo, new Boolean(true));
         } catch (Exception e) {        // todo change to Custom exception
-            e.printStackTrace();
+            logger.warn(e.getMessage(), e);
             articleJdo.setPostponedOperationDate(new Date());
             articleServiceSwingWrapper.update(articleJdo);
             dialog.hide();

@@ -70,16 +70,4 @@ public class SettingsService {
         return null;
     }
 
-    public static void main(String[] args) {
-        Settings settings = new Settings();
-//        settings.setRemoteUser("remoteUser1");
-//        settings.setRemotePass("remotePass1");
-//        settings.setSpreadsheetName("spreadsheet1");
-//        settings.setWorksheetNumber(1);
-
-        ApplicationContext context = new ClassPathXmlApplicationContext("spring-security.xml");
-        SettingsService settingsService = context.getBean(SettingsService.class);
-//        settingsService.saveSettings(settings);
-        System.out.println(settingsService.getSettings());
-    }
 }

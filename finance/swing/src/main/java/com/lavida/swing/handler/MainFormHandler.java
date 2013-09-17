@@ -1,8 +1,12 @@
 package com.lavida.swing.handler;
 
 import com.google.gdata.util.ServiceException;
+import com.lavida.service.DiscountCardsUpdateInfo;
 import com.lavida.service.UserService;
 import com.lavida.service.entity.ArticleJdo;
+import com.lavida.service.entity.DiscountCardJdo;
+import com.lavida.service.xml.PostponedType;
+import com.lavida.service.xml.PostponedXmlService;
 import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.dialog.*;
 import com.lavida.swing.exception.LavidaSwingRuntimeException;
@@ -11,6 +15,9 @@ import com.lavida.swing.form.component.FileChooserComponent;
 import com.lavida.swing.service.ArticleServiceSwingWrapper;
 import com.lavida.service.ArticleUpdateInfo;
 import com.lavida.swing.service.ArticlesTableModel;
+import com.lavida.swing.service.DiscountCardServiceSwingWrapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
@@ -35,6 +42,7 @@ import java.util.List;
  */
 @Component
 public class MainFormHandler {
+    private static final Logger logger = LoggerFactory.getLogger(MainFormHandler.class);
 
     @Resource
     private MessageSource messageSource;
@@ -44,6 +52,12 @@ public class MainFormHandler {
 
     @Resource
     private ArticleServiceSwingWrapper articleServiceSwingWrapper;
+
+    @Resource
+    private DiscountCardServiceSwingWrapper discountCardServiceSwingWrapper;
+
+    @Resource
+    private PostponedXmlService postponedXmlService;
 
     @Resource
     private MainForm form;
@@ -83,37 +97,60 @@ public class MainFormHandler {
      * goods and renders to the articleTable.
      */
     public void refreshButtonClicked() {
+        ArticleUpdateInfo articleUpdateInfo = null;
+        DiscountCardsUpdateInfo discountCardsUpdateInfo = null;
         try {
             List<ArticleJdo> articles = articleServiceSwingWrapper.loadArticlesFromRemoteServer();
-            ArticleUpdateInfo informer = articleServiceSwingWrapper.updateDatabaseFromRemote(articles);
-            showUpdateInfoMessage(informer);
-            form.update();    // repaint MainForm in some time
-
+            articleUpdateInfo = articleServiceSwingWrapper.updateDatabaseFromRemote(articles);
         } catch (IOException e) {
             throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.GOOGLE_IO_EXCEPTION, e, form);
         } catch (ServiceException e) {
             throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.GOOGLE_SERVICE_EXCEPTION, e, form);
         }
+        try {
+            List<DiscountCardJdo> discountCardJdoList = discountCardServiceSwingWrapper.loadDiscountCardsFromRemoteServer();
+            discountCardsUpdateInfo = discountCardServiceSwingWrapper.updateDatabaseFromRemote(discountCardJdoList);
+
+        } catch (IOException e) {
+            logger.warn(e.getMessage(), e);
+        } catch (ServiceException e) {
+            logger.warn(e.getMessage(), e);
+        }
+        showUpdateInfoMessage(articleUpdateInfo, discountCardsUpdateInfo);
+        form.update();    // repaint MainForm in some time
     }
 
     /**
      * Shows a JOptionPane message with the information about the articles updating  process.
      *
-     * @param informer the ArticleUpdateInfo to be shown.
+     * @param articleUpdateInfo the ArticleUpdateInfo to be shown.
+     * @param discountCardsUpdateInfo
      */
-    private void showUpdateInfoMessage(ArticleUpdateInfo informer) {
+    private void showUpdateInfoMessage(ArticleUpdateInfo articleUpdateInfo, DiscountCardsUpdateInfo discountCardsUpdateInfo) {
         StringBuilder messageBuilder = new StringBuilder();
         messageBuilder.append(messageSource.getMessage("mainForm.panel.refresh.message.articles.added",
                 null, localeHolder.getLocale()));
-        messageBuilder.append(informer.getAddedCount());
+        messageBuilder.append(articleUpdateInfo.getAddedCount());
+        messageBuilder.append(", ");
+        messageBuilder.append(messageSource.getMessage("mainForm.panel.refresh.message.discountCards.added",
+                null, localeHolder.getLocale()));
+        messageBuilder.append(discountCardsUpdateInfo.getAddedCount());
         messageBuilder.append(". \n");
         messageBuilder.append(messageSource.getMessage("mainForm.panel.refresh.message.articles.updated",
                 null, localeHolder.getLocale()));
-        messageBuilder.append(informer.getUpdatedCount());
+        messageBuilder.append(articleUpdateInfo.getUpdatedCount());
+        messageBuilder.append(", ");
+        messageBuilder.append(messageSource.getMessage("mainForm.panel.refresh.message.discountCards.added",
+                null, localeHolder.getLocale()));
+        messageBuilder.append(discountCardsUpdateInfo.getUpdatedCount());
         messageBuilder.append(". \n");
         messageBuilder.append(messageSource.getMessage("mainForm.panel.refresh.message.articles.deleted",
                 null, localeHolder.getLocale()));
-        messageBuilder.append(informer.getDeletedCount());
+        messageBuilder.append(articleUpdateInfo.getDeletedCount());
+        messageBuilder.append(", ");
+        messageBuilder.append(messageSource.getMessage("mainForm.panel.refresh.message.discountCards.added",
+                null, localeHolder.getLocale()));
+        messageBuilder.append(discountCardsUpdateInfo.getDeletedCount());
         messageBuilder.append(". \n");
 
         form.showMessageBox("mainForm.panel.refresh.message.title", new String(messageBuilder));
@@ -144,18 +181,32 @@ public class MainFormHandler {
                     }
                     articleJdo.setPostponedOperationDate(null);
                     articleServiceSwingWrapper.update(articleJdo);
-                    showPostponedOperationsMessage();
                 } catch (IOException e) {
+                    logger.warn(e.getMessage(), e);
                     form.showMessage("mainForm.exception.message.dialog.title", "sellDialog.handler.sold.article.not.saved.to.worksheet");
-                    showPostponedOperationsMessage();
                     throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.GOOGLE_IO_EXCEPTION, e, form);
                 } catch (ServiceException e) {
+                    logger.warn(e.getMessage(), e);
                     form.showMessage("mainForm.exception.message.dialog.title", "sellDialog.handler.sold.article.not.saved.to.worksheet");
-                    showPostponedOperationsMessage();
                     throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.GOOGLE_SERVICE_EXCEPTION, e, form);
                 }
             }
         }
+        List<DiscountCardJdo> discountCardJdoList = discountCardServiceSwingWrapper.getAll();
+        for (DiscountCardJdo discountCardJdo : discountCardJdoList) {
+            if (discountCardJdo.getPostponedDate() != null) {
+                try {
+                    discountCardServiceSwingWrapper.updateToSpreadsheet(discountCardJdo);
+                    discountCardJdo.setPostponedDate(null);
+                    discountCardServiceSwingWrapper.update(discountCardJdo);
+                } catch (IOException e) {
+                    logger.warn(e.getMessage(), e);
+                } catch (ServiceException e) {
+                    logger.warn(e.getMessage(), e);
+                }
+            }
+        }
+        showPostponedOperationsMessage();
         form.update();
     }
 
@@ -167,6 +218,12 @@ public class MainFormHandler {
         List<ArticleJdo> articles = articleServiceSwingWrapper.getAll();
         for (ArticleJdo articleJdo : articles) {
             if (articleJdo.getPostponedOperationDate() != null) {
+                ++count;
+            }
+        }
+        List<DiscountCardJdo> discountCardJdoList = discountCardServiceSwingWrapper.getAll();
+        for (DiscountCardJdo discountCardJdo : discountCardJdoList) {
+            if (discountCardJdo.getPostponedDate() != null) {
                 ++count;
             }
         }
@@ -204,13 +261,26 @@ public class MainFormHandler {
                 articlesPostponed.add(articleJdo);
             }
         }
+
+        List<DiscountCardJdo> discountCardsPostponed = new ArrayList<>();
+        List<DiscountCardJdo> discountCardJdoList = discountCardServiceSwingWrapper.getAll();
+        for (DiscountCardJdo discountCardJdo : discountCardJdoList) {
+            if (discountCardJdo.getPostponedDate() != null) {
+                discountCardsPostponed.add(discountCardJdo);
+            }
+        }
+
+        PostponedType postponedType = new PostponedType();
+        postponedType.setArticles(articlesPostponed);
+        postponedType.setDiscountCards(discountCardsPostponed);
         try {
-            articleServiceSwingWrapper.saveToXml(articlesPostponed, file);
+//            articleServiceSwingWrapper.saveToXml(articlesPostponed, file);
+            postponedXmlService.marshal(postponedType, file);
         } catch (JAXBException e) {
-            e.printStackTrace();
+            logger.warn(e.getMessage(), e);
             form.showMessage("mainForm.exception.message.dialog.title", "mainForm.exception.xml.JAXB.message");
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.warn(e.getMessage(), e);
             form.showMessage("mainForm.exception.message.dialog.title", "mainForm.exception.io.xml.file");
         }
     }
@@ -304,6 +374,14 @@ public class MainFormHandler {
                 articleServiceSwingWrapper.update(articleJdo);
             }
         }
+        List<DiscountCardJdo> discountCardJdoList = discountCardServiceSwingWrapper.getAll();
+        for (DiscountCardJdo discountCardJdo : discountCardJdoList) {
+            if (discountCardJdo.getPostponedDate() != null) {
+                discountCardJdo.setPostponedDate(null);
+                discountCardServiceSwingWrapper.update(discountCardJdo);
+            }
+        }
+
         showPostponedOperationsMessage();
     }
 
@@ -349,23 +427,39 @@ public class MainFormHandler {
      */
     private void loadPostponed(File file) {
         List<ArticleJdo> loadedArticles = null;
+        List<DiscountCardJdo> loadedDiscountCards = null;
+        PostponedType postponedType = null;
         try {
-            loadedArticles = articleServiceSwingWrapper.loadFromXml(file);
+//            loadedArticles = articleServiceSwingWrapper.loadFromXml(file);
+            postponedType = postponedXmlService.unmarshal(file);
         } catch (JAXBException e) {
             e.printStackTrace();
             form.showMessage("mainForm.exception.message.dialog.title", "mainForm.exception.xml.JAXB.message");
+            return;
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             form.showMessage("mainForm.exception.message.dialog.title", "mainForm.exception.io.xml.file");
+            return;
         }
-        List<ArticleJdo> forUpdateArticles = articleServiceSwingWrapper.mergePostponedWithDatabase(loadedArticles);
+        loadedArticles = postponedType.getArticles();
+        loadedDiscountCards = postponedType.getDiscountCards();
         if (loadedArticles.size() > 0) {
+            List<ArticleJdo> forUpdateArticles = articleServiceSwingWrapper.mergePostponedWithDatabase(loadedArticles);
             for (ArticleJdo articleJdo : forUpdateArticles) {
                 articleServiceSwingWrapper.update(articleJdo);
             }
             showPostponedOperationsMessage();
         } else {
-            form.showMessage("mainForm.exception.message.dialog.title", "mainForm.handler.postponed.articles.not.exist.message");
+            form.showMessage("mainForm.attention.message.dialog.title", "mainForm.handler.postponed.articles.not.exist.message");
+        }
+        if (loadedDiscountCards.size() > 0) {
+            List<DiscountCardJdo> forUpdateDiscountCards = discountCardServiceSwingWrapper.mergePostponedWithDatabase(loadedDiscountCards);
+            for (DiscountCardJdo discountCardJdo : forUpdateDiscountCards) {
+                discountCardServiceSwingWrapper.update(discountCardJdo);
+            }
+            showPostponedOperationsMessage();
+        } else {
+            form.showMessage("mainForm.attention.message.dialog.title", "mainForm.handler.postponed.discountCards.not.exist.message");
         }
     }
 
