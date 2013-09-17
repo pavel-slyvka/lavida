@@ -9,6 +9,9 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.WindowEvent;
 
 /**
  * Created: 10:58 15.08.13
@@ -16,7 +19,13 @@ import java.awt.*;
  * @author Ruslan
  */
 public abstract class AbstractDialog implements MessageSourceAware {
+    private static final KeyStroke ESCAPE_STROKE =
+            KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
+    public static final String DISPATCH_WINDOW_CLOSING_ACTION_MAP_KEY =
+            "com.lavida.swing.dispatch:WINDOW_CLOSING";
+
     protected JDialog dialog;
+
     protected Container rootContainer;
 
     @Resource
@@ -72,7 +81,21 @@ public abstract class AbstractDialog implements MessageSourceAware {
         dialog.setVisible(true);
     }
 
-
+    public void installEscapeCloseOperation(final JDialog dialog) {
+        Action dispatchClosing = new AbstractAction() {
+            public void actionPerformed(ActionEvent event) {
+                dialog.dispatchEvent(new WindowEvent(
+                        dialog, WindowEvent.WINDOW_CLOSING
+                ));
+            }
+        };
+        JRootPane root = dialog.getRootPane();
+        root.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
+                ESCAPE_STROKE, DISPATCH_WINDOW_CLOSING_ACTION_MAP_KEY
+        );
+        root.getActionMap().put(DISPATCH_WINDOW_CLOSING_ACTION_MAP_KEY, dispatchClosing
+        );
+    }
 
     public void setMessageSource(MessageSource messageSource) {
         this.messageSource = messageSource;
