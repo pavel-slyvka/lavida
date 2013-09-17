@@ -32,7 +32,8 @@ public class RefundDialogHandler {
      * @param articleJdo the selected articleJdo to be refunded.
      */
     public void refundButtonClicked (ArticleJdo articleJdo){
-        if (refundDialog.getCommentTextField().getText().trim().isEmpty()) {
+        if (refundDialog.getCommentTextField().getText().trim().isEmpty() ||
+                refundDialog.getCommentTextField().getText().trim().equals(articleJdo.getComment() != null ? articleJdo.getComment() : "")) {
             refundDialog.showWarningMessage("mainForm.exception.message.dialog.title", "refundDialog.handler.comment.not.entered");
             refundDialog.getCommentTextField().requestFocusInWindow();
             return;

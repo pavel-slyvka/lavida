@@ -75,7 +75,7 @@ public class SellDialog extends AbstractDialog {
         handler.discountTextEntered();
         saleDateTextField.setText(new SimpleDateFormat("dd.MM.yyyy").format(Calendar.getInstance().getTime()));
         shopComboBox.setSelectedItem(defaultShop);
-        oursCheckBox.setSelected(false);
+        clientCheckBox.setSelected(true);
         presentCheckBox.setSelected(false);
         for (JCheckBox checkbox : tagCheckBoxes) {
             checkbox.setSelected(false);

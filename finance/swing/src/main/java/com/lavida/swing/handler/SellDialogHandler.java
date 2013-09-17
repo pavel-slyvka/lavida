@@ -56,8 +56,9 @@ public class SellDialogHandler {
      * @param articleJdo the article to be sold.
      */
     public void sellButtonClicked(ArticleJdo articleJdo) {
-        if (dialog.getCommentTextField().getText().trim().isEmpty() && (dialog.getOursCheckBox().isSelected() ||
-                dialog.getPresentCheckBox().isSelected())) {
+        if ((dialog.getCommentTextField().getText().trim().isEmpty() || dialog.getCommentTextField().getText().trim().
+                equals(articleJdo.getComment() != null ? articleJdo.getComment() : ""))
+                && (dialog.getOursCheckBox().isSelected() || dialog.getPresentCheckBox().isSelected())) {
             dialog.showWarningMessage("mainForm.exception.message.dialog.title", "sellDialog.handler.ours.comment.not.entered");
             dialog.getCommentTextField().requestFocusInWindow();
             dialog.getMainForm().update();
@@ -174,7 +175,7 @@ public class SellDialogHandler {
         dialog.getPriceField().setText(String.valueOf(0));
         dialog.getDiscountTextField().setText(String.valueOf(0));
         dialog.getDiscountTextField().setEnabled(false);
-        dialog.getCommentTextField().setText("");
+//        dialog.getCommentTextField().setText("");
     }
 
     public void checkBoxDeSelected() {
@@ -186,8 +187,12 @@ public class SellDialogHandler {
     }
 
     public void presentCheckBoxSelected() {
+        dialog.getDiscountCardNumberTextField().setText("");
+        dialog.getDiscountCardNumberTextField().setEnabled(false);
         dialog.getPriceField().setText(String.valueOf(0));
         dialog.getDiscountTextField().setText(String.valueOf(0));
+        dialog.getDiscountTextField().setEnabled(false);
+//        dialog.getCommentTextField().setText("");
     }
 
     public void discountTextEntered() {
@@ -245,11 +250,12 @@ public class SellDialogHandler {
     }
 
     public void cancelButtonClicked() {
-        dialog.hide();
         dialog.getDiscountCardNumberTextField().setText("");
+        dialog.getClientCheckBox().setSelected(true);
+        dialog.hide();
         dialog.getMainForm().getTableModel().setSelectedArticle(null);
-        dialog.getMainForm().getForm().setVisible(true);
         dialog.getMainForm().update();
+        dialog.getMainForm().getForm().setVisible(true);
 
     }
 }
