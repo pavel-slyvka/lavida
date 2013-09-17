@@ -35,7 +35,8 @@ public class ArticleAnalyzeComponent {
     private JLabel totalCountLabel, totalCountField, totalCostEURLabel, totalCostEURField,
             totalPriceLabel, totalPriceField, totalPurchaseCostEURLabel, totalPurchaseCostEURField,
             totalCostUAHLabel, totalCostUAHField, minimalMultiplierLabel, minimalMultiplierField,
-            normalMultiplierLabel, normalMultiplierField, totalTransportCostEURLabel, totalTransportCostEURField;
+            normalMultiplierLabel, normalMultiplierField, totalTransportCostEURLabel, totalTransportCostEURField,
+            profitUAHLabel, profitUAHField;
 
     public void initializeComponents(ArticlesTableModel articlesTableModel, MessageSource messageSource, LocaleHolder localeHolder) {
         this.tableModel = articlesTableModel;
@@ -220,6 +221,29 @@ public class ArticleAnalyzeComponent {
         constraints.weightx = 1.0;
         analyzePanel.add(totalPriceField, constraints);
 
+        profitUAHLabel = new JLabel();
+        profitUAHLabel.setBorder(BorderFactory.createEmptyBorder());
+        profitUAHLabel.setText(messageSource.getMessage("component.article.analyze.label.profit.UAH.title",
+                null, localeHolder.getLocale()));
+        profitUAHLabel.setLabelFor(profitUAHField);
+
+        profitUAHField = new JLabel();
+        profitUAHField.setText(roundTwoDecimals(tableModel.getProfitUAH()));
+        profitUAHField.setBorder(fieldsBorder);
+
+        if (tableModel.getQueryName() != null) {
+            constraints.fill = GridBagConstraints.NONE;
+            constraints.gridwidth = GridBagConstraints.RELATIVE;
+            constraints.anchor = GridBagConstraints.EAST;
+            constraints.weightx = 0.0;
+            analyzePanel.add(profitUAHLabel, constraints);
+
+            constraints.fill = GridBagConstraints.HORIZONTAL;
+            constraints.gridwidth = GridBagConstraints.REMAINDER;
+            constraints.anchor = GridBagConstraints.EAST;
+            constraints.weightx = 1.0;
+            analyzePanel.add(profitUAHField, constraints);
+        }
     }
 
     /**
@@ -228,9 +252,10 @@ public class ArticleAnalyzeComponent {
      * @param totalCount   int , total count of articles shown in the totalCountField;
      * @param totalCostEUR double, total original cost of articles shown in the totalCostEURField;
      * @param totalPrice   double, total price of articles shown in the totalPriceField.
+     * @param profitUAH
      */
     public void updateFields(int totalCount, double totalPurchaseCostEUR, double totalCostEUR, double totalCostUAH,
-                             double minimalMultiplier, double normalMultiplier, double totalPrice, double totalTransportCostEUR) {
+                             double minimalMultiplier, double normalMultiplier, double totalPrice, double totalTransportCostEUR, double profitUAH) {
         totalCountField.setText(String.valueOf(totalCount));
         totalPurchaseCostEURField.setText(roundTwoDecimals(totalPurchaseCostEUR));
         totalCostEURField.setText(roundTwoDecimals(totalCostEUR));
@@ -239,6 +264,7 @@ public class ArticleAnalyzeComponent {
         normalMultiplierField.setText(roundTwoDecimals(normalMultiplier));
         totalPriceField.setText(roundTwoDecimals(totalPrice));
         totalTransportCostEURField.setText(roundTwoDecimals(totalTransportCostEUR));
+        profitUAHField.setText(roundTwoDecimals(profitUAH));
     }
 
     /**
@@ -268,7 +294,8 @@ public class ArticleAnalyzeComponent {
             normalMultiplierField.setVisible(false);
             totalTransportCostEURField.setVisible(false);
             totalTransportCostEURLabel.setVisible(false);
-
+            profitUAHLabel.setVisible(false);
+            profitUAHField.setVisible(false);
         }
 
     }

@@ -41,7 +41,7 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
     private ArticleJdo selectedArticle;
     private int totalCountArticles;
     private double totalPurchaseCostEUR, totalCostEUR, totalPriceUAH, totalCostUAH, minimalMultiplier, normalMultiplier,
-            totalTransportCostEUR;
+            totalTransportCostEUR, profitUAH;
     private String sellerName;
 
     @Resource
@@ -275,7 +275,6 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
         double normalMultiplier = 0;
         double minimalMultiplier = 0;
         double totalTransportCostEUR = 0;
-
         List<ArticleJdo> articleJdoList = getTableData();
         if (articleJdoList.size() > 0) {
             minimalMultiplier = articleJdoList.get(0).getMultiplier();
@@ -302,6 +301,8 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
         this.minimalMultiplier = minimalMultiplier;
         this.normalMultiplier = normalMultiplier;
         this.totalTransportCostEUR = totalTransportCostEUR;
+        this.profitUAH = totalPrice - totalCostUAH;
+
     }
 
 
@@ -691,7 +692,12 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
         return totalTransportCostEUR;
     }
 
+    public double getProfitUAH() {
+        return profitUAH;
+    }
+
     public String getQueryName() {
         return queryName;
     }
+
 }
