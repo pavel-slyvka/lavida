@@ -56,6 +56,13 @@ public class DiscountCardJdo implements Cloneable {
     @XmlElement
     private String phone;
 
+    @SpreadsheetColumn(column = "city")
+    @ViewColumn(titleKey = "dialog.discounts.card.all.column.title.city", columnWidth = 120)
+    @FilterColumn(labelKey = "dialog.discounts.card.all.label.search.by.city", type = FilterType.PART_TEXT,
+            orderForAllDiscountCards = 2)
+    @XmlElement
+    private String city;
+
     @SpreadsheetColumn(column = "address")
     @ViewColumn(titleKey = "dialog.discounts.card.all.column.title.address", columnWidth = 300)
     @XmlElement
@@ -69,19 +76,21 @@ public class DiscountCardJdo implements Cloneable {
     @SpreadsheetColumn(column = "sumTotalUAH")
     @ViewColumn(titleKey = "dialog.discounts.card.all.column.title.sumTotalUAH", columnWidth = 100)
     @FilterColumn(labelKey = "dialog.discounts.card.all.label.search.by.sumTotalUAH", type = FilterType.NUMBER_MORE,
-            orderForAllDiscountCards = 2)
+            orderForAllDiscountCards = 3)
     @XmlElement
     private double sumTotalUAH;
 
     @SpreadsheetColumn(column = "discountRate")
     @ViewColumn(titleKey = "dialog.discounts.card.all.column.title.discountRate", columnWidth = 100)
     @FilterColumn(labelKey = "dialog.discounts.card.all.label.search.by.discountRate", type = FilterType.NUMBER_MORE,
-            orderForAllDiscountCards = 3)
+            orderForAllDiscountCards = 5)
     @XmlElement
     private double discountRate;
 
     @SpreadsheetColumn(column = "bonusUAH")
     @ViewColumn(titleKey = "dialog.discounts.card.all.column.title.bonusUAH", columnWidth = 100)
+    @FilterColumn(labelKey = "dialog.discounts.card.all.label.search.by.bonus", type = FilterType.NUMBER_MORE,
+            orderForAllDiscountCards = 4)
     @XmlElement
     private double bonusUAH;
 
@@ -92,7 +101,7 @@ public class DiscountCardJdo implements Cloneable {
 
     @SpreadsheetColumn(column = "activationDate")
     @ViewColumn(titleKey = "dialog.discounts.card.all.column.title.activationDate", columnWidth = 100)
-    @FilterColumn(type = FilterType.CHECKBOXES, orderForAllDiscountCards = 4, checkBoxesNumber = 2,
+    @FilterColumn(type = FilterType.CHECKBOXES, orderForAllDiscountCards = 6, checkBoxesNumber = 2,
             checkBoxesText = {"dialog.discounts.card.all.checkBox.show.not.active", "dialog.discounts.card.all.checkBox.show.active"},
             checkBoxesAction = {"dialog.discounts.card.all.checkBox.show.not.active.actionCommand", "dialog.discounts.card.all.checkBox.show.active.actionCommand"})
     @XmlElement
@@ -106,13 +115,14 @@ public class DiscountCardJdo implements Cloneable {
     public DiscountCardJdo() {
     }
 
-    public DiscountCardJdo(int spreadsheetRow, String number, String name, String phone, String address,
+    public DiscountCardJdo(int spreadsheetRow, String number, String name, String phone, String city, String address,
                            String eMail, double sumTotalUAH, double discountRate, double bonusUAH,
                            Calendar registrationDate, Calendar activationDate, Date postponedDate) {
         this.spreadsheetRow = spreadsheetRow;
         this.number = number;
         this.name = name;
         this.phone = phone;
+        this.city = city;
         this.address = address;
         this.eMail = eMail;
         this.sumTotalUAH = sumTotalUAH;
@@ -153,6 +163,14 @@ public class DiscountCardJdo implements Cloneable {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
     }
 
     public String getAddress() {
@@ -242,6 +260,7 @@ public class DiscountCardJdo implements Cloneable {
         if (activationDate != null ? !activationDate.equals(that.activationDate) : that.activationDate != null)
             return false;
         if (address != null ? !address.equals(that.address) : that.address != null) return false;
+        if (city != null ? !city.equals(that.city) : that.city != null) return false;
         if (eMail != null ? !eMail.equals(that.eMail) : that.eMail != null) return false;
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
         if (number != null ? !number.equals(that.number) : that.number != null) return false;
@@ -263,6 +282,7 @@ public class DiscountCardJdo implements Cloneable {
         result = 31 * result + (number != null ? number.hashCode() : 0);
         result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + (phone != null ? phone.hashCode() : 0);
+        result = 31 * result + (city != null ? city.hashCode() : 0);
         result = 31 * result + (address != null ? address.hashCode() : 0);
         result = 31 * result + (eMail != null ? eMail.hashCode() : 0);
         temp = Double.doubleToLongBits(sumTotalUAH);
@@ -285,19 +305,20 @@ public class DiscountCardJdo implements Cloneable {
     @Override
     public String toString() {
         return "DiscountCardJdo{" +
-                "postponedDate=" + postponedDate +
-                ", activationDate=" + activationDate +
-                ", registrationDate=" + registrationDate +
-                ", bonusUAH=" + bonusUAH +
-                ", discountRate=" + discountRate +
-                ", sumTotalUAH=" + sumTotalUAH +
-                ", eMail='" + eMail + '\'' +
-                ", address='" + address + '\'' +
-                ", phone='" + phone + '\'' +
-                ", name='" + name + '\'' +
-                ", number='" + number + '\'' +
+                "id=" + id +
                 ", spreadsheetRow=" + spreadsheetRow +
-                ", id=" + id +
+                ", number='" + number + '\'' +
+                ", name='" + name + '\'' +
+                ", phone='" + phone + '\'' +
+                ", city='" + city + '\'' +
+                ", address='" + address + '\'' +
+                ", eMail='" + eMail + '\'' +
+                ", sumTotalUAH=" + sumTotalUAH +
+                ", discountRate=" + discountRate +
+                ", bonusUAH=" + bonusUAH +
+                ", registrationDate=" + registrationDate +
+                ", activationDate=" + activationDate +
+                ", postponedDate=" + postponedDate +
                 '}';
     }
 }

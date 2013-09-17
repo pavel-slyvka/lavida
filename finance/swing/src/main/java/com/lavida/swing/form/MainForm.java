@@ -334,11 +334,11 @@ public class MainForm extends AbstractForm {
         fileMenu.add(printItem);
 
 
+        menuBar.add(fileMenu);
         menuBar.add(productsMenu);
         menuBar.add(discountsMenu);
         menuBar.add(settingsMenu);
         menuBar.add(postponedMenu);
-        menuBar.add(fileMenu);
 
     }
 

@@ -96,7 +96,7 @@ public class SoldProductsDialogHandler {
     public void printItemClicked() {
         MessageFormat header = new MessageFormat(messageSource.getMessage("dialog.sold.menu.file.print.header", null, localeHolder.getLocale()));
         MessageFormat footer = new MessageFormat(messageSource.getMessage("mainForm.menu.file.print.footer", null, localeHolder.getLocale()));
-        boolean fitPageWidth = true;
+        boolean fitPageWidth = false;
         boolean showPrintDialog = true;
         boolean interactive = true;
         JTable.PrintMode printMode = fitPageWidth ? JTable.PrintMode.FIT_WIDTH : JTable.PrintMode.NORMAL;
