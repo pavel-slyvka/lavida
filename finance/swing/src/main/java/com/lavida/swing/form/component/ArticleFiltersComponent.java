@@ -24,7 +24,6 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
 import java.util.Queue;
-import java.util.regex.Pattern;
 
 /**
  * ArticleFiltersComponent
@@ -250,7 +249,28 @@ public class ArticleFiltersComponent {
             final int columnIndex = tableModel.findColumn(filterUnit.columnTitle);
 
             RowFilter<ArticlesTableModel, Integer> filter = null;
-            if (FilterType.PART_TEXT == filterUnit.filterType) {
+            if (FilterType.CHECKBOXES == filterUnit.filterType) {
+                if (!filterUnit.checkBoxes[0].isSelected() || !filterUnit.checkBoxes[1].isSelected()
+                        || !filterUnit.checkBoxes[2].isSelected()) {
+                    filter = new RowFilter<ArticlesTableModel, Integer>() {
+                        @Override
+                        public boolean include(Entry<? extends ArticlesTableModel, ? extends Integer> entry) {
+                            Object sellTypeObj = tableModel.getRawValueAt(entry.getIdentifier(), columnIndex);
+                            return filterUnit.checkBoxes[0].isSelected() && (sellTypeObj == null || ((String) sellTypeObj).trim().isEmpty())
+                                    || filterUnit.checkBoxes[1].isSelected() && "В подарок".equals(sellTypeObj)
+                                    || filterUnit.checkBoxes[2].isSelected() && "Своим".equals(sellTypeObj);
+                        }
+                    };
+                }
+            } else if (" ".equals(filterUnit.textField.getText())) {
+                filter = new RowFilter<ArticlesTableModel, Integer>() {
+                    @Override
+                    public boolean include(Entry<? extends ArticlesTableModel, ? extends Integer> entry) {
+                        Object obj = tableModel.getRawValueAt(entry.getIdentifier(), columnIndex);
+                        return obj == null || obj.toString().trim().isEmpty();
+                    }
+                };
+            } else if (FilterType.PART_TEXT == filterUnit.filterType) {
                 if (filterUnit.textField.getText().length() > 0) {
                     filter = RowFilter.regexFilter(("(?iu)" + filterUnit.textField.getText().trim()), columnIndex);
                 }
@@ -308,19 +328,6 @@ public class ArticleFiltersComponent {
                             }
                         };
                     }
-                }
-            } else if (FilterType.CHECKBOXES == filterUnit.filterType) {
-                if (!filterUnit.checkBoxes[0].isSelected() || !filterUnit.checkBoxes[1].isSelected()
-                        || !filterUnit.checkBoxes[2].isSelected()) {
-                    filter = new RowFilter<ArticlesTableModel, Integer>() {
-                        @Override
-                        public boolean include(Entry<? extends ArticlesTableModel, ? extends Integer> entry) {
-                            Object sellTypeObj = tableModel.getRawValueAt(entry.getIdentifier(), columnIndex);
-                            return filterUnit.checkBoxes[0].isSelected() && (sellTypeObj == null || ((String)sellTypeObj).trim().isEmpty())
-                                    || filterUnit.checkBoxes[1].isSelected() && "В подарок".equals(sellTypeObj)
-                                    || filterUnit.checkBoxes[2].isSelected() && "Своим".equals(sellTypeObj);
-                        }
-                    };
                 }
             }
 
