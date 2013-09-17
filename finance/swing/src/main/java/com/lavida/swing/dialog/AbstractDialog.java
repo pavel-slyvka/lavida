@@ -43,6 +43,7 @@ public abstract class AbstractDialog implements MessageSourceAware {
         initializeForm();
         rootContainer = dialog.getContentPane();
         initializeComponents();
+        installEscapeCloseOperation(dialog);
     }
 
     protected void initializeForm() {

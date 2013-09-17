@@ -204,9 +204,6 @@ public class AddNewProductsDialog extends AbstractDialog {
         buttons.add(cancelButton);
         buttonPanel.add(buttons);
         rootContainer.add(buttonPanel, BorderLayout.SOUTH);
-
-        installEscapeCloseOperation(dialog);
-
     }
 
 
