@@ -1,8 +1,12 @@
-HISTORY of the LA VIDA Finance
+Changelog of the LA VIDA Finance
 --------------------
 
-0.2
--------------------------
+Version 0.2.1   release date:    -09-2013
+-----------------------------------------
+- Added closing the AddNewProductsDialog by "ESC" key pressing;
+
+Version 0.2     release date:  15-09-2013
+-----------------------------------------
 - Added information (total purchase price EUR, total cost UAH, minimal multiplier, normal multiplier) to the
   articles analyze panel;
 - Added checkBoxes(clients, presents, ours) to the article filter panel;
@@ -19,8 +23,8 @@ HISTORY of the LA VIDA Finance
   - AddNewProductsDialog, ColumnsViewSettingsDialog;
   - AddNewDiscountCardsDialog, AllDiscountCardsDialog;
 
-0.1           27-08-2013
--------------------------
+Version 0.1     release date: 27-08-2013
+----------------------------------------
 - Added the system for counting sold products by each seller;
 - Added abilities :
   - to refresh data from/to the remote Google spreadsheet;
