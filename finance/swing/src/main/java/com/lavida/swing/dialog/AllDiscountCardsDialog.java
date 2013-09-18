@@ -229,4 +229,8 @@ public class AllDiscountCardsDialog extends AbstractDialog {
     public DiscountCardTableComponent getCardTableComponent() {
         return cardTableComponent;
     }
+
+    public JMenuItem getPrintItem() {
+        return printItem;
+    }
 }

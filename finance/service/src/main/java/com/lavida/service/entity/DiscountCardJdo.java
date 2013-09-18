@@ -254,7 +254,6 @@ public class DiscountCardJdo implements Cloneable {
 
         if (Double.compare(that.bonusUAH, bonusUAH) != 0) return false;
         if (Double.compare(that.discountRate, discountRate) != 0) return false;
-        if (id != that.id) return false;
         if (spreadsheetRow != that.spreadsheetRow) return false;
         if (Double.compare(that.sumTotalUAH, sumTotalUAH) != 0) return false;
         if (activationDate != null ? !activationDate.equals(that.activationDate) : that.activationDate != null)
@@ -277,8 +276,7 @@ public class DiscountCardJdo implements Cloneable {
     public int hashCode() {
         int result;
         long temp;
-        result = id;
-        result = 31 * result + spreadsheetRow;
+        result = spreadsheetRow;
         result = 31 * result + (number != null ? number.hashCode() : 0);
         result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + (phone != null ? phone.hashCode() : 0);

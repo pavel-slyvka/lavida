@@ -216,4 +216,8 @@ public class AddNewDiscountCardsDialog extends AbstractDialog {
     public JLabel getErrorMessage() {
         return errorMessage;
     }
+
+    public JMenuItem getPrintItem() {
+        return printItem;
+    }
 }

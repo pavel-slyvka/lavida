@@ -1,9 +1,6 @@
 package com.lavida.swing.form;
 
-import com.lavida.swing.dialog.AddNewDiscountCardsDialog;
-import com.lavida.swing.dialog.AllDiscountCardsDialog;
-import com.lavida.swing.dialog.SellDialog;
-import com.lavida.swing.dialog.SoldProductsDialog;
+import com.lavida.swing.dialog.*;
 import com.lavida.swing.form.component.ArticleTableComponent;
 import com.lavida.swing.handler.MainFormHandler;
 import com.lavida.swing.service.ArticlesTableModel;
@@ -37,6 +34,9 @@ public class MainForm extends AbstractForm {
 
     @Resource
     private SellDialog sellDialog;
+
+    @Resource
+    private AddNewProductsDialog addNewProductsDialog;
 
     @Resource
     private AllDiscountCardsDialog allDiscountCardsDialog;
@@ -399,6 +399,11 @@ public class MainForm extends AbstractForm {
     public void filterMenuBarByRoles (List<String> userRoles) {
         if (isForbidden(userRoles, FORBIDDEN_ROLES)) {
             addNewProductsItem.setEnabled(false);
+            printItem.setEnabled(false);
+            soldProductsDialog.getPrintItem().setEnabled(false);
+            addNewProductsDialog.getPrintItem().setEnabled(false);
+            addNewDiscountCardsDialog.getPrintItem().setEnabled(false);
+            allDiscountCardsDialog.getPrintItem().setEnabled(false);
         }
     }
 

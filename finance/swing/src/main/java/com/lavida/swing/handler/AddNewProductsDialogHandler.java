@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import javax.swing.*;
@@ -170,23 +171,43 @@ public class AddNewProductsDialogHandler {
     }
 
     public void calculateTransportCostEURItemClicked() {
-        String totalTransportCostEURStr = (String) dialog.showInputDialog( "dialog.add.new.products.calculate.transportCost.message",
-                "dialog.add.new.products.calculate.transportCost.title", null, null, null);
-        double totalTransportCostEUR = Double.parseDouble(totalTransportCostEURStr.replace(",", ".").replaceAll("[^0-9.]", ""));
-        double totalPurchaseCostEUR = Double.parseDouble(dialog.getArticleTableComponent().getArticleFiltersComponent().
-                getArticleAnalyzeComponent().getTotalPurchaseCostEURField().getText());
-        double aspectRatio = totalTransportCostEUR / totalPurchaseCostEUR;
-        for (ArticleJdo articleJdo : dialog.getTableModel().getTableData()) {
-            double purchasePriceEUR = articleJdo.getPurchasePriceEUR();
-            double transportCostEUR = aspectRatio * purchasePriceEUR;
-            transportCostEUR = BigDecimal.valueOf(transportCostEUR).setScale(3, BigDecimal.ROUND_HALF_DOWN).doubleValue();
-            articleJdo.setTransportCostEUR(transportCostEUR);
-            dialog.getTableModel().articleFixTotalCostsAndCalculatedSalePrice(articleJdo);
+        if (dialog.getTableModel().getTableData().size() > 0) {
+            String totalTransportCostEURStr = (String) dialog.showInputDialog("dialog.add.new.products.calculate.transportCost.message",
+                    "dialog.add.new.products.calculate.transportCost.title", null, null, null);
+            if (totalTransportCostEURStr != null) {
+                totalTransportCostEURStr = totalTransportCostEURStr.replace(",", ".").replaceAll("[^0-9.]", "");
+                double totalTransportCostEUR;
+                if (!StringUtils.isEmpty(totalTransportCostEURStr)) {
+                    totalTransportCostEUR = Double.parseDouble(totalTransportCostEURStr);
+                } else {
+                    dialog.showWarningMessage("mainForm.exception.message.dialog.title", "dialog.add.new.product.totalTransportCostEUR.not.filled.message");
+                    calculateTransportCostEURItemClicked();
+                    return;
+                }
+                double totalPurchaseCostEUR = Double.parseDouble(dialog.getArticleTableComponent().getArticleFiltersComponent().
+                        getArticleAnalyzeComponent().getTotalPurchaseCostEURField().getText());
+                double aspectRatio;
+                if (totalPurchaseCostEUR > 0.0) {
+                    aspectRatio = totalTransportCostEUR / totalPurchaseCostEUR;
+                } else {
+                    dialog.showWarningMessage("mainForm.exception.message.dialog.title", "dialog.add.new.product.purchasePriceEUR.not.filled.message");
+                    return;
+                }
+                for (ArticleJdo articleJdo : dialog.getTableModel().getTableData()) {
+                    double purchasePriceEUR = articleJdo.getPurchasePriceEUR();
+                    double transportCostEUR = aspectRatio * purchasePriceEUR;
+                    transportCostEUR = BigDecimal.valueOf(transportCostEUR).setScale(3, BigDecimal.ROUND_HALF_DOWN).doubleValue();
+                    articleJdo.setTransportCostEUR(transportCostEUR);
+                    dialog.getTableModel().articleFixTotalCostsAndCalculatedSalePrice(articleJdo);
 
+                }
+                dialog.getTableModel().fireTableDataChanged();
+                dialog.getArticleTableComponent().getArticleFiltersComponent().updateAnalyzeComponent();
+            }
+        } else {
+            dialog.showWarningMessage("mainForm.exception.message.dialog.title", "dialog.add.new.product.articles.not.added.message");
+            return;
         }
-        dialog.getTableModel().fireTableDataChanged();
-        dialog.getArticleTableComponent().getArticleFiltersComponent().updateAnalyzeComponent();
-
     }
 
     public void saveItemClicked() {

@@ -265,8 +265,8 @@ public class AddNewProductsDialog extends AbstractDialog {
         fileMenu.add(saveItem);
         fileMenu.add(openItem);
 
-        menuBar.add(tableMenu);
         menuBar.add(fileMenu);
+        menuBar.add(tableMenu);
     }
 
 
@@ -280,5 +280,9 @@ public class AddNewProductsDialog extends AbstractDialog {
 
     public JLabel getErrorMessage() {
         return errorMessage;
+    }
+
+    public JMenuItem getPrintItem() {
+        return printItem;
     }
 }

@@ -198,4 +198,7 @@ public class SoldProductsDialog extends AbstractDialog {
 //    }
 
 
+    public JMenuItem getPrintItem() {
+        return printItem;
+    }
 }
