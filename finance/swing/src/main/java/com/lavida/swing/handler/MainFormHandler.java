@@ -435,11 +435,11 @@ public class MainFormHandler {
 //            loadedArticles = articleServiceSwingWrapper.loadFromXml(file);
             postponedType = postponedXmlService.unmarshal(file);
         } catch (JAXBException e) {
-            e.printStackTrace();
+            logger.error(e.getMessage(), e);
             form.showWarningMessage("mainForm.exception.message.dialog.title", "mainForm.exception.xml.JAXB.message");
             return;
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            logger.error(e.getMessage(), e);
             form.showWarningMessage("mainForm.exception.message.dialog.title", "mainForm.exception.io.xml.file");
             return;
         }
@@ -489,8 +489,8 @@ public class MainFormHandler {
     }
 
     public void printItemClicked() {
-        MessageFormat header = new MessageFormat(messageSource.getMessage("mainForm.menu.file.print.header", null, localeHolder.getLocale()));
-        MessageFormat footer = new MessageFormat(messageSource.getMessage("mainForm.menu.file.print.footer", null, localeHolder.getLocale()));
+        MessageFormat header = new MessageFormat(messageSource.getMessage("mainForm.menu.table.print.header", null, localeHolder.getLocale()));
+        MessageFormat footer = new MessageFormat(messageSource.getMessage("mainForm.menu.table.print.footer", null, localeHolder.getLocale()));
         boolean fitPageWidth = false;
         boolean showPrintDialog = true;
         boolean interactive = true;
@@ -499,11 +499,11 @@ public class MainFormHandler {
             boolean complete = form.getArticleTableComponent().getArticlesTable().print(printMode, header, footer,
                     showPrintDialog, null, interactive, null);
             if (complete) {
-                form.showInformationMessage("mainForm.menu.file.print.message.title",
-                        messageSource.getMessage("mainForm.menu.file.print.finished.message.body", null, localeHolder.getLocale()));
+                form.showInformationMessage("mainForm.menu.table.print.message.title",
+                        messageSource.getMessage("mainForm.menu.table.print.finished.message.body", null, localeHolder.getLocale()));
             } else {
-                form.showInformationMessage("mainForm.menu.file.print.message.title",
-                        messageSource.getMessage("mainForm.menu.file.print.cancel.message.body", null, localeHolder.getLocale()));
+                form.showInformationMessage("mainForm.menu.table.print.message.title",
+                        messageSource.getMessage("mainForm.menu.table.print.cancel.message.body", null, localeHolder.getLocale()));
             }
         } catch (PrinterException e) {
             logger.warn(e.getMessage(), e);

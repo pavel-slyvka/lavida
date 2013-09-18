@@ -88,4 +88,21 @@ public abstract class AbstractForm implements MessageSourceAware {
                 messageSource.getMessage(titleKey, null, localeHolder.getLocale()),
                 JOptionPane.YES_NO_OPTION);
     }
+
+    /**
+     *  Shows input dialog.
+     * @param titleKey   the title of the messageDialog.
+     * @param messageKey the contents of the messageDialog.
+     * @param icon       the icon to be displayed.
+     * @param selectionValues the array of values to be displayed as a {@link javax.swing.JComboBox}.
+     * @param initialSelectionValue the initial selected value in the  {@link javax.swing.JComboBox}.
+     * @return  the selected value {@link java.lang.Object}.
+     */
+    public Object showInputDialog(String titleKey, String messageKey, Icon icon, Object[] selectionValues, Object initialSelectionValue) {
+        return JOptionPane.showInputDialog(form,
+                messageSource.getMessage(messageKey, null, localeHolder.getLocale()),
+                messageSource.getMessage(titleKey, null, localeHolder.getLocale()),
+                JOptionPane.QUESTION_MESSAGE, icon, selectionValues, initialSelectionValue);
+    }
+
 }

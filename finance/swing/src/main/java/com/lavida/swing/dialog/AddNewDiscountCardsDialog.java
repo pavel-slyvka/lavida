@@ -188,10 +188,10 @@ public class AddNewDiscountCardsDialog extends AbstractDialog {
         menuBar = new JMenuBar();
 
         fileMenu = new JMenu();
-        fileMenu.setText(messageSource.getMessage("mainForm.menu.file", null, localeHolder.getLocale()));
+        fileMenu.setText(messageSource.getMessage("mainForm.menu.table", null, localeHolder.getLocale()));
 
         printItem = new JMenuItem();
-        printItem.setText(messageSource.getMessage("mainForm.menu.file.print", null, localeHolder.getLocale()));
+        printItem.setText(messageSource.getMessage("mainForm.menu.table.print", null, localeHolder.getLocale()));
         printItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

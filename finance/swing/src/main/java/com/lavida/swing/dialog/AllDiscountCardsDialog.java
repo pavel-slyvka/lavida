@@ -10,8 +10,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 
 /**
  * The dialog for viewing, searching, editing all discount cards.
@@ -202,10 +200,10 @@ public class AllDiscountCardsDialog extends AbstractDialog {
         menuBar = new JMenuBar();
 
         fileMenu = new JMenu();
-        fileMenu.setText(messageSource.getMessage("mainForm.menu.file", null, localeHolder.getLocale()));
+        fileMenu.setText(messageSource.getMessage("mainForm.menu.table", null, localeHolder.getLocale()));
 
         printItem = new JMenuItem();
-        printItem.setText(messageSource.getMessage("mainForm.menu.file.print", null, localeHolder.getLocale()));
+        printItem.setText(messageSource.getMessage("mainForm.menu.table.print", null, localeHolder.getLocale()));
         printItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

@@ -115,7 +115,7 @@ public class AllDiscountCardsDialogHandler {
 
     public void printItemClicked() {
         MessageFormat header = new MessageFormat(messageSource.getMessage("dialog.discounts.card.all.menu.file.print.header", null, localeHolder.getLocale()));
-        MessageFormat footer = new MessageFormat(messageSource.getMessage("mainForm.menu.file.print.footer", null, localeHolder.getLocale()));
+        MessageFormat footer = new MessageFormat(messageSource.getMessage("mainForm.menu.table.print.footer", null, localeHolder.getLocale()));
         boolean fitPageWidth = false;
         boolean showPrintDialog = true;
         boolean interactive = true;
@@ -124,11 +124,11 @@ public class AllDiscountCardsDialogHandler {
             boolean complete = dialog.getCardTableComponent().getDiscountCardsTable().print(printMode, header, footer,
                     showPrintDialog, null, interactive, null);
             if (complete) {
-                dialog.showInformationMessage("mainForm.menu.file.print.message.title",
-                        messageSource.getMessage("mainForm.menu.file.print.finished.message.body", null, localeHolder.getLocale()));
+                dialog.showInformationMessage("mainForm.menu.table.print.message.title",
+                        messageSource.getMessage("mainForm.menu.table.print.finished.message.body", null, localeHolder.getLocale()));
             } else {
-                dialog.showInformationMessage("mainForm.menu.file.print.message.title",
-                        messageSource.getMessage("mainForm.menu.file.print.cancel.message.body", null, localeHolder.getLocale()));
+                dialog.showInformationMessage("mainForm.menu.table.print.message.title",
+                        messageSource.getMessage("mainForm.menu.table.print.cancel.message.body", null, localeHolder.getLocale()));
             }
         } catch (PrinterException e) {
             logger.warn(e.getMessage(), e);

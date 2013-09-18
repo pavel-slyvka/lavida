@@ -17,6 +17,7 @@ import org.springframework.context.MessageSource;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.swing.table.AbstractTableModel;
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
@@ -38,11 +39,13 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
     private List<String> headerTitles = new ArrayList<String>();
     private List<String> articleFieldsSequence;
     private Map<Integer, SimpleDateFormat> columnIndexToDateFormat;
+
     private ArticleJdo selectedArticle;
     private int totalCountArticles;
     private double totalPurchaseCostEUR, totalCostEUR, totalPriceUAH, totalCostUAH, minimalMultiplier, normalMultiplier,
             totalTransportCostEUR, profitUAH;
     private String sellerName;
+    private File openedFile;
 
     @Resource
     private ArticleDao articleDao;
@@ -74,7 +77,7 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
         updateTableData();
     }
 
-    private void updateTableData () {
+    private void updateTableData() {
         if (queryName != null) {
             tableData = articleDao.get(queryName);
         }
@@ -400,21 +403,10 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
                 if (typeValue != field.getDouble(articleJdo)) {
                     field.setDouble(articleJdo, typeValue);
                     if (field.getName().equals("transportCostEUR") || field.getName().equals("purchasePriceEUR")) {
-                        double totalCostEUR = articleJdo.getPurchasePriceEUR() + articleJdo.getTransportCostEUR()
-                                + 0.065*(articleJdo.getPurchasePriceEUR() + articleJdo.getTransportCostEUR());
-                        totalCostEUR = BigDecimal.valueOf(totalCostEUR).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue();
-                        articleJdo.setTotalCostEUR(totalCostEUR);
-                        double totalCostUAH = totalCostEUR * 11.0;
-                        totalCostUAH = BigDecimal.valueOf(totalCostUAH).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue();
-                        articleJdo.setTotalCostUAH(totalCostUAH);
-                        double calculatedSalePrice = totalCostUAH * articleJdo.getMultiplier() * 1.1;
-                        calculatedSalePrice = BigDecimal.valueOf(calculatedSalePrice).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue();
-                        articleJdo.setCalculatedSalePrice(calculatedSalePrice);
+                        articleFixTotalCostsAndCalculatedSalePrice(articleJdo);
                     }
                     if (field.getName().equals("multiplier") || field.getName().equals("totalCostUAH")) {
-                        double calculatedSalePrice = articleJdo.getTotalCostUAH() * articleJdo.getMultiplier() * 1.1;
-                        calculatedSalePrice = BigDecimal.valueOf(calculatedSalePrice).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue();
-                        articleJdo.setCalculatedSalePrice(calculatedSalePrice);
+                        articleFixCalculatedSalePrice(articleJdo);
                     }
                 } else return;
             } else if (char.class == field.getType()) {
@@ -464,20 +456,11 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
                 if (!typeValue.equals(field.get(articleJdo))) {
                     field.set(articleJdo, typeValue);
                     if (field.getName().equals("transportCostEUR") || field.getName().equals("purchasePriceEUR")) {
-                        double totalCostEUR = articleJdo.getPurchasePriceEUR() + articleJdo.getTransportCostEUR();
-                        totalCostEUR = BigDecimal.valueOf(totalCostEUR).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue();
-                        articleJdo.setTotalCostEUR(totalCostEUR);
-                        double totalCostUAH = totalCostEUR * 11.0;
-                        totalCostUAH = BigDecimal.valueOf(totalCostUAH).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue();
-                        articleJdo.setTotalCostUAH(totalCostUAH);
-                        double calculatedSalePrice = totalCostUAH * articleJdo.getMultiplier();
-                        calculatedSalePrice = BigDecimal.valueOf(calculatedSalePrice).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue();
-                        articleJdo.setCalculatedSalePrice(calculatedSalePrice);
+                        articleFixTotalCostsAndCalculatedSalePrice(articleJdo);
                     }
                     if (field.getName().equals("multiplier") || field.getName().equals("totalCostUAH")) {
-                        double calculatedSalePrice = articleJdo.getTotalCostUAH() * articleJdo.getMultiplier();
-                        calculatedSalePrice = BigDecimal.valueOf(calculatedSalePrice).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue();
-                        articleJdo.setCalculatedSalePrice(calculatedSalePrice);                    }
+                        articleFixCalculatedSalePrice(articleJdo);
+                    }
                 } else return;
             } else if (Character.class == field.getType()) {
                 Character typeValue = value.charAt(0);
@@ -588,9 +571,10 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
 
     /**
      * Changes the ArticlesTableModel queryName according to the user's first role.
+     *
      * @param userRoles the list of user's roles.
      */
-    public void filterTableDataByRole (List<String> userRoles) {
+    public void filterTableDataByRole(List<String> userRoles) {
         if (ArticleJdo.FIND_NOT_SOLD.equals(queryName)) {
             for (String role : userRoles) {
                 if ("ROLE_SELLER_LA_VIDA".equals(role)) {
@@ -700,4 +684,29 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
         return queryName;
     }
 
+    public File getOpenedFile() {
+        return openedFile;
+    }
+
+    public void setOpenedFile(File openedFile) {
+        this.openedFile = openedFile;
+    }
+
+    public void articleFixTotalCostsAndCalculatedSalePrice(ArticleJdo articleJdo) {
+        double totalCostEUR = articleJdo.getPurchasePriceEUR() + articleJdo.getTransportCostEUR()
+                + 0.065 * (articleJdo.getPurchasePriceEUR() + articleJdo.getTransportCostEUR());
+        totalCostEUR = BigDecimal.valueOf(totalCostEUR).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue();
+        articleJdo.setTotalCostEUR(totalCostEUR);
+        double totalCostUAH = totalCostEUR * 11.0;
+        totalCostUAH = BigDecimal.valueOf(totalCostUAH).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue();
+        articleJdo.setTotalCostUAH(totalCostUAH);
+        articleFixCalculatedSalePrice(articleJdo);
+    }
+
+    public void articleFixCalculatedSalePrice(ArticleJdo articleJdo) {
+        double calculatedSalePrice = articleJdo.getTotalCostUAH() * articleJdo.getMultiplier() * 1.1;
+        calculatedSalePrice = BigDecimal.valueOf(calculatedSalePrice).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue();
+        articleJdo.setCalculatedSalePrice(calculatedSalePrice);
+
+    }
 }

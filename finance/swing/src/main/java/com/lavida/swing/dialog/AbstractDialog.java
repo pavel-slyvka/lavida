@@ -59,12 +59,6 @@ public abstract class AbstractDialog implements MessageSourceAware {
                 messageSource.getMessage(titleKey, null, localeHolder.getLocale()),
                 JOptionPane.WARNING_MESSAGE);
     }
-//    public void showWarningMessage(String titleKey, String messageKey) {
-//        JOptionPane.showMessageDialog(form,
-//                messageSource.getMessage(messageKey, null, localeHolder.getLocale()),
-//                messageSource.getMessage(titleKey, null, localeHolder.getLocale()),
-//                JOptionPane.WARNING_MESSAGE);
-//    }
 
     public void showInformationMessage(String titleKey, String messageBody) {
         JOptionPane.showMessageDialog(dialog, messageBody,
@@ -86,6 +80,21 @@ public abstract class AbstractDialog implements MessageSourceAware {
                 JOptionPane.YES_NO_OPTION);
     }
 
+    /**
+     *  Shows input dialog.
+     * @param titleKey   the title of the messageDialog.
+     * @param messageKey the contents of the messageDialog.
+     * @param icon       the icon to be displayed.
+     * @param selectionValues the array of values to be displayed as a {@link javax.swing.JComboBox}.
+     * @param initialSelectionValue the initial selected value in the  {@link javax.swing.JComboBox}.
+     * @return  the selected value {@link java.lang.Object}.
+     */
+    public Object showInputDialog(String titleKey, String messageKey, Icon icon, Object[] selectionValues, Object initialSelectionValue) {
+        return JOptionPane.showInputDialog(dialog,
+                messageSource.getMessage(messageKey, null, localeHolder.getLocale()),
+                messageSource.getMessage(titleKey, null, localeHolder.getLocale()),
+                JOptionPane.QUESTION_MESSAGE, icon, selectionValues, initialSelectionValue);
+    }
 
     public void hide() {
         dialog.dispose();

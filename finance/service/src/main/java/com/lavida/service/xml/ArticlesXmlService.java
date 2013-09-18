@@ -24,7 +24,7 @@ public class ArticlesXmlService {
      * Marshals the List {@code <}{@link com.lavida.service.entity.ArticleJdo}{@code >} to the xml file
      *
      * @param articlesJdo the List {@code <}{@link com.lavida.service.entity.ArticleJdo}{@code >} to be marshaled
-     * @param filePath    the xml file receiving the articlesJdo
+     * @param file    the xml file receiving the articlesJdo
      * @throws JAXBException if an error was encountered while creating the
      *                       <tt>JAXBContext</tt>, such as (but not limited to):
      *                       <ol>
@@ -37,11 +37,11 @@ public class ArticlesXmlService {
      *                       </ol>
      * @throws IOException   if an I/O error occurs.
      */
-    public void marshal(List<ArticleJdo> articlesJdo, String filePath) throws JAXBException, IOException {
+    public void marshal(List<ArticleJdo> articlesJdo, File file) throws JAXBException, IOException {
         ArticlesType articlesType = new ArticlesType();
         List<ArticleJdo> articles = articlesType.getArticles();
         articles.addAll(articlesJdo);
-        OutputStream outputStream = new FileOutputStream(filePath);
+        OutputStream outputStream = new FileOutputStream(file);
         JAXBContext context = JAXBContext.newInstance(ArticlesType.class);
         Marshaller marshaller = context.createMarshaller();
         marshaller.marshal(articlesType, outputStream);
@@ -52,7 +52,7 @@ public class ArticlesXmlService {
     /**
      * Unmarshals the xml file to the List {@code <}{@link com.lavida.service.entity.ArticleJdo}{@code >}.
      *
-     * @param filePath the xml file holding the articlesJdo.
+     * @param file the xml file holding the articlesJdo.
      * @return the List {@code <}{@link com.lavida.service.entity.ArticleJdo}{@code >} articlesJdo.
      * @throws JAXBException         if an error was encountered while creating the
      *                               <tt>JAXBContext</tt>, such as (but not limited to):
@@ -69,9 +69,9 @@ public class ArticlesXmlService {
      *                               or for some other reason cannot be opened for
      *                               reading.
      */
-    public List<ArticleJdo> unmarshal(String filePath) throws JAXBException, FileNotFoundException {
+    public List<ArticleJdo> unmarshal(File file) throws JAXBException, FileNotFoundException {
         List<ArticleJdo> articlesJdo = new ArrayList<ArticleJdo>();
-        InputStream inputStream = new FileInputStream(new File(filePath));
+        InputStream inputStream = new FileInputStream(file);
         JAXBContext context = JAXBContext.newInstance(ArticlesType.class);
         Unmarshaller unmarshaller = context.createUnmarshaller();
         ArticlesType articlesType = (ArticlesType) unmarshaller.unmarshal(inputStream);

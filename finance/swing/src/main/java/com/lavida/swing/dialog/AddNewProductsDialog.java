@@ -33,8 +33,8 @@ public class AddNewProductsDialog extends AbstractDialog {
     private JButton addRowButton, deleteRowButton, acceptProductsButton, cancelButton, copyRowButton;
     private JLabel errorMessage;
     private JMenuBar menuBar;
-    private JMenu fileMenu;
-    private JMenuItem printItem;
+    private JMenu tableMenu, fileMenu;
+    private JMenuItem printItem, calculateTransportCostEURItem, saveItem, openItem ;
 
 
     @Override
@@ -216,11 +216,11 @@ public class AddNewProductsDialog extends AbstractDialog {
     private void initializeMenuBar() {
         menuBar = new JMenuBar();
 
-        fileMenu = new JMenu();
-        fileMenu.setText(messageSource.getMessage("mainForm.menu.file", null, localeHolder.getLocale()));
+        tableMenu = new JMenu();
+        tableMenu.setText(messageSource.getMessage("mainForm.menu.table", null, localeHolder.getLocale()));
 
         printItem = new JMenuItem();
-        printItem.setText(messageSource.getMessage("mainForm.menu.file.print", null, localeHolder.getLocale()));
+        printItem.setText(messageSource.getMessage("mainForm.menu.table.print", null, localeHolder.getLocale()));
         printItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -228,8 +228,44 @@ public class AddNewProductsDialog extends AbstractDialog {
             }
         });
 
-        fileMenu.add(printItem);
+        calculateTransportCostEURItem = new JMenuItem();
+        calculateTransportCostEURItem.setText(messageSource.getMessage("mainForm.menu.table.calculate.cost.transport",
+                null, localeHolder.getLocale()));
+        calculateTransportCostEURItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handler.calculateTransportCostEURItemClicked();
+            }
+        });
 
+        tableMenu.add(calculateTransportCostEURItem);
+        tableMenu.add(printItem);
+
+        fileMenu = new JMenu();
+        fileMenu.setText(messageSource.getMessage("mainForm.menu.file", null, localeHolder.getLocale()));
+
+        saveItem = new JMenuItem();
+        saveItem.setText(messageSource.getMessage("mainForm.menu.file.save", null, localeHolder.getLocale()));
+        saveItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handler.saveItemClicked();
+            }
+        });
+
+        openItem = new JMenuItem();
+        openItem.setText(messageSource.getMessage("mainForm.menu.file.open", null, localeHolder.getLocale()));
+        openItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handler.openItemClicked();
+            }
+        });
+
+        fileMenu.add(saveItem);
+        fileMenu.add(openItem);
+
+        menuBar.add(tableMenu);
         menuBar.add(fileMenu);
     }
 

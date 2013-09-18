@@ -83,12 +83,10 @@ public class ArticleServiceSwingWrapper implements ApplicationContextAware {
     }
 
     public void saveToXml(List<ArticleJdo> articleJdoList, File file) throws JAXBException, IOException {
-        String filePath = file.getAbsolutePath();
-        articlesXmlService.marshal(articleJdoList, filePath);
+        articlesXmlService.marshal(articleJdoList, file);
     }
 
     public List<ArticleJdo> loadFromXml (File file) throws JAXBException, FileNotFoundException {
-        String filePath = file.getAbsolutePath();
-        return articlesXmlService.unmarshal(filePath);
+        return articlesXmlService.unmarshal(file);
     }
 }

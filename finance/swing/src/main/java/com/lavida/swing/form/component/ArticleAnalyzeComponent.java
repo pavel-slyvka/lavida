@@ -86,7 +86,7 @@ public class ArticleAnalyzeComponent {
 
         totalPurchaseCostEURField = new JLabel();
         totalPurchaseCostEURField.setBorder(fieldsBorder);
-        totalPurchaseCostEURField.setText(roundTwoDecimals(tableModel.getTotalPurchaseCostEUR()));
+        totalPurchaseCostEURField.setText(roundTwoDecimalsString(tableModel.getTotalPurchaseCostEUR()));
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.gridwidth = GridBagConstraints.REMAINDER;
         constraints.anchor = GridBagConstraints.EAST;
@@ -107,7 +107,7 @@ public class ArticleAnalyzeComponent {
 
         totalCostEURField = new JLabel();
         totalCostEURField.setBorder(fieldsBorder);
-        totalCostEURField.setText(roundTwoDecimals(tableModel.getTotalCostEUR()));
+        totalCostEURField.setText(roundTwoDecimalsString(tableModel.getTotalCostEUR()));
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.gridwidth = GridBagConstraints.REMAINDER;
         constraints.anchor = GridBagConstraints.EAST;
@@ -127,7 +127,7 @@ public class ArticleAnalyzeComponent {
 
         totalCostUAHField = new JLabel();
         totalCostUAHField.setBorder(fieldsBorder);
-        totalCostUAHField.setText(roundTwoDecimals(tableModel.getTotalCostUAH()));
+        totalCostUAHField.setText(roundTwoDecimalsString(tableModel.getTotalCostUAH()));
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.gridwidth = GridBagConstraints.REMAINDER;
         constraints.anchor = GridBagConstraints.EAST;
@@ -142,7 +142,7 @@ public class ArticleAnalyzeComponent {
 
         minimalMultiplierField = new JLabel();
         minimalMultiplierField.setBorder(fieldsBorder);
-        minimalMultiplierField.setText(roundTwoDecimals(tableModel.getMinimalMultiplier()));
+        minimalMultiplierField.setText(roundTwoDecimalsString(tableModel.getMinimalMultiplier()));
 
         totalTransportCostEURLabel = new JLabel();
         totalTransportCostEURLabel.setBorder(BorderFactory.createEmptyBorder());
@@ -152,7 +152,7 @@ public class ArticleAnalyzeComponent {
 
         totalTransportCostEURField = new JLabel();
         totalTransportCostEURField.setBorder(fieldsBorder);
-        totalTransportCostEURField.setText(roundTwoDecimals(tableModel.getTotalTransportCostEUR()));
+        totalTransportCostEURField.setText(roundTwoDecimalsString(tableModel.getTotalTransportCostEUR()));
 
         if (tableModel.getQueryName() != null) {
             constraints.fill = GridBagConstraints.NONE;
@@ -194,7 +194,7 @@ public class ArticleAnalyzeComponent {
 
         normalMultiplierField = new JLabel();
         normalMultiplierField.setBorder(fieldsBorder);
-        normalMultiplierField.setText(roundTwoDecimals(tableModel.getNormalMultiplier()));
+        normalMultiplierField.setText(roundTwoDecimalsString(tableModel.getNormalMultiplier()));
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.gridwidth = GridBagConstraints.REMAINDER;
         constraints.anchor = GridBagConstraints.EAST;
@@ -213,7 +213,7 @@ public class ArticleAnalyzeComponent {
         analyzePanel.add(totalPriceLabel, constraints);
 
         totalPriceField = new JLabel();
-        totalPriceField.setText(roundTwoDecimals(tableModel.getTotalPriceUAH()));
+        totalPriceField.setText(roundTwoDecimalsString(tableModel.getTotalPriceUAH()));
         totalPriceField.setBorder(fieldsBorder);
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.gridwidth = GridBagConstraints.REMAINDER;
@@ -228,7 +228,7 @@ public class ArticleAnalyzeComponent {
         profitUAHLabel.setLabelFor(profitUAHField);
 
         profitUAHField = new JLabel();
-        profitUAHField.setText(roundTwoDecimals(tableModel.getProfitUAH()));
+        profitUAHField.setText(roundTwoDecimalsString(tableModel.getProfitUAH()));
         profitUAHField.setBorder(fieldsBorder);
 
         if (tableModel.getQueryName() != null) {
@@ -257,14 +257,14 @@ public class ArticleAnalyzeComponent {
     public void updateFields(int totalCount, double totalPurchaseCostEUR, double totalCostEUR, double totalCostUAH,
                              double minimalMultiplier, double normalMultiplier, double totalPrice, double totalTransportCostEUR, double profitUAH) {
         totalCountField.setText(String.valueOf(totalCount));
-        totalPurchaseCostEURField.setText(roundTwoDecimals(totalPurchaseCostEUR));
-        totalCostEURField.setText(roundTwoDecimals(totalCostEUR));
-        totalCostUAHField.setText(roundTwoDecimals(totalCostUAH));
-        minimalMultiplierField.setText(roundTwoDecimals(minimalMultiplier));
-        normalMultiplierField.setText(roundTwoDecimals(normalMultiplier));
-        totalPriceField.setText(roundTwoDecimals(totalPrice));
-        totalTransportCostEURField.setText(roundTwoDecimals(totalTransportCostEUR));
-        profitUAHField.setText(roundTwoDecimals(profitUAH));
+        totalPurchaseCostEURField.setText(roundTwoDecimalsString(totalPurchaseCostEUR));
+        totalCostEURField.setText(roundTwoDecimalsString(totalCostEUR));
+        totalCostUAHField.setText(roundTwoDecimalsString(totalCostUAH));
+        minimalMultiplierField.setText(roundTwoDecimalsString(minimalMultiplier));
+        normalMultiplierField.setText(roundTwoDecimalsString(normalMultiplier));
+        totalPriceField.setText(roundTwoDecimalsString(totalPrice));
+        totalTransportCostEURField.setText(roundTwoDecimalsString(totalTransportCostEUR));
+        profitUAHField.setText(roundTwoDecimalsString(profitUAH));
     }
 
     /**
@@ -273,7 +273,7 @@ public class ArticleAnalyzeComponent {
      * @param number double to be formatted.
      * @return the rounded String expression.
      */
-    private String roundTwoDecimals(double number) {
+    private String roundTwoDecimalsString(double number) {
         DecimalFormat decimalFormat = new DecimalFormat("#.##");
         return decimalFormat.format(number);
     }
@@ -311,6 +311,11 @@ public class ArticleAnalyzeComponent {
 
     public JPanel getAnalyzePanel() {
         return analyzePanel;
+    }
+
+
+    public JLabel getTotalPurchaseCostEURField() {
+        return totalPurchaseCostEURField;
     }
 
 }

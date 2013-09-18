@@ -3,13 +3,15 @@ Changelog of the LA VIDA Finance
 
 Version 0.2.1   release date:    -09-2013
 -----------------------------------------
+- Added the file menu with items "save" and "open" for the AddNewProductsDialog's menuBar;
+- Added the item "calculate transport cost EUR" for the AddNewProductsDialog's table menu;
 - Added filtering articles by an empty shop;
 - Fixed bug in sellDialog when presentCheckBox is selected the discountField and discountCardNumberField are disabled;
 - Fixed bug in sellDialog when cancel or sell buttons are clicked the clientCheckBox sets selected;
 - Added filtering by city and bonus to the DiscountCardFilterComponent;
 - Added column city to the discount cards tables;
 - Added profitUAH to the ArticleAnalyzeComponent;
-- Added all tables printing;
+- Added ability for all tables printing;
 - Added closing the AddNewProductsDialog by "ESC" key pressing;
 
 Version 0.2     release date:  15-09-2013
