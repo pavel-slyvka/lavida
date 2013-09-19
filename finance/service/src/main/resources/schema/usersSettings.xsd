@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<xs:schema xmlns:uns="http://www.xml.lavida.com/schema/usersSettings.com"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           targetNamespace="http://www.xml.lavida.com/schema/usersSettings.com" version="1.0">
+
+    <xs:element name="usersSettings" type="uns:usersSettingsType"/>
+    <xs:complexType name="usersSettingsType">
+        <xs:sequence>
+            <xs:element name="defaultPresetSettings" type="uns:presetType"/>
+            <xs:element name="userSettingsList" type="uns:userListType"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="userListType">
+        <xs:sequence maxOccurs="unbounded" minOccurs="0" xml:base="uns:userSettingsType">
+            <xs:element name="userSettings"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:element name="userSettings" type="uns:userSettingsType"/>
+    <xs:complexType name="userSettingsType">
+        <xs:sequence>
+            <xs:element name="defaultPresetSettings" type="uns:presetType"/>
+            <xs:element name="presetSettingsList" type="uns:presetListType"/>
+        </xs:sequence>
+        <xs:attribute name="login" type="xs:string"/>
+    </xs:complexType>
+
+    <xs:complexType name="presetListType">
+        <xs:sequence maxOccurs="unbounded" minOccurs="0" xml:base="uns:presetType">
+            <xs:element name="preset"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:element name="presetSettings" type="uns:presetType"/>
+    <xs:complexType name="presetType">
+        <xs:sequence>
+            <xs:element name="articlesTableSettings" type="uns:tableType"/>
+            <xs:element name="discountCardsTableSettings" type="uns:tableType"/>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string"/>
+    </xs:complexType>
+
+    <xs:element name="table" type="uns:tableType"/>
+    <xs:complexType name="tableType">
+        <xs:sequence >
+            <xs:element name="column" type="uns:columnType" maxOccurs="unbounded" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:element name="column" type="uns:columnType"/>
+    <xs:complexType name="columnType">
+        <xs:sequence>
+            <xs:element name="header" type="xs:string"/>
+            <xs:element name="index" type="xs:int"/>
+            <xs:element name="width" type="xs:int"/>
+            <xs:element name="backgroundColor" type="xs:nonNegativeInteger"/>
+            <xs:element name="foregroundColor" type="xs:nonNegativeInteger"/>
+            <xs:element name="comboBoxItems" type="uns:itemListType"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="itemListType">
+        <xs:sequence>
+            <xs:element name="item" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+
+</xs:schema>
