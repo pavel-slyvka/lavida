@@ -1,10 +1,13 @@
 package com.lavida.service;
 
-import com.lavida.service.preset.settings.UserSettings;
+import com.lavida.service.settings.user.UserSettings;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
+import java.io.File;
+
 /**
- * The service for the {@link com.lavida.service.preset.settings.UserSettings }.
+ * The service for the {@link com.lavida.service.settings.user.UserSettings }.
  * Created: 16:38 18.09.13
  *
  * @author Ruslan
@@ -12,12 +15,19 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserSettingsService {
 
-     public void updateSettings (UserSettings userSettings) {
+    private File settingsFile;
 
-     }
+    public void saveSettings(UserSettings userSettings) {
+        // todo
+    }
 
-    public UserSettings getSettings () {
+    public UserSettings getSettings() {
+        return null;    // todo
+    }
 
-        return null;
+    @PostConstruct
+    public void init() {
+        String filePath = System.getProperty("user.dir");
+        settingsFile = new File(filePath);
     }
 }
