@@ -57,7 +57,10 @@ public class MainForm extends AbstractForm {
     private JMenuBar menuBar;
     private JMenu postponedMenu, productsMenu, settingsMenu, discountsMenu, fileMenu;
     private JMenuItem savePostponedItem, loadPostponedItem, recommitPostponedItem, deletePostponedItem,
-            addNewProductsItem, articleColumnsViewItem, addNewDiscountCardItem, allDiscountCardsItem, printItem;
+            addNewProductsItem,
+            articleColumnsViewItem, saveSettingsItem,
+            addNewDiscountCardItem, allDiscountCardsItem,
+            printItem;
     private ArticleTableComponent articleTableComponent = new ArticleTableComponent();
 
     @Override
@@ -293,7 +296,18 @@ public class MainForm extends AbstractForm {
                 handler.articleColumnsViewItemClicked();
             }
         });
+
+        saveSettingsItem = new JMenuItem();
+        saveSettingsItem.setText(messageSource.getMessage("mainForm.menu.settings.save", null, localeHolder.getLocale()));
+        saveSettingsItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handler.saveSettingsItemClicked();
+            }
+        });
+
         settingsMenu.add(articleColumnsViewItem);
+        settingsMenu.add(saveSettingsItem);
 
 //        discounts menu
         discountsMenu = new JMenu();

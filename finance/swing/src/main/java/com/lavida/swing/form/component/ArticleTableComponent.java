@@ -14,9 +14,8 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import java.awt.*;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.List;
 
 /**
  * ArticleTableComponent
@@ -34,6 +33,7 @@ public class ArticleTableComponent implements TableModelListener {
     private JScrollPane tableScrollPane;
     private JComboBox brandBox, sizeBox, shopBox;
     private ArticleFiltersComponent articleFiltersComponent = new ArticleFiltersComponent();
+    private Map<String, Integer> presetTableColumnsHeadersAndIndices = new HashMap<>();
 
     private String[] brandArray = {"H&M", "Mango", "Zara", "PULL&BEAR", "Westrags", "Bershka", "GoodLuck", "HTrand",
             "FeelingModa", "TodayFashion", "KR", "Glamour", "MGessi", "ProntoModa", "PuroLino", "Fashion",
@@ -54,6 +54,7 @@ public class ArticleTableComponent implements TableModelListener {
         this.localeHolder = localeHolder;
         tableModel.initAnalyzeFields();
         tableModel.addTableModelListener(this);
+        loadPresetTableColumnsHeadersAndIndices();
 
 //      main panel for table of goods
         mainPanel = new JPanel();
@@ -62,10 +63,9 @@ public class ArticleTableComponent implements TableModelListener {
 
         articlesTable = new JTable(tableModel);
         articlesTable.setCellEditor(new DefaultCellEditor(new JTextField()));
-
         initTableColumnsEditors();
-
         initTableColumnsWidth();
+        presetTableColumnsOrdering(articlesTable);
         articlesTable.doLayout();
         articlesTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 //      Filtering the table
@@ -96,6 +96,41 @@ public class ArticleTableComponent implements TableModelListener {
         articleFiltersComponent.initializeComponents(tableModel, messageSource, localeHolder);
         articlesTable.setRowSorter(articleFiltersComponent.getSorter());
 
+    }
+
+    private void loadPresetTableColumnsHeadersAndIndices() {
+
+    }
+
+    /**
+     * Moves columns in the table according to the user's settings.
+     * @param table the table to be sorted.
+     */
+    private void presetTableColumnsOrdering(JTable table) {
+        if (presetTableColumnsHeadersAndIndices.size() > 0) {
+            TableColumnModel tableColumnModel = table.getColumnModel();
+            Enumeration<TableColumn> columnEnumeration = tableColumnModel.getColumns();
+            List<TableColumn> columnList = tableColumnEnumerationToList(columnEnumeration);
+            for (TableColumn column : columnList) {
+                String columnHeader = (String)column.getHeaderValue();
+                int presetModelIndex = presetTableColumnsHeadersAndIndices.get(columnHeader);
+                tableColumnModel.moveColumn(column.getModelIndex(), presetModelIndex);
+            }
+        }
+
+    }
+
+    /**
+     * Converts the Enumeration of TableColumn  to the List of TableColumn.
+     * @param tableColumnEnumeration  the Enumeration to be converted.
+     * @return the List of TableColumn.
+     */
+    private List<TableColumn> tableColumnEnumerationToList (Enumeration<TableColumn> tableColumnEnumeration) {
+        List<TableColumn> tableColumnList = new ArrayList<TableColumn>();
+        while (tableColumnEnumeration.hasMoreElements()) {
+            tableColumnList.add(tableColumnEnumeration.nextElement());
+        }
+        return tableColumnList;
     }
 
     private void initTableColumnsEditors() {

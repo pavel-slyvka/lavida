@@ -510,4 +510,8 @@ public class MainFormHandler {
             form.showWarningMessage("mainForm.exception.message.dialog.title", "mainForm.handler.print.exception.message");
         }
     }
+
+    public void saveSettingsItemClicked() {
+
+    }
 }
