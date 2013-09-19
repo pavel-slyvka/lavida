@@ -2,6 +2,7 @@ package com.lavida.swing.form;
 
 import com.lavida.swing.dialog.*;
 import com.lavida.swing.form.component.ArticleTableComponent;
+import com.lavida.swing.form.component.ProgressComponent;
 import com.lavida.swing.handler.MainFormHandler;
 import com.lavida.swing.service.ArticlesTableModel;
 import org.springframework.stereotype.Component;
@@ -43,6 +44,9 @@ public class MainForm extends AbstractForm {
 
     @Resource
     private AddNewDiscountCardsDialog addNewDiscountCardsDialog;
+
+    @Resource
+    private ProgressComponent progressComponent;
 
     private static final List<String> FORBIDDEN_ROLES = new ArrayList<String>();
     static {
@@ -214,6 +218,8 @@ public class MainForm extends AbstractForm {
         statusBarPanel.add(postponedOperations);
         statusBarPanel.add(postponedMessage);
         statusBarPanel.add(errorMessage);
+        statusBarPanel.add(progressComponent.getLabel());
+        statusBarPanel.add(progressComponent.getProgressBar());
 
         rootContainer.add(statusBarPanel, BorderLayout.SOUTH);
     }
@@ -471,6 +477,10 @@ public class MainForm extends AbstractForm {
             }
         }
         return false;
+    }
+
+    public void setRefreshButtonEnable(boolean isVisible) {
+        refreshButton.setEnabled(isVisible);
     }
 
     public JLabel getErrorMessage() {

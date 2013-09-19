@@ -1,10 +1,14 @@
 package com.lavida.swing.handler;
 
 import com.google.gdata.util.ServiceException;
+import com.lavida.TaskProgressEvent;
+import com.lavida.service.ArticleUpdateInfo;
 import com.lavida.service.DiscountCardsUpdateInfo;
 import com.lavida.service.UserService;
 import com.lavida.service.entity.ArticleJdo;
 import com.lavida.service.entity.DiscountCardJdo;
+import com.lavida.service.settings.Settings;
+import com.lavida.service.settings.SettingsService;
 import com.lavida.service.xml.PostponedType;
 import com.lavida.service.xml.PostponedXmlService;
 import com.lavida.swing.LocaleHolder;
@@ -12,12 +16,15 @@ import com.lavida.swing.dialog.*;
 import com.lavida.swing.exception.LavidaSwingRuntimeException;
 import com.lavida.swing.form.MainForm;
 import com.lavida.swing.form.component.FileChooserComponent;
+import com.lavida.swing.form.component.ProgressComponent;
 import com.lavida.swing.service.ArticleServiceSwingWrapper;
-import com.lavida.service.ArticleUpdateInfo;
 import com.lavida.swing.service.ArticlesTableModel;
 import com.lavida.swing.service.DiscountCardServiceSwingWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
@@ -32,6 +39,7 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -43,7 +51,7 @@ import java.util.List;
  * @author Pavel
  */
 @Component
-public class MainFormHandler {
+public class MainFormHandler implements ApplicationContextAware {
     private static final Logger logger = LoggerFactory.getLogger(MainFormHandler.class);
 
     @Resource
@@ -91,6 +99,13 @@ public class MainFormHandler {
     @Resource
     private FileChooserComponent fileChooser;
 
+    @Resource
+    private ProgressComponent progressComponent;
+
+    @Resource
+    private SettingsService settingsService;
+
+    private ApplicationContext applicationContext;
 
     /**
      * The ActionListener for refreshButton component.
@@ -99,33 +114,69 @@ public class MainFormHandler {
      * goods and renders to the articleTable.
      */
     public void refreshButtonClicked() {
-        ArticleUpdateInfo articleUpdateInfo = null;
-        DiscountCardsUpdateInfo discountCardsUpdateInfo = null;
-        try {
-            List<ArticleJdo> articles = articleServiceSwingWrapper.loadArticlesFromRemoteServer();
-            articleUpdateInfo = articleServiceSwingWrapper.updateDatabaseFromRemote(articles);
-        } catch (IOException e) {
-            throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.GOOGLE_IO_EXCEPTION, e, form);
-        } catch (ServiceException e) {
-            throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.GOOGLE_SERVICE_EXCEPTION, e, form);
-        }
-        try {
-            List<DiscountCardJdo> discountCardJdoList = discountCardServiceSwingWrapper.loadDiscountCardsFromRemoteServer();
-            discountCardsUpdateInfo = discountCardServiceSwingWrapper.updateDatabaseFromRemote(discountCardJdoList);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                form.setRefreshButtonEnable(false);
+                ArticleUpdateInfo articleUpdateInfo = null;
+                DiscountCardsUpdateInfo discountCardsUpdateInfo = null;
+                try {
+                    List<Long> refreshTaskTimes = Arrays.asList(6000L, 14000L, 8000L, 300L, 3000L, 100L);
+                    String refreshTaskTimesString = settingsService.getSettings().getSheetRefreshTasksTimes();
+                    if (refreshTaskTimesString != null && !refreshTaskTimesString.trim().isEmpty()) {
+                        String[] refreshTaskTimesArray = refreshTaskTimesString.split(", ");
+                        if (refreshTaskTimesArray.length == refreshTaskTimes.size()) {
+                            try {
+                                List<Long> newRefreshTaskTimes = new ArrayList<>(refreshTaskTimes.size());
+                                for (String time : refreshTaskTimesArray) {
+                                    newRefreshTaskTimes.add(Long.valueOf(time));
+                                }
+                                refreshTaskTimes = newRefreshTaskTimes;
+                            } catch (NumberFormatException e) {}
+                        }
+                    }
 
-        } catch (IOException e) {
-            logger.warn(e.getMessage(), e);
-        } catch (ServiceException e) {
-            logger.warn(e.getMessage(), e);
-        }
-        showUpdateInfoMessage(articleUpdateInfo, discountCardsUpdateInfo);
-        form.update();    // repaint MainForm in some time
+                    progressComponent.reinitialize(messageSource.getMessage("mainForm.progress.label.refresh", null, localeHolder.getLocale()))
+                            .addWork(refreshTaskTimes.get(0), true).addWork(refreshTaskTimes.get(1), true).addWork(refreshTaskTimes.get(2), true)
+                            .addWork(refreshTaskTimes.get(3), true).addWork(refreshTaskTimes.get(4), true).addWork(refreshTaskTimes.get(5), true)
+                            .start();
+                    List<ArticleJdo> articles = articleServiceSwingWrapper.loadArticlesFromRemoteServer();
+                    articleUpdateInfo = articleServiceSwingWrapper.updateDatabaseFromRemote(articles);
+                    applicationContext.publishEvent(new TaskProgressEvent(this, TaskProgressEvent.TaskProgressType.COMPLETE));
+                } catch (IOException e) {
+                    throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.GOOGLE_IO_EXCEPTION, e, form);
+                } catch (ServiceException e) {
+                    throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.GOOGLE_SERVICE_EXCEPTION, e, form);
+                }
+                try {
+                    List<DiscountCardJdo> discountCardJdoList = discountCardServiceSwingWrapper.loadDiscountCardsFromRemoteServer();
+                    applicationContext.publishEvent(new TaskProgressEvent(this, TaskProgressEvent.TaskProgressType.COMPLETE));
+                    discountCardsUpdateInfo = discountCardServiceSwingWrapper.updateDatabaseFromRemote(discountCardJdoList);
+                    applicationContext.publishEvent(new TaskProgressEvent(this, TaskProgressEvent.TaskProgressType.COMPLETE));
+
+                } catch (IOException | ServiceException e) {
+                    logger.warn(e.getMessage(), e);
+                }
+                showUpdateInfoMessage(articleUpdateInfo, discountCardsUpdateInfo);
+                form.update();    // repaint MainForm in some time
+                form.setRefreshButtonEnable(true);
+
+                Long[] correctedTaskTimes = progressComponent.getCorrectedTaskTimes();
+                StringBuilder correctedTimesBuilder = new StringBuilder();
+                for (long correctedTaskTime : correctedTaskTimes) {
+                    correctedTimesBuilder.append(", ").append(correctedTaskTime);
+                }
+                Settings settings = settingsService.getSettings();
+                settings.setSheetRefreshTasksTimes(correctedTimesBuilder.toString().substring(2));
+                settingsService.saveSettings(settings);
+            }
+        }).start();
     }
 
     /**
      * Shows a JOptionPane message with the information about the articles updating  process.
      *
-     * @param articleUpdateInfo the ArticleUpdateInfo to be shown.
+     * @param articleUpdateInfo       the ArticleUpdateInfo to be shown.
      * @param discountCardsUpdateInfo
      */
     private void showUpdateInfoMessage(ArticleUpdateInfo articleUpdateInfo, DiscountCardsUpdateInfo discountCardsUpdateInfo) {
@@ -174,9 +225,9 @@ public class MainFormHandler {
             if (articleJdo.getPostponedOperationDate() != null) {
                 try {
                     if (articleJdo.getSold() != null) {   //recommit selling
-                        articleServiceSwingWrapper.updateToSpreadsheet(articleJdo, new Boolean(true));
+                        articleServiceSwingWrapper.updateToSpreadsheet(articleJdo, true);
                     } else if (articleJdo.getSold() == null && articleJdo.getRefundDate() != null) {  // recommit refunding
-                        articleServiceSwingWrapper.updateToSpreadsheet(articleJdo, new Boolean(false));
+                        articleServiceSwingWrapper.updateToSpreadsheet(articleJdo, false);
                         articleJdo.setSaleDate(null);
                     } else {
                         articleServiceSwingWrapper.updateToSpreadsheet(articleJdo, null); // recommit other changes
@@ -201,9 +252,7 @@ public class MainFormHandler {
                     discountCardServiceSwingWrapper.updateToSpreadsheet(discountCardJdo);
                     discountCardJdo.setPostponedDate(null);
                     discountCardServiceSwingWrapper.update(discountCardJdo);
-                } catch (IOException e) {
-                    logger.warn(e.getMessage(), e);
-                } catch (ServiceException e) {
+                } catch (IOException | ServiceException e) {
                     logger.warn(e.getMessage(), e);
                 }
             }
@@ -359,9 +408,7 @@ public class MainFormHandler {
             case JOptionPane.NO_OPTION:
                 return;
             case JOptionPane.CLOSED_OPTION:
-                return;
         }
-
     }
 
     /**
@@ -513,5 +560,10 @@ public class MainFormHandler {
 
     public void saveSettingsItemClicked() {
 
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
     }
 }

@@ -3,6 +3,7 @@ package com.lavida.service.remote;
 import com.google.gdata.data.spreadsheet.CellEntry;
 import com.google.gdata.data.spreadsheet.CellFeed;
 import com.google.gdata.util.ServiceException;
+import com.lavida.TaskProgressEvent;
 import com.lavida.service.entity.ArticleJdo;
 import com.lavida.service.entity.DiscountCardJdo;
 import com.lavida.service.remote.google.GoogleCellEntriesIterator;
@@ -10,6 +11,9 @@ import com.lavida.service.remote.google.GoogleCellsTransformer;
 import com.lavida.service.remote.google.GoogleSpreadsheetWorker;
 import com.lavida.service.settings.SettingsHolder;
 import com.lavida.utils.ReflectionUtils;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -26,7 +30,8 @@ import java.util.Map;
  * @author Pavel
  */
 @Service
-public class RemoteService {
+public class RemoteService implements ApplicationContextAware {
+    private ApplicationContext applicationContext;
 
     @Resource
     private SettingsHolder settingsHolder;
@@ -36,7 +41,9 @@ public class RemoteService {
 
     public List<ArticleJdo> loadArticles() throws ServiceException, IOException {
         GoogleSpreadsheetWorker worker = new GoogleSpreadsheetWorker(settingsHolder.getSettings());
+        applicationContext.publishEvent(new TaskProgressEvent(this, TaskProgressEvent.TaskProgressType.COMPLETE));
         CellFeed cellFeed = worker.getArticleWholeDocument();
+        applicationContext.publishEvent(new TaskProgressEvent(this, TaskProgressEvent.TaskProgressType.COMPLETE));
 
         GoogleCellEntriesIterator cellEntriesIterator = new GoogleCellEntriesIterator(cellFeed.getEntries());
         Map<Integer, String> headers = cellsTransformer.cellsToColNumsAndItsValueMap(cellEntriesIterator.getNextLine());
@@ -47,6 +54,7 @@ public class RemoteService {
             ArticleJdo articleJdo = cellsTransformer.cellsToArticleJdo(cellEntriesIterator.getNextLine(), headers);
             articles.add(articleJdo);
         }
+        applicationContext.publishEvent(new TaskProgressEvent(this, TaskProgressEvent.TaskProgressType.COMPLETE));
         return articles;
     }
 
@@ -212,4 +220,8 @@ public class RemoteService {
     }
 
 
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
+    }
 }

@@ -9,6 +9,9 @@ package com.lavida.service.settings;
  */
 public class Settings {
 
+    @SettingsMapping(value = "sheet.refresh.tasks.times", encrypted = false)
+    private String sheetRefreshTasksTimes;
+
     @SettingsMapping(value = "google.spreadsheet.login", encrypted = true)
     private String remoteUser;
 
@@ -32,6 +35,14 @@ public class Settings {
 
     @SettingsMapping(value = "notification.email.password", encrypted = true)
     private String emailPass;
+
+    public String getSheetRefreshTasksTimes() {
+        return sheetRefreshTasksTimes;
+    }
+
+    public void setSheetRefreshTasksTimes(String sheetRefreshTasksTimes) {
+        this.sheetRefreshTasksTimes = sheetRefreshTasksTimes;
+    }
 
     public String getRemoteUser() {
         return remoteUser;
