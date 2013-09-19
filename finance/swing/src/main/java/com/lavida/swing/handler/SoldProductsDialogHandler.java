@@ -1,5 +1,7 @@
 package com.lavida.swing.handler;
 
+import com.lavida.service.UserSettingsService;
+import com.lavida.service.settings.user.UsersSettingsHolder;
 import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.dialog.RefundDialog;
 import com.lavida.swing.dialog.SoldProductsDialog;
@@ -42,6 +44,12 @@ public class SoldProductsDialogHandler {
 
     @Resource(name = "soldArticleTableModel")
     private ArticlesTableModel tableModel;
+
+    @Resource
+    private UsersSettingsHolder usersSettingsHolder;
+
+    @Resource
+    private UserSettingsService userSettingsService;
 
     /**
      * Handles refund button clicking.

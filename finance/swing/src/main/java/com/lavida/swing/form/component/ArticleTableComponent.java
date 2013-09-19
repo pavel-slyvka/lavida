@@ -1,6 +1,7 @@
 package com.lavida.swing.form.component;
 
 import com.lavida.service.entity.ArticleJdo;
+import com.lavida.service.settings.user.UsersSettingsHolder;
 import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.service.ArticlesTableModel;
 import org.springframework.context.MessageSource;
@@ -27,12 +28,14 @@ public class ArticleTableComponent implements TableModelListener {
     private ArticlesTableModel tableModel;
     private MessageSource messageSource;
     private LocaleHolder localeHolder;
+    private UsersSettingsHolder usersSettingsHolder;
 
     private JPanel mainPanel;
     private JTable articlesTable;
     private JScrollPane tableScrollPane;
     private JComboBox brandBox, sizeBox, shopBox;
     private ArticleFiltersComponent articleFiltersComponent = new ArticleFiltersComponent();
+    @Deprecated
     private Map<String, Integer> presetTableColumnsHeadersAndIndices = new HashMap<>();
 
     private String[] brandArray = {"H&M", "Mango", "Zara", "PULL&BEAR", "Westrags", "Bershka", "GoodLuck", "HTrand",
@@ -42,19 +45,20 @@ public class ArticleTableComponent implements TableModelListener {
             "A&P", "Milano", "Luna", "ItalyModa", "Elena", "Unics", "RouuaRssi", "Gabarra", "Emmetrenta",
             "DKoton", "Sabiba"};
 
-    private String[] sizeArray = {"34", "36", "38", "40", "42", "44", "46", "48", "50", "52", "54",  "25/32", "26/32",
+    private String[] sizeArray = {"34", "36", "38", "40", "42", "44", "46", "48", "50", "52", "54", "25/32", "26/32",
             "27/32", "28/32", "29/32", "30/32", "31/32", "32/32", "S", "XS", "M", "L", "XL", "XXL", "XXXL",
             "Universal", "S/M", "S/L", "L/XL", "XL/XXL", "XXL/XXXL"};
 
     private String[] shopArray = {"LA VIDA", "СЛАВЯНСКИЙ", "НОВОМОСКОВСК"};
 
-    public void initializeComponents(ArticlesTableModel articlesTableModel, MessageSource messageSource, LocaleHolder localeHolder) {
+    public void initializeComponents(ArticlesTableModel articlesTableModel, MessageSource messageSource,
+                                     LocaleHolder localeHolder, UsersSettingsHolder usersSettingsHolder) {
         this.tableModel = articlesTableModel;
         this.messageSource = messageSource;
         this.localeHolder = localeHolder;
+        this.usersSettingsHolder = usersSettingsHolder;
         tableModel.initAnalyzeFields();
         tableModel.addTableModelListener(this);
-        loadPresetTableColumnsHeadersAndIndices();
 
 //      main panel for table of goods
         mainPanel = new JPanel();
@@ -63,9 +67,9 @@ public class ArticleTableComponent implements TableModelListener {
 
         articlesTable = new JTable(tableModel);
         articlesTable.setCellEditor(new DefaultCellEditor(new JTextField()));
+
         initTableColumnsEditors();
         initTableColumnsWidth();
-        presetTableColumnsOrdering(articlesTable);
         articlesTable.doLayout();
         articlesTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 //      Filtering the table
@@ -98,21 +102,20 @@ public class ArticleTableComponent implements TableModelListener {
 
     }
 
-    private void loadPresetTableColumnsHeadersAndIndices() {
-
-    }
 
     /**
      * Moves columns in the table according to the user's settings.
+     *
      * @param table the table to be sorted.
      */
+    @Deprecated
     private void presetTableColumnsOrdering(JTable table) {
         if (presetTableColumnsHeadersAndIndices.size() > 0) {
             TableColumnModel tableColumnModel = table.getColumnModel();
             Enumeration<TableColumn> columnEnumeration = tableColumnModel.getColumns();
             List<TableColumn> columnList = tableColumnEnumerationToList(columnEnumeration);
             for (TableColumn column : columnList) {
-                String columnHeader = (String)column.getHeaderValue();
+                String columnHeader = (String) column.getHeaderValue();
                 int presetModelIndex = presetTableColumnsHeadersAndIndices.get(columnHeader);
                 tableColumnModel.moveColumn(column.getModelIndex(), presetModelIndex);
             }
@@ -122,10 +125,11 @@ public class ArticleTableComponent implements TableModelListener {
 
     /**
      * Converts the Enumeration of TableColumn  to the List of TableColumn.
-     * @param tableColumnEnumeration  the Enumeration to be converted.
+     *
+     * @param tableColumnEnumeration the Enumeration to be converted.
      * @return the List of TableColumn.
      */
-    private List<TableColumn> tableColumnEnumerationToList (Enumeration<TableColumn> tableColumnEnumeration) {
+    private List<TableColumn> tableColumnEnumerationToList(Enumeration<TableColumn> tableColumnEnumeration) {
         List<TableColumn> tableColumnList = new ArrayList<TableColumn>();
         while (tableColumnEnumeration.hasMoreElements()) {
             tableColumnList.add(tableColumnEnumeration.nextElement());
@@ -144,14 +148,14 @@ public class ArticleTableComponent implements TableModelListener {
         sizeBox.setEditable(true);
         TableCellEditor sizeEditor = new DefaultCellEditor(sizeBox);
         TableColumn sizeColumn = articlesTable.getColumn(messageSource.getMessage("mainForm.table.articles.column.size.title",
-                 null, localeHolder.getLocale()));
+                null, localeHolder.getLocale()));
         sizeColumn.setCellEditor(sizeEditor);
 
         shopBox = new JComboBox(shopArray);
         shopBox.setEditable(true);
         TableCellEditor shopEditor = new DefaultCellEditor(shopBox);
         TableColumn shopColumn = articlesTable.getColumn(messageSource.getMessage("mainForm.table.articles.column.shop.title",
-                 null, localeHolder.getLocale()));
+                null, localeHolder.getLocale()));
         shopColumn.setCellEditor(shopEditor);
     }
 
@@ -195,6 +199,30 @@ public class ArticleTableComponent implements TableModelListener {
             getArticleFiltersComponent().updateAnalyzeComponent();
             return;
         }
+
+    }
+
+    /**
+     * Applies settings for the current user.
+     *
+     * @return true if the user has default settings.
+     */
+    public boolean applyDefaultUserSettings(String presetName) { // todo finish logic applyDefaultUserSettings
+        fixColumnOrder(presetName);
+        fixColumnWidth(presetName);
+        fixColumnEditors(presetName);
+        return false;
+    }
+
+    private void fixColumnEditors(String presetName) {
+
+    }
+
+    private void fixColumnWidth(String presetName) {
+
+    }
+
+    private void fixColumnOrder(String presetName) {
 
     }
 }

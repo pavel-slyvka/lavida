@@ -48,12 +48,14 @@ public class MainForm extends AbstractForm {
     @Resource
     private ProgressComponent progressComponent;
 
+
     private static final List<String> FORBIDDEN_ROLES = new ArrayList<String>();
     static {
         FORBIDDEN_ROLES.add("ROLE_SELLER_LA_VIDA");
         FORBIDDEN_ROLES.add("ROLE_SELLER_SLAVYANKA");
         FORBIDDEN_ROLES.add("ROLE_SELLER_NOVOMOSKOVSK");
     }
+    private static final String DEFAULT_PRESET = "default";
 
     private JPanel operationPanel, southPanel, desktopPanel, filtersPanel, analyzePanel, mainPanel, statusBarPanel;
     private Button refreshButton, sellButton, showSoldProductsButton;
@@ -95,7 +97,7 @@ public class MainForm extends AbstractForm {
 //        constraints.fill = GridBagConstraints.HORIZONTAL;
 
 
-        articleTableComponent.initializeComponents(tableModel, messageSource, localeHolder);
+        articleTableComponent.initializeComponents(tableModel, messageSource, localeHolder, usersSettingsHolder);
 
 //      main panel for table of goods
         mainPanel = articleTableComponent.getMainPanel();
@@ -482,6 +484,14 @@ public class MainForm extends AbstractForm {
     public void setRefreshButtonEnable(boolean isVisible) {
         refreshButton.setEnabled(isVisible);
     }
+
+    public void initializeUserSettings() {
+        getArticleTableComponent().applyDefaultUserSettings(DEFAULT_PRESET);
+        soldProductsDialog.getArticleTableComponent().applyDefaultUserSettings(DEFAULT_PRESET);
+        allDiscountCardsDialog.getCardTableComponent().applyUserSettings(DEFAULT_PRESET);
+        ColumnsViewSettingsDialog.applyUserSettings(DEFAULT_PRESET);
+    }
+
 
     public JLabel getErrorMessage() {
         return errorMessage;

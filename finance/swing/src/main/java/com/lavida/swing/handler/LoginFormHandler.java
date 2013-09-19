@@ -1,16 +1,20 @@
 package com.lavida.swing.handler;
 
 import com.lavida.service.UserService;
-import com.lavida.swing.dialog.SellDialog;
-import com.lavida.swing.dialog.SoldProductsDialog;
+import com.lavida.service.UserSettingsService;
+import com.lavida.service.settings.user.UsersSettingsHolder;
 import com.lavida.swing.form.MainForm;
 import com.lavida.swing.exception.UserValidationException;
 import com.lavida.swing.form.LoginForm;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import javax.xml.bind.JAXBException;
+import java.io.FileNotFoundException;
 
 /**
  * LoginFormHandler - handler for login form.
@@ -21,6 +25,7 @@ import javax.annotation.Resource;
  */
 @Component
 public class LoginFormHandler {
+    private static final Logger logger = LoggerFactory.getLogger(LoginFormHandler.class);
 
     // Regular expression for checking input data in loginField and passwordField
     private static final String REGULAR_EXPRESSION_FOR_CREDENTIALS = "[A-Za-zА-Яа-я0-9.-_]*";
@@ -34,6 +39,12 @@ public class LoginFormHandler {
     @Resource
     private MainForm mainForm;
 
+    @Resource
+    private UsersSettingsHolder usersSettingsHolder;
+
+    @Resource
+    private UserSettingsService userSettingsService;
+
     /**
      * EventListener for submit button checks user credentials from database "lavida".
      * If input fields are empty or incorrect the error message will be shown in error label.
@@ -42,6 +53,8 @@ public class LoginFormHandler {
         try {
             form.clearFields();
             validateCredentials(loginEntered, passwordEntered);
+            loadUserSettings(loginEntered);
+            mainForm.initializeUserSettings();
             userService.login(loginEntered, passwordEntered);
             mainForm.filterTableByRoles(userService.getCurrentUserRoles());
             mainForm.filterTableDataByRole(userService.getCurrentUserRoles());
@@ -59,6 +72,17 @@ public class LoginFormHandler {
         } catch (AuthenticationServiceException e) {
             form.showErrorMessage(e.getMessage());
         }
+    }
+
+
+    private void loadUserSettings(String login) {
+        try {
+            usersSettingsHolder.setUsersSettings(userSettingsService.getSettings());
+            usersSettingsHolder.setLogin(login);
+        } catch (JAXBException | FileNotFoundException e) {
+            logger.error(e.getMessage(), e);
+        }
+
     }
 
     /**

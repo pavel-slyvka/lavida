@@ -59,7 +59,7 @@ public class AddNewProductsDialog extends AbstractDialog {
         initializeMenuBar();
         dialog.setJMenuBar(menuBar);
 
-        articleTableComponent.initializeComponents(tableModel, messageSource, localeHolder);
+        articleTableComponent.initializeComponents(tableModel, messageSource, localeHolder, usersSettingsHolder);
 
 //      main panel for table of goods
         mainPanel = articleTableComponent.getMainPanel();

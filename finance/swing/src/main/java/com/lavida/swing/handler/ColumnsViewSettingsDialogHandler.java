@@ -1,5 +1,7 @@
 package com.lavida.swing.handler;
 
+import com.lavida.service.UserSettingsService;
+import com.lavida.service.settings.user.UsersSettingsHolder;
 import com.lavida.swing.dialog.ColumnsViewSettingsDialog;
 import com.lavida.swing.dialog.SoldProductsDialog;
 import com.lavida.swing.form.MainForm;
@@ -28,6 +30,12 @@ public class ColumnsViewSettingsDialogHandler {
 
     @Resource
     private SoldProductsDialog soldProductsDialog;
+
+    @Resource
+    private UsersSettingsHolder usersSettingsHolder;
+
+    @Resource
+    private UserSettingsService userSettingsService;
 
     public void hideColumnButtonClicked() {
         List<String> selectedHeaders = dialog.getVisibleColumnsList().getSelectedValuesList();

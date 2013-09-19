@@ -57,7 +57,7 @@ public class AddNewDiscountCardsDialog extends AbstractDialog {
         desktopPanel.setLayout(new BorderLayout());
         desktopPanel.setBorder(BorderFactory.createEmptyBorder());
 
-        cardTableComponent.initializeComponents(tableModel, messageSource, localeHolder);
+        cardTableComponent.initializeComponents(tableModel, messageSource, localeHolder, usersSettingsHolder);
 
 
 //      panel for search operations

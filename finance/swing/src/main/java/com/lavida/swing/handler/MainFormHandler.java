@@ -5,10 +5,12 @@ import com.lavida.TaskProgressEvent;
 import com.lavida.service.ArticleUpdateInfo;
 import com.lavida.service.DiscountCardsUpdateInfo;
 import com.lavida.service.UserService;
+import com.lavida.service.UserSettingsService;
 import com.lavida.service.entity.ArticleJdo;
 import com.lavida.service.entity.DiscountCardJdo;
 import com.lavida.service.settings.Settings;
 import com.lavida.service.settings.SettingsService;
+import com.lavida.service.settings.user.UsersSettingsHolder;
 import com.lavida.service.xml.PostponedType;
 import com.lavida.service.xml.PostponedXmlService;
 import com.lavida.swing.LocaleHolder;
@@ -104,6 +106,12 @@ public class MainFormHandler implements ApplicationContextAware {
 
     @Resource
     private SettingsService settingsService;
+
+    @Resource
+    private UsersSettingsHolder usersSettingsHolder;
+
+    @Resource
+    private UserSettingsService userSettingsService;
 
     private ApplicationContext applicationContext;
 

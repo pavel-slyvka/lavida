@@ -295,4 +295,8 @@ public class ColumnsViewSettingsDialog extends AbstractDialog {
     public JLabel getErrorMessage() {
         return errorMessage;
     }
+
+    public static boolean applyUserSettings(String presetName) {
+        return false;
+    }
 }

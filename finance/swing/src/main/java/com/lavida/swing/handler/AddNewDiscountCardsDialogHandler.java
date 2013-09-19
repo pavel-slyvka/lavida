@@ -1,7 +1,9 @@
 package com.lavida.swing.handler;
 
 import com.google.gdata.util.ServiceException;
+import com.lavida.service.UserSettingsService;
 import com.lavida.service.entity.DiscountCardJdo;
+import com.lavida.service.settings.user.UsersSettingsHolder;
 import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.dialog.AddNewDiscountCardsDialog;
 import com.lavida.swing.service.DiscountCardServiceSwingWrapper;
@@ -41,6 +43,12 @@ public class AddNewDiscountCardsDialogHandler {
 
     @Resource
     protected LocaleHolder localeHolder;
+
+    @Resource
+    private UsersSettingsHolder usersSettingsHolder;
+
+    @Resource
+    private UserSettingsService userSettingsService;
 
     public void cancelButtonClicked() {
         dialog.getTableModel().setSelectedCard(null);

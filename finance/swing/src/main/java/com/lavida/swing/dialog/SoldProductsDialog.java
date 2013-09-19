@@ -55,7 +55,7 @@ public class SoldProductsDialog extends AbstractDialog {
         desktopPanel.setLayout(new BorderLayout());
         desktopPanel.setBorder(BorderFactory.createEmptyBorder());
 
-        articleTableComponent.initializeComponents(tableModel, messageSource, localeHolder);
+        articleTableComponent.initializeComponents(tableModel, messageSource, localeHolder, usersSettingsHolder);
 
 //      main panel for table of goods
         mainPanel = articleTableComponent.getMainPanel();

@@ -1,6 +1,7 @@
 package com.lavida.swing.form.component;
 
 import com.lavida.service.entity.DiscountCardJdo;
+import com.lavida.service.settings.user.UsersSettingsHolder;
 import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.service.DiscountCardsTableModel;
 import org.springframework.context.MessageSource;
@@ -25,17 +26,21 @@ public class DiscountCardTableComponent implements TableModelListener {
     private DiscountCardsTableModel tableModel;
     private MessageSource messageSource;
     private LocaleHolder localeHolder;
+    private UsersSettingsHolder usersSettingsHolder;
 
     private JPanel mainPanel;
     private JTable discountCardsTable;
     private JScrollPane tableScrollPane;
     private DiscountCardFiltersComponent cardFiltersComponent = new DiscountCardFiltersComponent();
 
-    public void initializeComponents(DiscountCardsTableModel discountCardsTableModel, MessageSource messageSource, LocaleHolder localeHolder) {
+    public void initializeComponents(DiscountCardsTableModel discountCardsTableModel, MessageSource messageSource,
+                                     LocaleHolder localeHolder, UsersSettingsHolder usersSettingsHolder) {
         this.tableModel = discountCardsTableModel;
         this.tableModel.addTableModelListener(this);
         this.messageSource = messageSource;
         this.localeHolder = localeHolder;
+        this.usersSettingsHolder = usersSettingsHolder;
+
         tableModel.initAnalyzeFields();
 
 //      main panel for table of goods
@@ -119,4 +124,27 @@ public class DiscountCardTableComponent implements TableModelListener {
             return;
         }
     }
+
+    public boolean applyUserSettings(String presetName) {
+        // todo finish logic applyDefaultUserSettings
+
+        fixColumnOrder(presetName);
+        fixColumnWidth(presetName);
+        fixColumnEditors(presetName);
+
+        return false;
+    }
+
+    private void fixColumnEditors(String presetName) {
+
+    }
+
+    private void fixColumnWidth(String presetName) {
+
+    }
+
+    private void fixColumnOrder(String presetName) {
+
+    }
+
 }

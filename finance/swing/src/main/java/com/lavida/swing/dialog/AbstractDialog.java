@@ -1,5 +1,7 @@
 package com.lavida.swing.dialog;
 
+import com.lavida.service.UserSettingsService;
+import com.lavida.service.settings.user.UsersSettingsHolder;
 import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.form.MainForm;
 import org.springframework.context.MessageSource;
@@ -33,6 +35,12 @@ public abstract class AbstractDialog implements MessageSourceAware {
 
     @Resource
     protected LocaleHolder localeHolder;
+
+    @Resource
+    protected UsersSettingsHolder usersSettingsHolder;
+
+    @Resource
+    protected UserSettingsService userSettingsService;
 
     @Resource
     protected MainForm mainForm;

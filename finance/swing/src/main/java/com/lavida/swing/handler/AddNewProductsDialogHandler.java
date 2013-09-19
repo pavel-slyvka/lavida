@@ -1,7 +1,9 @@
 package com.lavida.swing.handler;
 
 import com.google.gdata.util.ServiceException;
+import com.lavida.service.UserSettingsService;
 import com.lavida.service.entity.ArticleJdo;
+import com.lavida.service.settings.user.UsersSettingsHolder;
 import com.lavida.service.xml.ArticlesType;
 import com.lavida.service.xml.ArticlesXmlService;
 import com.lavida.swing.LocaleHolder;
@@ -53,6 +55,12 @@ public class AddNewProductsDialogHandler {
 
     @Resource
     private FileChooserComponent fileChooser;
+
+    @Resource
+    private UsersSettingsHolder usersSettingsHolder;
+
+    @Resource
+    private UserSettingsService userSettingsService;
 
     public void addRowButtonClicked() {
         ArticleJdo articleJdo = new ArticleJdo();
