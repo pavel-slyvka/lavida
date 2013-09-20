@@ -515,7 +515,8 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
                     } else return;
                 }
             } else {
-                if (!value.equals(field.get(articleJdo))) {
+                Object fieldValue = field.get(articleJdo) != null ? field.get(articleJdo) : "";
+                if (!value.equals(fieldValue)) {
                     field.set(articleJdo, value);
                 } else return;
             }
