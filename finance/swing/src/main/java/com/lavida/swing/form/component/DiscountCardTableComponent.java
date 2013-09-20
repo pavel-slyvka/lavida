@@ -1,7 +1,7 @@
 package com.lavida.swing.form.component;
 
 import com.lavida.service.entity.DiscountCardJdo;
-import com.lavida.service.settings.user.UsersSettingsHolder;
+import com.lavida.swing.preferences.user.UsersSettingsHolder;
 import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.service.DiscountCardsTableModel;
 import org.springframework.context.MessageSource;

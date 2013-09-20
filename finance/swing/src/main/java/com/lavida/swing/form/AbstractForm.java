@@ -1,7 +1,7 @@
 package com.lavida.swing.form;
 
-import com.lavida.service.UserSettingsService;
-import com.lavida.service.settings.user.UsersSettingsHolder;
+import com.lavida.swing.service.UserSettingsService;
+import com.lavida.swing.preferences.user.UsersSettingsHolder;
 import com.lavida.swing.LocaleHolder;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;

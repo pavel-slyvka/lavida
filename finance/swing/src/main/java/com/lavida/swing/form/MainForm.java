@@ -61,12 +61,12 @@ public class MainForm extends AbstractForm {
     private Button refreshButton, sellButton, showSoldProductsButton;
     private JLabel postponedOperations, postponedMessage, errorMessage;
     private JMenuBar menuBar;
-    private JMenu postponedMenu, productsMenu, settingsMenu, discountsMenu, fileMenu;
+    private JMenu postponedMenu, productsMenu, settingsMenu, discountsMenu, tableMenu;
     private JMenuItem savePostponedItem, loadPostponedItem, recommitPostponedItem, deletePostponedItem,
             addNewProductsItem,
             articleColumnsViewItem, saveSettingsItem,
             addNewDiscountCardItem, allDiscountCardsItem,
-            printItem;
+            printItem, fixTableDataItem;
     private ArticleTableComponent articleTableComponent = new ArticleTableComponent();
 
     @Override
@@ -341,8 +341,17 @@ public class MainForm extends AbstractForm {
         });
         discountsMenu.add(allDiscountCardsItem);
 
-        fileMenu = new JMenu();
-        fileMenu.setText(messageSource.getMessage("mainForm.menu.table", null, localeHolder.getLocale()));
+        tableMenu = new JMenu();
+        tableMenu.setText(messageSource.getMessage("mainForm.menu.table", null, localeHolder.getLocale()));
+
+        fixTableDataItem = new JMenuItem();
+        fixTableDataItem.setText(messageSource.getMessage("mainForm.menu.table.fixData", null, localeHolder.getLocale()));
+        fixTableDataItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handler.fixTableDataItemClicked();
+            }
+        });
 
         printItem = new JMenuItem();
         printItem.setText(messageSource.getMessage("mainForm.menu.table.print", null, localeHolder.getLocale()));
@@ -353,10 +362,11 @@ public class MainForm extends AbstractForm {
             }
         });
 
-        fileMenu.add(printItem);
+        tableMenu.add(fixTableDataItem);
+        tableMenu.add(printItem);
 
 
-        menuBar.add(fileMenu);
+        menuBar.add(tableMenu);
         menuBar.add(productsMenu);
         menuBar.add(discountsMenu);
         menuBar.add(settingsMenu);

@@ -1,4 +1,4 @@
-package com.lavida.service.settings.user;
+package com.lavida.swing.preferences.user;
 
 import javax.xml.bind.annotation.*;
 import java.util.ArrayList;
@@ -16,7 +16,6 @@ import java.util.List;
 public class TableSettings {
 
    @XmlElement
-//   @XmlList
     private List<ColumnSettings> columns;
 
     public TableSettings() {

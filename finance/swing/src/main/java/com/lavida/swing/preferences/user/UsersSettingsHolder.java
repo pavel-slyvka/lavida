@@ -1,9 +1,9 @@
-package com.lavida.service.settings.user;
+package com.lavida.swing.preferences.user;
 
 import org.springframework.stereotype.Repository;
 
 /**
- * The holder for the {@link com.lavida.service.settings.user.UsersSettings} object.
+ * The holder for the {@link com.lavida.swing.preferences.user.UsersSettings} object.
  * Created by Ruslan on 19.09.13.
  */
 @Repository

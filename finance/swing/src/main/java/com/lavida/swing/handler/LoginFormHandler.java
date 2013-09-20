@@ -1,8 +1,8 @@
 package com.lavida.swing.handler;
 
 import com.lavida.service.UserService;
-import com.lavida.service.UserSettingsService;
-import com.lavida.service.settings.user.UsersSettingsHolder;
+import com.lavida.swing.service.UserSettingsService;
+import com.lavida.swing.preferences.user.UsersSettingsHolder;
 import com.lavida.swing.form.MainForm;
 import com.lavida.swing.exception.UserValidationException;
 import com.lavida.swing.form.LoginForm;
@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 import javax.xml.bind.JAXBException;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 
 /**
  * LoginFormHandler - handler for login form.
@@ -77,11 +78,15 @@ public class LoginFormHandler {
 
     private void loadUserSettings(String login) {
         try {
-            usersSettingsHolder.setUsersSettings(userSettingsService.getSettings());
-            usersSettingsHolder.setLogin(login);
-        } catch (JAXBException | FileNotFoundException e) {
+            if (userSettingsService.getSettingsFile().exists()) {
+                usersSettingsHolder.setUsersSettings(userSettingsService.getSettings());
+            } else {
+                usersSettingsHolder.setUsersSettings(userSettingsService.createDefaultUsersSettings());
+            }
+        } catch (JAXBException | IOException e) {
             logger.error(e.getMessage(), e);
         }
+        usersSettingsHolder.setLogin(login);
 
     }
 

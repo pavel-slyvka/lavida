@@ -1,7 +1,7 @@
 package com.lavida.swing.handler;
 
-import com.lavida.service.UserSettingsService;
-import com.lavida.service.settings.user.UsersSettingsHolder;
+import com.lavida.swing.service.UserSettingsService;
+import com.lavida.swing.preferences.user.UsersSettingsHolder;
 import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.dialog.RefundDialog;
 import com.lavida.swing.dialog.SoldProductsDialog;

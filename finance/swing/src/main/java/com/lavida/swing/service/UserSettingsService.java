@@ -1,29 +1,45 @@
-package com.lavida.service;
+package com.lavida.swing.service;
 
-import com.lavida.service.settings.user.ColumnSettings;
-import com.lavida.service.settings.user.PresetSettings;
-import com.lavida.service.settings.user.TableSettings;
-import com.lavida.service.settings.user.UsersSettings;
+import com.lavida.service.ViewColumn;
+import com.lavida.service.entity.ArticleJdo;
+import com.lavida.service.entity.DiscountCardJdo;
+import com.lavida.swing.LocaleHolder;
+import com.lavida.swing.preferences.user.ColumnSettings;
+import com.lavida.swing.preferences.user.PresetSettings;
+import com.lavida.swing.preferences.user.TableSettings;
+import com.lavida.swing.preferences.user.UsersSettings;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.MessageSource;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import java.io.*;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
- * The service for the {@link com.lavida.service.settings.user.UsersSettings }.
+ * The service for the {@link com.lavida.swing.preferences.user.UsersSettings }.
  * Created: 16:38 18.09.13
  *
  * @author Ruslan
  */
 @Service
 public class UserSettingsService {
+
+    @Resource
+    private MessageSource messageSource;
+
+    @Resource
+    private LocaleHolder localeHolder;
+
 
     private File settingsFile;
 
@@ -52,6 +68,60 @@ public class UserSettingsService {
     public File getSettingsFile() {
         return settingsFile;
     }
+
+    public UsersSettings createDefaultUsersSettings() throws IOException, JAXBException {
+        UsersSettings usersSettings = new UsersSettings();
+        PresetSettings defaultPresetSettings = new PresetSettings();
+        defaultPresetSettings.setName("defaultSettings");
+
+        TableSettings articlesTableSettings = new TableSettings();
+        List<ColumnSettings> articleColumns = articlesTableSettings.getColumns();
+        int index = 1;
+        for (Field field : ArticleJdo.class.getDeclaredFields()) {
+            ViewColumn viewColumn = field.getAnnotation(ViewColumn.class);
+            if (viewColumn != null && viewColumn.show()) {
+                field.setAccessible(true);
+                ColumnSettings articleColumnSettings = new ColumnSettings();
+                if (viewColumn.titleKey().isEmpty()) {
+                    articleColumnSettings.setHeader(field.getName());
+                } else {
+                    articleColumnSettings.setHeader(messageSource.getMessage(viewColumn.titleKey(), null, localeHolder.getLocale()));
+                }
+                articleColumnSettings.setIndex(index);
+                ++ index;
+                articleColumnSettings.setWidth(viewColumn.columnWidth());
+                articleColumns.add(articleColumnSettings);
+            }
+        }
+        defaultPresetSettings.setArticlesTableSettings(articlesTableSettings);
+
+        TableSettings discountCardsTableSettings = new TableSettings();
+        List<ColumnSettings> discountCardsColumns = discountCardsTableSettings.getColumns();
+        index = 1;
+        for (Field field : DiscountCardJdo.class.getDeclaredFields()) {
+            ViewColumn viewColumn = field.getAnnotation(ViewColumn.class);
+            if (viewColumn != null && viewColumn.show()) {
+                field.setAccessible(true);
+                ColumnSettings discountCardsColumnSettings = new ColumnSettings();
+                if (viewColumn.titleKey().isEmpty()) {
+                    discountCardsColumnSettings.setHeader(field.getName());
+                } else {
+                    discountCardsColumnSettings.setHeader(messageSource.getMessage(viewColumn.titleKey(), null, localeHolder.getLocale()));
+                }
+                discountCardsColumnSettings.setIndex(index);
+                ++index;
+                discountCardsColumnSettings.setWidth(viewColumn.columnWidth());
+                discountCardsColumns.add(discountCardsColumnSettings);
+
+            }
+        }
+        defaultPresetSettings.setDiscountCardsTableSettings(discountCardsTableSettings);
+
+        usersSettings.setDefaultPresetSettings(defaultPresetSettings);
+        saveSettings(usersSettings);
+        return usersSettings;
+    }
+
 
     public static void main(String[] args) {
         UsersSettings settings = new UsersSettings();

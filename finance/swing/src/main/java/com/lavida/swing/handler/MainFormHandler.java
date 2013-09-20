@@ -5,12 +5,12 @@ import com.lavida.TaskProgressEvent;
 import com.lavida.service.ArticleUpdateInfo;
 import com.lavida.service.DiscountCardsUpdateInfo;
 import com.lavida.service.UserService;
-import com.lavida.service.UserSettingsService;
+import com.lavida.swing.service.UserSettingsService;
 import com.lavida.service.entity.ArticleJdo;
 import com.lavida.service.entity.DiscountCardJdo;
 import com.lavida.service.settings.Settings;
 import com.lavida.service.settings.SettingsService;
-import com.lavida.service.settings.user.UsersSettingsHolder;
+import com.lavida.swing.preferences.user.UsersSettingsHolder;
 import com.lavida.service.xml.PostponedType;
 import com.lavida.service.xml.PostponedXmlService;
 import com.lavida.swing.LocaleHolder;
@@ -578,5 +578,9 @@ public class MainFormHandler implements ApplicationContextAware {
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
+    }
+
+    public void fixTableDataItemClicked() {
+// todo fixTableData
     }
 }
