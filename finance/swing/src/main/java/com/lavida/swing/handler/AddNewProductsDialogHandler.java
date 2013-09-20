@@ -1,11 +1,10 @@
 package com.lavida.swing.handler;
 
 import com.google.gdata.util.ServiceException;
+import com.lavida.service.ArticleCalculator;
 import com.lavida.service.UserSettingsService;
 import com.lavida.service.entity.ArticleJdo;
 import com.lavida.service.settings.user.UsersSettingsHolder;
-import com.lavida.service.xml.ArticlesType;
-import com.lavida.service.xml.ArticlesXmlService;
 import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.dialog.AddNewProductsDialog;
 import com.lavida.swing.form.component.FileChooserComponent;
@@ -61,6 +60,9 @@ public class AddNewProductsDialogHandler {
 
     @Resource
     private UserSettingsService userSettingsService;
+
+    @Resource
+    private ArticleCalculator articleCalculator;
 
     public void addRowButtonClicked() {
         ArticleJdo articleJdo = new ArticleJdo();
@@ -206,7 +208,7 @@ public class AddNewProductsDialogHandler {
                     double transportCostEUR = aspectRatio * purchasePriceEUR;
                     transportCostEUR = BigDecimal.valueOf(transportCostEUR).setScale(3, BigDecimal.ROUND_HALF_DOWN).doubleValue();
                     articleJdo.setTransportCostEUR(transportCostEUR);
-                    dialog.getTableModel().articleFixTotalCostsAndCalculatedSalePrice(articleJdo);
+                    articleCalculator.calculateTotalCostsAndCalculatedSalePrice(articleJdo);
 
                 }
                 dialog.getTableModel().fireTableDataChanged();
