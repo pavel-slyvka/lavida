@@ -21,6 +21,7 @@ import com.lavida.swing.form.component.FileChooserComponent;
 import com.lavida.swing.form.component.ProgressComponent;
 import com.lavida.swing.service.ArticleServiceSwingWrapper;
 import com.lavida.swing.service.ArticlesTableModel;
+import com.lavida.swing.service.ConcurrentOperationsService;
 import com.lavida.swing.service.DiscountCardServiceSwingWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -113,6 +114,9 @@ public class MainFormHandler implements ApplicationContextAware {
     @Resource
     private UserSettingsService userSettingsService;
 
+    @Resource
+    private ConcurrentOperationsService concurrentOperationsService;
+
     private ApplicationContext applicationContext;
 
     /**
@@ -122,7 +126,7 @@ public class MainFormHandler implements ApplicationContextAware {
      * goods and renders to the articleTable.
      */
     public void refreshButtonClicked() {
-        new Thread(new Runnable() {
+        concurrentOperationsService.startOperation(new Runnable() {
             @Override
             public void run() {
                 form.setRefreshButtonEnable(false);
@@ -140,7 +144,8 @@ public class MainFormHandler implements ApplicationContextAware {
                                     newRefreshTaskTimes.add(Long.valueOf(time));
                                 }
                                 refreshTaskTimes = newRefreshTaskTimes;
-                            } catch (NumberFormatException e) {}
+                            } catch (NumberFormatException ignored) {
+                            }
                         }
                     }
 
@@ -178,7 +183,7 @@ public class MainFormHandler implements ApplicationContextAware {
                 settings.setSheetRefreshTasksTimes(correctedTimesBuilder.toString().substring(2));
                 settingsService.saveSettings(settings);
             }
-        }).start();
+        });
     }
 
     /**
