@@ -364,9 +364,10 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
         ArticleJdo articleJdo = getArticleJdoByRowIndex(rowIndex);
-        String value = (String) aValue;
+        String value = aValue.toString();
         SimpleDateFormat calendarFormatter = new SimpleDateFormat("dd.MM.yyyy");
         calendarFormatter.setLenient(false);
+        boolean toUpdate = true;
         try {
             Field field = ArticleJdo.class.getDeclaredField(articleFieldsSequence.get(columnIndex));
             field.setAccessible(true);
@@ -393,6 +394,9 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
                 } else return;
             } else if (boolean.class == field.getType()) {
                 boolean typeValue = Boolean.parseBoolean(value);
+                if (field.getName().equals("selected")) {
+                    toUpdate = false;
+                }
                 if (typeValue != field.getBoolean(articleJdo)) {
                     field.setBoolean(articleJdo, typeValue);
                 } else return;
@@ -446,6 +450,9 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
                 } else return;
             } else if (Boolean.class == field.getType()) {
                 Boolean typeValue = Boolean.parseBoolean(value);
+                if (field.getName().equals("selected")) {
+                    toUpdate = false;
+                }
                 if (!typeValue.equals(field.get(articleJdo))) {
                     field.set(articleJdo, typeValue);
                 } else return;
@@ -528,7 +535,9 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
             logger.warn(e.getMessage(), e);
             throw new RuntimeException(e);
         }
-        updateTable(articleJdo);
+        if (toUpdate) {
+            updateTable(articleJdo);
+        }
     }
 
     private double fixIfNeedAndParseDouble(String doubleString) {  // todo make reusable with GoogleCellsTransformer
@@ -560,12 +569,11 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
         if (queryName != null) {
             try {
                 articleServiceSwingWrapper.updateToSpreadsheet(changedArticle, null);
-                articleServiceSwingWrapper.update(changedArticle);
             } catch (IOException | ServiceException e) {
                 logger.warn(e.getMessage(), e);
                 changedArticle.setPostponedOperationDate(new Date());
-                articleServiceSwingWrapper.update(changedArticle);
             }
+            articleServiceSwingWrapper.update(changedArticle);
         }
         fireTableDataChanged();
     }

@@ -50,23 +50,26 @@ public class MainForm extends AbstractForm {
 
 
     private static final List<String> FORBIDDEN_ROLES = new ArrayList<String>();
+
     static {
         FORBIDDEN_ROLES.add("ROLE_SELLER_LA_VIDA");
         FORBIDDEN_ROLES.add("ROLE_SELLER_SLAVYANKA");
         FORBIDDEN_ROLES.add("ROLE_SELLER_NOVOMOSKOVSK");
     }
+
     private static final String DEFAULT_PRESET = "default";
 
     private JPanel operationPanel, southPanel, desktopPanel, filtersPanel, analyzePanel, mainPanel, statusBarPanel;
     private Button refreshButton, sellButton, showSoldProductsButton;
     private JLabel postponedOperations, postponedMessage, errorMessage;
     private JMenuBar menuBar;
-    private JMenu postponedMenu, productsMenu, settingsMenu, discountsMenu, tableMenu;
+    private JMenu postponedMenu, productsMenu, settingsMenu, discountsMenu, tableMenu, selectedMenu;
     private JMenuItem savePostponedItem, loadPostponedItem, recommitPostponedItem, deletePostponedItem,
             addNewProductsItem,
             articleColumnsViewItem, saveSettingsItem,
             addNewDiscountCardItem, allDiscountCardsItem,
-            printItem, fixTableDataItem;
+            printItem, fixTableDataItem,
+            moveToShopItem, deselectArticlesItem;
     private ArticleTableComponent articleTableComponent = new ArticleTableComponent();
 
     @Override
@@ -365,13 +368,36 @@ public class MainForm extends AbstractForm {
         tableMenu.add(fixTableDataItem);
         tableMenu.add(printItem);
 
+        selectedMenu = new JMenu();
+        selectedMenu.setText(messageSource.getMessage("mainForm.menu.selected", null, localeHolder.getLocale()));
+
+        moveToShopItem = new JMenuItem();
+        moveToShopItem.setText(messageSource.getMessage("mainForm.menu.selected.moveToShop", null, localeHolder.getLocale()));
+        moveToShopItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handler.moveToShopItemClicked();
+            }
+        });
+
+        deselectArticlesItem = new JMenuItem();
+        deselectArticlesItem.setText(messageSource.getMessage("mainForm.menu.selected.deselect.articles", null, localeHolder.getLocale()));
+        deselectArticlesItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handler.deselectArticlesItemClicked();
+            }
+        });
+
+        selectedMenu.add(moveToShopItem);
+        selectedMenu.add(deselectArticlesItem);
 
         menuBar.add(tableMenu);
         menuBar.add(productsMenu);
         menuBar.add(discountsMenu);
         menuBar.add(settingsMenu);
         menuBar.add(postponedMenu);
-
+        menuBar.add(selectedMenu);
     }
 
     /**
@@ -397,11 +423,11 @@ public class MainForm extends AbstractForm {
 
     }
 
-    public void initializeSellDialogByUser (List<String> userRoles) {
-             sellDialog.initializeByUser(userRoles);
+    public void initializeSellDialogByUser(List<String> userRoles) {
+        sellDialog.initializeByUser(userRoles);
     }
 
-    public void initializeArticleTableColumnLists () {
+    public void initializeArticleTableColumnLists() {
         handler.getColumnsViewSettingsDialog().initializeLists(
                 getArticleTableComponent().getArticlesTable(),
                 soldProductsDialog.getArticleTableComponent().getArticlesTable());
@@ -418,19 +444,20 @@ public class MainForm extends AbstractForm {
                 filterAnalyzeComponentByRoles(userRoles);
     }
 
-    public void removeFiltersByRoles (List<String> userRoles) {
+    public void removeFiltersByRoles(List<String> userRoles) {
         articleTableComponent.getArticleFiltersComponent().removeFiltersByRoles(userRoles);
         soldProductsDialog.getArticleTableComponent().getArticleFiltersComponent().removeFiltersByRoles(userRoles);
     }
 
-    public void filterTableDataByRole (List<String> userRoles) {
+    public void filterTableDataByRole(List<String> userRoles) {
         getTableModel().filterTableDataByRole(userRoles);
         soldProductsDialog.getTableModel().filterTableDataByRole(userRoles);
     }
 
-    public void filterMenuBarByRoles (List<String> userRoles) {
+    public void filterMenuBarByRoles(List<String> userRoles) {
         if (isForbidden(userRoles, FORBIDDEN_ROLES)) {
             addNewProductsItem.setEnabled(false);
+            moveToShopItem.setEnabled(false);
             printItem.setEnabled(false);
             soldProductsDialog.getPrintItem().setEnabled(false);
             addNewProductsDialog.getPrintItem().setEnabled(false);

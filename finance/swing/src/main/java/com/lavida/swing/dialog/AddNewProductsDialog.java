@@ -33,8 +33,8 @@ public class AddNewProductsDialog extends AbstractDialog {
     private JButton addRowButton, deleteRowButton, acceptProductsButton, cancelButton, copyRowButton;
     private JLabel errorMessage;
     private JMenuBar menuBar;
-    private JMenu tableMenu, fileMenu;
-    private JMenuItem printItem, calculateTransportCostEURItem, saveItem, openItem ;
+    private JMenu tableMenu, fileMenu, selectedMenu;
+    private JMenuItem printItem, calculateTransportCostEURItem, saveItem, openItem, deselectArticlesItem ;
 
 
     @Override
@@ -265,8 +265,23 @@ public class AddNewProductsDialog extends AbstractDialog {
         fileMenu.add(saveItem);
         fileMenu.add(openItem);
 
+        selectedMenu = new JMenu();
+        selectedMenu.setText(messageSource.getMessage("mainForm.menu.selected", null, localeHolder.getLocale()));
+
+        deselectArticlesItem = new JMenuItem();
+        deselectArticlesItem.setText(messageSource.getMessage("mainForm.menu.selected.deselect.articles", null, localeHolder.getLocale()));
+        deselectArticlesItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handler.deselectArticlesItemClicked();
+            }
+        });
+
+        selectedMenu.add(deselectArticlesItem);
+
         menuBar.add(fileMenu);
         menuBar.add(tableMenu);
+        menuBar.add(selectedMenu);
     }
 
 

@@ -11,6 +11,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
@@ -138,6 +139,10 @@ public class ArticleTableComponent implements TableModelListener {
     }
 
     private void initTableColumnsEditors() {
+        TableColumn selectionColumn = articlesTable.getColumn(messageSource.getMessage("component.article.table.column.selection", null, localeHolder.getLocale()));
+        selectionColumn.setCellEditor(articlesTable.getDefaultEditor(Boolean.class));
+        selectionColumn.setCellRenderer(articlesTable.getDefaultRenderer(Boolean.class));
+
         brandBox = new JComboBox(brandArray);
         brandBox.setEditable(true);
         TableCellEditor brandEditor = new DefaultCellEditor(brandBox);

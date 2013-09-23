@@ -118,6 +118,7 @@ public class MainFormHandler implements ApplicationContextAware {
     private ConcurrentOperationsService concurrentOperationsService;
 
     private ApplicationContext applicationContext;
+    private String[] shopArray = {"LA VIDA", "СЛАВЯНСКИЙ", "НОВОМОСКОВСК"};
 
     /**
      * The ActionListener for refreshButton component.
@@ -582,5 +583,36 @@ public class MainFormHandler implements ApplicationContextAware {
 
     public void fixTableDataItemClicked() {
 // todo fixTableData
+    }
+
+    public void moveToShopItemClicked() {
+        String shop = String.valueOf(form.showInputDialog("mainForm.menu.selected.moveToShop.select.title", "mainForm.menu.selected.moveToShop.select.message",
+                null, shopArray, shopArray[0]));
+
+        if (shop != null) {
+            for (ArticleJdo articleJdo : form.getTableModel().getTableData()) {
+                if (articleJdo.isSelected()) {
+                    articleJdo.setShop(shop);
+                    articleJdo.setSelected(false);
+                    try {
+                        articleServiceSwingWrapper.updateToSpreadsheet(articleJdo, null);
+                    } catch (IOException | ServiceException e) {
+                        logger.warn(e.getMessage(), e);
+                        articleJdo.setPostponedOperationDate(new Date());
+                    }
+                    articleServiceSwingWrapper.update(articleJdo);
+                }
+            }
+            form.update();
+        }
+    }
+
+    public void deselectArticlesItemClicked() {
+        for (ArticleJdo articleJdo : form.getTableModel().getTableData()) {
+            if (articleJdo.isSelected()) {
+                articleJdo.setSelected(false);
+            }
+        }
+        form.update();
     }
 }

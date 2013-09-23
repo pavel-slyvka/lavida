@@ -56,6 +56,10 @@ public class ArticleJdo implements Cloneable {
     @XmlElement
     private String spreadsheetNum;
 
+    @Transient
+    @ViewColumn(titleKey = "component.article.table.column.selection" , columnWidth = 75)
+    private boolean selected;
+
     @SpreadsheetColumn(column = "code")
     @ViewColumn(titleKey = "mainForm.table.articles.column.code.title", columnWidth = 75)
     @FilterColumn(labelKey = "mainForm.label.search.by.code", orderForSell = 1, orderForSold = 1)
@@ -428,6 +432,14 @@ public class ArticleJdo implements Cloneable {
 
     public void setSeller(String sellerName) {
         this.seller = sellerName;
+    }
+
+    public boolean isSelected() {
+        return selected;
+    }
+
+    public void setSelected(boolean selected) {
+        this.selected = selected;
     }
 
     @Override

@@ -342,4 +342,15 @@ public class AddNewProductsDialogHandler {
         }
         dialog.getTableModel().getTableData().addAll(loadedArticles);
     }
+
+    public void deselectArticlesItemClicked() {
+        if (dialog.getTableModel().getTableData().size() > 0) {
+            for (ArticleJdo articleJdo : dialog.getTableModel().getTableData()) {
+                if (articleJdo.isSelected()) {
+                    articleJdo.setSelected(false);
+                }
+            }
+            dialog.getTableModel().fireTableDataChanged();
+        }
+    }
 }

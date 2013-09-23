@@ -27,8 +27,8 @@ public class SoldProductsDialog extends AbstractDialog {
 
     private ArticleTableComponent articleTableComponent = new ArticleTableComponent();
     private JMenuBar menuBar;
-    private JMenu fileMenu;
-    private JMenuItem printItem;
+    private JMenu fileMenu, selectedMenu;
+    private JMenuItem printItem, deselectArticlesItem;
 
 //    private JLabel errorMessage;
 
@@ -166,7 +166,23 @@ public class SoldProductsDialog extends AbstractDialog {
 
         fileMenu.add(printItem);
 
+        selectedMenu = new JMenu();
+        selectedMenu.setText(messageSource.getMessage("mainForm.menu.selected", null, localeHolder.getLocale()));
+
+        deselectArticlesItem = new JMenuItem();
+        deselectArticlesItem.setText(messageSource.getMessage("mainForm.menu.selected.deselect.articles", null, localeHolder.getLocale()));
+        deselectArticlesItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handler.deselectArticlesItemClicked();
+            }
+        });
+
+        selectedMenu.add(deselectArticlesItem);
+
+
         menuBar.add(fileMenu);
+        menuBar.add(selectedMenu);
 
 
     }

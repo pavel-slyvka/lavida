@@ -1,5 +1,6 @@
 package com.lavida.swing.handler;
 
+import com.lavida.service.entity.ArticleJdo;
 import com.lavida.swing.service.UserSettingsService;
 import com.lavida.swing.preferences.user.UsersSettingsHolder;
 import com.lavida.swing.LocaleHolder;
@@ -122,6 +123,15 @@ public class SoldProductsDialogHandler {
             logger.warn(e.getMessage(), e);
             dialog.showWarningMessage("mainForm.exception.message.dialog.title", "mainForm.handler.print.exception.message");
         }
+    }
+
+    public void deselectArticlesItemClicked() {
+        for (ArticleJdo articleJdo : dialog.getTableModel().getTableData()) {
+            if (articleJdo.isSelected()) {
+                articleJdo.setSelected(false);
+            }
+        }
+        dialog.getTableModel().fireTableDataChanged();
     }
 
 }
