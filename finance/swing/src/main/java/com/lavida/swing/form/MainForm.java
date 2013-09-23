@@ -395,9 +395,9 @@ public class MainForm extends AbstractForm {
         menuBar.add(tableMenu);
         menuBar.add(productsMenu);
         menuBar.add(discountsMenu);
+        menuBar.add(selectedMenu);
         menuBar.add(settingsMenu);
         menuBar.add(postponedMenu);
-        menuBar.add(selectedMenu);
     }
 
     /**

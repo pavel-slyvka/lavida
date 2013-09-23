@@ -5,6 +5,7 @@ import com.lavida.swing.preferences.user.UsersSettingsHolder;
 import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.service.ArticlesTableModel;
 import org.springframework.context.MessageSource;
+import sun.swing.table.DefaultTableCellHeaderRenderer;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -16,6 +17,10 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import java.awt.*;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.*;
 import java.util.List;
 

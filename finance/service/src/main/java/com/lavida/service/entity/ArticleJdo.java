@@ -57,7 +57,7 @@ public class ArticleJdo implements Cloneable {
     private String spreadsheetNum;
 
     @Transient
-    @ViewColumn(titleKey = "component.article.table.column.selection" , columnWidth = 75)
+    @ViewColumn(titleKey = "component.article.table.column.selection" , columnWidth = 20)
     private boolean selected;
 
     @SpreadsheetColumn(column = "code")

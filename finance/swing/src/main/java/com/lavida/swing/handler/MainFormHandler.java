@@ -118,7 +118,7 @@ public class MainFormHandler implements ApplicationContextAware {
     private ConcurrentOperationsService concurrentOperationsService;
 
     private ApplicationContext applicationContext;
-    private String[] shopArray = {"LA VIDA", "СЛАВЯНСКИЙ", "НОВОМОСКОВСК"};
+    private String[] shopArray = {"", "LA VIDA", "СЛАВЯНСКИЙ", "НОВОМОСКОВСК"};
 
     /**
      * The ActionListener for refreshButton component.
@@ -573,7 +573,7 @@ public class MainFormHandler implements ApplicationContextAware {
     }
 
     public void saveSettingsItemClicked() {
-
+// todo save usersSettings
     }
 
     @Override
@@ -586,7 +586,7 @@ public class MainFormHandler implements ApplicationContextAware {
     }
 
     public void moveToShopItemClicked() {
-        String shop = String.valueOf(form.showInputDialog("mainForm.menu.selected.moveToShop.select.title", "mainForm.menu.selected.moveToShop.select.message",
+        String shop = (String)(form.showInputDialog("mainForm.menu.selected.moveToShop.select.title", "mainForm.menu.selected.moveToShop.select.message",
                 null, shopArray, shopArray[0]));
 
         if (shop != null) {
