@@ -1,100 +1,62 @@
-package com.lavida.swing.dialog;
+package com.lavida.swing.form.component;
 
-import com.lavida.swing.handler.ColumnsViewSettingsDialogHandler;
-import com.lavida.swing.preferences.UsersSettingsHolder;
-import org.springframework.stereotype.Component;
+import com.lavida.swing.LocaleHolder;
+import com.lavida.swing.dialog.AbstractDialog;
+import org.springframework.context.MessageSource;
 
-import javax.annotation.Resource;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.*;
+import java.util.List;
 
 /**
- * The dialog for choosing which columns to show or hide.
- * Created: 12:40 04.09.13
+ * The TableViewComponent
+ * <p/>
+ * Created: 24.09.13 21:17.
  *
- * @author Ruslan
+ * @author Ruslan.
  */
-@Component
-public class ColumnsViewSettingsDialog extends AbstractDialog {
+public class TableViewComponent {
+    private MessageSource messageSource;
+    private LocaleHolder localeHolder;
+    private JTable table;
+    private AbstractDialog dialog;
 
-    @Resource
-    private ColumnsViewSettingsDialogHandler handler;
-
-    @Resource
-    private UsersSettingsHolder usersSettingsHolder;
-
-    private JPanel buttonPanel, inputPanel, visibleColumnsPanel, notVisibleColumnsPanel;
-    private JButton applyButton, cancelButton, hideColumnButton, showColumnButton;
+    private JPanel  mainPanel, inputPanel, visibleColumnsPanel, notVisibleColumnsPanel, buttonPanel;
+    private JButton  hideColumnButton, showColumnButton, applyButton, cancelButton;
     private JList visibleColumnsList, notVisibleColumnsList;
     private JScrollPane visibleListScrollPane, notVisibleListScrollPane;
     private DefaultListModel<String> visibleColumnsListModel, notVisibleColumnsListModel;
 
-    //    private List<String>  visibleTableColumnHeaders, notVisibleTableColumnHeaders;
-    private Map<String, TableColumn> mainFormHeadersAndColumns;
-    private Map<String, TableColumn> soldProductsHeadersAndColumns;
-    private JLabel errorMessage;
+    private Map<String, TableColumn> HeadersAndColumnsMap;
 
-    @Override
-    protected void initializeForm() {
-        super.initializeForm();
-        dialog.setTitle(messageSource.getMessage("dialog.settings.view.columns.title", null, localeHolder.getLocale()));
-        dialog.setResizable(true);
-        dialog.setSize(500, 400);
-        dialog.setLocationRelativeTo(null);
-    }
 
-    public void initializeLists(JTable mainFormTable, JTable soldProductsTable) {
-        Enumeration<TableColumn> mainFormColumns = mainFormTable.getColumnModel().getColumns();
-        TableColumn column;
-        String header;
-        while (mainFormColumns.hasMoreElements()) {
-            column = mainFormColumns.nextElement();
-            header = column.getHeaderValue().toString();
-            mainFormHeadersAndColumns.put(header, column);
-            visibleColumnsListModel.addElement(header);
-        }
-        Enumeration<TableColumn> soldProductsColumns = soldProductsTable.getColumnModel().getColumns();
-        while (soldProductsColumns.hasMoreElements()) {
-            column = soldProductsColumns.nextElement();
-            header = column.getHeaderValue().toString();
-            soldProductsHeadersAndColumns.put(header, column);
-        }
-    }
+    public void initializeComponents(AbstractDialog dialog, JTable table, MessageSource messageSource,
+                                     LocaleHolder localeHolder) {
+        this.messageSource = messageSource;
+        this.localeHolder = localeHolder;
+        this.table = table;
+        this.dialog = dialog;
 
-    public void updateListModels(JTable articlesTable) {
-        visibleColumnsListModel.removeAllElements();
-        notVisibleColumnsListModel.removeAllElements();
-        Enumeration<TableColumn> visibleColumns = articlesTable.getColumnModel().getColumns();
-        TableColumn column;
-        String header;
-        while (visibleColumns.hasMoreElements()) {
-            column = visibleColumns.nextElement();
-            header = column.getHeaderValue().toString();
-            visibleColumnsListModel.addElement(header);
-        }
-        Set<Map.Entry<String, TableColumn>> tableColumnEntries = mainFormHeadersAndColumns.entrySet();
-        for (Map.Entry<String, TableColumn> tableColumnEntry : tableColumnEntries) {
-            header = tableColumnEntry.getKey();
-            if (!visibleColumnsListModel.contains(header)) {
-                notVisibleColumnsListModel.addElement(header);
-            }
-        }
-    }
-
-    @Override
-    protected void initializeComponents() {
-        mainFormHeadersAndColumns = new HashMap<String, TableColumn>();
-        soldProductsHeadersAndColumns = new HashMap<String, TableColumn>();
+        HeadersAndColumnsMap = new HashMap<>();
         visibleColumnsListModel = new DefaultListModel();
         notVisibleColumnsListModel = new DefaultListModel();
 
-        rootContainer.setLayout(new BorderLayout());
+        Enumeration<TableColumn> columnEnumeration = table.getColumnModel().getColumns();
+        while (columnEnumeration.hasMoreElements()) {
+            TableColumn column = columnEnumeration.nextElement();
+            String header = column.getHeaderValue().toString();
+            HeadersAndColumnsMap.put(header, column);
+            visibleColumnsListModel.addElement(header);
+        }
+
+        mainPanel = new JPanel(new BorderLayout());
 //      input panel
         inputPanel = new JPanel(new GridLayout(1, 2));
         inputPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -107,7 +69,7 @@ public class ColumnsViewSettingsDialog extends AbstractDialog {
         visibleColumnsPanel.setMaximumSize(new Dimension(520, 570));
         visibleColumnsPanel.setMinimumSize(new Dimension(120, 170));
         visibleColumnsPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(messageSource.
-                getMessage("dialog.settings.view.columns.label.columns.visible", null, localeHolder.getLocale())),
+                getMessage("component.table.view.label.columns.visible", null, localeHolder.getLocale())),
                 BorderFactory.createEmptyBorder(5, 5, 5, 5)));
         visibleColumnsList = new JList(visibleColumnsListModel);
         visibleColumnsList.setLayoutOrientation(JList.VERTICAL);
@@ -137,7 +99,7 @@ public class ColumnsViewSettingsDialog extends AbstractDialog {
         constraints.gridy = 0;
         visibleColumnsPanel.add(visibleListScrollPane, constraints);
 
-        hideColumnButton = new JButton(messageSource.getMessage("dialog.settings.view.columns.button.hide", null, localeHolder.getLocale()));
+        hideColumnButton = new JButton(messageSource.getMessage("component.table.view.button.hide", null, localeHolder.getLocale()));
         hideColumnButton.setHorizontalTextPosition(JButton.CENTER);
         hideColumnButton.setPreferredSize(new Dimension(150, 30));
         hideColumnButton.setMaximumSize(new Dimension(500, 30));
@@ -146,7 +108,12 @@ public class ColumnsViewSettingsDialog extends AbstractDialog {
         hideColumnButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                handler.hideColumnButtonClicked();
+                java.util.List<String> selectedHeaders = visibleColumnsList.getSelectedValuesList();
+                for (String header : selectedHeaders) {
+                    notVisibleColumnsListModel.addElement(header);
+                    visibleColumnsListModel.removeElement(header);
+                }
+
             }
         });
         constraints.fill = GridBagConstraints.HORIZONTAL;
@@ -164,7 +131,7 @@ public class ColumnsViewSettingsDialog extends AbstractDialog {
         notVisibleColumnsPanel.setMaximumSize(new Dimension(520, 570));
         notVisibleColumnsPanel.setMinimumSize(new Dimension(120, 170));
         notVisibleColumnsPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(messageSource.
-                getMessage("dialog.settings.view.columns.label.columns.notVisible", null, localeHolder.getLocale())),
+                getMessage("component.table.view.label.columns.notVisible", null, localeHolder.getLocale())),
                 BorderFactory.createEmptyBorder(5, 5, 5, 5)));
 
         notVisibleColumnsList = new JList(notVisibleColumnsListModel);
@@ -195,7 +162,7 @@ public class ColumnsViewSettingsDialog extends AbstractDialog {
         constraints.gridy = 0;
         notVisibleColumnsPanel.add(notVisibleListScrollPane, constraints);
 
-        showColumnButton = new JButton(messageSource.getMessage("dialog.settings.view.columns.button.show", null, localeHolder.getLocale()));
+        showColumnButton = new JButton(messageSource.getMessage("component.table.view.button.show", null, localeHolder.getLocale()));
         showColumnButton.setHorizontalTextPosition(JButton.CENTER);
         showColumnButton.setPreferredSize(new Dimension(150, 30));
         showColumnButton.setMaximumSize(new Dimension(500, 30));
@@ -204,7 +171,12 @@ public class ColumnsViewSettingsDialog extends AbstractDialog {
         showColumnButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                handler.showColumnButtonClicked();
+                java.util.List<String> selectedHeaders = notVisibleColumnsList.getSelectedValuesList();
+                for (String header : selectedHeaders) {
+                    visibleColumnsListModel.addElement(header);
+                    notVisibleColumnsListModel.removeElement(header);
+                }
+
             }
         });
         constraints.fill = GridBagConstraints.HORIZONTAL;
@@ -218,32 +190,21 @@ public class ColumnsViewSettingsDialog extends AbstractDialog {
 
         inputPanel.add(notVisibleColumnsPanel);
 
-//        button panel
+        //        button panel
         buttonPanel = new JPanel();
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.LINE_AXIS));
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-        errorMessage = new JLabel();
-        errorMessage.setForeground(Color.RED);
-        errorMessage.setHorizontalAlignment(JLabel.LEFT);
-
-        JPanel errorPanel = new JPanel();
-        errorPanel.setLayout(new BoxLayout(errorPanel, BoxLayout.LINE_AXIS));
-        errorPanel.setPreferredSize(new Dimension(200, 30));
-        errorPanel.setMinimumSize(new Dimension(100, 30));
-        errorPanel.setMaximumSize(new Dimension(500, 50));
-        errorPanel.add(errorMessage);
-        buttonPanel.add(errorPanel);
         buttonPanel.add(Box.createHorizontalGlue());
 
         JPanel buttons = new JPanel();
         buttons.setLayout(new BoxLayout(buttons, BoxLayout.LINE_AXIS));
-        applyButton = new JButton(messageSource.getMessage("dialog.settings.view.columns.button.apply", null,
+        applyButton = new JButton(messageSource.getMessage("component.table.view.button.apply", null,
                 localeHolder.getLocale()));
         applyButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                handler.applyButtonClicked();
+                applyButtonClicked();
             }
         });
 
@@ -251,7 +212,7 @@ public class ColumnsViewSettingsDialog extends AbstractDialog {
         cancelButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                handler.cancelButtonClicked();
+                cancelButtonClicked();
             }
         });
         buttons.add(applyButton);
@@ -259,50 +220,89 @@ public class ColumnsViewSettingsDialog extends AbstractDialog {
         buttons.add(cancelButton);
         buttonPanel.add(buttons);
 
-        rootContainer.add(inputPanel, BorderLayout.CENTER);
-        rootContainer.add(buttonPanel, BorderLayout.SOUTH);
+        mainPanel.add(inputPanel, BorderLayout.CENTER);
+        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
+
     }
 
+    private void cancelButtonClicked() {
+        updateListModels(table);
+        visibleColumnsList.clearSelection();
+        notVisibleColumnsList.clearSelection();
+        showColumnButton.setEnabled(false);
+        hideColumnButton.setEnabled(false);
+        dialog.hide();
 
-    public DefaultListModel<String> getVisibleColumnsListModel() {
-        return visibleColumnsListModel;
     }
 
-    public DefaultListModel<String> getNotVisibleColumnsListModel() {
-        return notVisibleColumnsListModel;
+    private void applyButtonClicked() {
+        TableColumnModel tableColumnModel = table.getColumnModel();
+        Enumeration<TableColumn> columnEnumeration = tableColumnModel.getColumns();
+        List<TableColumn> tableColumnList = tableColumnEnumerationToList(columnEnumeration);
+
+        Enumeration<String> showHeaders = visibleColumnsListModel.elements();
+        while (showHeaders.hasMoreElements()) {
+            String showColumnHeader = showHeaders.nextElement();
+            TableColumn tableColumn = HeadersAndColumnsMap.get(showColumnHeader);
+            if (!tableColumnList.contains(tableColumn)) {
+                tableColumnList.add(tableColumn);
+                tableColumnModel.addColumn(tableColumn);
+                tableColumnModel.moveColumn(tableColumnModel.getColumnCount() - 1, tableColumn.getModelIndex());
+            }
+        }
+
+        Enumeration<String> hideHeaders = notVisibleColumnsListModel.elements();
+        while (hideHeaders.hasMoreElements()) {
+            String hideColumnHeaders = hideHeaders.nextElement();
+            TableColumn tableColumn = HeadersAndColumnsMap.get(hideColumnHeaders);
+            if (tableColumnList.contains(tableColumn)) {
+                tableColumnList.remove(tableColumn);
+                tableColumnModel.removeColumn(tableColumn);
+            }
+        }
+
+        visibleColumnsList.clearSelection();
+        notVisibleColumnsList.clearSelection();
+        showColumnButton.setEnabled(false);
+        hideColumnButton.setEnabled(false);
+        dialog.hide();
+
     }
 
-    public Map<String, TableColumn> getMainFormHeadersAndColumns() {
-        return mainFormHeadersAndColumns;
+    /**
+     * Converts the Enumeration of TableColumn  to the List of TableColumn.
+     * @param tableColumnEnumeration  the Enumeration to be converted.
+     * @return the List of TableColumn.
+     */
+    private List<TableColumn> tableColumnEnumerationToList (Enumeration<TableColumn> tableColumnEnumeration) {
+        List<TableColumn> tableColumnList = new ArrayList<>();
+        while (tableColumnEnumeration.hasMoreElements()) {
+            tableColumnList.add(tableColumnEnumeration.nextElement());
+        }
+        return tableColumnList;
     }
 
-    public Map<String, TableColumn> getSoldProductsHeadersAndColumns() {
-        return soldProductsHeadersAndColumns;
+    public void updateListModels(JTable articlesTable) {
+        visibleColumnsListModel.removeAllElements();
+        notVisibleColumnsListModel.removeAllElements();
+        Enumeration<TableColumn> visibleColumns = articlesTable.getColumnModel().getColumns();
+        TableColumn column;
+        String header;
+        while (visibleColumns.hasMoreElements()) {
+            column = visibleColumns.nextElement();
+            header = column.getHeaderValue().toString();
+            visibleColumnsListModel.addElement(header);
+        }
+        Set<Map.Entry<String, TableColumn>> tableColumnEntries = HeadersAndColumnsMap.entrySet();
+        for (Map.Entry<String, TableColumn> tableColumnEntry : tableColumnEntries) {
+            header = tableColumnEntry.getKey();
+            if (!visibleColumnsListModel.contains(header)) {
+                notVisibleColumnsListModel.addElement(header);
+            }
+        }
     }
 
-    public JList getVisibleColumnsList() {
-        return visibleColumnsList;
-    }
-
-    public JList getNotVisibleColumnsList() {
-        return notVisibleColumnsList;
-    }
-
-    public JButton getHideColumnButton() {
-        return hideColumnButton;
-    }
-
-    public JButton getShowColumnButton() {
-        return showColumnButton;
-    }
-
-    public JLabel getErrorMessage() {
-        return errorMessage;
-    }
-
-    public  boolean applyUserSettings() {
-        String presetName = usersSettingsHolder.getPresetName();
-
-        return false;
+    public JPanel getMainPanel() {
+        return mainPanel;
     }
 }

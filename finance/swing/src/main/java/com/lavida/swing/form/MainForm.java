@@ -1,6 +1,9 @@
 package com.lavida.swing.form;
 
 import com.lavida.swing.dialog.*;
+import com.lavida.swing.dialog.settings.AllDiscountCardsTableViewSettingsDialog;
+import com.lavida.swing.dialog.settings.NotSoldArticlesTableViewSettingsDialog;
+import com.lavida.swing.dialog.settings.SoldArticlesTableViewSettingsDialog;
 import com.lavida.swing.form.component.ArticleTableComponent;
 import com.lavida.swing.form.component.ProgressComponent;
 import com.lavida.swing.handler.MainFormHandler;
@@ -47,7 +50,13 @@ public class MainForm extends AbstractForm {
     private AddNewDiscountCardsDialog addNewDiscountCardsDialog;
 
     @Resource
-    private ColumnsViewSettingsDialog columnsViewSettingsDialog;
+    private NotSoldArticlesTableViewSettingsDialog notSoldArticlesTableViewSettingsDialog;
+
+    @Resource
+    private SoldArticlesTableViewSettingsDialog soldArticlesTableViewSettingsDialog;
+
+    @Resource
+    private AllDiscountCardsTableViewSettingsDialog allDiscountCardsTableViewSettingsDialog;
 
     @Resource
     private ProgressComponent progressComponent;
@@ -69,10 +78,11 @@ public class MainForm extends AbstractForm {
     private Button refreshButton, sellButton, showSoldProductsButton;
     private JLabel postponedOperations, postponedMessage, errorMessage;
     private JMenuBar menuBar;
-    private JMenu postponedMenu, productsMenu, settingsMenu, discountsMenu, tableMenu, selectedMenu;
+    private JMenu postponedMenu, productsMenu, settingsMenu, tablesViewItem, discountsMenu, tableMenu, selectedMenu;
     private JMenuItem savePostponedItem, loadPostponedItem, recommitPostponedItem, deletePostponedItem,
             addNewProductsItem,
-            articleColumnsViewItem, saveSettingsItem,
+             saveSettingsItem, selectSettingsItem, createSettingsItem,
+            notSoldArticlesTableViewItem, soldArticlesTableViewItem, discountCardsTableViewItem,
             addNewDiscountCardItem, allDiscountCardsItem,
             printItem, fixTableDataItem,
             moveToShopItem, deselectArticlesItem;
@@ -141,7 +151,7 @@ public class MainForm extends AbstractForm {
         showSoldProductsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                handler.showSoldProductsButtonClicked();
+                soldProductsDialog.show();
             }
         });
 
@@ -296,7 +306,7 @@ public class MainForm extends AbstractForm {
         addNewProductsItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                handler.addNewProductsItemClicked();
+                addNewProductsDialog.show();
             }
         });
         productsMenu.add(addNewProductsItem);
@@ -305,14 +315,40 @@ public class MainForm extends AbstractForm {
         settingsMenu = new JMenu();
         settingsMenu.setText(messageSource.getMessage("mainForm.menu.settings.title", null, localeHolder.getLocale()));
 
-        articleColumnsViewItem = new JMenuItem();
-        articleColumnsViewItem.setText(messageSource.getMessage("mainForm.menu.settings.item.view.columns", null, localeHolder.getLocale()));
-        articleColumnsViewItem.addActionListener(new ActionListener() {
+        tablesViewItem = new JMenu();
+        tablesViewItem.setText(messageSource.getMessage("mainForm.menu.settings.item.view.tables", null, localeHolder.getLocale()));
+
+        notSoldArticlesTableViewItem = new JMenuItem();
+        notSoldArticlesTableViewItem.setText(messageSource.getMessage("mainForm.menu.settings.item.view.tables.articles.notSold", null, localeHolder.getLocale()));
+        notSoldArticlesTableViewItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                handler.articleColumnsViewItemClicked();
+                notSoldArticlesTableViewSettingsDialog.show();
             }
         });
+
+        soldArticlesTableViewItem = new JMenuItem();
+        soldArticlesTableViewItem.setText(messageSource.getMessage("mainForm.menu.settings.item.view.tables.articles.sold", null, localeHolder.getLocale()));
+        soldArticlesTableViewItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                soldArticlesTableViewSettingsDialog.show();
+                handler.soldArticlesTableViewItemClicked();
+            }
+        });
+
+        discountCardsTableViewItem = new JMenuItem();
+        discountCardsTableViewItem.setText(messageSource.getMessage("mainForm.menu.settings.item.view.tables.discount.cards", null, localeHolder.getLocale()));
+        discountCardsTableViewItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                allDiscountCardsTableViewSettingsDialog.show();
+            }
+        });
+
+        tablesViewItem.add(notSoldArticlesTableViewItem);
+        tablesViewItem.add(soldArticlesTableViewItem);
+        tablesViewItem.add(discountCardsTableViewItem);
 
         saveSettingsItem = new JMenuItem();
         saveSettingsItem.setText(messageSource.getMessage("mainForm.menu.settings.save", null, localeHolder.getLocale()));
@@ -323,8 +359,29 @@ public class MainForm extends AbstractForm {
             }
         });
 
-        settingsMenu.add(articleColumnsViewItem);
+        selectSettingsItem = new JMenuItem();
+        selectSettingsItem.setText(messageSource.getMessage("mainForm.menu.settings.select", null, localeHolder.getLocale()));
+        selectSettingsItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
+
+        createSettingsItem = new JMenuItem();
+        createSettingsItem.setText(messageSource.getMessage("mainForm.menu.settings.create", null, localeHolder.getLocale()));
+        createSettingsItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
+
+        settingsMenu.add(tablesViewItem);
+        settingsMenu.addSeparator();
         settingsMenu.add(saveSettingsItem);
+        settingsMenu.add(selectSettingsItem);
+        settingsMenu.add(createSettingsItem);
 
 //        discounts menu
         discountsMenu = new JMenu();
@@ -335,7 +392,7 @@ public class MainForm extends AbstractForm {
         addNewDiscountCardItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                handler.addNewDiscountCardItemClicked();
+                addNewDiscountCardsDialog.show();
             }
         });
         discountsMenu.add(addNewDiscountCardItem);
@@ -345,7 +402,7 @@ public class MainForm extends AbstractForm {
         allDiscountCardsItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                handler.allDiscountCardsItemClicked();
+                allDiscountCardsDialog.show();
             }
         });
         discountsMenu.add(allDiscountCardsItem);
@@ -429,14 +486,8 @@ public class MainForm extends AbstractForm {
 
     }
 
-    public void initializeSellDialogByUser(List<String> userRoles) {
-        sellDialog.initializeByUser(userRoles);
-    }
-
-    public void initializeArticleTableColumnLists() {
-        handler.getColumnsViewSettingsDialog().initializeLists(
-                getArticleTableComponent().getArticlesTable(),
-                soldProductsDialog.getArticleTableComponent().getArticlesTable());
+    public void filterSellDialogByRoles(List<String> userRoles) {
+        sellDialog.filterByRoles(userRoles);
     }
 
     public void filterAnalyzePanelByRoles(List<String> userRoles) {
@@ -555,9 +606,13 @@ public class MainForm extends AbstractForm {
         getArticleTableComponent().applyUserSettings();
         soldProductsDialog.getArticleTableComponent().applyUserSettings();
         allDiscountCardsDialog.getCardTableComponent().applyUserSettings();
-        columnsViewSettingsDialog.applyUserSettings();
     }
 
+    public void initializeTableViewComponents() {
+        notSoldArticlesTableViewSettingsDialog.postInit();
+        soldArticlesTableViewSettingsDialog.postInit();
+        allDiscountCardsTableViewSettingsDialog.postInit();
+    }
 
     public JLabel getErrorMessage() {
         return errorMessage;

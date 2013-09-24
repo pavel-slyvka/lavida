@@ -72,8 +72,8 @@ public class LoginFormHandler {
             mainForm.filterAnalyzePanelByRoles(userService.getCurrentUserRoles());
             mainForm.filterMenuBarByRoles(userService.getCurrentUserRoles());
             mainForm.removeFiltersByRoles(userService.getCurrentUserRoles());
-            mainForm.initializeSellDialogByUser(userService.getCurrentUserRoles());
-            mainForm.initializeArticleTableColumnLists();
+            mainForm.filterSellDialogByRoles(userService.getCurrentUserRoles());
+            mainForm.initializeTableViewComponents();
             if (!userSettingsService.userDefaultPresetExists()) {
                 mainForm.createDefaultPreset();
             }
@@ -81,6 +81,7 @@ public class LoginFormHandler {
             if (!defaultPresetName.equals(usersSettingsHolder.getPresetName())) {
                 mainForm.initializeUserSettings();
             }
+
             mainForm.show();
             form.hide();
         } catch (UserValidationException e1) {

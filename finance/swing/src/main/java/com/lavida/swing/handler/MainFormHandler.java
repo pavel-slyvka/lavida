@@ -5,6 +5,8 @@ import com.lavida.TaskProgressEvent;
 import com.lavida.service.ArticleUpdateInfo;
 import com.lavida.service.DiscountCardsUpdateInfo;
 import com.lavida.service.UserService;
+import com.lavida.swing.dialog.settings.NotSoldArticlesTableViewSettingsDialog;
+import com.lavida.swing.dialog.settings.SoldArticlesTableViewSettingsDialog;
 import com.lavida.swing.preferences.UsersSettings;
 import com.lavida.swing.service.UserSettingsService;
 import com.lavida.service.entity.ArticleJdo;
@@ -87,7 +89,10 @@ public class MainFormHandler implements ApplicationContextAware {
     private AddNewProductsDialog addNewProductsDialog;
 
     @Resource
-    private ColumnsViewSettingsDialog columnsViewSettingsDialog;
+    private NotSoldArticlesTableViewSettingsDialog notSoldArticlesTableViewSettingsDialog;
+
+    @Resource
+    private SoldArticlesTableViewSettingsDialog soldArticlesTableViewSettingsDialog;
 
     @Resource
     private AllDiscountCardsDialog allDiscountCardsDialog;
@@ -97,9 +102,6 @@ public class MainFormHandler implements ApplicationContextAware {
 
     @Resource(name = "notSoldArticleTableModel")
     private ArticlesTableModel tableModel;
-
-    @Resource
-    private UserService userService;
 
     @Resource
     private FileChooserComponent fileChooser;
@@ -311,10 +313,6 @@ public class MainFormHandler implements ApplicationContextAware {
         }
     }
 
-    public void showSoldProductsButtonClicked() {
-        soldProductsDialog.show();
-    }
-
     /**
      * Saves the List{@code <}{@link ArticleJdo}{@code >} with postponed operation to chosen xml file.
      *
@@ -491,11 +489,10 @@ public class MainFormHandler implements ApplicationContextAware {
      * @param file the chosen xml file with postponed operations to be loaded.
      */
     private void loadPostponed(File file) {
-        List<ArticleJdo> loadedArticles = null;
-        List<DiscountCardJdo> loadedDiscountCards = null;
-        PostponedType postponedType = null;
+        List<ArticleJdo> loadedArticles;
+        List<DiscountCardJdo> loadedDiscountCards;
+        PostponedType postponedType;
         try {
-//            loadedArticles = articleServiceSwingWrapper.loadFromXml(file);
             postponedType = postponedXmlService.unmarshal(file);
         } catch (JAXBException e) {
             logger.error(e.getMessage(), e);
@@ -526,29 +523,6 @@ public class MainFormHandler implements ApplicationContextAware {
         } else {
             form.showWarningMessage("mainForm.attention.message.dialog.title", "mainForm.handler.postponed.discountCards.not.exist.message");
         }
-    }
-
-    /**
-     * Opens s dialog for adding new  products.
-     */
-    public void addNewProductsItemClicked() {
-        addNewProductsDialog.show();
-    }
-
-    public void articleColumnsViewItemClicked() {
-        columnsViewSettingsDialog.show();
-    }
-
-    public ColumnsViewSettingsDialog getColumnsViewSettingsDialog() {
-        return columnsViewSettingsDialog;
-    }
-
-    public void addNewDiscountCardItemClicked() {
-        addNewDiscountCardsDialog.show();
-    }
-
-    public void allDiscountCardsItemClicked() {
-        allDiscountCardsDialog.show();
     }
 
     public void printItemClicked() {
@@ -647,4 +621,7 @@ public class MainFormHandler implements ApplicationContextAware {
     }
 
 
+    public void soldArticlesTableViewItemClicked() {
+        soldArticlesTableViewSettingsDialog.show();
+    }
 }

@@ -459,7 +459,7 @@ public class SellDialog extends AbstractDialog {
      * Sets the value to the defaultShop field according to the user's first role.
      * @param userRoles the list of user's roles.
      */
-    public void initializeByUser (List<String> userRoles) {
+    public void filterByRoles(List<String> userRoles) {
         for (String role : userRoles) {
             if ("ROLE_SELLER_LA_VIDA".equals(role)) {
                 this.setDefaultShop(messageSource.getMessage("sellDialog.text.field.shop.LaVida", null,
