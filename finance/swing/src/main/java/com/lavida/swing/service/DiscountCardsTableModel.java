@@ -495,6 +495,10 @@ public class DiscountCardsTableModel extends AbstractTableModel implements Appli
         this.query = query;
     }
 
+    public String getQuery() {
+        return query;
+    }
+
     public int getTotalCountCards() {
         return totalCountCards;
     }

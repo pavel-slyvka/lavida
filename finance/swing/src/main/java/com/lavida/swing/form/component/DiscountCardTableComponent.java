@@ -1,7 +1,7 @@
 package com.lavida.swing.form.component;
 
 import com.lavida.service.entity.DiscountCardJdo;
-import com.lavida.swing.preferences.user.UsersSettingsHolder;
+import com.lavida.swing.preferences.UsersSettingsHolder;
 import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.service.DiscountCardsTableModel;
 import org.springframework.context.MessageSource;
@@ -125,9 +125,10 @@ public class DiscountCardTableComponent implements TableModelListener {
         }
     }
 
-    public boolean applyUserSettings(String presetName) {
-        // todo finish logic applyDefaultUserSettings
+    public boolean applyUserSettings() {
+        // todo finish logic applyUserSettings
 
+        String presetName = usersSettingsHolder.getPresetName();
         fixColumnOrder(presetName);
         fixColumnWidth(presetName);
         fixColumnEditors(presetName);

@@ -1,6 +1,7 @@
 package com.lavida.swing.dialog;
 
 import com.lavida.swing.handler.ColumnsViewSettingsDialogHandler;
+import com.lavida.swing.preferences.UsersSettingsHolder;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -24,6 +25,9 @@ public class ColumnsViewSettingsDialog extends AbstractDialog {
 
     @Resource
     private ColumnsViewSettingsDialogHandler handler;
+
+    @Resource
+    private UsersSettingsHolder usersSettingsHolder;
 
     private JPanel buttonPanel, inputPanel, visibleColumnsPanel, notVisibleColumnsPanel;
     private JButton applyButton, cancelButton, hideColumnButton, showColumnButton;
@@ -296,7 +300,9 @@ public class ColumnsViewSettingsDialog extends AbstractDialog {
         return errorMessage;
     }
 
-    public static boolean applyUserSettings(String presetName) {
+    public  boolean applyUserSettings() {
+        String presetName = usersSettingsHolder.getPresetName();
+
         return false;
     }
 }

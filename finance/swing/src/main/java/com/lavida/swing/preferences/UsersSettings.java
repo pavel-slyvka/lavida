@@ -1,4 +1,4 @@
-package com.lavida.swing.preferences.user;
+package com.lavida.swing.preferences;
 
 import javax.xml.bind.annotation.*;
 import java.util.ArrayList;
@@ -16,21 +16,20 @@ import java.util.List;
 public class UsersSettings {
 
     @XmlElement
-    private PresetSettings defaultPresetSettings;
+    private EditorsSettings editorsSettings;
 
     @XmlElement
-//    @XmlList
     private List<UserSettings> userSettingsList;
 
     public UsersSettings() {
     }
 
-    public PresetSettings getDefaultPresetSettings() {
-        return defaultPresetSettings;
+    public EditorsSettings getEditorsSettings() {
+        return editorsSettings;
     }
 
-    public void setDefaultPresetSettings(PresetSettings defaultPresetSettings) {
-        this.defaultPresetSettings = defaultPresetSettings;
+    public void setEditorsSettings(EditorsSettings editorsSettings) {
+        this.editorsSettings = editorsSettings;
     }
 
     public List<UserSettings> getUserSettingsList() {
@@ -40,14 +39,10 @@ public class UsersSettings {
         return userSettingsList;
     }
 
-    public void setUserSettingsList(List<UserSettings> userSettingsList) {
-        this.userSettingsList = userSettingsList;
-    }
-
     @Override
     public String toString() {
         return "UsersSettings{" +
-                "defaultPresetSettings=" + defaultPresetSettings +
+                "editorsSettings=" + editorsSettings +
                 ", userSettingsList=" + userSettingsList +
                 '}';
     }

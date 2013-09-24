@@ -8,7 +8,7 @@
     <xs:element name="usersSettings" type="uns:usersSettingsType"/>
     <xs:complexType name="usersSettingsType">
         <xs:sequence>
-            <xs:element name="defaultPresetSettings" type="uns:presetType"/>
+            <xs:element name="editorsSettings" type="uns:editorsSettingsType"/>
             <xs:element name="userSettingsList" type="uns:userListType"/>
         </xs:sequence>
     </xs:complexType>
@@ -19,13 +19,48 @@
         </xs:sequence>
     </xs:complexType>
 
+    <xs:element name="editorsSettings" type="uns:editorsSettingsType"/>
+    <xs:complexType name="editorsSettingsType">
+        <xs:sequence>
+            <xs:element name="articlesTableEditor" type="uns:tableEditorType"/>
+            <xs:element name="discountCardsTableEditor" type="uns:tableEditorType"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:element name="tableEditor" type="uns:tableEditorType"/>
+    <xs:complexType name="tableEditorType">
+        <xs:sequence>
+            <xs:element name="columnEditor" type="uns:columnEditorListType"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="columnEditorListType">
+        <xs:sequence>
+            <xs:element name="columnEditors" type="uns:columnEditorType" maxOccurs="unbounded" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:element name="columnEditor" type="uns:columnEditorType"/>
+    <xs:complexType name="columnEditorType">
+        <xs:sequence>
+            <xs:element name="comboBoxItems" type="uns:itemListType"/>
+        </xs:sequence>
+        <xs:attribute name="header" type="xs:string"/>
+    </xs:complexType>
+
+    <xs:complexType name="itemListType">
+        <xs:sequence>
+            <xs:element name="item" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
     <xs:element name="userSettings" type="uns:userSettingsType"/>
     <xs:complexType name="userSettingsType">
         <xs:sequence>
-            <xs:element name="defaultPresetSettings" type="uns:presetType"/>
             <xs:element name="presetSettingsList" type="uns:presetListType"/>
         </xs:sequence>
         <xs:attribute name="login" type="xs:string"/>
+        <xs:attribute name="lastPresetName" type="xs:string"/>
     </xs:complexType>
 
     <xs:complexType name="presetListType">
@@ -37,8 +72,11 @@
     <xs:element name="presetSettings" type="uns:presetType"/>
     <xs:complexType name="presetType">
         <xs:sequence>
-            <xs:element name="articlesTableSettings" type="uns:tableType"/>
-            <xs:element name="discountCardsTableSettings" type="uns:tableType"/>
+            <xs:element name="notSoldArticlesTableSettings" type="uns:tableType"/>
+            <xs:element name="soldArticlesTableSettings" type="uns:tableType"/>
+            <xs:element name="addNewArticlesTableSettings" type="uns:tableType"/>
+            <xs:element name="allDiscountCardsTableSettings" type="uns:tableType"/>
+            <xs:element name="addNewDiscountCardsTableSettings" type="uns:tableType"/>
         </xs:sequence>
         <xs:attribute name="name" type="xs:string"/>
     </xs:complexType>
@@ -58,15 +96,9 @@
             <xs:element name="width" type="xs:int"/>
             <xs:element name="backgroundColor" type="xs:nonNegativeInteger"/>
             <xs:element name="foregroundColor" type="xs:nonNegativeInteger"/>
-            <xs:element name="comboBoxItems" type="uns:itemListType"/>
         </xs:sequence>
     </xs:complexType>
 
-    <xs:complexType name="itemListType">
-        <xs:sequence>
-            <xs:element name="item" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
-        </xs:sequence>
-    </xs:complexType>
 
 
 </xs:schema>

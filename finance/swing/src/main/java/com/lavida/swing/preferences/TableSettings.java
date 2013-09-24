@@ -1,7 +1,7 @@
-package com.lavida.swing.preferences.user;
+package com.lavida.swing.preferences;
+
 
 import javax.xml.bind.annotation.*;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -19,17 +19,6 @@ public class TableSettings {
     private List<ColumnSettings> columns;
 
     public TableSettings() {
-    }
-
-    public TableSettings(List<ColumnSettings> columns) {
-        this.columns = columns;
-    }
-
-    public List<ColumnSettings> getColumns() {
-        if (columns == null) {
-            columns = new ArrayList<>();
-        }
-        return columns;
     }
 
     public void setColumns(List<ColumnSettings> columns) {

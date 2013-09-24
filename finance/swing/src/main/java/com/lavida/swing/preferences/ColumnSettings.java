@@ -1,4 +1,4 @@
-package com.lavida.swing.preferences.user;
+package com.lavida.swing.preferences;
 
 import javax.xml.bind.annotation.*;
 import java.util.ArrayList;
@@ -27,27 +27,16 @@ public class ColumnSettings {
     @XmlElement
     private Integer foregroundColor;
 
-    @XmlElement
-//    @XmlList
-    private List<String> comboBoxItems;
 
     public ColumnSettings() {
     }
 
-    public ColumnSettings(String header, int index, int width, Integer backgroundColor, Integer foregroundColor,
-                          List<String> comboBoxItems) {
+    public ColumnSettings(String header, int index, int width, Integer backgroundColor, Integer foregroundColor) {
         this.header = header;
         this.index = index;
         this.width = width;
         this.backgroundColor = backgroundColor;
         this.foregroundColor = foregroundColor;
-        this.comboBoxItems = comboBoxItems;
-    }
-
-    public ColumnSettings(String header, int index, int width) {
-        this.header = header;
-        this.index = index;
-        this.width = width;
     }
 
     public String getHeader() {
@@ -90,16 +79,6 @@ public class ColumnSettings {
         this.foregroundColor = foregroundColor;
     }
 
-    public List<String> getComboBoxItems() {
-        if (comboBoxItems == null) {
-            comboBoxItems = new ArrayList<>();
-        }
-        return comboBoxItems;
-    }
-
-    public void setComboBoxItems(List<String> comboBoxItems) {
-        this.comboBoxItems = comboBoxItems;
-    }
 
     @Override
     public String toString() {
@@ -109,7 +88,6 @@ public class ColumnSettings {
                 ", width=" + width +
                 ", backgroundColor=" + backgroundColor +
                 ", foregroundColor=" + foregroundColor +
-                ", comboBoxItems=" + comboBoxItems +
                 '}';
     }
 }

@@ -3,7 +3,7 @@ package com.lavida.swing.handler;
 import com.google.gdata.util.ServiceException;
 import com.lavida.swing.service.UserSettingsService;
 import com.lavida.service.entity.DiscountCardJdo;
-import com.lavida.swing.preferences.user.UsersSettingsHolder;
+import com.lavida.swing.preferences.UsersSettingsHolder;
 import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.dialog.AllDiscountCardsDialog;
 import com.lavida.swing.service.DiscountCardServiceSwingWrapper;

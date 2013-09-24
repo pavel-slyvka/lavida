@@ -4,6 +4,7 @@ import com.lavida.swing.dialog.*;
 import com.lavida.swing.form.component.ArticleTableComponent;
 import com.lavida.swing.form.component.ProgressComponent;
 import com.lavida.swing.handler.MainFormHandler;
+import com.lavida.swing.preferences.UsersSettingsHolder;
 import com.lavida.swing.service.ArticlesTableModel;
 import org.springframework.stereotype.Component;
 
@@ -46,8 +47,13 @@ public class MainForm extends AbstractForm {
     private AddNewDiscountCardsDialog addNewDiscountCardsDialog;
 
     @Resource
+    private ColumnsViewSettingsDialog columnsViewSettingsDialog;
+
+    @Resource
     private ProgressComponent progressComponent;
 
+    @Resource
+    private UsersSettingsHolder usersSettingsHolder;
 
     private static final List<String> FORBIDDEN_ROLES = new ArrayList<String>();
 
@@ -486,6 +492,29 @@ public class MainForm extends AbstractForm {
         return articleTableComponent;
     }
 
+    /**
+     * Sets all tables to the {@link com.lavida.swing.preferences.UsersSettingsHolder}.
+     */
+    public void holdAllTables() {
+        JTable notSoldArticlesTable = getArticleTableComponent().getArticlesTable();
+        usersSettingsHolder.setNotSoldArticlesTable(notSoldArticlesTable);
+        JTable soldArticlesTable = soldProductsDialog.getArticleTableComponent().getArticlesTable();
+        usersSettingsHolder.setSoldArticlesTable(soldArticlesTable);
+        JTable addNewArticlesTable = addNewProductsDialog.getArticleTableComponent().getArticlesTable();
+        usersSettingsHolder.setAddNewArticlesTable(addNewArticlesTable);
+        JTable allDiscountCardsTable = allDiscountCardsDialog.getCardTableComponent().getDiscountCardsTable();
+        usersSettingsHolder.setAllDiscountCardsTable(allDiscountCardsTable);
+        JTable addNewDiscountCardsTable = addNewDiscountCardsDialog.getCardTableComponent().getDiscountCardsTable();
+        usersSettingsHolder.setAddNewDiscountCardsTable(addNewDiscountCardsTable);
+    }
+
+    public void createDefaultPreset() {
+        handler.createDefaultPreset();
+    }
+
+    /**
+     * The custom button.
+     */
     private class Button extends JButton {
         private Button() {
             super();
@@ -523,10 +552,10 @@ public class MainForm extends AbstractForm {
     }
 
     public void initializeUserSettings() {
-        getArticleTableComponent().applyDefaultUserSettings(DEFAULT_PRESET);
-        soldProductsDialog.getArticleTableComponent().applyDefaultUserSettings(DEFAULT_PRESET);
-        allDiscountCardsDialog.getCardTableComponent().applyUserSettings(DEFAULT_PRESET);
-        ColumnsViewSettingsDialog.applyUserSettings(DEFAULT_PRESET);
+        getArticleTableComponent().applyUserSettings();
+        soldProductsDialog.getArticleTableComponent().applyUserSettings();
+        allDiscountCardsDialog.getCardTableComponent().applyUserSettings();
+        columnsViewSettingsDialog.applyUserSettings();
     }
 
 

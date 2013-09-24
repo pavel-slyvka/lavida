@@ -1,4 +1,4 @@
-package com.lavida.swing.preferences.user;
+package com.lavida.swing.preferences;
 
 import javax.xml.bind.annotation.*;
 import java.util.ArrayList;
@@ -17,14 +17,17 @@ public class UserSettings {
     @XmlAttribute
     private String login;
 
-    @XmlElement
-    private PresetSettings defaultPresetSettings;
+    @XmlAttribute
+    private String lastPresetName;
 
     @XmlElement
-//    @XmlList
     private List<PresetSettings> presetSettingsList;
 
     public UserSettings() {
+    }
+
+    public UserSettings(String login) {
+        this.login = login;
     }
 
     public String getLogin() {
@@ -35,14 +38,6 @@ public class UserSettings {
         this.login = login;
     }
 
-    public PresetSettings getDefaultPresetSettings() {
-        return defaultPresetSettings;
-    }
-
-    public void setDefaultPresetSettings(PresetSettings defaultPresetSettings) {
-        this.defaultPresetSettings = defaultPresetSettings;
-    }
-
     public List<PresetSettings> getPresetSettingsList() {
         if (presetSettingsList == null) {
             presetSettingsList = new ArrayList<>();
@@ -50,15 +45,19 @@ public class UserSettings {
         return presetSettingsList;
     }
 
-    public void setPresetSettingsList(List<PresetSettings> presetSettingsList) {
-        this.presetSettingsList = presetSettingsList;
+    public String getLastPresetName() {
+        return lastPresetName;
+    }
+
+    public void setLastPresetName(String lastPresetName) {
+        this.lastPresetName = lastPresetName;
     }
 
     @Override
     public String toString() {
         return "UserSettings{" +
                 "login='" + login + '\'' +
-                ", defaultPresetSettings=" + defaultPresetSettings +
+                ", lastPresetName='" + lastPresetName + '\'' +
                 ", presetSettingsList=" + presetSettingsList +
                 '}';
     }

@@ -5,12 +5,13 @@ import com.lavida.TaskProgressEvent;
 import com.lavida.service.ArticleUpdateInfo;
 import com.lavida.service.DiscountCardsUpdateInfo;
 import com.lavida.service.UserService;
+import com.lavida.swing.preferences.UsersSettings;
 import com.lavida.swing.service.UserSettingsService;
 import com.lavida.service.entity.ArticleJdo;
 import com.lavida.service.entity.DiscountCardJdo;
 import com.lavida.service.settings.Settings;
 import com.lavida.service.settings.SettingsService;
-import com.lavida.swing.preferences.user.UsersSettingsHolder;
+import com.lavida.swing.preferences.UsersSettingsHolder;
 import com.lavida.service.xml.PostponedType;
 import com.lavida.service.xml.PostponedXmlService;
 import com.lavida.swing.LocaleHolder;
@@ -35,6 +36,7 @@ import javax.annotation.Resource;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.xml.bind.JAXBException;
+import java.awt.*;
 import java.awt.print.PrinterException;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -568,12 +570,24 @@ public class MainFormHandler implements ApplicationContextAware {
             }
         } catch (PrinterException e) {
             logger.warn(e.getMessage(), e);
+            Toolkit.getDefaultToolkit().beep();
             form.showWarningMessage("mainForm.exception.message.dialog.title", "mainForm.handler.print.exception.message");
         }
     }
 
     public void saveSettingsItemClicked() {
-// todo save usersSettings
+        String defaultPresetName = messageSource.getMessage("settings.user.preset.default.name", null, localeHolder.getLocale());
+        if (!defaultPresetName.equals(usersSettingsHolder.getPresetName())) {
+            form.holdAllTables();
+            UsersSettings usersSettings = userSettingsService.updatePresetSettings();
+            try {
+                userSettingsService.saveSettings(usersSettings);
+            } catch (IOException | JAXBException e) {
+                logger.warn(e.getMessage(), e);
+                Toolkit.getDefaultToolkit().beep();
+                form.showWarningMessage("mainForm.exception.message.dialog.title", "mainForm.handler.save.usersSettings.error.message");
+            }
+        }
     }
 
     @Override
@@ -586,7 +600,7 @@ public class MainFormHandler implements ApplicationContextAware {
     }
 
     public void moveToShopItemClicked() {
-        String shop = (String)(form.showInputDialog("mainForm.menu.selected.moveToShop.select.title", "mainForm.menu.selected.moveToShop.select.message",
+        String shop = (String) (form.showInputDialog("mainForm.menu.selected.moveToShop.select.title", "mainForm.menu.selected.moveToShop.select.message",
                 null, shopArray, shopArray[0]));
 
         if (shop != null) {
@@ -598,7 +612,9 @@ public class MainFormHandler implements ApplicationContextAware {
                         articleServiceSwingWrapper.updateToSpreadsheet(articleJdo, null);
                     } catch (IOException | ServiceException e) {
                         logger.warn(e.getMessage(), e);
+                        Toolkit.getDefaultToolkit().beep();
                         articleJdo.setPostponedOperationDate(new Date());
+                        form.showWarningMessage("mainForm.exception.message.dialog.title", "sellDialog.handler.sold.article.not.saved.to.worksheet");
                     }
                     articleServiceSwingWrapper.update(articleJdo);
                 }
@@ -615,4 +631,20 @@ public class MainFormHandler implements ApplicationContextAware {
         }
         form.update();
     }
+
+    public void createDefaultPreset() {
+        String defaultPresetName = messageSource.getMessage("settings.user.preset.default.name", null, localeHolder.getLocale());
+        usersSettingsHolder.setPresetName(defaultPresetName);
+        form.holdAllTables();
+        UsersSettings usersSettings = userSettingsService.updatePresetSettings();
+        try {
+            userSettingsService.saveSettings(usersSettings);
+        } catch (IOException | JAXBException e) {
+            logger.warn(e.getMessage(), e);
+            Toolkit.getDefaultToolkit().beep();
+            form.showWarningMessage("mainForm.exception.message.dialog.title", "mainForm.handler.save.usersSettings.error.message");
+        }
+    }
+
+
 }

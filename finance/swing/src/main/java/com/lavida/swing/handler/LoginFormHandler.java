@@ -1,20 +1,24 @@
 package com.lavida.swing.handler;
 
 import com.lavida.service.UserService;
+import com.lavida.swing.LocaleHolder;
+import com.lavida.swing.preferences.UserSettings;
+import com.lavida.swing.preferences.UsersSettings;
 import com.lavida.swing.service.UserSettingsService;
-import com.lavida.swing.preferences.user.UsersSettingsHolder;
+import com.lavida.swing.preferences.UsersSettingsHolder;
 import com.lavida.swing.form.MainForm;
 import com.lavida.swing.exception.UserValidationException;
 import com.lavida.swing.form.LoginForm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.MessageSource;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import javax.xml.bind.JAXBException;
-import java.io.FileNotFoundException;
+import java.awt.*;
 import java.io.IOException;
 
 /**
@@ -46,6 +50,13 @@ public class LoginFormHandler {
     @Resource
     private UserSettingsService userSettingsService;
 
+    @Resource
+    private MessageSource messageSource;
+
+    @Resource
+    private LocaleHolder localeHolder;
+
+
     /**
      * EventListener for submit button checks user credentials from database "lavida".
      * If input fields are empty or incorrect the error message will be shown in error label.
@@ -54,9 +65,8 @@ public class LoginFormHandler {
         try {
             form.clearFields();
             validateCredentials(loginEntered, passwordEntered);
-            loadUserSettings(loginEntered);
-            mainForm.initializeUserSettings();
             userService.login(loginEntered, passwordEntered);
+            loadUserSettings(loginEntered);
             mainForm.filterTableByRoles(userService.getCurrentUserRoles());
             mainForm.filterTableDataByRole(userService.getCurrentUserRoles());
             mainForm.filterAnalyzePanelByRoles(userService.getCurrentUserRoles());
@@ -64,30 +74,63 @@ public class LoginFormHandler {
             mainForm.removeFiltersByRoles(userService.getCurrentUserRoles());
             mainForm.initializeSellDialogByUser(userService.getCurrentUserRoles());
             mainForm.initializeArticleTableColumnLists();
+            if (!userSettingsService.userDefaultPresetExists()) {
+                mainForm.createDefaultPreset();
+            }
+            String defaultPresetName = messageSource.getMessage("settings.user.preset.default.name", null, localeHolder.getLocale());
+            if (!defaultPresetName.equals(usersSettingsHolder.getPresetName())) {
+                mainForm.initializeUserSettings();
+            }
             mainForm.show();
             form.hide();
         } catch (UserValidationException e1) {
+            Toolkit.getDefaultToolkit().beep();
             form.showErrorMessage(e1.getMessage());
         } catch (BadCredentialsException e) {
+            Toolkit.getDefaultToolkit().beep();
             form.showErrorMessage(e.getMessage());
         } catch (AuthenticationServiceException e) {
+            Toolkit.getDefaultToolkit().beep();
             form.showErrorMessage(e.getMessage());
         }
     }
 
 
     private void loadUserSettings(String login) {
+        usersSettingsHolder.setLogin(login);
         try {
             if (userSettingsService.getSettingsFile().exists()) {
-                usersSettingsHolder.setUsersSettings(userSettingsService.getSettings());
+                UsersSettings usersSettings = userSettingsService.getSettings();
+                usersSettingsHolder.setUsersSettings(usersSettings);
+                UserSettings userSettings = userSettingsService.getUserSettings();
+                if (userSettings != null) {
+                    String lastPresetName = userSettings.getLastPresetName();
+                    if (lastPresetName != null) {
+                        usersSettingsHolder.setPresetName(lastPresetName);
+                    } else {
+                        usersSettingsHolder.setPresetName(messageSource.getMessage("settings.user.preset.default.name", null, localeHolder.getLocale()));
+                    }
+                } else {
+                    usersSettingsHolder.setUsersSettings(new UsersSettings());
+                    userSettingsService.saveSettings(usersSettingsHolder.getUsersSettings());
+                    usersSettingsHolder.setPresetName(messageSource.getMessage("settings.user.preset.default.name", null, localeHolder.getLocale()));
+                }
+
             } else {
-                usersSettingsHolder.setUsersSettings(userSettingsService.createDefaultUsersSettings());
+                usersSettingsHolder.setUsersSettings(new UsersSettings());
+                userSettingsService.saveSettings(usersSettingsHolder.getUsersSettings());
+                usersSettingsHolder.setPresetName(messageSource.getMessage("settings.user.preset.default.name", null, localeHolder.getLocale()));
+            }
+            if (usersSettingsHolder.getUsersSettings().getEditorsSettings() == null) {
+                mainForm.holdAllTables();
+                usersSettingsHolder.setUsersSettings(userSettingsService.createEditorsSettings());
+                userSettingsService.saveSettings(usersSettingsHolder.getUsersSettings());
             }
         } catch (JAXBException | IOException e) {
             logger.error(e.getMessage(), e);
+            Toolkit.getDefaultToolkit().beep();
+            form.showWarningMessage("mainForm.exception.message.dialog.title", "mainForm.handler.save.usersSettings.error.message");
         }
-        usersSettingsHolder.setLogin(login);
-
     }
 
     /**
