@@ -1,7 +1,7 @@
 package com.lavida.swing.form.component;
 
 import com.lavida.service.entity.ArticleJdo;
-import com.lavida.swing.preferences.UsersSettingsHolder;
+import com.lavida.swing.preferences.*;
 import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.service.ArticlesTableModel;
 import org.springframework.context.MessageSource;
@@ -35,8 +35,7 @@ public class ArticleTableComponent implements TableModelListener {
     private JScrollPane tableScrollPane;
     private JComboBox brandBox, sizeBox, shopBox;
     private ArticleFiltersComponent articleFiltersComponent = new ArticleFiltersComponent();
-    @Deprecated
-    private Map<String, Integer> presetTableColumnsHeadersAndIndices = new HashMap<>();
+    private Map<String, TableColumn> headersAndColumnsMap;
 
     private String[] brandArray = {"H&M", "Mango", "Zara", "PULL&BEAR", "Westrags", "Bershka", "GoodLuck", "HTrand",
             "FeelingModa", "TodayFashion", "KR", "Glamour", "MGessi", "ProntoModa", "PuroLino", "Fashion",
@@ -67,7 +66,6 @@ public class ArticleTableComponent implements TableModelListener {
 
         articlesTable = new JTable(tableModel);
         articlesTable.setCellEditor(new DefaultCellEditor(new JTextField()));
-
         initTableColumnsEditors();
         initTableColumnsWidth();
         articlesTable.doLayout();
@@ -93,35 +91,15 @@ public class ArticleTableComponent implements TableModelListener {
 
         tableScrollPane = new JScrollPane(articlesTable);
         tableScrollPane.setPreferredSize(new Dimension(1000, 700));
-        initTableColumnsWidth();
         mainPanel.add(tableScrollPane, BorderLayout.CENTER);
 
 //      panel for search operations
         articleFiltersComponent.initializeComponents(tableModel, messageSource, localeHolder);
         articlesTable.setRowSorter(articleFiltersComponent.getSorter());
 
-    }
-
-
-    /**
-     * Moves columns in the table according to the user's settings.
-     *
-     * @param table the table to be sorted.
-     */
-    @Deprecated
-    private void presetTableColumnsOrdering(JTable table) {
-        if (presetTableColumnsHeadersAndIndices.size() > 0) {
-            TableColumnModel tableColumnModel = table.getColumnModel();
-            Enumeration<TableColumn> columnEnumeration = tableColumnModel.getColumns();
-            List<TableColumn> columnList = tableColumnEnumerationToList(columnEnumeration);
-            for (TableColumn column : columnList) {
-                String columnHeader = (String) column.getHeaderValue();
-                int presetModelIndex = presetTableColumnsHeadersAndIndices.get(columnHeader);
-                tableColumnModel.moveColumn(column.getModelIndex(), presetModelIndex);
-            }
-        }
 
     }
+
 
     /**
      * Converts the Enumeration of TableColumn  to the List of TableColumn.
@@ -130,7 +108,7 @@ public class ArticleTableComponent implements TableModelListener {
      * @return the List of TableColumn.
      */
     private List<TableColumn> tableColumnEnumerationToList(Enumeration<TableColumn> tableColumnEnumeration) {
-        List<TableColumn> tableColumnList = new ArrayList<TableColumn>();
+        List<TableColumn> tableColumnList = new ArrayList<>();
         while (tableColumnEnumeration.hasMoreElements()) {
             tableColumnList.add(tableColumnEnumeration.nextElement());
         }
@@ -166,7 +144,7 @@ public class ArticleTableComponent implements TableModelListener {
     /**
      * Filters the JTable by permissions of roles (ROLE_SELLER). It removes certain columns.
      *
-     * @param userRoles
+     * @param userRoles current user's roles.
      */
     public void filterTableByRoles(java.util.List<String> userRoles) {
         java.util.List<String> forbiddenHeaders = tableModel.getForbiddenHeadersToShow(messageSource, localeHolder.getLocale(), userRoles);
@@ -182,6 +160,7 @@ public class ArticleTableComponent implements TableModelListener {
         Map<String, Integer> columnHeaderToWidth = tableModel.getColumnHeaderToWidth();
         for (Map.Entry<String, Integer> entry : columnHeaderToWidth.entrySet()) {
             articlesTable.getColumn(entry.getKey()).setPreferredWidth(entry.getValue());
+//            articlesTable.getColumn(entry.getKey()).setMinWidth(entry.getValue());
         }
     }
 
@@ -201,9 +180,21 @@ public class ArticleTableComponent implements TableModelListener {
     public void tableChanged(TableModelEvent e) {
         if (e != null) {
             getArticleFiltersComponent().updateAnalyzeComponent();
-            return;
         }
 
+    }
+
+    /**
+     * Initializes the headersAndColumnsMap.
+     */
+    public void initHeadersAndColumnsMap() {
+        headersAndColumnsMap = new HashMap<>();
+        Enumeration<TableColumn> columnEnumeration = articlesTable.getColumnModel().getColumns();
+        while (columnEnumeration.hasMoreElements()) {
+            TableColumn column = columnEnumeration.nextElement();
+            String header = column.getHeaderValue().toString();
+            headersAndColumnsMap.put(header, column);
+        }
     }
 
     /**
@@ -211,23 +202,134 @@ public class ArticleTableComponent implements TableModelListener {
      *
      * @return true if the user has default settings.
      */
-    public boolean applyUserSettings() { // todo finish logic applyUserSettings
+    public boolean applyUserSettings(UsersSettings usersSettings, String tableSettingsName) {
         String presetName = usersSettingsHolder.getPresetName();
-        fixColumnOrder(presetName);
-        fixColumnWidth(presetName);
-        fixColumnEditors(presetName);
-        return false;
+        String login = usersSettingsHolder.getLogin();
+        UserSettings userSettings = null;
+        for (UserSettings settings : usersSettings.getUserSettingsList()) {
+            if (settings.getLogin().equals(login)) {
+                userSettings = settings;
+            }
+        }
+        if (userSettings == null) return false;
+
+        PresetSettings presetSettings = null;
+        for (PresetSettings settings : userSettings.getPresetSettingsList()) {
+            if (presetName.equals(settings.getPresetName())) {
+                presetSettings = settings;
+            }
+        }
+        if (presetSettings == null) return false;
+
+        TableSettings tableSettings = null;
+        for (TableSettings settings : presetSettings.getTableSettings()) {
+            if (tableSettingsName.equals(settings.getTableSettingsName())) {
+                tableSettings = settings;
+            }
+        }
+        if (tableSettings == null) return false;
+        fixColumnOrder(tableSettings);
+        fixColumnWidth(tableSettings);
+
+        EditorsSettings editorsSettings = usersSettings.getEditorsSettings();
+        if (editorsSettings == null) return false;
+        TableEditorSettings tableEditorSettings = null;
+        for (TableEditorSettings settings : editorsSettings.getTableEditor()) {
+            if (EditorsSettings.ARTICLES_TABLE.equals(settings.getTableEditorSettingsName())) {
+                tableEditorSettings = settings;
+            }
+        }
+        if (tableEditorSettings == null) return false;
+        fixColumnEditors(tableEditorSettings);
+
+        ArticlesTableModel articlesTableModel = (ArticlesTableModel) articlesTable.getModel();
+        articlesTableModel.fireTableDataChanged();
+        return true;
     }
 
-    private void fixColumnEditors(String presetName) {
+    private void fixColumnEditors(TableEditorSettings tableEditorSettings) {
+        TableColumnModel tableColumnModel = articlesTable.getColumnModel();
+        Enumeration<TableColumn> columnEnumeration = tableColumnModel.getColumns();
+        List<TableColumn> columnList = tableColumnEnumerationToList(columnEnumeration);
+        for (TableColumn column : columnList) {
+            String columnHeader = (String) column.getHeaderValue();
+            List<String> comboBoxItemList = getColumnEditorComboBoxItems(tableEditorSettings, columnHeader);
+            if (comboBoxItemList != null && comboBoxItemList.size() > 0) {
+                JComboBox comboBox = new JComboBox(comboBoxItemList.toArray());
+                TableCellEditor tableCellEditor = new DefaultCellEditor(comboBox);
+                column.setCellEditor(tableCellEditor);
+            }
+        }
 
     }
 
-    private void fixColumnWidth(String presetName) {
+    /**
+     * Finds the List of comboBox items for the column from the TableEditorSettings.
+     *
+     * @param tableEditorSettings the source TableEditorSettings.
+     * @param columnHeader        the certain column's header.
+     * @return the List of comboBox items.
+     */
+    private List<String> getColumnEditorComboBoxItems(TableEditorSettings tableEditorSettings, String columnHeader) {
+        List<String> comboBoxItems = null;
+        if (tableEditorSettings.getColumnEditors() != null ) {
+            for (ColumnEditorSettings settings : tableEditorSettings.getColumnEditors()) {
+                if (columnHeader.equals(settings.getHeader())) {
+                    comboBoxItems = settings.getComboBoxItem();
+                }
+            }
+        }
+
+        return comboBoxItems;
+    }
+
+    private void fixColumnWidth(TableSettings tableSettings) {
+        TableColumnModel tableColumnModel = articlesTable.getColumnModel();
+        Enumeration<TableColumn> columnEnumeration = tableColumnModel.getColumns();
+        List<TableColumn> columnList = tableColumnEnumerationToList(columnEnumeration);
+        for (TableColumn column : columnList) {
+            String columnHeader = (String) column.getHeaderValue();
+            int width = getPresetColumnWidth(tableSettings, columnHeader);
+            column.setPreferredWidth(width);
+        }
+    }
+
+    private void fixColumnOrder(TableSettings tableSettings) {
+        TableColumnModel tableColumnModel = articlesTable.getColumnModel();
+        Enumeration<TableColumn> columnEnumeration = tableColumnModel.getColumns();
+        List<TableColumn> columnList = tableColumnEnumerationToList(columnEnumeration);
+        for (TableColumn column : columnList) {
+            tableColumnModel.removeColumn(column);
+        }
+        for (ColumnSettings columnSettings : tableSettings.getColumns()) {
+            String header = columnSettings.getHeader();
+            int index = columnSettings.getIndex();
+            TableColumn column = headersAndColumnsMap.get(header);
+            column.setModelIndex(index);
+            tableColumnModel.addColumn(column);
+        }
 
     }
 
-    private void fixColumnOrder(String presetName) {
+    /**
+     * Finds the width for the column from the TableSettings.
+     *
+     * @param tableSettings the source  TableSettings.
+     * @param columnHeader  the certain column's header.
+     * @return the width for the column from the TableSettings.
+     */
+    private int getPresetColumnWidth(TableSettings tableSettings, String columnHeader) {
+        int width = 0;
+        for (ColumnSettings columnSettings : tableSettings.getColumns()) {
+            if (columnHeader.equals(columnSettings.getHeader())) {
+                width = columnSettings.getWidth();
+                break;
+            }
+        }
+        return width;
+    }
 
+    public Map<String, TableColumn> getHeadersAndColumnsMap() {
+        return headersAndColumnsMap;
     }
 }

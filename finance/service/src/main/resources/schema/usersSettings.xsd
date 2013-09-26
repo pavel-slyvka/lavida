@@ -22,8 +22,7 @@
     <xs:element name="editorsSettings" type="uns:editorsSettingsType"/>
     <xs:complexType name="editorsSettingsType">
         <xs:sequence>
-            <xs:element name="articlesTableEditor" type="uns:tableEditorType"/>
-            <xs:element name="discountCardsTableEditor" type="uns:tableEditorType"/>
+            <xs:element name="tableEditor" type="uns:tableEditorType" maxOccurs="unbounded" minOccurs="0"/>
         </xs:sequence>
     </xs:complexType>
 
@@ -32,6 +31,7 @@
         <xs:sequence>
             <xs:element name="columnEditor" type="uns:columnEditorListType"/>
         </xs:sequence>
+        <xs:attribute name="tableEditorSettingsName" type="xs:string"/>
     </xs:complexType>
 
     <xs:complexType name="columnEditorListType">
@@ -43,15 +43,9 @@
     <xs:element name="columnEditor" type="uns:columnEditorType"/>
     <xs:complexType name="columnEditorType">
         <xs:sequence>
-            <xs:element name="comboBoxItems" type="uns:itemListType"/>
+            <xs:element name="comboBoxItem" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
         <xs:attribute name="header" type="xs:string"/>
-    </xs:complexType>
-
-    <xs:complexType name="itemListType">
-        <xs:sequence>
-            <xs:element name="item" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
-        </xs:sequence>
     </xs:complexType>
 
     <xs:element name="userSettings" type="uns:userSettingsType"/>
@@ -72,20 +66,17 @@
     <xs:element name="presetSettings" type="uns:presetType"/>
     <xs:complexType name="presetType">
         <xs:sequence>
-            <xs:element name="notSoldArticlesTableSettings" type="uns:tableType"/>
-            <xs:element name="soldArticlesTableSettings" type="uns:tableType"/>
-            <xs:element name="addNewArticlesTableSettings" type="uns:tableType"/>
-            <xs:element name="allDiscountCardsTableSettings" type="uns:tableType"/>
-            <xs:element name="addNewDiscountCardsTableSettings" type="uns:tableType"/>
+            <xs:element name="tableSettings" type="uns:tableSettingsType" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
-        <xs:attribute name="name" type="xs:string"/>
+        <xs:attribute name="presetName" type="xs:string"/>
     </xs:complexType>
 
-    <xs:element name="table" type="uns:tableType"/>
-    <xs:complexType name="tableType">
+    <xs:element name="table" type="uns:tableSettingsType"/>
+    <xs:complexType name="tableSettingsType">
         <xs:sequence >
             <xs:element name="column" type="uns:columnType" maxOccurs="unbounded" minOccurs="0"/>
         </xs:sequence>
+        <xs:attribute name="tableSettingsName" type="xs:string"/>
     </xs:complexType>
 
     <xs:element name="column" type="uns:columnType"/>

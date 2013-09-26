@@ -1,7 +1,7 @@
 package com.lavida.swing.form.component;
 
 import com.lavida.service.entity.DiscountCardJdo;
-import com.lavida.swing.preferences.UsersSettingsHolder;
+import com.lavida.swing.preferences.*;
 import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.service.DiscountCardsTableModel;
 import org.springframework.context.MessageSource;
@@ -11,8 +11,12 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
+import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 import java.awt.*;
-import java.util.Map;
+import java.util.*;
+import java.util.List;
 
 /**
  * The table component for the AllDiscountCardsDialog
@@ -32,6 +36,7 @@ public class DiscountCardTableComponent implements TableModelListener {
     private JTable discountCardsTable;
     private JScrollPane tableScrollPane;
     private DiscountCardFiltersComponent cardFiltersComponent = new DiscountCardFiltersComponent();
+    private Map<String, TableColumn> headersAndColumnsMap;
 
     public void initializeComponents(DiscountCardsTableModel discountCardsTableModel, MessageSource messageSource,
                                      LocaleHolder localeHolder, UsersSettingsHolder usersSettingsHolder) {
@@ -74,19 +79,18 @@ public class DiscountCardTableComponent implements TableModelListener {
 
         tableScrollPane = new JScrollPane(discountCardsTable);
         tableScrollPane.setPreferredSize(new Dimension(1000, 700));
-        initTableColumnsWidth();
+//        initTableColumnsWidth();
         mainPanel.add(tableScrollPane, BorderLayout.CENTER);
 
 //      panel for search operations
         cardFiltersComponent.initializeComponents(tableModel, messageSource, localeHolder);
         discountCardsTable.setRowSorter(cardFiltersComponent.getSorter());
-
     }
 
     /**
      * Filters the JTable by permissions of roles (ROLE_SELLER). It removes certain columns.
      *
-     * @param userRoles
+     * @param userRoles current user's roles.
      */
     public void filterTableByRoles(java.util.List<String> userRoles) {
         java.util.List<String> forbiddenHeaders = tableModel.getForbiddenHeadersToShow(messageSource, localeHolder.getLocale(), userRoles);
@@ -121,31 +125,165 @@ public class DiscountCardTableComponent implements TableModelListener {
     public void tableChanged(TableModelEvent e) {
         if (e != null) {
             getCardFiltersComponent().updateAnalyzeComponent();
-            return;
         }
     }
 
-    public boolean applyUserSettings() {
-        // todo finish logic applyUserSettings
+    /**
+     * Initializes the headersAndColumnsMap.
+     */
+    public void initHeadersAndColumnsMap () {
+        headersAndColumnsMap = new HashMap<>();
+        Enumeration<TableColumn> columnEnumeration = discountCardsTable.getColumnModel().getColumns();
+        while (columnEnumeration.hasMoreElements()) {
+            TableColumn column = columnEnumeration.nextElement();
+            String header = column.getHeaderValue().toString();
+            headersAndColumnsMap.put(header, column);
+        }
+    }
 
+
+    public boolean applyUserSettings(UsersSettings usersSettings, String tableSettingsName) {
         String presetName = usersSettingsHolder.getPresetName();
-        fixColumnOrder(presetName);
-        fixColumnWidth(presetName);
-        fixColumnEditors(presetName);
+        String login = usersSettingsHolder.getLogin();
+        UserSettings userSettings = null;
+        for (UserSettings settings : usersSettings.getUserSettingsList()) {
+            if (settings.getLogin().equals(login)) {
+                userSettings = settings;
+            }
+        }
+        if (userSettings == null) return false;
 
-        return false;
+        PresetSettings presetSettings = null;
+        for (PresetSettings settings : userSettings.getPresetSettingsList()) {
+            if (presetName.equals(settings.getPresetName())) {
+                presetSettings = settings;
+            }
+        }
+        if (presetSettings == null) return false;
+
+        TableSettings tableSettings = null;
+        for (TableSettings settings : presetSettings.getTableSettings()) {
+            if (tableSettingsName.equals(settings.getTableSettingsName())) {
+                tableSettings = settings;
+            }
+        }
+        if (tableSettings == null) return false;
+        fixColumnOrder(tableSettings);
+        fixColumnWidth(tableSettings);
+
+        EditorsSettings editorsSettings = usersSettings.getEditorsSettings();
+        if (editorsSettings == null) return false;
+
+        TableEditorSettings tableEditorSettings = null;
+        for (TableEditorSettings settings : editorsSettings.getTableEditor()) {
+            if (EditorsSettings.DISCOUNT_CARDS_TABLE.equals(settings.getTableEditorSettingsName())) {
+                tableEditorSettings = settings;
+            }
+        }
+        if (tableEditorSettings == null) return false;
+        fixColumnEditors(tableEditorSettings);
+
+        DiscountCardsTableModel discountCardsTableModel = (DiscountCardsTableModel) discountCardsTable.getModel();
+        discountCardsTableModel.fireTableDataChanged();
+        return true;
     }
 
-    private void fixColumnEditors(String presetName) {
+    private void fixColumnEditors(TableEditorSettings tableEditorSettings) {
+        TableColumnModel tableColumnModel = discountCardsTable.getColumnModel();
+        Enumeration<TableColumn> columnEnumeration = tableColumnModel.getColumns();
+        java.util.List<TableColumn> columnList = tableColumnEnumerationToList(columnEnumeration);
+        for (TableColumn column : columnList) {
+            String columnHeader = (String) column.getHeaderValue();
+            java.util.List<String> comboBoxItemList = getColumnEditorComboBoxItems(tableEditorSettings, columnHeader);
+            if (comboBoxItemList != null && comboBoxItemList.size() > 0) {
+                JComboBox comboBox = new JComboBox(comboBoxItemList.toArray());
+                TableCellEditor tableCellEditor = new DefaultCellEditor(comboBox);
+                column.setCellEditor(tableCellEditor);
+            }
+        }
 
     }
 
-    private void fixColumnWidth(String presetName) {
+    /**
+     * Finds the List of comboBox items for the column from the TableEditorSettings.
+     *
+     * @param tableEditorSettings the source TableEditorSettings.
+     * @param columnHeader        the certain column's header.
+     * @return the List of comboBox items.
+     */
+    private java.util.List<String> getColumnEditorComboBoxItems(TableEditorSettings tableEditorSettings, String columnHeader) {
+        java.util.List<String> comboBoxItems = null;
+        if (tableEditorSettings.getColumnEditors() != null) {
+            for (ColumnEditorSettings settings : tableEditorSettings.getColumnEditors()) {
+                if (columnHeader.equals(settings.getHeader())) {
+                    comboBoxItems = settings.getComboBoxItem();
+                }
+            }
+        }
+        return comboBoxItems;
+    }
+
+    private void fixColumnWidth(TableSettings tableSettings) {
+        TableColumnModel tableColumnModel = discountCardsTable.getColumnModel();
+        Enumeration<TableColumn> columnEnumeration = tableColumnModel.getColumns();
+        java.util.List<TableColumn> columnList = tableColumnEnumerationToList(columnEnumeration);
+        for (TableColumn column : columnList) {
+            String columnHeader = (String) column.getHeaderValue();
+            int width = getPresetColumnWidth(tableSettings, columnHeader);
+            column.setPreferredWidth(width);
+        }
 
     }
 
-    private void fixColumnOrder(String presetName) {
-
+    private void fixColumnOrder(TableSettings tableSettings) {
+        TableColumnModel tableColumnModel = discountCardsTable.getColumnModel();
+        Enumeration<TableColumn> columnEnumeration = tableColumnModel.getColumns();
+        java.util.List<TableColumn> columnList = tableColumnEnumerationToList(columnEnumeration);
+        for (TableColumn column : columnList) {
+                tableColumnModel.removeColumn(column);
+        }
+        for (ColumnSettings columnSettings : tableSettings.getColumns()) {
+            String header = columnSettings.getHeader();
+            int index = columnSettings.getIndex();
+            TableColumn column = headersAndColumnsMap.get(header);
+            column.setModelIndex(index);
+            tableColumnModel.addColumn(column);
+        }
     }
 
+    /**
+     * Finds the width for the column from the TableSettings.
+     *
+     * @param tableSettings the source  TableSettings.
+     * @param columnHeader  the certain column's header.
+     * @return the width for the column from the TableSettings.
+     */
+    private int getPresetColumnWidth(TableSettings tableSettings, String columnHeader) {
+        int width = 0;
+        for (ColumnSettings columnSettings : tableSettings.getColumns()) {
+            if (columnHeader.equals(columnSettings.getHeader())) {
+                width = columnSettings.getWidth();
+                break;
+            }
+        }
+        return width;
+    }
+
+    /**
+     * Converts the Enumeration of TableColumn  to the List of TableColumn.
+     *
+     * @param tableColumnEnumeration the Enumeration to be converted.
+     * @return the List of TableColumn.
+     */
+    private List<TableColumn> tableColumnEnumerationToList(Enumeration<TableColumn> tableColumnEnumeration) {
+        List<TableColumn> tableColumnList = new ArrayList<>();
+        while (tableColumnEnumeration.hasMoreElements()) {
+            tableColumnList.add(tableColumnEnumeration.nextElement());
+        }
+        return tableColumnList;
+    }
+
+    public Map<String, TableColumn> getHeadersAndColumnsMap() {
+        return headersAndColumnsMap;
+    }
 }

@@ -621,7 +621,25 @@ public class MainFormHandler implements ApplicationContextAware {
     }
 
 
-    public void soldArticlesTableViewItemClicked() {
-        soldArticlesTableViewSettingsDialog.show();
+    public void selectSettingsItemClicked() {
+        String currentPresetName = usersSettingsHolder.getPresetName();
+        Object[] selectionValues = userSettingsService.getUserPresetNames().toArray();
+        String presetName = (String)form.showInputDialog("mainForm.menu.settings.select.title", "mainForm.menu.settings.select.message",
+                 null, selectionValues, currentPresetName);
+        if (presetName != null) {
+            usersSettingsHolder.setPresetName(presetName);
+            form.initializeUserSettings();
+        }
+    }
+
+    public void createSettingsItemClicked() {
+        String presetName = (String)form.showInputDialog("mainForm.menu.settings.create.title", "mainForm.menu.settings.create.message",
+                null, null, null);
+        if (presetName != null) {
+            form.holdAllTables();
+            usersSettingsHolder.setPresetName(presetName);
+            userSettingsService.updatePresetSettings();
+        }
+
     }
 }

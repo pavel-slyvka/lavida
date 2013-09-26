@@ -1,6 +1,8 @@
 package com.lavida.swing.preferences;
 
 import javax.xml.bind.annotation.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The class for a custom preset of {@link UsersSettings}.
@@ -12,85 +14,34 @@ import javax.xml.bind.annotation.*;
 @XmlType(name = "presetType", namespace = "http://www.xml.lavida.com/schema/usersSettings.com")
 @XmlRootElement
 public class PresetSettings {
+    public static final String NOT_SOLD_ARTICLES_TABLE = "notSoldArticlesTableSettings";
+    public static final String SOLD_ARTICLES_TABLE = "soldArticlesTableSettings";
+    public static final String ADD_NEW_ARTICLES_TABLE = "addNewArticlesTableSettings";
+    public static final String ALL_DISCOUNT_CARDS_TABLE = "allDiscountCardsTableSettings";
+    public static final String ADD_NEW_DISCOUNT_CARDS_TABLE = "addNewDiscountCardsTableSettings";
 
     @XmlAttribute
-    private String name;
+    private String presetName;
 
     @XmlElement
-    private TableSettings notSoldArticlesTableSettings;
-
-    @XmlElement
-    private TableSettings soldArticlesTableSettings;
-
-    @XmlElement
-    private TableSettings addNewArticlesTableSettings;
-
-    @XmlElement
-    private TableSettings allDiscountCardsTableSettings;
-
-    @XmlElement
-    private TableSettings addNewDiscountCardsTableSettings;
+    private List<TableSettings> tableSettings;
 
     public PresetSettings() {
     }
 
-    public String getName() {
-        return name;
+    public String getPresetName() {
+        return presetName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setPresetName(String presetName) {
+        this.presetName = presetName;
     }
 
-    public TableSettings getNotSoldArticlesTableSettings() {
-        return notSoldArticlesTableSettings;
+    public List<TableSettings> getTableSettings() {
+        return tableSettings;
     }
 
-    public void setNotSoldArticlesTableSettings(TableSettings notSoldArticlesTableSettings) {
-        this.notSoldArticlesTableSettings = notSoldArticlesTableSettings;
-    }
-
-    public TableSettings getSoldArticlesTableSettings() {
-        return soldArticlesTableSettings;
-    }
-
-    public void setSoldArticlesTableSettings(TableSettings soldArticlesTableSettings) {
-        this.soldArticlesTableSettings = soldArticlesTableSettings;
-    }
-
-    public TableSettings getAddNewArticlesTableSettings() {
-        return addNewArticlesTableSettings;
-    }
-
-    public void setAddNewArticlesTableSettings(TableSettings addNewArticlesTableSettings) {
-        this.addNewArticlesTableSettings = addNewArticlesTableSettings;
-    }
-
-    public TableSettings getAllDiscountCardsTableSettings() {
-        return allDiscountCardsTableSettings;
-    }
-
-    public void setAllDiscountCardsTableSettings(TableSettings allDiscountCardsTableSettings) {
-        this.allDiscountCardsTableSettings = allDiscountCardsTableSettings;
-    }
-
-    public TableSettings getAddNewDiscountCardsTableSettings() {
-        return addNewDiscountCardsTableSettings;
-    }
-
-    public void setAddNewDiscountCardsTableSettings(TableSettings addNewDiscountCardsTableSettings) {
-        this.addNewDiscountCardsTableSettings = addNewDiscountCardsTableSettings;
-    }
-
-    @Override
-    public String toString() {
-        return "PresetSettings{" +
-                "name='" + name + '\'' +
-                ", notSoldArticlesTableSettings=" + notSoldArticlesTableSettings +
-                ", soldArticlesTableSettings=" + soldArticlesTableSettings +
-                ", addNewArticlesTableSettings=" + addNewArticlesTableSettings +
-                ", allDiscountCardsTableSettings=" + allDiscountCardsTableSettings +
-                ", addNewDiscountCardsTableSettings=" + addNewDiscountCardsTableSettings +
-                '}';
+    public void setTableSettings(List<TableSettings> tableSettings) {
+        this.tableSettings = tableSettings;
     }
 }

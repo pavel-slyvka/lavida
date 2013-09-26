@@ -15,6 +15,9 @@ import java.util.List;
 @XmlRootElement
 public class TableEditorSettings {
 
+    @XmlAttribute
+    private String tableEditorSettingsName;
+
     @XmlElement
     private List<ColumnEditorSettings> columnEditors;
 
@@ -29,10 +32,19 @@ public class TableEditorSettings {
         this.columnEditors = columnEditors;
     }
 
+    public String getTableEditorSettingsName() {
+        return tableEditorSettingsName;
+    }
+
+    public void setTableEditorSettingsName(String tableEditorSettingsName) {
+        this.tableEditorSettingsName = tableEditorSettingsName;
+    }
+
     @Override
     public String toString() {
         return "TableEditorSettings{" +
-                "columnEditors=" + columnEditors +
+                "tableEditorSettingsName='" + tableEditorSettingsName + '\'' +
+                ", columnEditors=" + columnEditors +
                 '}';
     }
 }

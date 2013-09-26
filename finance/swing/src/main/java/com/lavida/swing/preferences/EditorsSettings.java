@@ -1,6 +1,7 @@
 package com.lavida.swing.preferences;
 
 import javax.xml.bind.annotation.*;
+import java.util.List;
 
 /**
  * The EditorsSettings
@@ -13,37 +14,21 @@ import javax.xml.bind.annotation.*;
 @XmlType(name = "editorsSettingsType", namespace = "http://www.xml.lavida.com/schema/usersSettings.com")
 @XmlRootElement
 public class EditorsSettings {
+    public static final String ARTICLES_TABLE = "articlesTableEditor";
+    public static final String DISCOUNT_CARDS_TABLE = "discountCardsTableEditor";
 
     @XmlElement
-    private TableEditorSettings articlesTableEditor;
+    private List<TableEditorSettings> tableEditor;
 
-    @XmlElement
-    private TableEditorSettings discountCardsTableEditor;
 
     public EditorsSettings() {
     }
 
-    public TableEditorSettings getArticlesTableEditor() {
-        return articlesTableEditor;
+    public List<TableEditorSettings> getTableEditor() {
+        return tableEditor;
     }
 
-    public void setArticlesTableEditor(TableEditorSettings articlesTableEditor) {
-        this.articlesTableEditor = articlesTableEditor;
-    }
-
-    public TableEditorSettings getDiscountCardsTableEditor() {
-        return discountCardsTableEditor;
-    }
-
-    public void setDiscountCardsTableEditor(TableEditorSettings discountCardsTableEditor) {
-        this.discountCardsTableEditor = discountCardsTableEditor;
-    }
-
-    @Override
-    public String toString() {
-        return "EditorsSettings{" +
-                "articlesTableEditor=" + articlesTableEditor +
-                ", discountCardsTableEditor=" + discountCardsTableEditor +
-                '}';
+    public void setTableEditor(List<TableEditorSettings> tableEditor) {
+        this.tableEditor = tableEditor;
     }
 }

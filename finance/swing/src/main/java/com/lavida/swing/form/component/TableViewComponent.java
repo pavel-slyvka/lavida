@@ -2,6 +2,7 @@ package com.lavida.swing.form.component;
 
 import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.dialog.AbstractDialog;
+import com.lavida.swing.preferences.*;
 import org.springframework.context.MessageSource;
 
 import javax.swing.*;
@@ -27,34 +28,33 @@ public class TableViewComponent {
     private LocaleHolder localeHolder;
     private JTable table;
     private AbstractDialog dialog;
+    private UsersSettingsHolder usersSettingsHolder;
 
-    private JPanel  mainPanel, inputPanel, visibleColumnsPanel, notVisibleColumnsPanel, buttonPanel;
-    private JButton  hideColumnButton, showColumnButton, applyButton, cancelButton;
+    private JPanel mainPanel, inputPanel, visibleColumnsPanel, notVisibleColumnsPanel, buttonPanel;
+    private JButton hideColumnButton, showColumnButton, applyButton, cancelButton;
     private JList visibleColumnsList, notVisibleColumnsList;
     private JScrollPane visibleListScrollPane, notVisibleListScrollPane;
     private DefaultListModel<String> visibleColumnsListModel, notVisibleColumnsListModel;
 
-    private Map<String, TableColumn> HeadersAndColumnsMap;
+    private Map<String, TableColumn> headersAndColumnsMap;
 
 
-    public void initializeComponents(AbstractDialog dialog, JTable table, MessageSource messageSource,
-                                     LocaleHolder localeHolder) {
+    public void initializeComponents(AbstractDialog dialog, JTable table, Map<String, TableColumn> headersAndColumnsMap,
+                                     MessageSource messageSource, LocaleHolder localeHolder, UsersSettingsHolder usersSettingsHolder) {
         this.messageSource = messageSource;
         this.localeHolder = localeHolder;
         this.table = table;
         this.dialog = dialog;
+        this.usersSettingsHolder = usersSettingsHolder;
+        this.headersAndColumnsMap = headersAndColumnsMap;
 
-        HeadersAndColumnsMap = new HashMap<>();
-        visibleColumnsListModel = new DefaultListModel();
-        notVisibleColumnsListModel = new DefaultListModel();
-
-        Enumeration<TableColumn> columnEnumeration = table.getColumnModel().getColumns();
-        while (columnEnumeration.hasMoreElements()) {
-            TableColumn column = columnEnumeration.nextElement();
-            String header = column.getHeaderValue().toString();
-            HeadersAndColumnsMap.put(header, column);
-            visibleColumnsListModel.addElement(header);
+        visibleColumnsListModel = new DefaultListModel<>();
+        notVisibleColumnsListModel = new DefaultListModel<>();
+        Set<Map.Entry<String, TableColumn>> entrySet = headersAndColumnsMap.entrySet();
+        for (Map.Entry<String, TableColumn> entry : entrySet) {
+            visibleColumnsListModel.addElement(entry.getKey());
         }
+        visibleColumnsListModel = sortListModel(visibleColumnsListModel);
 
         mainPanel = new JPanel(new BorderLayout());
 //      input panel
@@ -108,9 +108,9 @@ public class TableViewComponent {
         hideColumnButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                java.util.List<String> selectedHeaders = visibleColumnsList.getSelectedValuesList();
-                for (String header : selectedHeaders) {
-                    notVisibleColumnsListModel.addElement(header);
+                java.util.List selectedHeaders = visibleColumnsList.getSelectedValuesList();
+                for (Object header : selectedHeaders) {
+                    notVisibleColumnsListModel.addElement((String) header);
                     visibleColumnsListModel.removeElement(header);
                 }
 
@@ -171,9 +171,9 @@ public class TableViewComponent {
         showColumnButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                java.util.List<String> selectedHeaders = notVisibleColumnsList.getSelectedValuesList();
-                for (String header : selectedHeaders) {
-                    visibleColumnsListModel.addElement(header);
+                java.util.List selectedHeaders = notVisibleColumnsList.getSelectedValuesList();
+                for (Object header : selectedHeaders) {
+                    visibleColumnsListModel.addElement((String) header);
                     notVisibleColumnsListModel.removeElement(header);
                 }
 
@@ -226,7 +226,7 @@ public class TableViewComponent {
     }
 
     private void cancelButtonClicked() {
-        updateListModels(table);
+        updateListModels();
         visibleColumnsList.clearSelection();
         notVisibleColumnsList.clearSelection();
         showColumnButton.setEnabled(false);
@@ -243,18 +243,21 @@ public class TableViewComponent {
         Enumeration<String> showHeaders = visibleColumnsListModel.elements();
         while (showHeaders.hasMoreElements()) {
             String showColumnHeader = showHeaders.nextElement();
-            TableColumn tableColumn = HeadersAndColumnsMap.get(showColumnHeader);
+            TableColumn tableColumn = headersAndColumnsMap.get(showColumnHeader);
             if (!tableColumnList.contains(tableColumn)) {
                 tableColumnList.add(tableColumn);
                 tableColumnModel.addColumn(tableColumn);
-                tableColumnModel.moveColumn(tableColumnModel.getColumnCount() - 1, tableColumn.getModelIndex());
+                int position = getColumnPosition(tableColumnModel, tableColumn);
+                if (position != -1) {
+                    tableColumnModel.moveColumn(tableColumnModel.getColumnCount() - 1, position);
+                }
             }
         }
 
         Enumeration<String> hideHeaders = notVisibleColumnsListModel.elements();
         while (hideHeaders.hasMoreElements()) {
             String hideColumnHeaders = hideHeaders.nextElement();
-            TableColumn tableColumn = HeadersAndColumnsMap.get(hideColumnHeaders);
+            TableColumn tableColumn = headersAndColumnsMap.get(hideColumnHeaders);
             if (tableColumnList.contains(tableColumn)) {
                 tableColumnList.remove(tableColumn);
                 tableColumnModel.removeColumn(tableColumn);
@@ -263,18 +266,41 @@ public class TableViewComponent {
 
         visibleColumnsList.clearSelection();
         notVisibleColumnsList.clearSelection();
+        updateListModels();
         showColumnButton.setEnabled(false);
         hideColumnButton.setEnabled(false);
         dialog.hide();
+    }
 
+    private int getColumnPosition(TableColumnModel tableColumnModel, TableColumn tableColumn) {
+        int columnPosition = 0;
+        Enumeration<TableColumn> columnEnumeration = tableColumnModel.getColumns();
+        List<TableColumn> tableColumnList = tableColumnEnumerationToList(columnEnumeration);
+        int currentPosition = 0;
+        boolean last = true;
+        for (TableColumn column : tableColumnList) {
+            if (tableColumn.getModelIndex() < column.getModelIndex()) {
+                columnPosition = currentPosition;
+                last = false;
+                break;
+            }
+            currentPosition ++;
+        }
+
+        if (last){
+            return -1;
+        }else {
+            return columnPosition;
+        }
     }
 
     /**
      * Converts the Enumeration of TableColumn  to the List of TableColumn.
-     * @param tableColumnEnumeration  the Enumeration to be converted.
+     *
+     * @param tableColumnEnumeration the Enumeration to be converted.
      * @return the List of TableColumn.
      */
-    private List<TableColumn> tableColumnEnumerationToList (Enumeration<TableColumn> tableColumnEnumeration) {
+    private List<TableColumn> tableColumnEnumerationToList(Enumeration<TableColumn> tableColumnEnumeration) {
         List<TableColumn> tableColumnList = new ArrayList<>();
         while (tableColumnEnumeration.hasMoreElements()) {
             tableColumnList.add(tableColumnEnumeration.nextElement());
@@ -282,10 +308,10 @@ public class TableViewComponent {
         return tableColumnList;
     }
 
-    public void updateListModels(JTable articlesTable) {
+    public void updateListModels() {
         visibleColumnsListModel.removeAllElements();
         notVisibleColumnsListModel.removeAllElements();
-        Enumeration<TableColumn> visibleColumns = articlesTable.getColumnModel().getColumns();
+        Enumeration<TableColumn> visibleColumns = table.getColumnModel().getColumns();
         TableColumn column;
         String header;
         while (visibleColumns.hasMoreElements()) {
@@ -293,16 +319,54 @@ public class TableViewComponent {
             header = column.getHeaderValue().toString();
             visibleColumnsListModel.addElement(header);
         }
-        Set<Map.Entry<String, TableColumn>> tableColumnEntries = HeadersAndColumnsMap.entrySet();
+        visibleColumnsListModel = sortListModel(visibleColumnsListModel);
+
+        Set<Map.Entry<String, TableColumn>> tableColumnEntries = headersAndColumnsMap.entrySet();
         for (Map.Entry<String, TableColumn> tableColumnEntry : tableColumnEntries) {
             header = tableColumnEntry.getKey();
             if (!visibleColumnsListModel.contains(header)) {
                 notVisibleColumnsListModel.addElement(header);
             }
         }
+        notVisibleColumnsListModel = sortListModel(notVisibleColumnsListModel);
+    }
+
+    /**
+     * Sorts the DefaultListModel according to the table column's index.
+     *
+     * @param listModel the DefaultListModel to be sorted.
+     * @return the sorted DefaultListModel.
+     */
+    private DefaultListModel<String> sortListModel(DefaultListModel<String> listModel) {
+        String[] intermediateHeaders = new String[getMaxIndex(headersAndColumnsMap) + 1];
+        for (Object item : listModel.toArray()) {
+            String header = (String) item;
+            TableColumn column = headersAndColumnsMap.get(header);
+            int index = column.getModelIndex();
+            intermediateHeaders[index] = header;
+        }
+        listModel.removeAllElements();
+        for (String header : intermediateHeaders) {
+            if (header != null) {
+                listModel.addElement(header);
+            }
+        }
+        return listModel;
+    }
+
+    private int getMaxIndex(Map<String, TableColumn> map) {
+        int maxIndex = 0;
+        Set<Map.Entry<String, TableColumn>> entrySet = map.entrySet();
+        for (Map.Entry<String, TableColumn> entry : entrySet) {
+            if (maxIndex < entry.getValue().getModelIndex()) {
+                maxIndex = entry.getValue().getModelIndex();
+            }
+        }
+        return maxIndex;
     }
 
     public JPanel getMainPanel() {
         return mainPanel;
     }
+
 }

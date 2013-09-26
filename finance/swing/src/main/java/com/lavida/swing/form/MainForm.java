@@ -7,15 +7,22 @@ import com.lavida.swing.dialog.settings.SoldArticlesTableViewSettingsDialog;
 import com.lavida.swing.form.component.ArticleTableComponent;
 import com.lavida.swing.form.component.ProgressComponent;
 import com.lavida.swing.handler.MainFormHandler;
+import com.lavida.swing.preferences.EditorsSettings;
+import com.lavida.swing.preferences.PresetSettings;
+import com.lavida.swing.preferences.UsersSettings;
 import com.lavida.swing.preferences.UsersSettingsHolder;
 import com.lavida.swing.service.ArticlesTableModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
+import javax.xml.bind.JAXBException;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,6 +34,7 @@ import java.util.List;
  */
 @Component
 public class MainForm extends AbstractForm {
+    private static final Logger logger = LoggerFactory.getLogger(MainFormHandler.class);
 
     @Resource
     private MainFormHandler handler;
@@ -333,7 +341,6 @@ public class MainForm extends AbstractForm {
             @Override
             public void actionPerformed(ActionEvent e) {
                 soldArticlesTableViewSettingsDialog.show();
-                handler.soldArticlesTableViewItemClicked();
             }
         });
 
@@ -364,7 +371,7 @@ public class MainForm extends AbstractForm {
         selectSettingsItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                handler.selectSettingsItemClicked();
             }
         });
 
@@ -373,7 +380,7 @@ public class MainForm extends AbstractForm {
         createSettingsItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                handler.createSettingsItemClicked();
             }
         });
 
@@ -603,12 +610,33 @@ public class MainForm extends AbstractForm {
     }
 
     public void initializeUserSettings() {
-        getArticleTableComponent().applyUserSettings();
-        soldProductsDialog.getArticleTableComponent().applyUserSettings();
-        allDiscountCardsDialog.getCardTableComponent().applyUserSettings();
+        UsersSettings usersSettings = null;
+        try {
+            usersSettings = userSettingsService.getSettings();
+        } catch (JAXBException | FileNotFoundException e) {
+            Toolkit.getDefaultToolkit().beep();
+            logger.error(e.getMessage(), e);
+            showWarningMessage("mainForm.exception.message.dialog.title", "mainForm.handler.load.usersSettings.error.message");
+
+        }
+        getArticleTableComponent().applyUserSettings(usersSettings, PresetSettings.NOT_SOLD_ARTICLES_TABLE);
+        notSoldArticlesTableViewSettingsDialog.getTableViewComponent().updateListModels();
+        soldProductsDialog.getArticleTableComponent().applyUserSettings(usersSettings, PresetSettings.SOLD_ARTICLES_TABLE);
+        soldArticlesTableViewSettingsDialog.getTableViewComponent().updateListModels();
+        addNewProductsDialog.getArticleTableComponent().applyUserSettings(usersSettings, PresetSettings.ADD_NEW_ARTICLES_TABLE);
+        allDiscountCardsDialog.getCardTableComponent().applyUserSettings(usersSettings, PresetSettings.ALL_DISCOUNT_CARDS_TABLE);
+        allDiscountCardsTableViewSettingsDialog.getTableViewComponent().updateListModels();
+        addNewDiscountCardsDialog.getCardTableComponent().applyUserSettings(usersSettings, PresetSettings.ADD_NEW_DISCOUNT_CARDS_TABLE);
+
     }
 
     public void initializeTableViewComponents() {
+        getArticleTableComponent().initHeadersAndColumnsMap();
+        soldProductsDialog.getArticleTableComponent().initHeadersAndColumnsMap();
+        addNewProductsDialog.getArticleTableComponent().initHeadersAndColumnsMap();
+        allDiscountCardsDialog.getCardTableComponent().initHeadersAndColumnsMap();
+        addNewDiscountCardsDialog.getCardTableComponent().initHeadersAndColumnsMap();
+
         notSoldArticlesTableViewSettingsDialog.postInit();
         soldArticlesTableViewSettingsDialog.postInit();
         allDiscountCardsTableViewSettingsDialog.postInit();

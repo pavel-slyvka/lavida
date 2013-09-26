@@ -5,7 +5,6 @@ import com.lavida.swing.dialog.SoldProductsDialog;
 import com.lavida.swing.form.component.TableViewComponent;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.swing.*;
 import java.awt.*;
@@ -41,12 +40,14 @@ public class SoldArticlesTableViewSettingsDialog extends AbstractDialog {
 
     public void postInit() {
         rootContainer.setLayout(new BorderLayout());
-
         tableViewComponent.initializeComponents(this, soldProductsDialog.getArticleTableComponent().getArticlesTable(),
-                messageSource, localeHolder);
+                soldProductsDialog.getArticleTableComponent().getHeadersAndColumnsMap(),
+                messageSource, localeHolder, usersSettingsHolder);
         JPanel mainPanel = tableViewComponent.getMainPanel();
         rootContainer.add(mainPanel);
-
     }
 
+    public TableViewComponent getTableViewComponent() {
+        return tableViewComponent;
     }
+}

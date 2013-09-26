@@ -5,7 +5,6 @@ import com.lavida.swing.dialog.AllDiscountCardsDialog;
 import com.lavida.swing.form.component.TableViewComponent;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.swing.*;
 import java.awt.*;
@@ -43,16 +42,14 @@ public class AllDiscountCardsTableViewSettingsDialog extends AbstractDialog{
         rootContainer.setLayout(new BorderLayout());
 
         tableViewComponent.initializeComponents(this, allDiscountCardsDialog.getCardTableComponent().getDiscountCardsTable(),
-                messageSource, localeHolder);
+                allDiscountCardsDialog.getCardTableComponent().getHeadersAndColumnsMap(),
+                messageSource, localeHolder, usersSettingsHolder);
         JPanel mainPanel = tableViewComponent.getMainPanel();
         rootContainer.add(mainPanel);
 
     }
 
-        public  boolean applyUserSettings() {
-        String presetName = usersSettingsHolder.getPresetName();
-
-        return false;
+    public TableViewComponent getTableViewComponent() {
+        return tableViewComponent;
     }
-
 }

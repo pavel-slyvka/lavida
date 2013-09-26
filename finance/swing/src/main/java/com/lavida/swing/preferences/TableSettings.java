@@ -15,10 +15,25 @@ import java.util.List;
 @XmlRootElement
 public class TableSettings {
 
+    @XmlAttribute
+    private String tableSettingsName;
+
    @XmlElement
     private List<ColumnSettings> columns;
 
     public TableSettings() {
+    }
+
+    public String getTableSettingsName() {
+        return tableSettingsName;
+    }
+
+    public void setTableSettingsName(String tableSettingsName) {
+        this.tableSettingsName = tableSettingsName;
+    }
+
+    public List<ColumnSettings> getColumns() {
+        return columns;
     }
 
     public void setColumns(List<ColumnSettings> columns) {
@@ -28,7 +43,8 @@ public class TableSettings {
     @Override
     public String toString() {
         return "TableSettings{" +
-                "columns=" + columns +
+                "tableSettingsName='" + tableSettingsName + '\'' +
+                ", columns=" + columns +
                 '}';
     }
 }

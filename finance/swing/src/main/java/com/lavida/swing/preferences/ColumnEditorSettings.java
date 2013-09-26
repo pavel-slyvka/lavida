@@ -20,7 +20,7 @@ public class ColumnEditorSettings {
     private String header;
 
     @XmlElement
-    private List<String> comboBoxItems;
+    private List<String> comboBoxItem;
 
     public ColumnEditorSettings() {
     }
@@ -33,15 +33,15 @@ public class ColumnEditorSettings {
         this.header = header;
     }
 
-    public List<String> getComboBoxItems() {
-        if (comboBoxItems == null) {
-            comboBoxItems = new ArrayList<>();
+    public List<String> getComboBoxItem() {
+        if (comboBoxItem == null) {
+            comboBoxItem = new ArrayList<>();
         }
-        return comboBoxItems;
+        return comboBoxItem;
     }
 
-    public void setComboBoxItems(List<String> comboBoxItems) {
-        this.comboBoxItems = comboBoxItems;
+    public void setComboBoxItem(List<String> comboBoxItem) {
+        this.comboBoxItem = comboBoxItem;
     }
 
 
@@ -49,7 +49,7 @@ public class ColumnEditorSettings {
     public String toString() {
         return "ColumnEditorSettings{" +
                 "header='" + header + '\'' +
-                ", comboBoxItems=" + comboBoxItems +
+                ", comboBoxItem=" + comboBoxItem +
                 '}';
     }
 }

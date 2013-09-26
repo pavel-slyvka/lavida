@@ -92,42 +92,50 @@ public class UserSettingsService {
         PresetSettings presetSettings = null;
         if (userSettings.getPresetSettingsList().size() > 0) {
             for (PresetSettings settings : userSettings.getPresetSettingsList()) {
-                if (presetName.equals(settings.getName())) {
+                if (presetName.equals(settings.getPresetName())) {
                     presetSettings = settings;
                 }
             }
         }
         if (presetSettings == null) {
             presetSettings = new PresetSettings();
-            presetSettings.setName(presetName);
+            presetSettings.setPresetName(presetName);
             userSettings.getPresetSettingsList().add(presetSettings);
         }
         userSettings.setLastPresetName(presetName);
+        List<TableSettings> tableSettingsList = new ArrayList<>();
+        presetSettings.setTableSettings(tableSettingsList);
 
         TableSettings notSoldArticlesTableSettings = new TableSettings();
+        notSoldArticlesTableSettings.setTableSettingsName(PresetSettings.NOT_SOLD_ARTICLES_TABLE);
         List<ColumnSettings> notSoldArticlesColumnSettingsList = getColumnsSettingsList(notSoldArticlesTable);
         notSoldArticlesTableSettings.setColumns(notSoldArticlesColumnSettingsList);
-        presetSettings.setNotSoldArticlesTableSettings(notSoldArticlesTableSettings);
+        tableSettingsList.add(notSoldArticlesTableSettings);
 
         TableSettings soldArticlesTableSettings = new TableSettings();
+        soldArticlesTableSettings.setTableSettingsName(PresetSettings.SOLD_ARTICLES_TABLE);
         List<ColumnSettings> soldArticlesColumnSettingsList = getColumnsSettingsList(soldArticlesTable);
         soldArticlesTableSettings.setColumns(soldArticlesColumnSettingsList);
-        presetSettings.setSoldArticlesTableSettings(soldArticlesTableSettings);
+        tableSettingsList.add(soldArticlesTableSettings);
 
         TableSettings addNewArticlesTableSettings = new TableSettings();
+        addNewArticlesTableSettings.setTableSettingsName(PresetSettings.ADD_NEW_ARTICLES_TABLE);
         List<ColumnSettings> addNewArticlesColumnSettingsList = getColumnsSettingsList(addNewArticlesTable);
         addNewArticlesTableSettings.setColumns(addNewArticlesColumnSettingsList);
-        presetSettings.setAddNewArticlesTableSettings(addNewArticlesTableSettings);
+        tableSettingsList.add(addNewArticlesTableSettings);
 
         TableSettings allDiscountCardsTableSettings = new TableSettings();
+        allDiscountCardsTableSettings.setTableSettingsName(PresetSettings.ALL_DISCOUNT_CARDS_TABLE);
         List<ColumnSettings> allDiscountCardsTableSettingsList = getColumnsSettingsList(allDiscountCardsTable);
         allDiscountCardsTableSettings.setColumns(allDiscountCardsTableSettingsList);
-        presetSettings.setAllDiscountCardsTableSettings(allDiscountCardsTableSettings);
+        tableSettingsList.add(allDiscountCardsTableSettings);
 
         TableSettings addNewDiscountCardsTableSettings = new TableSettings();
+        addNewDiscountCardsTableSettings.setTableSettingsName(PresetSettings.ADD_NEW_DISCOUNT_CARDS_TABLE);
         List<ColumnSettings> addNewDiscountCardsTableSettingsList = getColumnsSettingsList(addNewDiscountCardsTable);
         addNewDiscountCardsTableSettings.setColumns(addNewDiscountCardsTableSettingsList);
-        presetSettings.setAddNewDiscountCardsTableSettings(addNewDiscountCardsTableSettings);
+        tableSettingsList.add(addNewDiscountCardsTableSettings);
+
         return usersSettings;
     }
 
@@ -161,7 +169,7 @@ public class UserSettingsService {
         for (TableColumn tableColumn : tableColumnList) {
             String header = (String) tableColumn.getHeaderValue();
             int index = tableColumn.getModelIndex();
-            int width = tableColumn.getWidth();
+            int width = tableColumn.getPreferredWidth();
             ColumnSettings columnSettings = new ColumnSettings(header, index, width, backgroundColor, foregroundColor);
             columnSettingsList.add(columnSettings);
         }
@@ -192,7 +200,7 @@ public class UserSettingsService {
 
         if (userSettings.getPresetSettingsList().size() > 0) {
             for (PresetSettings settings : userSettings.getPresetSettingsList()) {
-                if (defaultPresetName.equals(settings.getName())) {
+                if (defaultPresetName.equals(settings.getPresetName())) {
                     return true;
                 }
             }
@@ -230,16 +238,20 @@ public class UserSettingsService {
         UsersSettings usersSettings = usersSettingsHolder.getUsersSettings();
         EditorsSettings editorsSettings = new EditorsSettings();
         usersSettings.setEditorsSettings(editorsSettings);
+        List<TableEditorSettings> tableEditorSettingsList = new ArrayList<>();
+        editorsSettings.setTableEditor(tableEditorSettingsList);
 
         TableEditorSettings articlesTableEditor = new TableEditorSettings();
+        articlesTableEditor.setTableEditorSettingsName(EditorsSettings.ARTICLES_TABLE);
         List<ColumnEditorSettings> articleColumnEditors = getColumnEditorSettingsList(usersSettingsHolder.getNotSoldArticlesTable());
         articlesTableEditor.setColumnEditors(articleColumnEditors);
-        editorsSettings.setArticlesTableEditor(articlesTableEditor);
+        tableEditorSettingsList.add(articlesTableEditor);
 
         TableEditorSettings discountCardsTableEditor = new TableEditorSettings();
+        discountCardsTableEditor.setTableEditorSettingsName(EditorsSettings.DISCOUNT_CARDS_TABLE);
         List<ColumnEditorSettings> discountCardsColumnEditors = getColumnEditorSettingsList(usersSettingsHolder.getAllDiscountCardsTable());
         discountCardsTableEditor.setColumnEditors(discountCardsColumnEditors);
-        editorsSettings.setDiscountCardsTableEditor(discountCardsTableEditor);
+        tableEditorSettingsList.add(discountCardsTableEditor);
 
         return usersSettings;
     }
@@ -274,11 +286,39 @@ public class UserSettingsService {
             }
             ColumnEditorSettings columnEditorSettings = new ColumnEditorSettings();
             if (comboBoxItems.size() > 0) {
-                columnEditorSettings.setComboBoxItems(comboBoxItems);
+                columnEditorSettings.setComboBoxItem(comboBoxItems);
                 columnEditorSettings.setHeader(header);
                 columnEditorSettingsList.add(columnEditorSettings);
             }
         }
         return columnEditorSettingsList;
+    }
+
+    /**
+     * Gives the List of all user's presetSettings names.
+     * @return the List of all user's presetSettings names.
+     */
+    public List<String> getUserPresetNames() {
+        List<String> presetNames = new ArrayList<>();
+        UserSettings userSettings = getUserSettings();
+        for (PresetSettings presetSettings : userSettings.getPresetSettingsList()) {
+            presetNames.add(presetSettings.getPresetName());
+        }
+        return presetNames;
+    }
+
+    /**
+     * Gets the current presetSettings for the user.
+     * @return the current presetSettings for the user.
+     */
+    public PresetSettings getPresetSettings() {
+        String presetName = usersSettingsHolder.getPresetName();
+        PresetSettings presetSettings = null;
+        for (PresetSettings settings : getUserSettings().getPresetSettingsList()) {
+            if (presetName.equals(settings.getPresetName())) {
+                presetSettings = settings;
+            }
+        }
+        return presetSettings;
     }
 }
