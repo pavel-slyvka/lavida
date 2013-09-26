@@ -107,6 +107,7 @@ public class LoginForm extends AbstractForm {
                 super.keyPressed(e);
                 int key = e.getKeyCode();
                 if ( key == KeyEvent.VK_ENTER) {
+                    loginField.requestFocusInWindow();
                     submitButton.doClick();
                 }
             }

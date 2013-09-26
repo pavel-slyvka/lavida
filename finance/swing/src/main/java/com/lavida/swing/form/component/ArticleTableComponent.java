@@ -15,6 +15,8 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.util.*;
 import java.util.List;
 
@@ -64,8 +66,13 @@ public class ArticleTableComponent implements TableModelListener {
 //        mainPanel.setBackground(Color.white);
         mainPanel.setLayout(new BorderLayout());
 
-        articlesTable = new JTable(tableModel);
-        articlesTable.setCellEditor(new DefaultCellEditor(new JTextField()));
+        articlesTable = new TableComponent();
+        articlesTable.putClientProperty( "terminateEditOnFocusLost", Boolean.TRUE );
+        articlesTable.setSurrendersFocusOnKeystroke(true);
+        articlesTable.setModel(tableModel);
+        JTextField textField = new JTextField();
+        TableCellEditor tableCellEditor = new DefaultCellEditor(textField);
+        articlesTable.setCellEditor(tableCellEditor);
         initTableColumnsEditors();
         initTableColumnsWidth();
         articlesTable.doLayout();
@@ -183,6 +190,7 @@ public class ArticleTableComponent implements TableModelListener {
         }
 
     }
+
 
     /**
      * Initializes the headersAndColumnsMap.

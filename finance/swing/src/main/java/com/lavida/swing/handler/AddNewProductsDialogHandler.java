@@ -81,7 +81,7 @@ public class AddNewProductsDialogHandler {
         dialog.getTableModel().getTableData().add(articleJdo);
         dialog.getTableModel().fireTableDataChanged();
         int row = dialog.getTableModel().getTableData().size() - 1;
-        dialog.getArticleTableComponent().getArticlesTable().editCellAt(row, 0);
+        dialog.getArticleTableComponent().getArticlesTable().editCellAt(row, 1);
         dialog.getArticleTableComponent().getArticlesTable().transferFocus();
         dialog.getTableModel().setSelectedArticle(null);
     }

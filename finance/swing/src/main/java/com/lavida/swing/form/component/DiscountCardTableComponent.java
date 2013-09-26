@@ -14,7 +14,10 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
+import javax.swing.text.JTextComponent;
 import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.util.*;
 import java.util.List;
 
@@ -53,8 +56,11 @@ public class DiscountCardTableComponent implements TableModelListener {
 //        mainPanel.setBackground(Color.white);
         mainPanel.setLayout(new BorderLayout());
 
-        discountCardsTable = new JTable(tableModel);
-        discountCardsTable.setCellEditor(new DefaultCellEditor(new JTextField()));
+        discountCardsTable = new TableComponent();
+        discountCardsTable.setSurrendersFocusOnKeystroke(true);
+        discountCardsTable.setModel(tableModel);
+        JTextField textField = new JTextField();
+        discountCardsTable.setCellEditor(new DefaultCellEditor(textField));
         initTableColumnsWidth();
         discountCardsTable.doLayout();
         discountCardsTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);

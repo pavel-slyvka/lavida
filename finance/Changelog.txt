@@ -1,8 +1,12 @@
 Changelog of the LA VIDA Finance
 --------------------
 
-Version 0.2.1   release date:    -09-2013
+Version 0.2.1   release date:  26-09-2013
 -----------------------------------------
+- Improved focused table cell editing while typing (replace old value with new);
+- Added preference setting functionality (save, select, create) -  items in settings menu;
+- Improved synchronization performance by executing operation in another thread;
+- Added column with checkBoxes for selecting articles, menu item for work with selected articles (move to another shop);
 - Added the file menu with items "save" and "open" for the AddNewProductsDialog's menuBar;
 - Added the item "calculate transport cost EUR" for the AddNewProductsDialog's table menu;
 - Added filtering articles by an empty shop;
