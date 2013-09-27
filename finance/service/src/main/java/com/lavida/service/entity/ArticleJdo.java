@@ -62,6 +62,8 @@ public class ArticleJdo implements Cloneable {
 
     @Transient
     @ViewColumn(titleKey = "component.article.table.column.selection" , columnWidth = 20)
+    @FilterColumn(type = FilterType.BOOLEAN_CHECKBOX, checkBoxesNumber = 1, orderForSell = 8, orderForSold = 11,
+    checkBoxesText = {"mainForm.label.search.checkBox.selected.text"}, checkBoxesAction = "mainForm.label.search.checkBox.selected.action")
     private boolean selected;
 
     @SpreadsheetColumn(column = "code")

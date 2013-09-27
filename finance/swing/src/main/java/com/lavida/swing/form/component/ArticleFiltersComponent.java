@@ -109,7 +109,11 @@ public class ArticleFiltersComponent {
                             String actionCommand = messageSource.getMessage(filterColumn.checkBoxesAction()[i], null, localeHolder.getLocale());
                             filterUnit.checkBoxes[i] = new JCheckBox(text);
                             filterUnit.checkBoxes[i].setActionCommand(actionCommand);
-                            filterUnit.checkBoxes[i].setSelected(true);
+                            if (FilterType.CHECKBOXES == filterUnit.filterType) {
+                                filterUnit.checkBoxes[i].setSelected(true);
+                            } else if (FilterType.BOOLEAN_CHECKBOX == filterUnit.filterType) {
+                                filterUnit.checkBoxes[i].setSelected(false);
+                            }
                             filterUnit.checkBoxes[i].addItemListener(new ItemListener() {
                                 @Override
                                 public void itemStateChanged(ItemEvent e) {
@@ -156,6 +160,7 @@ public class ArticleFiltersComponent {
                 checkBoxPanel.add(Box.createHorizontalGlue());
                 for (int j = 0; j < filters.get(i).checkBoxes.length; ++j) {
                     checkBoxPanel.add(filters.get(i).checkBoxes[j]);
+                    if (j == filters.get(i).checkBoxes.length - 1) break;
                     checkBoxPanel.add(Box.createHorizontalGlue());
                 }
                 constraints.fill = GridBagConstraints.HORIZONTAL;
@@ -217,7 +222,11 @@ public class ArticleFiltersComponent {
                         filterUnit.textField.setText("");
                     } else if (filterUnit.checkBoxes != null) {
                         for (int j = 0; j < filterUnit.checkBoxes.length; ++j) {
-                            filterUnit.checkBoxes[j].setSelected(true);
+                            if (FilterType.CHECKBOXES == filterUnit.filterType) {
+                                filterUnit.checkBoxes[j].setSelected(true);
+                            } else if (FilterType.BOOLEAN_CHECKBOX == filterUnit.filterType) {
+                                filterUnit.checkBoxes[j].setSelected(false);
+                            }
                         }
 
                     }
@@ -225,7 +234,7 @@ public class ArticleFiltersComponent {
             }
         });
         filtersPanel.add(clearSearchButton, constraints);
-        sorter = new TableRowSorter<ArticlesTableModel>(tableModel);
+        sorter = new TableRowSorter<>(tableModel);
 
         articleAnalyzeComponent.initializeComponents(tableModel, messageSource, localeHolder);
 
@@ -263,6 +272,17 @@ public class ArticleFiltersComponent {
                         }
                     };
                 }
+            } else if (FilterType.BOOLEAN_CHECKBOX == filterUnit.filterType) {
+                if (anySelected(filterUnit.checkBoxes)) {
+                    filter = new RowFilter<ArticlesTableModel, Integer>() {
+                        @Override
+                        public boolean include(Entry<? extends ArticlesTableModel, ? extends Integer> entry) {
+                            Object obj = tableModel.getRawValueAt(entry.getIdentifier(), columnIndex);
+                            return (Boolean)obj;
+                        }
+                    };
+                }
+
             } else if (" ".equals(filterUnit.textField.getText())) {
                 filter = new RowFilter<ArticlesTableModel, Integer>() {
                     @Override
@@ -337,6 +357,13 @@ public class ArticleFiltersComponent {
             }
             sorter.setRowFilter(RowFilter.andFilter(andFilters));
         }
+    }
+
+    private boolean anySelected(JCheckBox[] checkBoxes) {
+        for (JCheckBox checkBox : checkBoxes) {
+            if (checkBox.isSelected()) return true;
+        }
+        return false;
     }
 
     private Date addDays(Date date, int daysCount) {

@@ -42,7 +42,7 @@ public class DiscountCardFiltersComponent {
 
     public void initializeComponents(DiscountCardsTableModel tableModel, MessageSource messageSource, LocaleHolder localeHolder) {
         this.tableModel = tableModel;
-        this.filters = new ArrayList<FilterUnit>();
+        this.filters = new ArrayList<>();
         FiltersPurpose filtersPurpose = tableModel.getFiltersPurpose();
 
         FilterElementsListener filterElementsListener = new FilterElementsListener();
@@ -58,9 +58,6 @@ public class DiscountCardFiltersComponent {
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.insets = new Insets(1, 5, 1, 5);
 
-//        boolean sellPurpose = FiltersPurpose.SELL_PRODUCTS == filtersPurpose;
-//        boolean soldPurpose = FiltersPurpose.SOLD_PRODUCTS == filtersPurpose;
-//        boolean addNewPurpose = FiltersPurpose.ADD_NEW_PRODUCTS == filtersPurpose;
         boolean allCardsPurpose = FiltersPurpose.ALL_DISCOUNT_CARDS == filtersPurpose;
         for (Field field : DiscountCardJdo.class.getDeclaredFields()) {
             FilterColumn filterColumn = field.getAnnotation(FilterColumn.class);
@@ -71,7 +68,6 @@ public class DiscountCardFiltersComponent {
                         filterUnit.order = filterColumn.orderForAllDiscountCards();
                     }
 
-//                    filterUnit.order = sellPurpose ? filterColumn.orderForSell() : filterColumn.orderForSold();
                     filterUnit.order = filterUnit.order == 0 ? Integer.MAX_VALUE : filterUnit.order;
                     filterUnit.filterType = filterColumn.type();
                     filterUnit.columnTitle = getColumnTitle(field, messageSource, localeHolder);
@@ -89,7 +85,11 @@ public class DiscountCardFiltersComponent {
                             String actionCommand = messageSource.getMessage(filterColumn.checkBoxesAction()[i], null, localeHolder.getLocale());
                             filterUnit.checkBoxes[i] = new JCheckBox(text);
                             filterUnit.checkBoxes[i].setActionCommand(actionCommand);
-                            filterUnit.checkBoxes[i].setSelected(true);
+                            if (field.getName().equals("activationDate")) {
+                                filterUnit.checkBoxes[i].setSelected(true);
+                            } else {
+                                filterUnit.checkBoxes[i].setSelected(false);
+                            }
                             filterUnit.checkBoxes[i].addItemListener(new ItemListener() {
                                 @Override
                                 public void itemStateChanged(ItemEvent e) {
