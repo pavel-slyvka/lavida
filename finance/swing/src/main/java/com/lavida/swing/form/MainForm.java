@@ -83,12 +83,12 @@ public class MainForm extends AbstractForm {
     private static final String DEFAULT_PRESET = "default";
 
     private JPanel operationPanel, southPanel, desktopPanel, filtersPanel, analyzePanel, mainPanel, statusBarPanel;
-    private Button refreshButton, sellButton, showSoldProductsButton;
+    private Button  sellButton, showSoldProductsButton;
     private JLabel postponedOperations, postponedMessage, errorMessage, presetNameLabel, presetNameField;
     private JMenuBar menuBar;
     private JMenu postponedMenu, productsMenu, settingsMenu, tablesViewItem, discountsMenu, tableMenu, selectedMenu;
     private JMenuItem savePostponedItem, loadPostponedItem, recommitPostponedItem, deletePostponedItem,
-            addNewProductsItem,
+            addNewProductsItem, refreshTableItem,
             savePresetItem, selectPresetItem, createPresetItem, deletePresetItem,
             notSoldArticlesTableViewItem, soldArticlesTableViewItem, discountCardsTableViewItem,
             addNewDiscountCardItem, allDiscountCardsItem,
@@ -163,21 +163,10 @@ public class MainForm extends AbstractForm {
             }
         });
 
-        refreshButton = new Button(messageSource.getMessage("mainForm.button.refresh.title", null,
-                localeHolder.getLocale()));
-        refreshButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                handler.refreshButtonClicked();
-            }
-        });
-
         operationPanel.add(Box.createHorizontalGlue());
         operationPanel.add(sellButton);
         operationPanel.add(Box.createHorizontalGlue());
         operationPanel.add(showSoldProductsButton);
-        operationPanel.add(Box.createHorizontalGlue());
-        operationPanel.add(refreshButton);
         operationPanel.add(Box.createHorizontalGlue());
 
         southPanel = new JPanel(new GridBagLayout());
@@ -315,6 +304,15 @@ public class MainForm extends AbstractForm {
         productsMenu = new JMenu();
         productsMenu.setText(messageSource.getMessage("mainForm.menu.products.title", null, localeHolder.getLocale()));
 
+        refreshTableItem = new JMenuItem();
+        refreshTableItem.setText(messageSource.getMessage("mainForm.menu.products.item.refresh", null, localeHolder.getLocale()));
+        refreshTableItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handler.refreshTableItemClicked();
+            }
+        });
+
         addNewProductsItem = new JMenuItem();
         addNewProductsItem.setText(messageSource.getMessage("mainForm.menu.products.item.addNew", null, localeHolder.getLocale()));
         addNewProductsItem.addActionListener(new ActionListener() {
@@ -323,6 +321,8 @@ public class MainForm extends AbstractForm {
                 addNewProductsDialog.show();
             }
         });
+
+        productsMenu.add(refreshTableItem);
         productsMenu.add(addNewProductsItem);
 
 //        settings menu
@@ -625,8 +625,8 @@ public class MainForm extends AbstractForm {
         return false;
     }
 
-    public void setRefreshButtonEnable(boolean isVisible) {
-        refreshButton.setEnabled(isVisible);
+    public void setRefreshTableItemEnable(boolean isVisible) {
+        refreshTableItem.setEnabled(isVisible);
     }
 
     public void initializeUserSettings() {
@@ -662,9 +662,9 @@ public class MainForm extends AbstractForm {
         allDiscountCardsTableViewSettingsDialog.postInit();
     }
 
-    public JLabel getErrorMessage() {
-        return errorMessage;
-    }
+//    public JLabel getErrorMessage() {
+//        return errorMessage;
+//    }
 
     public JMenuItem getSavePostponedItem() {
         return savePostponedItem;
@@ -678,8 +678,5 @@ public class MainForm extends AbstractForm {
         return deletePostponedItem;
     }
 
-    public JLabel getPresetNameField() {
-        return presetNameField;
-    }
 }
 

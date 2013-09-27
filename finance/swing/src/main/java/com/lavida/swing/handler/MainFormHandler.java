@@ -4,7 +4,6 @@ import com.google.gdata.util.ServiceException;
 import com.lavida.TaskProgressEvent;
 import com.lavida.service.ArticleUpdateInfo;
 import com.lavida.service.DiscountCardsUpdateInfo;
-import com.lavida.service.UserService;
 import com.lavida.swing.dialog.settings.NotSoldArticlesTableViewSettingsDialog;
 import com.lavida.swing.dialog.settings.SoldArticlesTableViewSettingsDialog;
 import com.lavida.swing.preferences.UsersSettings;
@@ -130,11 +129,11 @@ public class MainFormHandler implements ApplicationContextAware {
      * and saves to database, then it goes through filterSold() for deleting all sold
      * goods and renders to the articleTable.
      */
-    public void refreshButtonClicked() {
+    public void refreshTableItemClicked() {
         concurrentOperationsService.startOperation(new Runnable() {
             @Override
             public void run() {
-                form.setRefreshButtonEnable(false);
+                form.setRefreshTableItemEnable(false);
                 ArticleUpdateInfo articleUpdateInfo = null;
                 DiscountCardsUpdateInfo discountCardsUpdateInfo = null;
                 try {
@@ -177,7 +176,7 @@ public class MainFormHandler implements ApplicationContextAware {
                 }
                 showUpdateInfoMessage(articleUpdateInfo, discountCardsUpdateInfo);
                 form.update();    // repaint MainForm in some time
-                form.setRefreshButtonEnable(true);
+                form.setRefreshTableItemEnable(true);
 
                 Long[] correctedTaskTimes = progressComponent.getCorrectedTaskTimes();
                 StringBuilder correctedTimesBuilder = new StringBuilder();
