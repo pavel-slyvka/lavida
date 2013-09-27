@@ -57,6 +57,7 @@ public class DiscountCardTableComponent implements TableModelListener {
         mainPanel.setLayout(new BorderLayout());
 
         discountCardsTable = new TableComponent();
+        discountCardsTable.putClientProperty( "terminateEditOnFocusLost", Boolean.TRUE );
         discountCardsTable.setSurrendersFocusOnKeystroke(true);
         discountCardsTable.setModel(tableModel);
         JTextField textField = new JTextField();

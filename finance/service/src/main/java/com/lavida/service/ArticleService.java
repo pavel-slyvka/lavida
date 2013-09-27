@@ -150,8 +150,8 @@ public class ArticleService {
     public ArticleUpdateInfo updateDatabaseFromRemote(List<ArticleJdo> remoteArticles) {
         List<ArticleJdo> dbOldArticles = getAll();
 
-        List<ArticleJdo> articlesToUpdate = new ArrayList<ArticleJdo>();
-        List<ArticleJdo> articlesToDelete = new ArrayList<ArticleJdo>();
+        List<ArticleJdo> articlesToUpdate = new ArrayList<>();
+        List<ArticleJdo> articlesToDelete = new ArrayList<>();
         l:
         for (ArticleJdo dbOldArticle : dbOldArticles) {
             if (dbOldArticle.getPostponedOperationDate() != null) {

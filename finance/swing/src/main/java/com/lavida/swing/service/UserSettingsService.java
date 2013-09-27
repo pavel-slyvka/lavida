@@ -321,4 +321,21 @@ public class UserSettingsService {
         }
         return presetSettings;
     }
+
+    /**
+     * Deletes the presetSettings from userSettings by the presetName,
+     * but not saves this operation to the file.
+     * @param presetName the name of the presetSettings to be deleted.
+     */
+    public void deletePresetSettings(String presetName) {
+        UserSettings currentUserSettings = getUserSettings();
+        List<PresetSettings> presetSettingsList = currentUserSettings.getPresetSettingsList();
+        int size = presetSettingsList.size();
+        for (int i = 0; i < size; ++i) {
+            if (presetName.equals(presetSettingsList.get(i).getPresetName())) {
+                presetSettingsList.remove(i);
+                break;
+            }
+        }
+    }
 }

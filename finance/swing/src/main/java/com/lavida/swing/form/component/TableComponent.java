@@ -4,8 +4,6 @@ import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.text.JTextComponent;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.EventObject;
 
@@ -45,8 +43,10 @@ public class TableComponent extends JTable {
                 JComboBox comboBox = (JComboBox) editor;
                 comboBox.setEditable(true);
                 JTextComponent textComponent = (JTextComponent) comboBox.getEditor().getEditorComponent();
-                if (Character.isDefined(enteredChar)) {
+                if (Character.isDefined(enteredChar) && code != KeyEvent.VK_DELETE) {
                     textComponent.setText(String.valueOf(enteredChar));
+                } else if (code == KeyEvent.VK_DELETE) {
+                    textComponent.setText("");
                 }
             }
         }

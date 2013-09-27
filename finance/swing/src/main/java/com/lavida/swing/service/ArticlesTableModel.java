@@ -25,6 +25,7 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.List;
 
 /**
  * Created: 15:33 06.08.13
@@ -37,7 +38,7 @@ import java.util.*;
 public class ArticlesTableModel extends AbstractTableModel implements ApplicationListener<ArticleUpdateEvent> {
     private static final Logger logger = LoggerFactory.getLogger(ArticlesTableModel.class);
 
-    private List<String> headerTitles = new ArrayList<String>();
+    private List<String> headerTitles = new ArrayList<>();
     private List<String> articleFieldsSequence;
     private Map<Integer, SimpleDateFormat> columnIndexToDateFormat;
 
@@ -68,7 +69,7 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
 
     private String queryName;
     private List<ArticleJdo> tableData;
-    private static final List<String> FORBIDDEN_ROLES = new ArrayList<String>();
+    private static final List<String> FORBIDDEN_ROLES = new ArrayList<>();
 
     static {
         FORBIDDEN_ROLES.add("ROLE_SELLER_LA_VIDA");
@@ -152,13 +153,13 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
 
     @PostConstruct
     public void initHeaderFieldAndTitles() {
-        this.articleFieldsSequence = new ArrayList<String>();
-        this.headerTitles = new ArrayList<String>();
-        this.columnIndexToDateFormat = new HashMap<Integer, SimpleDateFormat>();
+        this.articleFieldsSequence = new ArrayList<>();
+        this.headerTitles = new ArrayList<>();
+        this.columnIndexToDateFormat = new HashMap<>();
         if (queryName != null) {
             this.tableData = articleDao.get(queryName);
         } else {
-            this.tableData = new ArrayList<ArticleJdo>();
+            this.tableData = new ArrayList<>();
         }
         for (Field field : ArticleJdo.class.getDeclaredFields()) {
             ViewColumn viewColumn = field.getAnnotation(ViewColumn.class);
@@ -211,7 +212,7 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
     }
 
     public List<String> getForbiddenHeadersToShow(MessageSource messageSource, Locale locale, List<String> userRoles) {
-        List<String> forbiddenHeaders = new ArrayList<String>();
+        List<String> forbiddenHeaders = new ArrayList<>();
         for (Field field : ArticleJdo.class.getDeclaredFields()) {
             ViewColumn viewColumn = field.getAnnotation(ViewColumn.class);
             if (viewColumn != null && viewColumn.show()) {
@@ -314,7 +315,7 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
 
 
     public Map<String, Integer> getColumnHeaderToWidth() {
-        Map<String, Integer> columnHeaderToWidth = new HashMap<String, Integer>(headerTitles.size());
+        Map<String, Integer> columnHeaderToWidth = new HashMap<>(headerTitles.size());
         label:
         for (String columnHeader : headerTitles) {
             Integer width;
@@ -382,8 +383,7 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
                     field.setInt(articleJdo, typeValue);
                     if (field.getName().equals("quantity") && typeValue > 1) {
                         field.set(articleJdo, 1);
-                        int quantity = typeValue;
-                        for (int i = 1; i < quantity; ++i) {
+                        for (int i = 1; i < typeValue; ++i) {
                             ArticleJdo newArticle = (ArticleJdo) articleJdo.clone();
                             newArticle.setSpreadsheetRow(0);
                             newArticle.setId(0);
@@ -586,6 +586,25 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
     public void filterTableDataByRole(List<String> userRoles) {
         if (ArticleJdo.FIND_NOT_SOLD.equals(queryName)) {
             for (String role : userRoles) {
+                switch (role){
+                    case "ROLE_SELLER_LA_VIDA":{
+                        this.setQueryName(ArticleJdo.FIND_NOT_SOLD_LA_VIDA);
+                        updateTableData();
+                        fireTableDataChanged();
+                        return;
+                    } case "ROLE_SELLER_SLAVYANKA":{
+                        this.setQueryName(ArticleJdo.FIND_NOT_SOLD_SLAVYANKA);
+                        updateTableData();
+                        fireTableDataChanged();
+                        return;
+                    } case "ROLE_SELLER_NOVOMOSKOVSK": {
+                        this.setQueryName(ArticleJdo.FIND_NOT_SOLD_NOVOMOSKOVSK);
+                        updateTableData();
+                        fireTableDataChanged();
+                        return;
+                    }
+                }
+/*
                 if ("ROLE_SELLER_LA_VIDA".equals(role)) {
                     this.setQueryName(ArticleJdo.FIND_NOT_SOLD_LA_VIDA);
                     updateTableData();
@@ -602,9 +621,29 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
                     fireTableDataChanged();
                     return;
                 }
+*/
             }
         } else if (ArticleJdo.FIND_SOLD.equals(queryName)) {
             for (String role : userRoles) {
+                switch (role) {
+                    case "ROLE_SELLER_LA_VIDA": {
+                        this.setQueryName(ArticleJdo.FIND_SOLD_LA_VIDA);
+                        updateTableData();
+                        fireTableDataChanged();
+                        return;
+                    } case "ROLE_SELLER_SLAVYANKA":{
+                        this.setQueryName(ArticleJdo.FIND_SOLD_SLAVYANKA);
+                        updateTableData();
+                        fireTableDataChanged();
+                        return;
+                    }case "ROLE_SELLER_NOVOMOSKOVSK":{
+                        this.setQueryName(ArticleJdo.FIND_SOLD_NOVOMOSKOVSK);
+                        updateTableData();
+                        fireTableDataChanged();
+                        return;
+                    }
+                }
+/*
                 if ("ROLE_SELLER_LA_VIDA".equals(role)) {
                     this.setQueryName(ArticleJdo.FIND_SOLD_LA_VIDA);
                     updateTableData();
@@ -621,6 +660,7 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
                     fireTableDataChanged();
                     return;
                 }
+*/
             }
         }
     }
@@ -661,9 +701,9 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
         this.tableData = tableData;
     }
 
-    public List<String> getHeaderTitles() {
-        return headerTitles;
-    }
+//    public List<String> getHeaderTitles() {
+//        return headerTitles;
+//    }
 
     public double getTotalPurchaseCostEUR() {
         return totalPurchaseCostEUR;

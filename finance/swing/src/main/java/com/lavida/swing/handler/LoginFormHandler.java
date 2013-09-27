@@ -81,7 +81,7 @@ public class LoginFormHandler {
             if (!defaultPresetName.equals(usersSettingsHolder.getPresetName())) {
                 mainForm.initializeUserSettings();
             }
-
+            mainForm.updatePresetNameField();
             mainForm.show();
             form.hide();
         } catch (UserValidationException e1) {

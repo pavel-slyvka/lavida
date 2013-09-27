@@ -7,7 +7,6 @@ import com.lavida.swing.dialog.settings.SoldArticlesTableViewSettingsDialog;
 import com.lavida.swing.form.component.ArticleTableComponent;
 import com.lavida.swing.form.component.ProgressComponent;
 import com.lavida.swing.handler.MainFormHandler;
-import com.lavida.swing.preferences.EditorsSettings;
 import com.lavida.swing.preferences.PresetSettings;
 import com.lavida.swing.preferences.UsersSettings;
 import com.lavida.swing.preferences.UsersSettingsHolder;
@@ -84,12 +83,12 @@ public class MainForm extends AbstractForm {
 
     private JPanel operationPanel, southPanel, desktopPanel, filtersPanel, analyzePanel, mainPanel, statusBarPanel;
     private Button refreshButton, sellButton, showSoldProductsButton;
-    private JLabel postponedOperations, postponedMessage, errorMessage;
+    private JLabel postponedOperations, postponedMessage, errorMessage, presetNameLabel, presetNameField;
     private JMenuBar menuBar;
     private JMenu postponedMenu, productsMenu, settingsMenu, tablesViewItem, discountsMenu, tableMenu, selectedMenu;
     private JMenuItem savePostponedItem, loadPostponedItem, recommitPostponedItem, deletePostponedItem,
             addNewProductsItem,
-             saveSettingsItem, selectSettingsItem, createSettingsItem,
+            savePresetItem, selectPresetItem, createPresetItem, deletePresetItem,
             notSoldArticlesTableViewItem, soldArticlesTableViewItem, discountCardsTableViewItem,
             addNewDiscountCardItem, allDiscountCardsItem,
             printItem, fixTableDataItem,
@@ -243,7 +242,13 @@ public class MainForm extends AbstractForm {
         errorMessage = new JLabel();
         errorMessage.setForeground(Color.RED);
 
+        presetNameLabel = new JLabel();
+        presetNameLabel.setText(messageSource.getMessage("mainForm.panel.statusBar.preset.name.label", null, localeHolder.getLocale()));
+        presetNameLabel.setLabelFor(presetNameField);
+        presetNameField = new JLabel();
 
+        statusBarPanel.add(presetNameLabel);
+        statusBarPanel.add(presetNameField);
         statusBarPanel.add(postponedOperations);
         statusBarPanel.add(postponedMessage);
         statusBarPanel.add(errorMessage);
@@ -357,38 +362,48 @@ public class MainForm extends AbstractForm {
         tablesViewItem.add(soldArticlesTableViewItem);
         tablesViewItem.add(discountCardsTableViewItem);
 
-        saveSettingsItem = new JMenuItem();
-        saveSettingsItem.setText(messageSource.getMessage("mainForm.menu.settings.save", null, localeHolder.getLocale()));
-        saveSettingsItem.addActionListener(new ActionListener() {
+        savePresetItem = new JMenuItem();
+        savePresetItem.setText(messageSource.getMessage("mainForm.menu.settings.save", null, localeHolder.getLocale()));
+        savePresetItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                handler.saveSettingsItemClicked();
+                handler.savePresetItemClicked();
             }
         });
 
-        selectSettingsItem = new JMenuItem();
-        selectSettingsItem.setText(messageSource.getMessage("mainForm.menu.settings.select", null, localeHolder.getLocale()));
-        selectSettingsItem.addActionListener(new ActionListener() {
+        selectPresetItem = new JMenuItem();
+        selectPresetItem.setText(messageSource.getMessage("mainForm.menu.settings.select", null, localeHolder.getLocale()));
+        selectPresetItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                handler.selectSettingsItemClicked();
+                handler.selectPresetItemClicked();
             }
         });
 
-        createSettingsItem = new JMenuItem();
-        createSettingsItem.setText(messageSource.getMessage("mainForm.menu.settings.create", null, localeHolder.getLocale()));
-        createSettingsItem.addActionListener(new ActionListener() {
+        createPresetItem = new JMenuItem();
+        createPresetItem.setText(messageSource.getMessage("mainForm.menu.settings.create", null, localeHolder.getLocale()));
+        createPresetItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                handler.createSettingsItemClicked();
+                handler.createPresetItemClicked();
+            }
+        });
+
+        deletePresetItem = new JMenuItem();
+        deletePresetItem.setText(messageSource.getMessage("mainForm.menu.settings.delete", null, localeHolder.getLocale()));
+        deletePresetItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handler.deletePresetItemClicked();
             }
         });
 
         settingsMenu.add(tablesViewItem);
         settingsMenu.addSeparator();
-        settingsMenu.add(saveSettingsItem);
-        settingsMenu.add(selectSettingsItem);
-        settingsMenu.add(createSettingsItem);
+        settingsMenu.add(savePresetItem);
+        settingsMenu.add(selectPresetItem);
+        settingsMenu.add(createPresetItem);
+        settingsMenu.add(deletePresetItem);
 
 //        discounts menu
         discountsMenu = new JMenu();
@@ -570,6 +585,10 @@ public class MainForm extends AbstractForm {
         handler.createDefaultPreset();
     }
 
+    public void updatePresetNameField(){
+        presetNameField.setText(usersSettingsHolder.getPresetName());
+    }
+
     /**
      * The custom button.
      */
@@ -656,6 +675,10 @@ public class MainForm extends AbstractForm {
 
     public JMenuItem getDeletePostponedItem() {
         return deletePostponedItem;
+    }
+
+    public JLabel getPresetNameField() {
+        return presetNameField;
     }
 }
 

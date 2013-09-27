@@ -549,7 +549,7 @@ public class MainFormHandler implements ApplicationContextAware {
         }
     }
 
-    public void saveSettingsItemClicked() {
+    public void savePresetItemClicked() {
         String defaultPresetName = messageSource.getMessage("settings.user.preset.default.name", null, localeHolder.getLocale());
         if (!defaultPresetName.equals(usersSettingsHolder.getPresetName())) {
             form.holdAllTables();
@@ -621,7 +621,7 @@ public class MainFormHandler implements ApplicationContextAware {
     }
 
 
-    public void selectSettingsItemClicked() {
+    public void selectPresetItemClicked() {
         String currentPresetName = usersSettingsHolder.getPresetName();
         Object[] selectionValues = userSettingsService.getUserPresetNames().toArray();
         String presetName = (String)form.showInputDialog("mainForm.menu.settings.select.title", "mainForm.menu.settings.select.message",
@@ -629,16 +629,63 @@ public class MainFormHandler implements ApplicationContextAware {
         if (presetName != null) {
             usersSettingsHolder.setPresetName(presetName);
             form.initializeUserSettings();
+            userSettingsService.getUserSettings().setLastPresetName(presetName);
+            form.updatePresetNameField();
+            try {
+                userSettingsService.saveSettings(usersSettingsHolder.getUsersSettings());
+            } catch (IOException | JAXBException e) {
+                logger.warn(e.getMessage(), e);
+                Toolkit.getDefaultToolkit().beep();
+                form.showWarningMessage("mainForm.exception.message.dialog.title", "mainForm.handler.save.usersSettings.error.message");
+            }
         }
     }
 
-    public void createSettingsItemClicked() {
+    public void createPresetItemClicked() {
         String presetName = (String)form.showInputDialog("mainForm.menu.settings.create.title", "mainForm.menu.settings.create.message",
                 null, null, null);
         if (presetName != null) {
             form.holdAllTables();
             usersSettingsHolder.setPresetName(presetName);
             userSettingsService.updatePresetSettings();
+        }
+
+    }
+
+    public void deletePresetItemClicked() {
+        String currentPresetName = usersSettingsHolder.getPresetName();
+        String defaultPresetName = messageSource.getMessage("settings.user.preset.default.name", null, localeHolder.getLocale());
+        Object[] presetNames = userSettingsService.getUserPresetNames().toArray();
+        if (presetNames.length < 2) {
+            Toolkit.getDefaultToolkit().beep();
+            form.showWarningMessage("mainForm.exception.message.dialog.title", "mainForm.handler.delete.usersSettings.error.message");
+            return;
+        }
+        Object[] selectionValues;
+        if (currentPresetName.equals(defaultPresetName)) {
+            selectionValues  = new Object[presetNames.length - 1];
+        } else {
+            selectionValues = new Object[presetNames.length - 2];
+        }
+        int order = 0;
+        for (int i = 0; i < presetNames.length; ++i) {
+            String presetName = (String)presetNames[i];
+            if (!(currentPresetName.equals(presetName) || defaultPresetName.equals(presetName))) {
+                selectionValues[order] = presetNames[i];
+                ++ order;
+            }
+        }
+        String presetName = (String)form.showInputDialog("mainForm.menu.settings.delete.title", "mainForm.menu.settings.select.message",
+                null, selectionValues, selectionValues[0]);
+        if (presetName != null) {
+            userSettingsService.deletePresetSettings(presetName);
+            try {
+                userSettingsService.saveSettings(usersSettingsHolder.getUsersSettings());
+            } catch (IOException | JAXBException e) {
+                logger.warn(e.getMessage(), e);
+                Toolkit.getDefaultToolkit().beep();
+                form.showWarningMessage("mainForm.exception.message.dialog.title", "mainForm.handler.save.usersSettings.error.message");
+            }
         }
 
     }
