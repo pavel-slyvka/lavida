@@ -75,6 +75,7 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
         FORBIDDEN_ROLES.add("ROLE_SELLER_LA_VIDA");
         FORBIDDEN_ROLES.add("ROLE_SELLER_SLAVYANKA");
         FORBIDDEN_ROLES.add("ROLE_SELLER_NOVOMOSKOVSK");
+        FORBIDDEN_ROLES.add("ROLE_SELLER_ALEXANDRIA");
     }
 
     @Override
@@ -602,6 +603,11 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
                         updateTableData();
                         fireTableDataChanged();
                         return;
+                    }case "ROLE_SELLER_ALEXANDRIA": {
+                        this.setQueryName(ArticleJdo.FIND_NOT_SOLD_ALEXANDRIA);
+                        updateTableData();
+                        fireTableDataChanged();
+                        return;
                     }
                 }
 /*
@@ -638,6 +644,11 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
                         return;
                     }case "ROLE_SELLER_NOVOMOSKOVSK":{
                         this.setQueryName(ArticleJdo.FIND_SOLD_NOVOMOSKOVSK);
+                        updateTableData();
+                        fireTableDataChanged();
+                        return;
+                    }case "ROLE_SELLER_ALEXANDRIA": {
+                        this.setQueryName(ArticleJdo.FIND_SOLD_ALEXANDRIA);
                         updateTableData();
                         fireTableDataChanged();
                         return;

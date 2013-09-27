@@ -49,11 +49,11 @@ public class SellDialog extends AbstractDialog {
     private ButtonGroup buttonGroup;
     private JCheckBox oursCheckBox, presentCheckBox, clientCheckBox;
     private JComboBox sellerNames, shopComboBox ;
-    private List<JCheckBox> tagCheckBoxes = new ArrayList<JCheckBox>();
+    private List<JCheckBox> tagCheckBoxes = new ArrayList<>();
     private JLabel errorMessage;
 
     private String defaultShop;
-    private String[] shopArray = {"LA VIDA", "СЛАВЯНСКИЙ", "НОВОМОСКОВСК"};
+    private String[] shopArray = {"СКЛАД", "LA VIDA", "СЛАВЯНСКИЙ", "НОВОМОСКОВСК", "АЛЕКСАНДРИЯ"};
 
     @Override
     protected void initializeForm() {
@@ -480,6 +480,11 @@ public class SellDialog extends AbstractDialog {
                 this.setDefaultShop(messageSource.getMessage("sellDialog.text.field.shop.LaVida", null,
                         localeHolder.getLocale()));
                 shopComboBox.setEnabled(true);
+                return;
+            } else if ("ROLE_SELLER_ALEXANDRIA".equals(role)) {
+                this.setDefaultShop(messageSource.getMessage("sellDialog.text.field.shop.Alexandria", null,
+                        localeHolder.getLocale()));
+                shopComboBox.setEnabled(false);
                 return;
             }
 

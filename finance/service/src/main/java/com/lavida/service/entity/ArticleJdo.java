@@ -27,10 +27,12 @@ import java.util.Date;
         @NamedQuery(name = ArticleJdo.FIND_NOT_SOLD_LA_VIDA, query = "select a from ArticleJdo a where a.sold IS NULL and a.shop = 'LA VIDA'"),
         @NamedQuery(name = ArticleJdo.FIND_NOT_SOLD_SLAVYANKA, query = "select a from ArticleJdo a where a.sold IS NULL and a.shop = 'СЛАВЯНСКИЙ'"),
         @NamedQuery(name = ArticleJdo.FIND_NOT_SOLD_NOVOMOSKOVSK, query = "select a from ArticleJdo a where a.sold IS NULL and a.shop = 'НОВОМОСКОВСК'"),
+        @NamedQuery(name = ArticleJdo.FIND_NOT_SOLD_ALEXANDRIA, query = "select a from ArticleJdo a where a.sold IS NULL and a.shop = 'АЛЕКСАНДРИЯ'"),
         @NamedQuery(name = ArticleJdo.FIND_SOLD, query = "select a from ArticleJdo a where a.sold IS NOT NULL"),
         @NamedQuery(name = ArticleJdo.FIND_SOLD_LA_VIDA, query = "select a from ArticleJdo a where a.sold IS NOT NULL and a.shop = 'LA VIDA'"),
         @NamedQuery(name = ArticleJdo.FIND_SOLD_SLAVYANKA, query = "select a from ArticleJdo a where a.sold IS NOT NULL and a.shop = 'СЛАВЯНСКИЙ'"),
         @NamedQuery(name = ArticleJdo.FIND_SOLD_NOVOMOSKOVSK, query = "select a from ArticleJdo a where a.sold IS NOT NULL and a.shop = 'НОВОМОСКОВСК'"),
+        @NamedQuery(name = ArticleJdo.FIND_SOLD_ALEXANDRIA, query = "select a from ArticleJdo a where a.sold IS NOT NULL and a.shop = 'АЛЕКСАНДРИЯ'"),
 })
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "articleType", namespace = "http://www.xml.lavida.com/schema/articles.com")
@@ -43,6 +45,8 @@ public class ArticleJdo implements Cloneable {
     public static final String FIND_SOLD_LA_VIDA = "ArticleJdo.findSoldLaVida";
     public static final String FIND_SOLD_SLAVYANKA = "ArticleJdo.findSoldSlavyanka";
     public static final String FIND_SOLD_NOVOMOSKOVSK = "ArticleJdo.findSoldNovomoskovsk";
+    public static final String FIND_SOLD_ALEXANDRIA = "ArticleJdo.findSoldAlexandria";
+    public static final String FIND_NOT_SOLD_ALEXANDRIA = "ArticleJdo.findNotSoldAlexandria";
 
     @Id
     @GeneratedValue (strategy = GenerationType.IDENTITY)
@@ -102,37 +106,37 @@ public class ArticleJdo implements Cloneable {
 
     @SpreadsheetColumn(column = "purchasePriceEUR")
     @ViewColumn(titleKey = "mainForm.table.articles.column.purchase.price.eur.title", columnWidth = 150,
-            forbiddenRoles = "ROLE_SELLER_LA_VIDA, ROLE_SELLER_SLAVYANKA, ROLE_SELLER_NOVOMOSKOVSK")
+            forbiddenRoles = "ROLE_SELLER_LA_VIDA, ROLE_SELLER_SLAVYANKA, ROLE_SELLER_NOVOMOSKOVSK, ROLE_SELLER_ALEXANDRIA")
     @XmlElement
     private double purchasePriceEUR;
 
     @SpreadsheetColumn(column = "transportCostEUR")
     @ViewColumn(titleKey = "mainForm.table.articles.column.transport.cost.eur.title", columnWidth = 175,
-            forbiddenRoles = "ROLE_SELLER_LA_VIDA, ROLE_SELLER_SLAVYANKA, ROLE_SELLER_NOVOMOSKOVSK")
+            forbiddenRoles = "ROLE_SELLER_LA_VIDA, ROLE_SELLER_SLAVYANKA, ROLE_SELLER_NOVOMOSKOVSK, ROLE_SELLER_ALEXANDRIA")
     @XmlElement
     private double transportCostEUR;
 
     @SpreadsheetColumn(column = "totalCostEUR")
     @ViewColumn(titleKey = "mainForm.table.articles.column.purchase.cost.total.eur.title", columnWidth = 125,
-            forbiddenRoles = "ROLE_SELLER_LA_VIDA, ROLE_SELLER_SLAVYANKA, ROLE_SELLER_NOVOMOSKOVSK")
+            forbiddenRoles = "ROLE_SELLER_LA_VIDA, ROLE_SELLER_SLAVYANKA, ROLE_SELLER_NOVOMOSKOVSK, ROLE_SELLER_ALEXANDRIA")
     @XmlElement
     private double totalCostEUR;
 
     @SpreadsheetColumn(column = "totalCostUAH")
     @ViewColumn(titleKey = "mainForm.table.articles.column.purchase.cost.total.uah.title", columnWidth = 120,
-            forbiddenRoles = "ROLE_SELLER_LA_VIDA, ROLE_SELLER_SLAVYANKA, ROLE_SELLER_NOVOMOSKOVSK")
+            forbiddenRoles = "ROLE_SELLER_LA_VIDA, ROLE_SELLER_SLAVYANKA, ROLE_SELLER_NOVOMOSKOVSK, ROLE_SELLER_ALEXANDRIA")
     @XmlElement
     private double totalCostUAH;
 
     @SpreadsheetColumn(column = "multiplier")
     @ViewColumn(titleKey = "mainForm.table.articles.column.multiplier.title", columnWidth = 150,
-            forbiddenRoles = "ROLE_SELLER_LA_VIDA, ROLE_SELLER_SLAVYANKA, ROLE_SELLER_NOVOMOSKOVSK")
+            forbiddenRoles = "ROLE_SELLER_LA_VIDA, ROLE_SELLER_SLAVYANKA, ROLE_SELLER_NOVOMOSKOVSK, ROLE_SELLER_ALEXANDRIA")
     @XmlElement
     private double multiplier;
 
     @SpreadsheetColumn(column = "calculatedSalePrice")
     @ViewColumn(titleKey = "mainForm.table.articles.column.calculatedSalePrice.title", columnWidth = 200,
-            forbiddenRoles = "ROLE_SELLER_LA_VIDA, ROLE_SELLER_SLAVYANKA, ROLE_SELLER_NOVOMOSKOVSK")
+            forbiddenRoles = "ROLE_SELLER_LA_VIDA, ROLE_SELLER_SLAVYANKA, ROLE_SELLER_NOVOMOSKOVSK, ROLE_SELLER_ALEXANDRIA")
     @XmlElement
     private double calculatedSalePrice;
 
@@ -145,13 +149,13 @@ public class ArticleJdo implements Cloneable {
 
     @SpreadsheetColumn(column = "raisedSalePrice")
     @ViewColumn(titleKey = "mainForm.table.articles.column.raised.price.uah.title", columnWidth = 120,
-            forbiddenRoles = "ROLE_SELLER_LA_VIDA, ROLE_SELLER_SLAVYANKA, ROLE_SELLER_NOVOMOSKOVSK")
+            forbiddenRoles = "ROLE_SELLER_LA_VIDA, ROLE_SELLER_SLAVYANKA, ROLE_SELLER_NOVOMOSKOVSK, ROLE_SELLER_ALEXANDRIA")
     @XmlElement
     private double raisedSalePrice;
 
     @SpreadsheetColumn(column = "oldSalePrice")
     @ViewColumn(titleKey = "mainForm.table.articles.column.old.price.uah.title", columnWidth = 160,
-            forbiddenRoles = "ROLE_SELLER_LA_VIDA, ROLE_SELLER_SLAVYANKA, ROLE_SELLER_NOVOMOSKOVSK")
+            forbiddenRoles = "ROLE_SELLER_LA_VIDA, ROLE_SELLER_SLAVYANKA, ROLE_SELLER_NOVOMOSKOVSK, ROLE_SELLER_ALEXANDRIA")
     @XmlElement
     private double oldSalePrice;
 
@@ -178,7 +182,7 @@ public class ArticleJdo implements Cloneable {
 
     @SpreadsheetColumn(column = "refundDate" , datePattern = "MM/dd/yyyy HH:mm:ss")
     @ViewColumn(titleKey = "mainForm.table.articles.column.refund.title", columnWidth = 120,
-            forbiddenRoles = "ROLE_SELLER_LA_VIDA, ROLE_SELLER_SLAVYANKA, ROLE_SELLER_NOVOMOSKOVSK",
+            forbiddenRoles = "ROLE_SELLER_LA_VIDA, ROLE_SELLER_SLAVYANKA, ROLE_SELLER_NOVOMOSKOVSK, ROLE_SELLER_ALEXANDRIA",
             datePattern = "dd.MM.yyyy HH:mm:ss")
     @Temporal(TemporalType.TIMESTAMP)
     @XmlElement
@@ -205,7 +209,7 @@ public class ArticleJdo implements Cloneable {
 
     @SpreadsheetColumn(column = "tags")
     @ViewColumn(titleKey = "mainForm.table.articles.column.tags.title", columnWidth = 150,
-            forbiddenRoles = "ROLE_SELLER_LA_VIDA, ROLE_SELLER_SLAVYANKA, ROLE_SELLER_NOVOMOSKOVSK")
+            forbiddenRoles = "ROLE_SELLER_LA_VIDA, ROLE_SELLER_SLAVYANKA, ROLE_SELLER_NOVOMOSKOVSK, ROLE_SELLER_ALEXANDRIA")
     @XmlElement
     private String tags;
 

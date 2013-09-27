@@ -25,6 +25,7 @@ public class ArticleAnalyzeComponent {
         FORBIDDEN_ROLES.add("ROLE_SELLER_LA_VIDA");
         FORBIDDEN_ROLES.add("ROLE_SELLER_SLAVYANKA");
         FORBIDDEN_ROLES.add("ROLE_SELLER_NOVOMOSKOVSK");
+        FORBIDDEN_ROLES.add("ROLE_SELLER_ALEXANDRIA");
     }
 
     private ArticlesTableModel tableModel;

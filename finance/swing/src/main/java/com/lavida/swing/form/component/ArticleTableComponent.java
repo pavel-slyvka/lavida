@@ -50,7 +50,7 @@ public class ArticleTableComponent implements TableModelListener {
             "27/32", "28/32", "29/32", "30/32", "31/32", "32/32", "S", "XS", "M", "L", "XL", "XXL", "XXXL",
             "Universal", "S/M", "S/L", "L/XL", "XL/XXL", "XXL/XXXL"};
 
-    private String[] shopArray = {"LA VIDA", "СЛАВЯНСКИЙ", "НОВОМОСКОВСК"};
+    private String[] shopArray = {"СКЛАД", "LA VIDA", "СЛАВЯНСКИЙ", "НОВОМОСКОВСК", "АЛЕКСАНДРИЯ"};
 
     public void initializeComponents(ArticlesTableModel articlesTableModel, MessageSource messageSource,
                                      LocaleHolder localeHolder, UsersSettingsHolder usersSettingsHolder) {

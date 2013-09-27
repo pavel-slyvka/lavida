@@ -44,6 +44,7 @@ public class DiscountCardsTableModel extends AbstractTableModel implements Appli
         FORBIDDEN_ROLES.add("ROLE_SELLER_LA_VIDA");
         FORBIDDEN_ROLES.add("ROLE_SELLER_SLAVYANKA");
         FORBIDDEN_ROLES.add("ROLE_SELLER_NOVOMOSKOVSK");
+        FORBIDDEN_ROLES.add("ROLE_SELLER_ALEXANDRIA");
     }
 
     @Resource
