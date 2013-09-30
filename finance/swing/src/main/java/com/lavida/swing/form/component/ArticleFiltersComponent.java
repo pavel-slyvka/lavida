@@ -13,6 +13,7 @@ import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.TableRowSorter;
+import javax.swing.text.JTextComponent;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -32,7 +33,7 @@ import java.util.Queue;
  * @author Pavel
  */
 public class ArticleFiltersComponent {
-    private static final List<String> FORBIDDEN_ROLES = new ArrayList<String>();
+    private static final List<String> FORBIDDEN_ROLES = new ArrayList<>();
 
     static {
         FORBIDDEN_ROLES.add("ROLE_SELLER_LA_VIDA");
@@ -46,21 +47,24 @@ public class ArticleFiltersComponent {
     private MessageSource messageSource;
     private LocaleHolder localeHolder;
     private List<FilterUnit> filters;
-    //    private Map<Integer, >
     private JPanel filtersPanel;
     private JButton clearSearchButton;
     private JCheckBox currentDateCheckBox;
     private TableRowSorter<ArticlesTableModel> sorter;
     private ArticleAnalyzeComponent articleAnalyzeComponent = new ArticleAnalyzeComponent();
+    private Map<String, String[]> comboBoxItemsMap;
 
     public void initializeComponents(ArticlesTableModel tableModel, MessageSource messageSource, LocaleHolder localeHolder) {
         this.tableModel = tableModel;
         this.messageSource = messageSource;
         this.localeHolder = localeHolder;
-        this.filters = new ArrayList<FilterUnit>();
+        this.filters = new ArrayList<>();
         FiltersPurpose filtersPurpose = tableModel.getFiltersPurpose();
-
         FilterElementsListener filterElementsListener = new FilterElementsListener();
+        comboBoxItemsMap = new HashMap<>();
+        comboBoxItemsMap.put("brand", ArticleJdo.BRAND_ARRAY);
+        comboBoxItemsMap.put("size", ArticleJdo.SIZE_ARRAY);
+        comboBoxItemsMap.put("shop", ArticleJdo.SHOP_ARRAY);
 
 //      panel for search operations
         filtersPanel = new JPanel();
@@ -98,8 +102,18 @@ public class ArticleFiltersComponent {
 
                     if (!filterColumn.labelKey().isEmpty()) {
                         filterUnit.label = new JLabel(messageSource.getMessage(filterColumn.labelKey(), null, localeHolder.getLocale()));
-                        filterUnit.textField = new JTextField(filterColumn.editSize());
-                        filterUnit.textField.getDocument().addDocumentListener(filterElementsListener);
+                        JTextComponent textComponent;
+                        if (FilterType.COMBOBOX == filterUnit.filterType) {
+                            filterUnit.comboBox = new JComboBox(comboBoxItemsMap.get(field.getName()));
+                            filterUnit.comboBox.setEditable(true);
+                            filterUnit.comboBox.setSelectedItem(null);
+                            textComponent = (JTextComponent) filterUnit.comboBox.getEditor().getEditorComponent();
+                        } else {
+                            filterUnit.textField = new JTextField(filterColumn.editSize());
+                            textComponent = filterUnit.textField;
+//                            filterUnit.textField.getDocument().addDocumentListener(filterElementsListener);
+                        }
+                        textComponent.getDocument().addDocumentListener(filterElementsListener);
                     }
 
                     if (filterColumn.checkBoxesNumber() > 0) {
@@ -143,17 +157,32 @@ public class ArticleFiltersComponent {
         });
         for (int i = 0; i < filters.size(); ++i) {
             if (filters.get(i).label != null) {
-                filters.get(i).label.setLabelFor(filters.get(i).textField);
-                constraints.fill = GridBagConstraints.NONE;
-                constraints.gridwidth = GridBagConstraints.RELATIVE;
-                constraints.anchor = GridBagConstraints.EAST;
-                constraints.weightx = 0.0;
-                filtersPanel.add(filters.get(i).label, constraints);
-                constraints.fill = GridBagConstraints.HORIZONTAL;
-                constraints.gridwidth = GridBagConstraints.REMAINDER;
-                constraints.anchor = GridBagConstraints.EAST;
-                constraints.weightx = 1.0;
-                filtersPanel.add(filters.get(i).textField, constraints);
+                if (filters.get(i).textField != null) {
+                    filters.get(i).label.setLabelFor(filters.get(i).textField);
+                    constraints.fill = GridBagConstraints.NONE;
+                    constraints.gridwidth = GridBagConstraints.RELATIVE;
+                    constraints.anchor = GridBagConstraints.EAST;
+                    constraints.weightx = 0.0;
+                    filtersPanel.add(filters.get(i).label, constraints);
+                    constraints.fill = GridBagConstraints.HORIZONTAL;
+                    constraints.gridwidth = GridBagConstraints.REMAINDER;
+                    constraints.anchor = GridBagConstraints.EAST;
+                    constraints.weightx = 1.0;
+                    filtersPanel.add(filters.get(i).textField, constraints);
+                } else if (filters.get(i).comboBox != null) {
+                    filters.get(i).label.setLabelFor(filters.get(i).comboBox);
+                    constraints.fill = GridBagConstraints.NONE;
+                    constraints.gridwidth = GridBagConstraints.RELATIVE;
+                    constraints.anchor = GridBagConstraints.EAST;
+                    constraints.weightx = 0.0;
+                    filtersPanel.add(filters.get(i).label, constraints);
+                    constraints.fill = GridBagConstraints.HORIZONTAL;
+                    constraints.gridwidth = GridBagConstraints.REMAINDER;
+                    constraints.anchor = GridBagConstraints.EAST;
+                    constraints.weightx = 1.0;
+                    filtersPanel.add(filters.get(i).comboBox, constraints);
+
+                }
             } else if (filters.get(i).checkBoxes != null) {
                 JPanel checkBoxPanel = new JPanel();
                 checkBoxPanel.setLayout(new BoxLayout(checkBoxPanel, BoxLayout.LINE_AXIS));
@@ -218,7 +247,7 @@ public class ArticleFiltersComponent {
             @Override
             public void actionPerformed(ActionEvent e) {
                 for (FilterUnit filterUnit : filters) {
-                    if (filterUnit.label != null) {
+                    if (filterUnit.textField != null) {
                         filterUnit.textField.setText("");
                     } else if (filterUnit.checkBoxes != null) {
                         for (int j = 0; j < filterUnit.checkBoxes.length; ++j) {
@@ -228,7 +257,9 @@ public class ArticleFiltersComponent {
                                 filterUnit.checkBoxes[j].setSelected(false);
                             }
                         }
-
+                    } else if (filterUnit.comboBox != null) {
+                        JTextComponent textComponent = (JTextComponent) filterUnit.comboBox.getEditor().getEditorComponent();
+                        textComponent.setText("");
                     }
                 }
             }
@@ -259,95 +290,114 @@ public class ArticleFiltersComponent {
             final int columnIndex = tableModel.findColumn(filterUnit.columnTitle);
 
             RowFilter<ArticlesTableModel, Integer> filter = null;
-            if (FilterType.CHECKBOXES == filterUnit.filterType) {
-                if (!filterUnit.checkBoxes[0].isSelected() || !filterUnit.checkBoxes[1].isSelected()
-                        || !filterUnit.checkBoxes[2].isSelected()) {
-                    filter = new RowFilter<ArticlesTableModel, Integer>() {
-                        @Override
-                        public boolean include(Entry<? extends ArticlesTableModel, ? extends Integer> entry) {
-                            Object sellTypeObj = tableModel.getRawValueAt(entry.getIdentifier(), columnIndex);
-                            return filterUnit.checkBoxes[0].isSelected() && (sellTypeObj == null || ((String) sellTypeObj).trim().isEmpty())
-                                    || filterUnit.checkBoxes[1].isSelected() && "В подарок".equals(sellTypeObj)
-                                    || filterUnit.checkBoxes[2].isSelected() && "Своим".equals(sellTypeObj);
-                        }
-                    };
+            if (filterUnit.checkBoxes != null) {
+                if (FilterType.CHECKBOXES == filterUnit.filterType) {
+                    if (!filterUnit.checkBoxes[0].isSelected() || !filterUnit.checkBoxes[1].isSelected()
+                            || !filterUnit.checkBoxes[2].isSelected()) {
+                        filter = new RowFilter<ArticlesTableModel, Integer>() {
+                            @Override
+                            public boolean include(Entry<? extends ArticlesTableModel, ? extends Integer> entry) {
+                                Object sellTypeObj = tableModel.getRawValueAt(entry.getIdentifier(), columnIndex);
+                                return filterUnit.checkBoxes[0].isSelected() && (sellTypeObj == null || ((String) sellTypeObj).trim().isEmpty())
+                                        || filterUnit.checkBoxes[1].isSelected() && "В подарок".equals(sellTypeObj)
+                                        || filterUnit.checkBoxes[2].isSelected() && "Своим".equals(sellTypeObj);
+                            }
+                        };
+                    }
+                } else if (FilterType.BOOLEAN_CHECKBOX == filterUnit.filterType) {
+                    if (anySelected(filterUnit.checkBoxes)) {
+                        filter = new RowFilter<ArticlesTableModel, Integer>() {
+                            @Override
+                            public boolean include(Entry<? extends ArticlesTableModel, ? extends Integer> entry) {
+                                Object obj = tableModel.getRawValueAt(entry.getIdentifier(), columnIndex);
+                                return (Boolean) obj;
+                            }
+                        };
+                    }
                 }
-            } else if (FilterType.BOOLEAN_CHECKBOX == filterUnit.filterType) {
-                if (anySelected(filterUnit.checkBoxes)) {
+            } else if (filterUnit.textField != null) {
+                if (" ".equals(filterUnit.textField.getText())) {
                     filter = new RowFilter<ArticlesTableModel, Integer>() {
                         @Override
                         public boolean include(Entry<? extends ArticlesTableModel, ? extends Integer> entry) {
                             Object obj = tableModel.getRawValueAt(entry.getIdentifier(), columnIndex);
-                            return (Boolean)obj;
+                            return obj == null || obj.toString().trim().isEmpty();
                         }
                     };
-                }
-
-            } else if (" ".equals(filterUnit.textField.getText())) {
-                filter = new RowFilter<ArticlesTableModel, Integer>() {
-                    @Override
-                    public boolean include(Entry<? extends ArticlesTableModel, ? extends Integer> entry) {
-                        Object obj = tableModel.getRawValueAt(entry.getIdentifier(), columnIndex);
-                        return obj == null || obj.toString().trim().isEmpty();
+                } else if (FilterType.PART_TEXT == filterUnit.filterType) {
+                    if (filterUnit.textField.getText().length() > 0) {
+                        filter = RowFilter.regexFilter(("(?iu)" + filterUnit.textField.getText().trim()), columnIndex);
                     }
-                };
-            } else if (FilterType.PART_TEXT == filterUnit.filterType) {
-                if (filterUnit.textField.getText().length() > 0) {
-                    filter = RowFilter.regexFilter(("(?iu)" + filterUnit.textField.getText().trim()), columnIndex);
-                }
-            } else if (FilterType.FULL_TEXT == filterUnit.filterType) {
-                if (filterUnit.textField.getText().length() > 0) {
-                    filter = RowFilter.regexFilter(filterUnit.textField.getText().trim(), columnIndex);
-                }
-            } else if (FilterType.NUMBER == filterUnit.filterType
-                    || FilterType.NUMBER_DIAPASON == filterUnit.filterType && !filterUnit.textField.getText().contains("-")) {
-                if (filterUnit.textField.getText().length() > 0) {
-                    String numberStr = filterUnit.textField.getText().trim().replace(",", ".").replaceAll("[^0-9.]", "");
-                    Double number = Double.parseDouble(numberStr);
-                    filter = RowFilter.numberFilter(RowFilter.ComparisonType.EQUAL, number, columnIndex);
-                }
-            } else if (FilterType.NUMBER_DIAPASON == filterUnit.filterType) {
-                if (filterUnit.textField.getText().length() > 0) {
-                    String[] numbers = filterUnit.textField.getText().split("-", 2);
-                    if (numbers.length > 1 && !numbers[0].trim().isEmpty() && !numbers[1].trim().isEmpty()) {
-                        String numbers0 = numbers[0].replace(",", ".").replaceAll("[^0-9.]", "");
-                        String numbers1 = numbers[1].replace(",", ".").replaceAll("[^0-9.]", "");
-                        final Double number1 = Double.parseDouble(numbers0);
-                        final Double number2 = Double.parseDouble(numbers1);
-                        filter = new RowFilter<ArticlesTableModel, Integer>() {
-                            @Override
-                            public boolean include(Entry<? extends ArticlesTableModel, ? extends Integer> entry) {
-                                Double number = (Double) tableModel.getRawValueAt(entry.getIdentifier(), columnIndex);
-                                return number > number1 && number < number2;
-                            }
-                        };
+                } else if (FilterType.FULL_TEXT == filterUnit.filterType) {
+                    if (filterUnit.textField.getText().length() > 0) {
+                        filter = RowFilter.regexFilter(filterUnit.textField.getText().trim(), columnIndex);
                     }
-                }
-            } else if (FilterType.DATE == filterUnit.filterType
-                    || FilterType.DATE_DIAPASON == filterUnit.filterType && !filterUnit.textField.getText().contains("-")) {
-                if (filterUnit.textField.getText().length() > 0) {
-                    Date correctedDate = getCorrectedDate(filterUnit.textField.getText().trim());
-                    String correctedDateString = new SimpleDateFormat(filterUnit.columnDatePattern).format(correctedDate);
-                    filter = RowFilter.regexFilter(correctedDateString, columnIndex);
-                }
-            } else if (FilterType.DATE_DIAPASON == filterUnit.filterType) {
-                if (filterUnit.textField.getText().length() > 0) {
-                    String[] dates = filterUnit.textField.getText().split("-", 2);
-                    if (dates.length > 1 && !dates[0].trim().isEmpty() && !dates[1].trim().isEmpty()) {
-                        final Date correctedDate1 = getCorrectedDate(dates[0]);
-                        final Date correctedDate2 = getCorrectedDate(dates[1]);
-                        filter = new RowFilter<ArticlesTableModel, Integer>() {
-                            @Override
-                            public boolean include(Entry<? extends ArticlesTableModel, ? extends Integer> entry) {
-                                Object saleDateObj = tableModel.getRawValueAt(entry.getIdentifier(), columnIndex);
-                                if (saleDateObj != null) {
-                                    Date date = ((Calendar) tableModel.getRawValueAt(entry.getIdentifier(), columnIndex)).getTime();
-                                    return date.after(addDays(correctedDate1, -1)) && date.before(addDays(correctedDate2, 1));
-                                } else {
-                                    return false;
+                } else if (FilterType.NUMBER == filterUnit.filterType
+                        || FilterType.NUMBER_DIAPASON == filterUnit.filterType && !filterUnit.textField.getText().contains("-")) {
+                    if (filterUnit.textField.getText().length() > 0) {
+                        String numberStr = filterUnit.textField.getText().trim().replace(",", ".").replaceAll("[^0-9.]", "");
+                        Double number = Double.parseDouble(numberStr);
+                        filter = RowFilter.numberFilter(RowFilter.ComparisonType.EQUAL, number, columnIndex);
+                    }
+                } else if (FilterType.NUMBER_DIAPASON == filterUnit.filterType) {
+                    if (filterUnit.textField.getText().length() > 0) {
+                        String[] numbers = filterUnit.textField.getText().split("-", 2);
+                        if (numbers.length > 1 && !numbers[0].trim().isEmpty() && !numbers[1].trim().isEmpty()) {
+                            String numbers0 = numbers[0].replace(",", ".").replaceAll("[^0-9.]", "");
+                            String numbers1 = numbers[1].replace(",", ".").replaceAll("[^0-9.]", "");
+                            final Double number1 = Double.parseDouble(numbers0);
+                            final Double number2 = Double.parseDouble(numbers1);
+                            filter = new RowFilter<ArticlesTableModel, Integer>() {
+                                @Override
+                                public boolean include(Entry<? extends ArticlesTableModel, ? extends Integer> entry) {
+                                    Double number = (Double) tableModel.getRawValueAt(entry.getIdentifier(), columnIndex);
+                                    return number > number1 && number < number2;
                                 }
-                            }
-                        };
+                            };
+                        }
+                    }
+                } else if (FilterType.DATE == filterUnit.filterType
+                        || FilterType.DATE_DIAPASON == filterUnit.filterType && !filterUnit.textField.getText().contains("-")) {
+                    if (filterUnit.textField.getText().length() > 0) {
+                        Date correctedDate = getCorrectedDate(filterUnit.textField.getText().trim());
+                        String correctedDateString = new SimpleDateFormat(filterUnit.columnDatePattern).format(correctedDate);
+                        filter = RowFilter.regexFilter(correctedDateString, columnIndex);
+                    }
+                } else if (FilterType.DATE_DIAPASON == filterUnit.filterType) {
+                    if (filterUnit.textField.getText().length() > 0) {
+                        String[] dates = filterUnit.textField.getText().split("-", 2);
+                        if (dates.length > 1 && !dates[0].trim().isEmpty() && !dates[1].trim().isEmpty()) {
+                            final Date correctedDate1 = getCorrectedDate(dates[0]);
+                            final Date correctedDate2 = getCorrectedDate(dates[1]);
+                            filter = new RowFilter<ArticlesTableModel, Integer>() {
+                                @Override
+                                public boolean include(Entry<? extends ArticlesTableModel, ? extends Integer> entry) {
+                                    Object saleDateObj = tableModel.getRawValueAt(entry.getIdentifier(), columnIndex);
+                                    if (saleDateObj != null) {
+                                        Date date = ((Calendar) tableModel.getRawValueAt(entry.getIdentifier(), columnIndex)).getTime();
+                                        return date.after(addDays(correctedDate1, -1)) && date.before(addDays(correctedDate2, 1));
+                                    } else {
+                                        return false;
+                                    }
+                                }
+                            };
+                        }
+                    }
+                }
+            } else if (filterUnit.comboBox != null) {
+                JTextComponent textComponent = (JTextComponent) filterUnit.comboBox.getEditor().getEditorComponent();
+                if (" ".equals(textComponent.getText())) {
+                    filter = new RowFilter<ArticlesTableModel, Integer>() {
+                        @Override
+                        public boolean include(Entry<? extends ArticlesTableModel, ? extends Integer> entry) {
+                            Object obj = tableModel.getRawValueAt(entry.getIdentifier(), columnIndex);
+                            return obj == null || obj.toString().trim().isEmpty();
+                        }
+                    };
+
+                } else if (FilterType.COMBOBOX == filterUnit.filterType) {
+                    if (textComponent.getText().length() > 0) {
+                        filter = RowFilter.regexFilter(("(?iu)" + textComponent.getText().trim()), columnIndex);
                     }
                 }
             }
@@ -380,7 +430,7 @@ public class ArticleFiltersComponent {
      */
     private Date getCorrectedDate(String enteredDate) throws NoSuchElementException {
         enteredDate = enteredDate.replaceAll("[^0-9.,]", "");
-        Queue<String> dateParts = new ArrayDeque<String>(3);
+        Queue<String> dateParts = new ArrayDeque<>(3);
         StringBuilder number = new StringBuilder();
         for (char symbol : enteredDate.toCharArray()) {
             if (Character.isDigit(symbol)) {
@@ -427,7 +477,7 @@ public class ArticleFiltersComponent {
         double totalTransportCostEUR = 0;
         double profitUAH = 0;
         int viewRows = sorter.getViewRowCount();
-        List<ArticleJdo> selectedArticles = new ArrayList<ArticleJdo>();
+        List<ArticleJdo> selectedArticles = new ArrayList<>();
         for (int i = 0; i < viewRows; i++) {
             int row = sorter.convertRowIndexToModel(i);
             selectedArticles.add(tableModel.getArticleJdoByRowIndex(row));
@@ -523,7 +573,4 @@ public class ArticleFiltersComponent {
         return articleAnalyzeComponent;
     }
 
-    public JButton getClearSearchButton() {
-        return clearSearchButton;
-    }
 }

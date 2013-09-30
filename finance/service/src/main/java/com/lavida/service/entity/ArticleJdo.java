@@ -48,6 +48,19 @@ public class ArticleJdo implements Cloneable {
     public static final String FIND_SOLD_ALEXANDRIA = "ArticleJdo.findSoldAlexandria";
     public static final String FIND_NOT_SOLD_ALEXANDRIA = "ArticleJdo.findNotSoldAlexandria";
 
+    public static final String[] BRAND_ARRAY = new String[]{"H&M", "Mango", "Zara", "PULL&BEAR", "Westrags", "Bershka", "GoodLuck", "HTrand",
+            "FeelingModa", "TodayFashion", "KR", "Glamour", "MGessi", "ProntoModa", "PuroLino", "Fashion",
+            "RockerModa", "RealityJeans", "MASFashion", "PlayIN", "ModaFashion", "DanceForever", "AssaGold",
+            "SweetMiss", "BestCopine", "Desmon", "Sahiba", "Amo&Roma", "Moda", "LantisJeans", "Victoria",
+            "A&P", "Milano", "Luna", "ItalyModa", "Elena", "Unics", "RouuaRssi", "Gabarra", "Emmetrenta",
+            "DKoton", "Sabiba"};
+
+    public static final String[] SIZE_ARRAY = new String[]{"34", "36", "38", "40", "42", "44", "46", "48", "50", "52", "54", "25/32", "26/32",
+            "27/32", "28/32", "29/32", "30/32", "31/32", "32/32", "S", "XS", "M", "L", "XL", "XXL", "XXXL",
+            "Universal", "S/M", "S/L", "L/XL", "XL/XXL", "XXL/XXXL"};
+
+    public static final String[] SHOP_ARRAY = {"СКЛАД", "LA VIDA", "СЛАВЯНСКИЙ", "НОВОМОСКОВСК", "АЛЕКСАНДРИЯ"};
+
     @Id
     @GeneratedValue (strategy = GenerationType.IDENTITY)
     @XmlElement
@@ -81,7 +94,9 @@ public class ArticleJdo implements Cloneable {
 
     @SpreadsheetColumn(column = "brand")
     @ViewColumn(titleKey = "mainForm.table.articles.column.brand.title")
-    @FilterColumn(type = FilterType.PART_TEXT, labelKey = "mainForm.label.search.by.brand", orderForSell = 3,
+//    @FilterColumn(type = FilterType.PART_TEXT, labelKey = "mainForm.label.search.by.brand", orderForSell = 3,
+//            orderForSold = 3)
+    @FilterColumn(type = FilterType.COMBOBOX, labelKey = "mainForm.label.search.by.brand", orderForSell = 3,
             orderForSold = 3)
     @XmlElement
     private String brand;
@@ -93,7 +108,7 @@ public class ArticleJdo implements Cloneable {
 
     @SpreadsheetColumn(column = "size")
     @ViewColumn(titleKey = "mainForm.table.articles.column.size.title", columnWidth = 65)
-    @FilterColumn(type = FilterType.PART_TEXT,labelKey = "mainForm.label.search.by.size", orderForSell = 4,
+    @FilterColumn(type = FilterType.COMBOBOX,labelKey = "mainForm.label.search.by.size", orderForSell = 4,
             orderForSold = 4)
     @XmlElement
     private String size;
@@ -198,7 +213,7 @@ public class ArticleJdo implements Cloneable {
     @SpreadsheetColumn(column = "shop")
     @XmlElement
     @ViewColumn(titleKey = "mainForm.table.articles.column.shop.title")
-    @FilterColumn(type = FilterType.PART_TEXT,labelKey = "mainForm.label.search.by.shop", orderForSell = 7,
+    @FilterColumn(type = FilterType.COMBOBOX,labelKey = "mainForm.label.search.by.shop", orderForSell = 7,
             orderForSold = 8)
     private String shop;
 

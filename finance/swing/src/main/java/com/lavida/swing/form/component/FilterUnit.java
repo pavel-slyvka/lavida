@@ -3,6 +3,7 @@ package com.lavida.swing.form.component;
 import com.lavida.service.FilterType;
 
 import javax.swing.*;
+import java.util.Arrays;
 
 /**
  * Created: 16:43 06.09.13
@@ -17,6 +18,7 @@ public class FilterUnit {
     public String columnDatePattern;
     public int order;
     public JCheckBox[] checkBoxes;
+    public JComboBox comboBox;
 
     @Override
     public String toString() {
@@ -27,8 +29,8 @@ public class FilterUnit {
                 ", columnTitle='" + columnTitle + '\'' +
                 ", columnDatePattern='" + columnDatePattern + '\'' +
                 ", order=" + order +
-                ", checkBoxes=" + checkBoxes +
+                ", checkBoxes=" + Arrays.toString(checkBoxes) +
+                ", comboBox=" + comboBox +
                 '}';
     }
-
 }

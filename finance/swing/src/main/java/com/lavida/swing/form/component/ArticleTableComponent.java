@@ -15,8 +15,6 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.util.*;
 import java.util.List;
 
@@ -38,19 +36,6 @@ public class ArticleTableComponent implements TableModelListener {
     private JComboBox brandBox, sizeBox, shopBox;
     private ArticleFiltersComponent articleFiltersComponent = new ArticleFiltersComponent();
     private Map<String, TableColumn> headersAndColumnsMap;
-
-    private String[] brandArray = {"H&M", "Mango", "Zara", "PULL&BEAR", "Westrags", "Bershka", "GoodLuck", "HTrand",
-            "FeelingModa", "TodayFashion", "KR", "Glamour", "MGessi", "ProntoModa", "PuroLino", "Fashion",
-            "RockerModa", "RealityJeans", "MASFashion", "PlayIN", "ModaFashion", "DanceForever", "AssaGold",
-            "SweetMiss", "BestCopine", "Desmon", "Sahiba", "Amo&Roma", "Moda", "LantisJeans", "Victoria",
-            "A&P", "Milano", "Luna", "ItalyModa", "Elena", "Unics", "RouuaRssi", "Gabarra", "Emmetrenta",
-            "DKoton", "Sabiba"};
-
-    private String[] sizeArray = {"34", "36", "38", "40", "42", "44", "46", "48", "50", "52", "54", "25/32", "26/32",
-            "27/32", "28/32", "29/32", "30/32", "31/32", "32/32", "S", "XS", "M", "L", "XL", "XXL", "XXXL",
-            "Universal", "S/M", "S/L", "L/XL", "XL/XXL", "XXL/XXXL"};
-
-    private String[] shopArray = {"СКЛАД", "LA VIDA", "СЛАВЯНСКИЙ", "НОВОМОСКОВСК", "АЛЕКСАНДРИЯ"};
 
     public void initializeComponents(ArticlesTableModel articlesTableModel, MessageSource messageSource,
                                      LocaleHolder localeHolder, UsersSettingsHolder usersSettingsHolder) {
@@ -127,20 +112,20 @@ public class ArticleTableComponent implements TableModelListener {
         selectionColumn.setCellEditor(articlesTable.getDefaultEditor(Boolean.class));
         selectionColumn.setCellRenderer(articlesTable.getDefaultRenderer(Boolean.class));
 
-        brandBox = new JComboBox(brandArray);
+        brandBox = new JComboBox(ArticleJdo.BRAND_ARRAY);
         brandBox.setEditable(true);
         TableCellEditor brandEditor = new DefaultCellEditor(brandBox);
         TableColumn brandColumn = articlesTable.getColumn(messageSource.getMessage("mainForm.table.articles.column.brand.title", null, localeHolder.getLocale()));
         brandColumn.setCellEditor(brandEditor);
 
-        sizeBox = new JComboBox(sizeArray);
+        sizeBox = new JComboBox(ArticleJdo.SIZE_ARRAY);
         sizeBox.setEditable(true);
         TableCellEditor sizeEditor = new DefaultCellEditor(sizeBox);
         TableColumn sizeColumn = articlesTable.getColumn(messageSource.getMessage("mainForm.table.articles.column.size.title",
                 null, localeHolder.getLocale()));
         sizeColumn.setCellEditor(sizeEditor);
 
-        shopBox = new JComboBox(shopArray);
+        shopBox = new JComboBox(ArticleJdo.SHOP_ARRAY);
         shopBox.setEditable(true);
         TableCellEditor shopEditor = new DefaultCellEditor(shopBox);
         TableColumn shopColumn = articlesTable.getColumn(messageSource.getMessage("mainForm.table.articles.column.shop.title",
