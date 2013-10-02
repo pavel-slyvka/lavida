@@ -2,6 +2,7 @@ package com.lavida.service;
 
 import com.google.gdata.util.ServiceException;
 import com.lavida.service.dao.ArticleDao;
+import com.lavida.service.entity.ArticleChangedFieldJdo;
 import com.lavida.service.entity.ArticleJdo;
 import com.lavida.service.remote.RemoteService;
 import org.slf4j.Logger;
@@ -13,10 +14,7 @@ import javax.annotation.Resource;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.List;
+import java.util.*;
 
 /**
  * The {@code ArticleService} is a service for ArticleJdo to work with database.
@@ -148,8 +146,8 @@ public class ArticleService {
 
     @Transactional
     public ArticleUpdateInfo updateDatabaseFromRemote(List<ArticleJdo> remoteArticles) {
+        List<ArticleChangedFieldJdo> articleChangedFieldJdoList = new ArrayList<>();
         List<ArticleJdo> dbOldArticles = getAll();
-
         List<ArticleJdo> articlesToUpdate = new ArrayList<>();
         List<ArticleJdo> articlesToDelete = new ArrayList<>();
         l:
@@ -164,17 +162,25 @@ public class ArticleService {
                     if (!dbOldArticle.equals(remoteArticle)) {
                         remoteArticle.setId(dbOldArticle.getId());
                         articlesToUpdate.add(remoteArticle);
+                        articleChangedFieldJdoList.addAll(remoteArticle.findUpdateChanges(dbOldArticle));
                     }
                     continue l;
                 }
             }
             articlesToDelete.add(dbOldArticle);
+            articleChangedFieldJdoList.add(new ArticleChangedFieldJdo(new Date(), dbOldArticle.getCode(),
+                    dbOldArticle.getSize(), null, null, null, ArticleChangedFieldJdo.OperationType.DELETED));
+        }
+        for (ArticleJdo articleJdo : remoteArticles) {
+            articleChangedFieldJdoList.add(new ArticleChangedFieldJdo(new Date(), articleJdo.getCode(),
+                    articleJdo.getSize(), null, null, null, ArticleChangedFieldJdo.OperationType.SAVED));
         }
 
         ArticleUpdateInfo articleUpdateInfo = new ArticleUpdateInfo();
         articleUpdateInfo.setAddedCount(remoteArticles.size());
         articleUpdateInfo.setUpdatedCount(articlesToUpdate.size());
         articleUpdateInfo.setDeletedCount(articlesToDelete.size());
+        articleUpdateInfo.setChangedFieldJdoList(articleChangedFieldJdoList);
         remove(articlesToDelete);
         update(articlesToUpdate);
         save(remoteArticles);

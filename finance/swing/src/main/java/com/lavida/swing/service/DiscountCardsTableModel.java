@@ -277,9 +277,10 @@ public class DiscountCardsTableModel extends AbstractTableModel implements Appli
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
         DiscountCardJdo discountCardJdo = getDiscountCardByRowIndex(rowIndex);
-        String value = (String) aValue;
+        String value = aValue.toString();
         SimpleDateFormat calendarFormatter = new SimpleDateFormat("dd.MM.yyyy");
         calendarFormatter.setLenient(false);
+        boolean toUpdate = true;
         try {
             Field field = DiscountCardJdo.class.getDeclaredField(discountCardFieldsSequence.get(columnIndex));
             field.setAccessible(true);
@@ -295,6 +296,9 @@ public class DiscountCardsTableModel extends AbstractTableModel implements Appli
                 } else return;
             } else if (boolean.class == field.getType()) {
                 boolean typeValue = Boolean.parseBoolean(value);
+                if (field.getName().equals("selected")) {
+                    toUpdate = false;
+                }
                 if (typeValue != field.getBoolean(discountCardJdo)) {
                     field.setBoolean(discountCardJdo, typeValue);
                 } else return;
@@ -340,8 +344,11 @@ public class DiscountCardsTableModel extends AbstractTableModel implements Appli
                 } else return;
             } else if (Boolean.class == field.getType()) {
                 Boolean typeValue = Boolean.parseBoolean(value);
-                if (!typeValue.equals(field.get(discountCardJdo))) {
-                    field.set(discountCardJdo, typeValue);
+                if (field.getName().equals("selected")) {
+                    toUpdate = false;
+                }
+                if (typeValue != field.getBoolean(discountCardJdo)) {
+                    field.setBoolean(discountCardJdo, typeValue);
                 } else return;
             } else if (Double.class == field.getType()) {
                 Double typeValue;
@@ -424,7 +431,9 @@ public class DiscountCardsTableModel extends AbstractTableModel implements Appli
             logger.warn(e.getMessage(), e);
             throw new RuntimeException(e);
         }
-        updateTable(discountCardJdo);
+        if (toUpdate) {
+            updateTable(discountCardJdo);
+        }
     }
 
     private double fixIfNeedAndParseDouble(String doubleString) {

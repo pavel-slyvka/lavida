@@ -66,6 +66,10 @@ public class MainForm extends AbstractForm {
     private AllDiscountCardsTableViewSettingsDialog allDiscountCardsTableViewSettingsDialog;
 
     @Resource
+    private ArticleChangesDialog articleChangesDialog;
+
+
+    @Resource
     private ProgressComponent progressComponent;
 
     @Resource
@@ -80,15 +84,13 @@ public class MainForm extends AbstractForm {
         FORBIDDEN_ROLES.add("ROLE_SELLER_ALEXANDRIA");
     }
 
-    private static final String DEFAULT_PRESET = "default";
-
     private JPanel operationPanel, southPanel, desktopPanel, filtersPanel, analyzePanel, mainPanel, statusBarPanel;
     private Button  sellButton, showSoldProductsButton;
     private JLabel postponedOperations, postponedMessage, errorMessage, presetNameLabel, presetNameField;
     private JMenuBar menuBar;
     private JMenu postponedMenu, productsMenu, settingsMenu, tablesViewItem, discountsMenu, tableMenu, selectedMenu;
     private JMenuItem savePostponedItem, loadPostponedItem, recommitPostponedItem, deletePostponedItem,
-            addNewProductsItem, refreshTableItem,
+            addNewProductsItem, refreshTableItem, articleChangesItem,
             savePresetItem, selectPresetItem, createPresetItem, deletePresetItem,
             notSoldArticlesTableViewItem, soldArticlesTableViewItem, discountCardsTableViewItem,
             addNewDiscountCardItem, allDiscountCardsItem,
@@ -313,6 +315,15 @@ public class MainForm extends AbstractForm {
             }
         });
 
+        articleChangesItem = new JMenuItem();
+        articleChangesItem.setText(messageSource.getMessage("mainForm.menu.products.item.articleChanges", null, localeHolder.getLocale()));
+        articleChangesItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                articleChangesDialog.show();
+            }
+        });
+
         addNewProductsItem = new JMenuItem();
         addNewProductsItem.setText(messageSource.getMessage("mainForm.menu.products.item.addNew", null, localeHolder.getLocale()));
         addNewProductsItem.addActionListener(new ActionListener() {
@@ -323,6 +334,7 @@ public class MainForm extends AbstractForm {
         });
 
         productsMenu.add(refreshTableItem);
+        productsMenu.add(articleChangesItem);
         productsMenu.add(addNewProductsItem);
 
 //        settings menu
@@ -454,6 +466,7 @@ public class MainForm extends AbstractForm {
         tableMenu.add(fixTableDataItem);
         tableMenu.add(printItem);
 
+//        selected menu
         selectedMenu = new JMenu();
         selectedMenu.setText(messageSource.getMessage("mainForm.menu.selected", null, localeHolder.getLocale()));
 
@@ -539,6 +552,7 @@ public class MainForm extends AbstractForm {
             addNewProductsItem.setEnabled(false);
             moveToShopItem.setEnabled(false);
             printItem.setEnabled(false);
+            articleChangesItem.setEnabled(false);
             soldProductsDialog.getPrintItem().setEnabled(false);
             addNewProductsDialog.getPrintItem().setEnabled(false);
             addNewDiscountCardsDialog.getPrintItem().setEnabled(false);

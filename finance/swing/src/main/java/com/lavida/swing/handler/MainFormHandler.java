@@ -7,7 +7,7 @@ import com.lavida.service.DiscountCardsUpdateInfo;
 import com.lavida.swing.dialog.settings.NotSoldArticlesTableViewSettingsDialog;
 import com.lavida.swing.dialog.settings.SoldArticlesTableViewSettingsDialog;
 import com.lavida.swing.preferences.UsersSettings;
-import com.lavida.swing.service.UserSettingsService;
+import com.lavida.swing.service.*;
 import com.lavida.service.entity.ArticleJdo;
 import com.lavida.service.entity.DiscountCardJdo;
 import com.lavida.service.settings.Settings;
@@ -21,10 +21,6 @@ import com.lavida.swing.exception.LavidaSwingRuntimeException;
 import com.lavida.swing.form.MainForm;
 import com.lavida.swing.form.component.FileChooserComponent;
 import com.lavida.swing.form.component.ProgressComponent;
-import com.lavida.swing.service.ArticleServiceSwingWrapper;
-import com.lavida.swing.service.ArticlesTableModel;
-import com.lavida.swing.service.ConcurrentOperationsService;
-import com.lavida.swing.service.DiscountCardServiceSwingWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -73,6 +69,9 @@ public class MainFormHandler implements ApplicationContextAware {
     private DiscountCardServiceSwingWrapper discountCardServiceSwingWrapper;
 
     @Resource
+    private ArticleChangedFieldServiceSwingWrapper articleChangedFieldServiceSwingWrapper;
+
+    @Resource
     private PostponedXmlService postponedXmlService;
 
     @Resource
@@ -96,8 +95,6 @@ public class MainFormHandler implements ApplicationContextAware {
     @Resource
     private AllDiscountCardsDialog allDiscountCardsDialog;
 
-    @Resource
-    private AddNewDiscountCardsDialog addNewDiscountCardsDialog;
 
     @Resource(name = "notSoldArticleTableModel")
     private ArticlesTableModel tableModel;
@@ -175,6 +172,9 @@ public class MainFormHandler implements ApplicationContextAware {
                     logger.warn(e.getMessage(), e);
                 }
                 showUpdateInfoMessage(articleUpdateInfo, discountCardsUpdateInfo);
+                if (articleUpdateInfo.getChangedFieldJdoList() != null) {
+                    articleChangedFieldServiceSwingWrapper.update(articleUpdateInfo.getChangedFieldJdoList());
+                }
                 form.update();    // repaint MainForm in some time
                 form.setRefreshTableItemEnable(true);
 
@@ -623,8 +623,8 @@ public class MainFormHandler implements ApplicationContextAware {
     public void selectPresetItemClicked() {
         String currentPresetName = usersSettingsHolder.getPresetName();
         Object[] selectionValues = userSettingsService.getUserPresetNames().toArray();
-        String presetName = (String)form.showInputDialog("mainForm.menu.settings.select.title", "mainForm.menu.settings.select.message",
-                 null, selectionValues, currentPresetName);
+        String presetName = (String) form.showInputDialog("mainForm.menu.settings.select.title", "mainForm.menu.settings.select.message",
+                null, selectionValues, currentPresetName);
         if (presetName != null) {
             usersSettingsHolder.setPresetName(presetName);
             form.initializeUserSettings();
@@ -641,7 +641,7 @@ public class MainFormHandler implements ApplicationContextAware {
     }
 
     public void createPresetItemClicked() {
-        String presetName = (String)form.showInputDialog("mainForm.menu.settings.create.title", "mainForm.menu.settings.create.message",
+        String presetName = (String) form.showInputDialog("mainForm.menu.settings.create.title", "mainForm.menu.settings.create.message",
                 null, null, null);
         if (presetName != null) {
             form.holdAllTables();
@@ -662,19 +662,19 @@ public class MainFormHandler implements ApplicationContextAware {
         }
         Object[] selectionValues;
         if (currentPresetName.equals(defaultPresetName)) {
-            selectionValues  = new Object[presetNames.length - 1];
+            selectionValues = new Object[presetNames.length - 1];
         } else {
             selectionValues = new Object[presetNames.length - 2];
         }
         int order = 0;
         for (int i = 0; i < presetNames.length; ++i) {
-            String presetName = (String)presetNames[i];
+            String presetName = (String) presetNames[i];
             if (!(currentPresetName.equals(presetName) || defaultPresetName.equals(presetName))) {
                 selectionValues[order] = presetNames[i];
-                ++ order;
+                ++order;
             }
         }
-        String presetName = (String)form.showInputDialog("mainForm.menu.settings.delete.title", "mainForm.menu.settings.select.message",
+        String presetName = (String) form.showInputDialog("mainForm.menu.settings.delete.title", "mainForm.menu.settings.select.message",
                 null, selectionValues, selectionValues[0]);
         if (presetName != null) {
             userSettingsService.deletePresetSettings(presetName);
@@ -688,4 +688,5 @@ public class MainFormHandler implements ApplicationContextAware {
         }
 
     }
+
 }

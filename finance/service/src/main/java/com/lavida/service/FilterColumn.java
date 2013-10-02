@@ -37,9 +37,12 @@ public @interface FilterColumn {
 
     int orderForAllDiscountCards() default 0;
 
+    int orderForArticleChangedField() default 0;
+
     int checkBoxesNumber() default 0;
 
     String[] checkBoxesText() default {};
 
     String[] checkBoxesAction() default {};
+
 }

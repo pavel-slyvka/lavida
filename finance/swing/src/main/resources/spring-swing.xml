@@ -29,7 +29,7 @@
     <util:constant id="ArticleJdo.FIND_SOLD" static-field="com.lavida.service.entity.ArticleJdo.FIND_SOLD" />
     <util:constant id="DiscountCardJdo.FIND_ALL"
                    static-field="com.lavida.service.entity.DiscountCardJdo.FIND_ALL"/>
-
+    <util:constant id="ArticleChangedFieldJdo.FIND_All" static-field="com.lavida.service.entity.ArticleChangedFieldJdo.FIND_All"/>
 
     <bean id="notSoldArticleTableModel" class="com.lavida.swing.service.ArticlesTableModel">
         <property name="queryName" ref="ArticleJdo.FIND_NOT_SOLD" />
@@ -45,6 +45,10 @@
 
     <bean id="allDiscountCardsTableModel" class="com.lavida.swing.service.DiscountCardsTableModel">
         <property name="query" ref="DiscountCardJdo.FIND_ALL"/>
+    </bean>
+
+    <bean id="articleChangedFieldTableModel" class="com.lavida.swing.service.ArticleChangedFieldTableModel">
+        <property name="queryName" ref="ArticleChangedFieldJdo.FIND_All"/>
     </bean>
 
 </beans>

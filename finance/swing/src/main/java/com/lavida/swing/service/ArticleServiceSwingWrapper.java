@@ -47,11 +47,6 @@ public class ArticleServiceSwingWrapper implements ApplicationContextAware {
         return articleService.loadArticlesFromRemoteServer();
     }
 
-    public void updateDatabase(List<ArticleJdo> articles) {
-        articleService.updateDatabaseFromRemote(articles);
-        applicationContext.publishEvent(new ArticleUpdateEvent(this));
-    }
-
     public void update(ArticleJdo articleJdo) {
         articleService.update(articleJdo);
         applicationContext.publishEvent(new ArticleUpdateEvent(this));

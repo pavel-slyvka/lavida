@@ -5,14 +5,19 @@ import com.lavida.service.FilterColumn;
 import com.lavida.service.FilterType;
 import com.lavida.service.ViewColumn;
 import com.lavida.service.remote.SpreadsheetColumn;
+import com.lavida.utils.ReflectionUtils;
 
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created: 8:15 05.08.13
@@ -72,7 +77,6 @@ public class ArticleJdo implements Cloneable {
     @SpreadsheetColumn(column = "num")
     @XmlElement
     private String spreadsheetNum;
-
     @Transient
     @ViewColumn(titleKey = "component.article.table.column.selection" , columnWidth = 20)
     @FilterColumn(type = FilterType.BOOLEAN_CHECKBOX, checkBoxesNumber = 1, orderForSell = 8, orderForSold = 11,
@@ -463,6 +467,144 @@ public class ArticleJdo implements Cloneable {
         this.selected = selected;
     }
 
+    public List<ArticleChangedFieldJdo> findUpdateChanges(ArticleJdo oldArticle) {
+        List<ArticleChangedFieldJdo> articleChangedFieldJdoList = new ArrayList<>();
+        ArticleChangedFieldJdo.OperationType operationType = ArticleChangedFieldJdo.OperationType.UPDATED;
+        Date operationDate = new Date();
+        ArticleChangedFieldJdo changedFieldJdo;
+        if (spreadsheetNum != null ? !spreadsheetNum.equals(oldArticle.spreadsheetNum) : oldArticle.spreadsheetNum != null){
+            changedFieldJdo = new ArticleChangedFieldJdo(operationDate, code, size, "spreadsheetNum", oldArticle.spreadsheetNum,
+                    spreadsheetNum, operationType);
+            articleChangedFieldJdoList.add(changedFieldJdo);
+        }
+        if (code != null ? !code.equals(oldArticle.code) : oldArticle.code != null) {
+            changedFieldJdo = new ArticleChangedFieldJdo(operationDate, code, size, "code", oldArticle.code,
+                    code, operationType);
+            articleChangedFieldJdoList.add(changedFieldJdo);
+        }
+        if(name != null ? !name.equals(oldArticle.name) : oldArticle.name != null) {
+            changedFieldJdo = new ArticleChangedFieldJdo(operationDate, code, size, "name", oldArticle.name,
+                    name, operationType);
+            articleChangedFieldJdoList.add(changedFieldJdo);
+        }
+        if (brand != null ? !brand.equals(oldArticle.brand) : oldArticle.brand != null) {
+            changedFieldJdo = new ArticleChangedFieldJdo(operationDate, code, size, "brand", oldArticle.brand,
+                    brand, operationType);
+            articleChangedFieldJdoList.add(changedFieldJdo);
+        }
+        if (quantity != oldArticle.quantity) {
+            changedFieldJdo = new ArticleChangedFieldJdo(operationDate, code, size, "quantity", String.valueOf(oldArticle.quantity),
+                    String.valueOf(quantity), operationType);
+            articleChangedFieldJdoList.add(changedFieldJdo);
+        }
+        if (size != null ? !size.equals(oldArticle.size) : oldArticle.size != null) {
+            changedFieldJdo = new ArticleChangedFieldJdo(operationDate, code, size, "size", oldArticle.size,
+                    size, operationType);
+            articleChangedFieldJdoList.add(changedFieldJdo);
+        }
+        if (deliveryDate != null ? !deliveryDate.equals(oldArticle.deliveryDate) : oldArticle.deliveryDate != null) {
+            String pattern = ReflectionUtils.getFieldAnnotation(ArticleJdo.class, "deliveryDate", SpreadsheetColumn.class).datePattern();
+            DateFormat formatter = new SimpleDateFormat(pattern);
+            changedFieldJdo = new ArticleChangedFieldJdo(operationDate, code, size, "deliveryDate",
+                    oldArticle.deliveryDate != null ? formatter.format(oldArticle.deliveryDate.getTime()) : null,
+                   deliveryDate != null ?  formatter.format(deliveryDate.getTime()) : null, operationType);
+            articleChangedFieldJdoList.add(changedFieldJdo);
+        }
+        if (Double.compare(oldArticle.purchasePriceEUR, purchasePriceEUR) != 0) {
+            changedFieldJdo = new ArticleChangedFieldJdo(operationDate, code, size, "purchasePriceEUR", String.valueOf(oldArticle.purchasePriceEUR),
+                    String.valueOf(purchasePriceEUR), operationType);
+            articleChangedFieldJdoList.add(changedFieldJdo);
+        }
+        if (Double.compare(oldArticle.transportCostEUR, transportCostEUR) != 0) {
+            changedFieldJdo = new ArticleChangedFieldJdo(operationDate, code, size, "transportCostEUR", String.valueOf(oldArticle.transportCostEUR),
+                    String.valueOf(transportCostEUR), operationType);
+            articleChangedFieldJdoList.add(changedFieldJdo);
+        }
+        if (Double.compare(oldArticle.totalCostEUR, totalCostEUR) != 0) {
+            changedFieldJdo = new ArticleChangedFieldJdo(operationDate, code, size, "totalCostEUR", String.valueOf(oldArticle.totalCostEUR),
+                    String.valueOf(totalCostEUR), operationType);
+            articleChangedFieldJdoList.add(changedFieldJdo);
+        }
+        if (Double.compare(oldArticle.totalCostUAH, totalCostUAH) != 0) {
+            changedFieldJdo = new ArticleChangedFieldJdo(operationDate, code, size, "totalCostUAH", String.valueOf(oldArticle.totalCostUAH),
+                    String.valueOf(totalCostUAH), operationType);
+            articleChangedFieldJdoList.add(changedFieldJdo);
+        }
+        if (Double.compare(oldArticle.multiplier, multiplier) != 0) {
+            changedFieldJdo = new ArticleChangedFieldJdo(operationDate, code, size, "multiplier", String.valueOf(oldArticle.multiplier),
+                    String.valueOf(multiplier), operationType);
+            articleChangedFieldJdoList.add(changedFieldJdo);
+        }
+        if (Double.compare(oldArticle.calculatedSalePrice, calculatedSalePrice) != 0) {
+            changedFieldJdo = new ArticleChangedFieldJdo(operationDate, code, size, "calculatedSalePrice", String.valueOf(oldArticle.calculatedSalePrice),
+                    String.valueOf(calculatedSalePrice), operationType);
+            articleChangedFieldJdoList.add(changedFieldJdo);
+        }
+        if (Double.compare(oldArticle.salePrice, salePrice) != 0) {
+            changedFieldJdo = new ArticleChangedFieldJdo(operationDate, code, size, "salePrice", String.valueOf(oldArticle.salePrice),
+                    String.valueOf(salePrice), operationType);
+            articleChangedFieldJdoList.add(changedFieldJdo);
+        }
+        if (Double.compare(oldArticle.raisedSalePrice, raisedSalePrice) != 0) {
+            changedFieldJdo = new ArticleChangedFieldJdo(operationDate, code, size, "raisedSalePrice", String.valueOf(oldArticle.raisedSalePrice),
+                    String.valueOf(raisedSalePrice), operationType);
+            articleChangedFieldJdoList.add(changedFieldJdo);
+        }
+        if (Double.compare(oldArticle.oldSalePrice, oldSalePrice) != 0) {
+            changedFieldJdo = new ArticleChangedFieldJdo(operationDate, code, size, "oldSalePrice", String.valueOf(oldArticle.oldSalePrice),
+                    String.valueOf(oldSalePrice), operationType);
+            articleChangedFieldJdoList.add(changedFieldJdo);
+        }
+        if (sold != null ? !sold.equals(oldArticle.sold) : oldArticle.sold != null) {
+            changedFieldJdo = new ArticleChangedFieldJdo(operationDate, code, size, "sold", oldArticle.sold,
+                    sold, operationType);
+            articleChangedFieldJdoList.add(changedFieldJdo);
+        }
+        if (sellType != null ? !sellType.equals(oldArticle.sellType) : oldArticle.sellType != null) {
+            changedFieldJdo = new ArticleChangedFieldJdo(operationDate, code, size, "sellType", oldArticle.sellType,
+                    sellType, operationType);
+            articleChangedFieldJdoList.add(changedFieldJdo);
+        }
+        if (saleDate != null ? !saleDate.equals(oldArticle.saleDate) : oldArticle.saleDate != null) {
+            String pattern = ReflectionUtils.getFieldAnnotation(ArticleJdo.class, "saleDate", SpreadsheetColumn.class).datePattern();
+            DateFormat formatter = new SimpleDateFormat(pattern);
+            changedFieldJdo = new ArticleChangedFieldJdo(operationDate, code, size, "saleDate",
+                    oldArticle.saleDate != null ? formatter.format(oldArticle.saleDate.getTime()) : null,
+                    saleDate != null ? formatter.format(saleDate.getTime()) : null, operationType);
+            articleChangedFieldJdoList.add(changedFieldJdo);
+        }
+        if (refundDate != null ? !refundDate.equals(oldArticle.refundDate) : oldArticle.refundDate != null) {
+            String pattern = ReflectionUtils.getFieldAnnotation(ArticleJdo.class, "refundDate", SpreadsheetColumn.class).datePattern();
+            DateFormat formatter = new SimpleDateFormat(pattern);
+            changedFieldJdo = new ArticleChangedFieldJdo(operationDate, code, size, "refundDate",
+                    oldArticle.refundDate != null ? formatter.format(oldArticle.refundDate) : null,
+                    refundDate != null ? formatter.format(refundDate) : null, operationType);
+            articleChangedFieldJdoList.add(changedFieldJdo);
+        }
+        if (shop != null ? !shop.equals(oldArticle.shop) : oldArticle.shop != null) {
+            changedFieldJdo = new ArticleChangedFieldJdo(operationDate, code, size, "shop", oldArticle.shop,
+                    shop, operationType);
+            articleChangedFieldJdoList.add(changedFieldJdo);
+        }
+        if (seller != null ? !shop.equals(oldArticle.shop) : oldArticle.shop != null) {
+            changedFieldJdo = new ArticleChangedFieldJdo(operationDate, code, size, "shop", oldArticle.shop,
+                    shop, operationType);
+            articleChangedFieldJdoList.add(changedFieldJdo);
+        }
+        if (tags != null ? !tags.equals(oldArticle.tags) : oldArticle.tags != null) {
+            changedFieldJdo = new ArticleChangedFieldJdo(operationDate, code, size, "tags", oldArticle.tags,
+                    tags, operationType);
+            articleChangedFieldJdoList.add(changedFieldJdo);
+        }
+        if (comment != null ? !comment.equals(oldArticle.comment) : oldArticle.comment != null) {
+            changedFieldJdo = new ArticleChangedFieldJdo(operationDate, code, size, "comment", oldArticle.comment,
+                    comment, operationType);
+            articleChangedFieldJdoList.add(changedFieldJdo);
+        }
+
+        return articleChangedFieldJdoList;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -478,12 +620,12 @@ public class ArticleJdo implements Cloneable {
         if (Double.compare(that.totalCostUAH, totalCostUAH) != 0) return false;
         if (Double.compare(that.raisedSalePrice, raisedSalePrice) != 0) return false;
         if (Double.compare(that.multiplier, multiplier) != 0) return false;
+        if (Double.compare(that.raisedSalePrice, raisedSalePrice) != 0) return false;
+        if (Double.compare(that.transportCostEUR, transportCostEUR) != 0) return false;
 
         if (quantity != that.quantity) return false;
-        if (Double.compare(that.raisedSalePrice, raisedSalePrice) != 0) return false;
         if (spreadsheetRow != that.spreadsheetRow) return false;
         if (spreadsheetNum != null ? !spreadsheetNum.equals(that.spreadsheetNum) : that.spreadsheetNum != null) return false;
-        if (Double.compare(that.transportCostEUR, transportCostEUR) != 0) return false;
         if (brand != null ? !brand.equals(that.brand) : that.brand != null) return false;
         if (code != null ? !code.equals(that.code) : that.code != null) return false;
         if (comment != null ? !comment.equals(that.comment) : that.comment != null) return false;
