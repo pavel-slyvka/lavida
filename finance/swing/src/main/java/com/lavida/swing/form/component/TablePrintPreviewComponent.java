@@ -441,7 +441,7 @@ public class TablePrintPreviewComponent {
 
         public Page(int x, Dimension size) {
             this.size = size;
-            bi = new java.awt.image.BufferedImage(size.width, size.height, java.awt.image.BufferedImage.TYPE_INT_RGB);
+            bi = new java.awt.image.BufferedImage(size.width, size.height, java.awt.image.BufferedImage.TYPE_INT_RGB);   // todo java.lang.OutOfMemoryError: Java heap space
             n = x;
             pf = pageFormat;
             Graphics g = bi.getGraphics();
