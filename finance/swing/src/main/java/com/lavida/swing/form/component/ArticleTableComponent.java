@@ -107,7 +107,7 @@ public class ArticleTableComponent implements TableModelListener {
         return tableColumnList;
     }
 
-    private void initTableColumnsEditors() {
+    public void initTableColumnsEditors() {
         TableColumn selectionColumn = articlesTable.getColumn(messageSource.getMessage("component.article.table.column.selection", null, localeHolder.getLocale()));
         selectionColumn.setCellEditor(articlesTable.getDefaultEditor(Boolean.class));
         selectionColumn.setCellRenderer(articlesTable.getDefaultRenderer(Boolean.class));

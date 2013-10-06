@@ -6,6 +6,7 @@ import com.lavida.service.ArticleUpdateInfo;
 import com.lavida.service.DiscountCardsUpdateInfo;
 import com.lavida.swing.dialog.settings.NotSoldArticlesTableViewSettingsDialog;
 import com.lavida.swing.dialog.settings.SoldArticlesTableViewSettingsDialog;
+import com.lavida.swing.form.component.TablePrintPreviewComponent;
 import com.lavida.swing.preferences.UsersSettings;
 import com.lavida.swing.service.*;
 import com.lavida.service.entity.ArticleJdo;
@@ -30,11 +31,13 @@ import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import javax.print.attribute.HashPrintRequestAttributeSet;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.xml.bind.JAXBException;
 import java.awt.*;
 import java.awt.print.PrinterException;
+import java.awt.print.PrinterJob;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -525,11 +528,27 @@ public class MainFormHandler implements ApplicationContextAware {
     }
 
     public void printItemClicked() {
+        TablePrintPreviewComponent tablePrintPreviewComponent = new TablePrintPreviewComponent();
+        boolean done = tablePrintPreviewComponent.showPrintPreviewDialog(form.getForm(), form.getArticleTableComponent().getArticlesTable(),
+                messageSource, localeHolder);
+        if (done) {
+            form.showInformationMessage("mainForm.menu.table.print.message.title",
+                    messageSource.getMessage("mainForm.menu.table.print.finished.message.body", null, localeHolder.getLocale()));
+        } else {
+            form.showInformationMessage("mainForm.menu.table.print.message.title",
+                    messageSource.getMessage("mainForm.menu.table.print.cancel.message.body", null, localeHolder.getLocale()));
+        }
+        form.getArticleTableComponent().initTableColumnsEditors();
+/*
         MessageFormat header = new MessageFormat(messageSource.getMessage("mainForm.menu.table.print.header", null, localeHolder.getLocale()));
         MessageFormat footer = new MessageFormat(messageSource.getMessage("mainForm.menu.table.print.footer", null, localeHolder.getLocale()));
         boolean fitPageWidth = false;
         boolean showPrintDialog = true;
+//        boolean interactive = false;
         boolean interactive = true;
+        PrinterJob printerJob = PrinterJob.getPrinterJob();
+        HashPrintRequestAttributeSet attributeSet = new HashPrintRequestAttributeSet();
+
         JTable.PrintMode printMode = fitPageWidth ? JTable.PrintMode.FIT_WIDTH : JTable.PrintMode.NORMAL;
         try {
             boolean complete = form.getArticleTableComponent().getArticlesTable().print(printMode, header, footer,
@@ -546,6 +565,7 @@ public class MainFormHandler implements ApplicationContextAware {
             Toolkit.getDefaultToolkit().beep();
             form.showWarningMessage("mainForm.exception.message.dialog.title", "mainForm.handler.print.exception.message");
         }
+*/
     }
 
     public void savePresetItemClicked() {
