@@ -31,17 +31,13 @@ import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import javax.print.attribute.HashPrintRequestAttributeSet;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.xml.bind.JAXBException;
 import java.awt.*;
-import java.awt.print.PrinterException;
-import java.awt.print.PrinterJob;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -120,6 +116,9 @@ public class MainFormHandler implements ApplicationContextAware {
     @Resource
     private ConcurrentOperationsService concurrentOperationsService;
 
+    @Resource
+    private UpdateInfoMessageDialog updateInfoMessageDialog;
+
     private ApplicationContext applicationContext;
     private String[] shopArray = {"", "LA VIDA", "СЛАВЯНСКИЙ", "НОВОМОСКОВСК"};
 
@@ -134,7 +133,7 @@ public class MainFormHandler implements ApplicationContextAware {
             @Override
             public void run() {
                 form.setRefreshTableItemEnable(false);
-                ArticleUpdateInfo articleUpdateInfo = null;
+                ArticleUpdateInfo articleUpdateInfo;
                 DiscountCardsUpdateInfo discountCardsUpdateInfo = null;
                 try {
                     List<Long> refreshTaskTimes = Arrays.asList(6000L, 14000L, 8000L, 300L, 3000L, 100L);
@@ -201,32 +200,63 @@ public class MainFormHandler implements ApplicationContextAware {
      */
     private void showUpdateInfoMessage(ArticleUpdateInfo articleUpdateInfo, DiscountCardsUpdateInfo discountCardsUpdateInfo) {
         StringBuilder messageBuilder = new StringBuilder();
-        messageBuilder.append(messageSource.getMessage("mainForm.panel.refresh.message.articles.added",
-                null, localeHolder.getLocale()));
-        messageBuilder.append(articleUpdateInfo.getAddedCount());
-        messageBuilder.append(", ");
-        messageBuilder.append(messageSource.getMessage("mainForm.panel.refresh.message.discountCards.added",
-                null, localeHolder.getLocale()));
-        messageBuilder.append(discountCardsUpdateInfo.getAddedCount());
-        messageBuilder.append(". \n");
-        messageBuilder.append(messageSource.getMessage("mainForm.panel.refresh.message.articles.updated",
-                null, localeHolder.getLocale()));
-        messageBuilder.append(articleUpdateInfo.getUpdatedCount());
-        messageBuilder.append(", ");
-        messageBuilder.append(messageSource.getMessage("mainForm.panel.refresh.message.discountCards.added",
-                null, localeHolder.getLocale()));
-        messageBuilder.append(discountCardsUpdateInfo.getUpdatedCount());
-        messageBuilder.append(". \n");
-        messageBuilder.append(messageSource.getMessage("mainForm.panel.refresh.message.articles.deleted",
-                null, localeHolder.getLocale()));
-        messageBuilder.append(articleUpdateInfo.getDeletedCount());
-        messageBuilder.append(", ");
-        messageBuilder.append(messageSource.getMessage("mainForm.panel.refresh.message.discountCards.added",
-                null, localeHolder.getLocale()));
-        messageBuilder.append(discountCardsUpdateInfo.getDeletedCount());
-        messageBuilder.append(". \n");
+        if (articleUpdateInfo.getAddedCount() > 0 || discountCardsUpdateInfo.getAddedCount() > 0) {
+            messageBuilder.append(messageSource.getMessage("mainForm.panel.refresh.message.added",
+                    null, localeHolder.getLocale()));
+            if (articleUpdateInfo.getAddedCount() > 0) {
+                messageBuilder.append(messageSource.getMessage("mainForm.panel.refresh.message.articles.added",
+                        null, localeHolder.getLocale()));
+                messageBuilder.append(articleUpdateInfo.getAddedCount());
+                messageBuilder.append(", ");
+            }
+            if (discountCardsUpdateInfo.getAddedCount() > 0) {
+                messageBuilder.append(messageSource.getMessage("mainForm.panel.refresh.message.discountCards.added",
+                        null, localeHolder.getLocale()));
+                messageBuilder.append(discountCardsUpdateInfo.getAddedCount());
+            }
+            messageBuilder.append(". \n");
+        }
+        if (articleUpdateInfo.getUpdatedCount() > 0 || discountCardsUpdateInfo.getUpdatedCount() > 0) {
+            messageBuilder.append(messageSource.getMessage("mainForm.panel.refresh.message.updated",
+                    null, localeHolder.getLocale()));
+            if (articleUpdateInfo.getUpdatedCount() > 0 ) {
+                messageBuilder.append(messageSource.getMessage("mainForm.panel.refresh.message.articles.added",
+                        null, localeHolder.getLocale()));
+                messageBuilder.append(articleUpdateInfo.getUpdatedCount());
+                messageBuilder.append(", ");
+            }
+            if (discountCardsUpdateInfo.getUpdatedCount() > 0) {
+                messageBuilder.append(messageSource.getMessage("mainForm.panel.refresh.message.discountCards.added",
+                        null, localeHolder.getLocale()));
+                messageBuilder.append(discountCardsUpdateInfo.getUpdatedCount());
+            }
+            messageBuilder.append(". \n");
+        }
 
-        form.showInformationMessage("mainForm.panel.refresh.message.title", new String(messageBuilder));
+        if (articleUpdateInfo.getDeletedCount() > 0 || discountCardsUpdateInfo.getDeletedCount() > 0) {
+            messageBuilder.append(messageSource.getMessage("mainForm.panel.refresh.message.deleted",
+                    null, localeHolder.getLocale()));
+            if (articleUpdateInfo.getDeletedCount() > 0) {
+                messageBuilder.append(messageSource.getMessage("mainForm.panel.refresh.message.articles.added",
+                        null, localeHolder.getLocale()));
+                messageBuilder.append(articleUpdateInfo.getDeletedCount());
+                messageBuilder.append(", ");
+            }
+            if (discountCardsUpdateInfo.getDeletedCount() > 0) {
+                messageBuilder.append(messageSource.getMessage("mainForm.panel.refresh.message.discountCards.added",
+                        null, localeHolder.getLocale()));
+                messageBuilder.append(discountCardsUpdateInfo.getDeletedCount());
+            }
+            messageBuilder.append(". \n");
+        }
+        String message = convertToMultiline(new String(messageBuilder));
+//        updateInfoMessageDialog.showUpdateInfoMessage(message);
+        form.showUpdateInfoToolTip(message);
+//        form.showInformationMessage("mainForm.panel.refresh.message.title", message);
+    }
+
+    private String convertToMultiline(String orig) {
+        return "<html>" + orig.replaceAll("\n", "<br>") + "</html>";
     }
 
     public void sellButtonClicked() {

@@ -2,6 +2,7 @@ package com.lavida.swing.form.component;
 
 import com.lavida.swing.LocaleHolder;
 import org.springframework.context.MessageSource;
+import sun.awt.image.ToolkitImage;
 
 import javax.print.attribute.HashPrintRequestAttributeSet;
 import javax.swing.*;
@@ -12,6 +13,9 @@ import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumn;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.ConvolveOp;
+import java.awt.image.Kernel;
 import java.awt.print.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -188,7 +192,8 @@ public class TablePrintPreviewComponent {
         pageSetUpButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                pageFormat = printerJob.pageDialog(pageFormat);
+//                pageFormat = printerJob.pageDialog(pageFormat);
+                pageFormat = printerJob.pageDialog(attributeSet);
                 updatePreviewDialog();
             }
         });
@@ -237,8 +242,8 @@ public class TablePrintPreviewComponent {
                     if (!reforming) {
                         cardLayout.show(previewPanel, (String) pageNumberBox.getSelectedItem());
                         previewPages[pageNumberBox.getSelectedIndex()].refreshZoomScale();
-                        backwardButton.setEnabled(pageNumberBox.getSelectedIndex() == 0 ? false : true);
-                        forwardButton.setEnabled(pageNumberBox.getSelectedIndex() == pageNumberBox.getItemCount() - 1 ? false : true);
+                        backwardButton.setEnabled(pageNumberBox.getSelectedIndex() != 0);
+                        forwardButton.setEnabled(pageNumberBox.getSelectedIndex() != pageNumberBox.getItemCount() - 1);
 //                previewDialog.validate();
                     }
                 }
@@ -294,7 +299,7 @@ public class TablePrintPreviewComponent {
 
             }
         });
-//        toolBar.add(slider);
+        toolBar.add(slider);
 
         tableScaleBox.setEditable(true);
         tableScaleBox.setSelectedItem("100 %");
@@ -335,8 +340,8 @@ public class TablePrintPreviewComponent {
         previewPages[pageNumberBox.getSelectedIndex()].refreshZoomScale();
         previewPages[pageNumberBox.getSelectedIndex()].revalidate();
         previewPages[pageNumberBox.getSelectedIndex()].repaint();
-        backwardButton.setEnabled(pageNumberBox.getSelectedIndex() == 0 ? false : true);
-        forwardButton.setEnabled(pageNumberBox.getSelectedIndex() == pageNumberBox.getItemCount() - 1 ? false : true);
+        backwardButton.setEnabled(pageNumberBox.getSelectedIndex() != 0);
+        forwardButton.setEnabled(pageNumberBox.getSelectedIndex() != pageNumberBox.getItemCount() - 1);
 
         previewDialog.validate();
         reforming = false;
@@ -344,6 +349,7 @@ public class TablePrintPreviewComponent {
 
     private void updatePreviewPanel() {
         previewPages = new Page[targetPageable.getNumberOfPages()];
+        System.gc();
         pageNumberBox.removeAllItems();
 //        PageFormat pf = targetPageable.getPageFormat(0);
         PageFormat pf = pageFormat;
@@ -458,26 +464,20 @@ public class TablePrintPreviewComponent {
             this.repaint();
         }
 
-/*
-        @Override
-        public void paint(Graphics g) {
-            g.setColor(getBackground());
-            g.fillRect(0, 0, getWidth(), getHeight());
-            g.drawImage(bi, 0, 0, this);
-            paintBorder(g);
-        }
-*/
-
         public void refreshZoomScale() {
-            if (zoomScale != 1.0)
+            if (zoomScale != 1.0) {
+//                ((ImageIcon)this.getIcon()).setImage(bi.getScaledInstance((int) (size.width * zoomScale), (int) (size.height * zoomScale), bi.SCALE_SMOOTH));
                 this.setIcon(new ImageIcon(bi.getScaledInstance((int) (size.width * zoomScale), (int) (size.height * zoomScale), bi.SCALE_SMOOTH)));
-            else
+            }else{
                 this.setIcon(new ImageIcon(bi));
+//                ((ImageIcon)this.getIcon()).setImage(bi);
+            }
             this.validate();
             this.repaint();
         }
     }
 
+/*
     class PsuedoPrintable implements Printable {
         public int print(Graphics g, PageFormat fmt, int index) {
             if (index > 0) return Printable.NO_SUCH_PAGE;
@@ -489,6 +489,7 @@ public class TablePrintPreviewComponent {
             return Printable.PAGE_EXISTS;
         }
     }
+*/
 }
 
 

@@ -82,6 +82,7 @@ public class LoginFormHandler {
                 mainForm.initializeUserSettings();
             }
             mainForm.updatePresetNameField();
+            mainForm.getHandler().refreshTableItemClicked();
             mainForm.show();
             form.hide();
         } catch (UserValidationException e1) {

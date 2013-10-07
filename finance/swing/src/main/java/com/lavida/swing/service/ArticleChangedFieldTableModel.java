@@ -46,6 +46,9 @@ public class ArticleChangedFieldTableModel extends AbstractTableModel implements
     @Resource
     private LocaleHolder localeHolder;
 
+    @Resource
+    private ConcurrentOperationsService concurrentOperationsService;
+
     @Override
     public void onApplicationEvent(ArticleChangedFieldEvent event) {
         if (queryName != null) {
@@ -357,12 +360,18 @@ public class ArticleChangedFieldTableModel extends AbstractTableModel implements
      *
      * @param articleChangedFieldJdo the articleChangedFieldJdo to be updated.
      */
-    private void updateTable(ArticleChangedFieldJdo articleChangedFieldJdo) {
-        if (queryName != null) {
-            articleChangedFieldServiceSwingWrapper.update(articleChangedFieldJdo);
-            tableData = articleChangedFieldServiceSwingWrapper.get(queryName);
-        }
-        fireTableDataChanged();
+    private void updateTable(final ArticleChangedFieldJdo articleChangedFieldJdo) {
+        concurrentOperationsService.startOperation(new Runnable() {
+            @Override
+            public void run() {
+                if (queryName != null) {
+                    articleChangedFieldServiceSwingWrapper.update(articleChangedFieldJdo);
+                    tableData = articleChangedFieldServiceSwingWrapper.get(queryName);
+                }
+                fireTableDataChanged();
+
+            }
+        });
     }
 
 

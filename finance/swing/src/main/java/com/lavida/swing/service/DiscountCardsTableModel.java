@@ -59,6 +59,9 @@ public class DiscountCardsTableModel extends AbstractTableModel implements Appli
     @Resource
     private DiscountCardServiceSwingWrapper discountCardServiceSwingWrapper;
 
+    @Resource
+    private ConcurrentOperationsService concurrentOperationsService;
+
     private String query;
     private int totalCountCards;
     private double totalSumUAH;
@@ -448,18 +451,24 @@ public class DiscountCardsTableModel extends AbstractTableModel implements Appli
      *
      * @param discountCardJdo the DiscountCardJdo to be updated.
      */
-    private void updateTable(DiscountCardJdo discountCardJdo) {
-        if (query != null) {
-            try {
-                discountCardServiceSwingWrapper.updateToSpreadsheet(discountCardJdo);
-            } catch (IOException | ServiceException e) {
-                logger.warn(e.getMessage(), e);
-                discountCardJdo.setPostponedDate(new Date());
-            }
-            discountCardServiceSwingWrapper.update(discountCardJdo);
-            tableData = discountCardServiceSwingWrapper.get(query);
-        }
-        fireTableDataChanged();
+    private void updateTable(final DiscountCardJdo discountCardJdo) {
+       concurrentOperationsService.startOperation(new Runnable() {
+           @Override
+           public void run() {
+               if (query != null) {
+                   try {
+                       discountCardServiceSwingWrapper.updateToSpreadsheet(discountCardJdo);
+                   } catch (IOException | ServiceException e) {
+                       logger.warn(e.getMessage(), e);
+                       discountCardJdo.setPostponedDate(new Date());
+                   }
+                   discountCardServiceSwingWrapper.update(discountCardJdo);
+                   tableData = discountCardServiceSwingWrapper.get(query);
+               }
+               fireTableDataChanged();
+
+           }
+       });
     }
 
     /**

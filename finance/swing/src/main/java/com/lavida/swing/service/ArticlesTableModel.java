@@ -67,6 +67,10 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
     @Resource
     private ArticleCalculator articleCalculator;
 
+    @Resource
+    private ConcurrentOperationsService concurrentOperationsService;
+
+
     private String queryName;
     private List<ArticleJdo> tableData;
     private static final List<String> FORBIDDEN_ROLES = new ArrayList<>();
@@ -566,17 +570,24 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
      *
      * @param changedArticle the articleJdo to be updated.
      */
-    private void updateTable(ArticleJdo changedArticle) {
-        if (queryName != null) {
-            try {
-                articleServiceSwingWrapper.updateToSpreadsheet(changedArticle, null);
-            } catch (IOException | ServiceException e) {
-                logger.warn(e.getMessage(), e);
-                changedArticle.setPostponedOperationDate(new Date());
+    private void updateTable(final ArticleJdo changedArticle) {
+        concurrentOperationsService.startOperation(new Runnable() {
+
+            @Override
+            public void run() {
+                if (queryName != null) {
+                    try {
+                        articleServiceSwingWrapper.updateToSpreadsheet(changedArticle, null);
+                    } catch (IOException | ServiceException e) {
+                        logger.warn(e.getMessage(), e);
+                        changedArticle.setPostponedOperationDate(new Date());
+                    }
+                    articleServiceSwingWrapper.update(changedArticle);
+                }
+                fireTableDataChanged();
+
             }
-            articleServiceSwingWrapper.update(changedArticle);
-        }
-        fireTableDataChanged();
+        });
     }
 
     /**

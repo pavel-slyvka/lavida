@@ -97,6 +97,7 @@ public class MainForm extends AbstractForm {
             printItem, fixTableDataItem,
             moveToShopItem, deselectArticlesItem;
     private ArticleTableComponent articleTableComponent = new ArticleTableComponent();
+    private String updateInfoToolTip = "";
 
     @Override
     protected void initializeForm() {
@@ -238,6 +239,7 @@ public class MainForm extends AbstractForm {
         presetNameLabel.setText(messageSource.getMessage("mainForm.panel.statusBar.preset.name.label", null, localeHolder.getLocale()));
         presetNameLabel.setLabelFor(presetNameField);
         presetNameField = new JLabel();
+        presetNameLabel.setToolTipText("Текущий пресет");
 
         statusBarPanel.add(presetNameLabel);
         statusBarPanel.add(presetNameField);
@@ -679,6 +681,50 @@ public class MainForm extends AbstractForm {
 //    public JLabel getErrorMessage() {
 //        return errorMessage;
 //    }
+
+    public void showUpdateInfoToolTip (final String message) {
+         PopupFactory popupFactory = PopupFactory.getSharedInstance();
+         JToolTip jtoolTip = statusBarPanel.createToolTip();
+        jtoolTip.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+
+            }
+        });
+        updateInfoToolTip = message;
+        jtoolTip.setTipText(updateInfoToolTip);
+        jtoolTip.setBackground(Color.ORANGE);
+        jtoolTip.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
+        int xLocation = getForm().getLocation().x + getForm().getWidth() - jtoolTip.getUI().getPreferredSize(jtoolTip).width ;
+        int yLocation = getForm().getLocation().y + getForm().getHeight() - jtoolTip.getUI().getPreferredSize(jtoolTip).height;
+
+        final Popup popup = popupFactory.getPopup(statusBarPanel, jtoolTip, xLocation, yLocation);
+        jtoolTip.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+                popup.hide();
+            }
+        });
+        popup.show();
+/*
+
+        new Thread (new Runnable() {
+            @Override
+            public void run() {
+                popup.show();
+                try {
+                    Thread.currentThread().sleep(20000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                popup.hide();
+            }
+        }).start();
+*/
+    }
 
     public JMenuItem getSavePostponedItem() {
         return savePostponedItem;
