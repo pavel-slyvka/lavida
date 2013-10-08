@@ -430,6 +430,9 @@ public class DiscountCardsTableModel extends AbstractTableModel implements Appli
                     field.set(discountCardJdo, value);
                 } else return;
             }
+        } catch (NumberFormatException e) {
+            logger.warn(e.getMessage(), e);
+            throw new NumberFormatException(e.getMessage());
         } catch (Exception e) {
             logger.warn(e.getMessage(), e);
             throw new RuntimeException(e);
@@ -452,10 +455,10 @@ public class DiscountCardsTableModel extends AbstractTableModel implements Appli
      * @param discountCardJdo the DiscountCardJdo to be updated.
      */
     private void updateTable(final DiscountCardJdo discountCardJdo) {
-       concurrentOperationsService.startOperation(new Runnable() {
+        if (query != null) {
+            concurrentOperationsService.startOperation(new Runnable() {
            @Override
            public void run() {
-               if (query != null) {
                    try {
                        discountCardServiceSwingWrapper.updateToSpreadsheet(discountCardJdo);
                    } catch (IOException | ServiceException e) {
@@ -464,11 +467,11 @@ public class DiscountCardsTableModel extends AbstractTableModel implements Appli
                    }
                    discountCardServiceSwingWrapper.update(discountCardJdo);
                    tableData = discountCardServiceSwingWrapper.get(query);
-               }
-               fireTableDataChanged();
 
            }
        });
+        }
+        fireTableDataChanged();
     }
 
     /**

@@ -1,5 +1,7 @@
 package com.lavida.swing.form;
 
+import com.lavida.swing.exception.ExceptionHandler;
+import com.lavida.swing.exception.SwingExceptionHandler;
 import com.lavida.swing.handler.LoginFormHandler;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -27,6 +29,9 @@ public class LoginForm extends AbstractForm {
 
     @Resource
     private LoginFormHandler handler;
+
+    @Resource
+    private SwingExceptionHandler swingExceptionHandler;
 
     private JButton submitButton, cancelButton;
     private JTextField loginField;

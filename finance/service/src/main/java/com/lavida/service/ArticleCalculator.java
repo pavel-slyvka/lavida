@@ -39,4 +39,14 @@ public class ArticleCalculator {
         calculateTotalCostUAH(articleJdo);
         calculateCalculatedSalePrice(articleJdo);
     }
+
+    public double fixIfNeedAndParseDouble(String doubleString) {  // todo make reusable with GoogleCellsTransformer
+        if (doubleString == null || doubleString.trim().isEmpty()) {
+            return 0;
+        }
+            doubleString = doubleString.replace(" ", "");
+        doubleString = doubleString.replaceAll("[^0-9]", ".");
+        return Double.parseDouble(doubleString);
+    }
+
 }

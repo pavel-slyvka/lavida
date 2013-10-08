@@ -339,6 +339,9 @@ public class ArticleChangedFieldTableModel extends AbstractTableModel implements
                     field.set(articleChangedFieldJdo, value);
                 } else return;
             }
+        } catch (NumberFormatException e) {
+            logger.warn(e.getMessage(), e);
+            throw new NumberFormatException(e.getMessage());
         } catch (Exception e) {
             logger.warn(e.getMessage(), e);
             throw new RuntimeException(e);

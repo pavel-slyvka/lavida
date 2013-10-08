@@ -256,7 +256,7 @@ public class MainFormHandler implements ApplicationContextAware {
     }
 
     private String convertToMultiline(String orig) {
-        return "<html>" + orig.replaceAll("\n", "<br>") + "</html>";
+        return "<html>" + orig.replaceAll("\n", "<br>") ; //+ "</html>"
     }
 
     public void sellButtonClicked() {

@@ -2,6 +2,7 @@ package com.lavida.swing.handler;
 
 import com.lavida.service.UserService;
 import com.lavida.swing.LocaleHolder;
+import com.lavida.swing.exception.ExceptionHandler;
 import com.lavida.swing.preferences.UserSettings;
 import com.lavida.swing.preferences.UsersSettings;
 import com.lavida.swing.service.UserSettingsService;
@@ -62,6 +63,8 @@ public class LoginFormHandler {
      * If input fields are empty or incorrect the error message will be shown in error label.
      */
     public void submitButtonClicked(String loginEntered, String passwordEntered) {
+        Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(messageSource, localeHolder));
+
         try {
             form.clearFields();
             validateCredentials(loginEntered, passwordEntered);

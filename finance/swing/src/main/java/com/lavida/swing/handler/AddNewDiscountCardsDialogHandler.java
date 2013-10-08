@@ -44,12 +44,6 @@ public class AddNewDiscountCardsDialogHandler {
     @Resource
     protected LocaleHolder localeHolder;
 
-    @Resource
-    private UsersSettingsHolder usersSettingsHolder;
-
-    @Resource
-    private UserSettingsService userSettingsService;
-
     public void cancelButtonClicked() {
         dialog.getTableModel().setSelectedCard(null);
         dialog.getTableModel().setTableData(new ArrayList<DiscountCardJdo>());

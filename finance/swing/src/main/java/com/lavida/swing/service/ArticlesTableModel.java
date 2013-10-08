@@ -410,7 +410,7 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
                 if (value.isEmpty()) {
                     typeValue = 0.0;
                 } else {
-                    typeValue = fixIfNeedAndParseDouble(value);
+                    typeValue = articleCalculator.fixIfNeedAndParseDouble(value);
                     typeValue = BigDecimal.valueOf(typeValue).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue();
                 }
                 if (typeValue != field.getDouble(articleJdo)) {
@@ -466,7 +466,7 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
                 if (value.isEmpty()) {
                     typeValue = 0.0;
                 } else {
-                    typeValue = fixIfNeedAndParseDouble(value);
+                    typeValue = articleCalculator.fixIfNeedAndParseDouble(value);
                     typeValue = BigDecimal.valueOf(typeValue).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue();
                 }
                 if (!typeValue.equals(field.get(articleJdo))) {
@@ -536,6 +536,9 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
                     field.set(articleJdo, value);
                 } else return;
             }
+        } catch (NumberFormatException e) {
+            logger.warn(e.getMessage(), e);
+            throw new NumberFormatException(e.getMessage());
         } catch (Exception e) {
             logger.warn(e.getMessage(), e);
             throw new RuntimeException(e);
@@ -545,12 +548,6 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
         }
     }
 
-    private double fixIfNeedAndParseDouble(String doubleString) {  // todo make reusable with GoogleCellsTransformer
-        if (doubleString == null || doubleString.trim().isEmpty()) {
-            return 0;
-        }
-        return Double.parseDouble(doubleString.replace(" ", "").replace(",", "."));
-    }
 
 
     /**
@@ -571,11 +568,11 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
      * @param changedArticle the articleJdo to be updated.
      */
     private void updateTable(final ArticleJdo changedArticle) {
+        if (queryName != null) {
         concurrentOperationsService.startOperation(new Runnable() {
 
             @Override
             public void run() {
-                if (queryName != null) {
                     try {
                         articleServiceSwingWrapper.updateToSpreadsheet(changedArticle, null);
                     } catch (IOException | ServiceException e) {
@@ -583,11 +580,11 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
                         changedArticle.setPostponedOperationDate(new Date());
                     }
                     articleServiceSwingWrapper.update(changedArticle);
-                }
-                fireTableDataChanged();
 
             }
         });
+        }
+        fireTableDataChanged();
     }
 
     /**

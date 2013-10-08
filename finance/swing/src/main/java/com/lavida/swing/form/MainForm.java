@@ -683,6 +683,9 @@ public class MainForm extends AbstractForm {
 //    }
 
     public void showUpdateInfoToolTip (final String message) {
+        if (message.replaceFirst("<html>", "").isEmpty()) {
+            return;
+        }
          PopupFactory popupFactory = PopupFactory.getSharedInstance();
          JToolTip jtoolTip = statusBarPanel.createToolTip();
         jtoolTip.addMouseListener(new MouseAdapter() {
@@ -705,6 +708,7 @@ public class MainForm extends AbstractForm {
             public void mouseClicked(MouseEvent e) {
                 super.mouseClicked(e);
                 popup.hide();
+                updateInfoToolTip = "";
             }
         });
         popup.show();

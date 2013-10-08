@@ -40,7 +40,7 @@ public class GoogleSpreadsheetWorker {
         articleWorksheetUrl = getWorksheetUrl(articleSpreadsheet, settings.getWorksheetNumber());
 
         SpreadsheetEntry discountCardsSpreadsheet = getSpreadsheetByName(spreadsheets, settings.getDiscountSpreadsheetName());
-        discountCardsWorksheetEntry = articleSpreadsheet.getWorksheets().get(settings.getDiscountWorksheetNumber());
+        discountCardsWorksheetEntry = discountCardsSpreadsheet.getWorksheets().get(settings.getDiscountWorksheetNumber());
         discountCardsWorksheetUrl = getWorksheetUrl(discountCardsSpreadsheet, settings.getDiscountWorksheetNumber());
     }
 
