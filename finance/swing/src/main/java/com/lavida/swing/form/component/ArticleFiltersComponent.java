@@ -315,74 +315,109 @@ public class ArticleFiltersComponent {
                         };
                     }
                 }
-            } else if (filterUnit.textField != null) {
-                if (" ".equals(filterUnit.textField.getText())) {
-                    filter = new RowFilter<ArticlesTableModel, Integer>() {
-                        @Override
-                        public boolean include(Entry<? extends ArticlesTableModel, ? extends Integer> entry) {
-                            Object obj = tableModel.getRawValueAt(entry.getIdentifier(), columnIndex);
-                            return obj == null || obj.toString().trim().isEmpty();
+            } else if (filterUnit.textField != null && !filterUnit.textField.getText().isEmpty()
+                    || filterUnit.comboBox != null && !getComboText(filterUnit.comboBox).isEmpty()) {
+
+                String text;
+                if (filterUnit.comboBox != null) {
+                    JTextComponent textComponent = (JTextComponent) filterUnit.comboBox.getEditor().getEditorComponent();
+                    text = textComponent.getText();
+                } else {
+                    text = filterUnit.textField.getText();
+                }
+
+                List<RowFilter<ArticlesTableModel, Integer>> orFilters = new ArrayList<RowFilter<ArticlesTableModel, Integer>>();
+                String[] statements = text.split(",");
+                for (String statement : statements) {
+                    statement = statement.trim();
+                    if (statement.isEmpty() || statement.charAt(0) == '!' || statement.charAt(0) == '-') {
+                        statement += " ";
+                    }
+                    boolean isNotFilter = false;
+                    if (statement.charAt(0) == '!' || statement.charAt(0) == '-') {
+                        isNotFilter = true;
+                        statement = statement.substring(1);
+                    }
+
+                    if (" ".equals(statement)) {
+                        filter = new RowFilter<ArticlesTableModel, Integer>() {
+                            @Override
+                            public boolean include(Entry<? extends ArticlesTableModel, ? extends Integer> entry) {
+                                Object obj = tableModel.getRawValueAt(entry.getIdentifier(), columnIndex);
+                                return obj == null || obj.toString().trim().isEmpty();
+                            }
+                        };
+                    } else if (FilterType.PART_TEXT == filterUnit.filterType || FilterType.COMBOBOX == filterUnit.filterType) {
+                        if (statement.length() > 0) {
+                            filter = RowFilter.regexFilter(("(?iu)" + statement.trim()), columnIndex);
                         }
-                    };
-                } else if (FilterType.PART_TEXT == filterUnit.filterType) {
-                    if (filterUnit.textField.getText().length() > 0) {
-                        filter = RowFilter.regexFilter(("(?iu)" + filterUnit.textField.getText().trim()), columnIndex);
-                    }
-                } else if (FilterType.FULL_TEXT == filterUnit.filterType) {
-                    if (filterUnit.textField.getText().length() > 0) {
-                        filter = RowFilter.regexFilter(filterUnit.textField.getText().trim(), columnIndex);
-                    }
-                } else if (FilterType.NUMBER == filterUnit.filterType
-                        || FilterType.NUMBER_DIAPASON == filterUnit.filterType && !filterUnit.textField.getText().contains("-")) {
-                    if (filterUnit.textField.getText().length() > 0) {
-                        String numberStr = filterUnit.textField.getText().trim().replace(",", ".").replaceAll("[^0-9.]", "");
-                        Double number = Double.parseDouble(numberStr);
-                        filter = RowFilter.numberFilter(RowFilter.ComparisonType.EQUAL, number, columnIndex);
-                    }
-                } else if (FilterType.NUMBER_DIAPASON == filterUnit.filterType) {
-                    if (filterUnit.textField.getText().length() > 0) {
-                        String[] numbers = filterUnit.textField.getText().split("-", 2);
-                        if (numbers.length > 1 && !numbers[0].trim().isEmpty() && !numbers[1].trim().isEmpty()) {
-                            String numbers0 = numbers[0].replace(",", ".").replaceAll("[^0-9.]", "");
-                            String numbers1 = numbers[1].replace(",", ".").replaceAll("[^0-9.]", "");
-                            final Double number1 = Double.parseDouble(numbers0);
-                            final Double number2 = Double.parseDouble(numbers1);
-                            filter = new RowFilter<ArticlesTableModel, Integer>() {
-                                @Override
-                                public boolean include(Entry<? extends ArticlesTableModel, ? extends Integer> entry) {
-                                    Double number = (Double) tableModel.getRawValueAt(entry.getIdentifier(), columnIndex);
-                                    return number > number1 && number < number2;
-                                }
-                            };
+                    } else if (FilterType.FULL_TEXT == filterUnit.filterType) {
+                        if (statement.length() > 0) {
+                            filter = RowFilter.regexFilter(statement.trim(), columnIndex);
                         }
-                    }
-                } else if (FilterType.DATE == filterUnit.filterType
-                        || FilterType.DATE_DIAPASON == filterUnit.filterType && !filterUnit.textField.getText().contains("-")) {
-                    if (filterUnit.textField.getText().length() > 0) {
-                        Date correctedDate = getCorrectedDate(filterUnit.textField.getText().trim());
-                        String correctedDateString = new SimpleDateFormat(filterUnit.columnDatePattern).format(correctedDate);
-                        filter = RowFilter.regexFilter(correctedDateString, columnIndex);
-                    }
-                } else if (FilterType.DATE_DIAPASON == filterUnit.filterType) {
-                    if (filterUnit.textField.getText().length() > 0) {
-                        String[] dates = filterUnit.textField.getText().split("-", 2);
-                        if (dates.length > 1 && !dates[0].trim().isEmpty() && !dates[1].trim().isEmpty()) {
-                            final Date correctedDate1 = getCorrectedDate(dates[0]);
-                            final Date correctedDate2 = getCorrectedDate(dates[1]);
-                            filter = new RowFilter<ArticlesTableModel, Integer>() {
-                                @Override
-                                public boolean include(Entry<? extends ArticlesTableModel, ? extends Integer> entry) {
-                                    Object saleDateObj = tableModel.getRawValueAt(entry.getIdentifier(), columnIndex);
-                                    if (saleDateObj != null) {
-                                        Date date = ((Calendar) tableModel.getRawValueAt(entry.getIdentifier(), columnIndex)).getTime();
-                                        return date.after(addDays(correctedDate1, -1)) && date.before(addDays(correctedDate2, 1));
-                                    } else {
-                                        return false;
+                    } else if (FilterType.NUMBER == filterUnit.filterType
+                            || FilterType.NUMBER_DIAPASON == filterUnit.filterType && !statement.contains("-")) {
+                        if (statement.length() > 0) {
+                            String numberStr = statement.trim().replace(",", ".").replaceAll("[^0-9.]", "");
+                            Double number = Double.parseDouble(numberStr);
+                            filter = RowFilter.numberFilter(RowFilter.ComparisonType.EQUAL, number, columnIndex);
+                        }
+                    } else if (FilterType.NUMBER_DIAPASON == filterUnit.filterType) {
+                        if (statement.length() > 0) {
+                            String[] numbers = statement.split("-", 2);
+                            if (numbers.length > 1 && !numbers[0].trim().isEmpty() && !numbers[1].trim().isEmpty()) {
+                                String numbers0 = numbers[0].replace(",", ".").replaceAll("[^0-9.]", "");
+                                String numbers1 = numbers[1].replace(",", ".").replaceAll("[^0-9.]", "");
+                                final Double number1 = Double.parseDouble(numbers0);
+                                final Double number2 = Double.parseDouble(numbers1);
+                                filter = new RowFilter<ArticlesTableModel, Integer>() {
+                                    @Override
+                                    public boolean include(Entry<? extends ArticlesTableModel, ? extends Integer> entry) {
+                                        Double number = (Double) tableModel.getRawValueAt(entry.getIdentifier(), columnIndex);
+                                        return number > number1 && number < number2;
                                     }
-                                }
-                            };
+                                };
+                            }
+                        }
+                    } else if (FilterType.DATE == filterUnit.filterType
+                            || FilterType.DATE_DIAPASON == filterUnit.filterType && !statement.contains("-")) {
+                        if (statement.length() > 0) {
+                            Date correctedDate = getCorrectedDate(statement.trim());
+                            String correctedDateString = new SimpleDateFormat(filterUnit.columnDatePattern).format(correctedDate);
+                            filter = RowFilter.regexFilter(correctedDateString, columnIndex);
+                        }
+                    } else if (FilterType.DATE_DIAPASON == filterUnit.filterType) {
+                        if (statement.length() > 0) {
+                            String[] dates = statement.split("-", 2);
+                            if (dates.length > 1 && !dates[0].trim().isEmpty() && !dates[1].trim().isEmpty()) {
+                                final Date correctedDate1 = getCorrectedDate(dates[0]);
+                                final Date correctedDate2 = getCorrectedDate(dates[1]);
+                                filter = new RowFilter<ArticlesTableModel, Integer>() {
+                                    @Override
+                                    public boolean include(Entry<? extends ArticlesTableModel, ? extends Integer> entry) {
+                                        Object saleDateObj = tableModel.getRawValueAt(entry.getIdentifier(), columnIndex);
+                                        if (saleDateObj != null) {
+                                            Date date = ((Calendar) tableModel.getRawValueAt(entry.getIdentifier(), columnIndex)).getTime();
+                                            return date.after(addDays(correctedDate1, -1)) && date.before(addDays(correctedDate2, 1));
+                                        } else {
+                                            return false;
+                                        }
+                                    }
+                                };
+                            }
                         }
                     }
+                    if (filter != null) {
+                        if (isNotFilter) {
+                            andFilters.add(RowFilter.notFilter(filter));
+                            filter = null;
+                        } else {
+                            orFilters.add(filter);
+                        }
+                    }
+                }
+                if (orFilters.size() > 1) {
+                    filter = RowFilter.orFilter(orFilters);
                 }
             } else if (filterUnit.comboBox != null) {
                 JTextComponent textComponent = (JTextComponent) filterUnit.comboBox.getEditor().getEditorComponent();
@@ -407,6 +442,11 @@ public class ArticleFiltersComponent {
             }
             sorter.setRowFilter(RowFilter.andFilter(andFilters));
         }
+    }
+
+    private String getComboText(JComboBox comboBox) {
+        JTextComponent textComponent = (JTextComponent) comboBox.getEditor().getEditorComponent();
+        return textComponent.getText();
     }
 
     private boolean anySelected(JCheckBox[] checkBoxes) {
@@ -538,7 +578,7 @@ public class ArticleFiltersComponent {
                     JLabel label = (JLabel) component;
                     if (label.getText().equals(messageSource.getMessage("mainForm.label.search.by.shop",
                             null, localeHolder.getLocale()))) {
-                        Component labelFor =  label.getLabelFor();
+                        Component labelFor = label.getLabelFor();
                         labelFor.setEnabled(false);
                         labelFor.setVisible(false);
                         label.setVisible(false);
