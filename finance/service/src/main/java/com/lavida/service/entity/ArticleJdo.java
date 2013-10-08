@@ -721,4 +721,7 @@ public class ArticleJdo implements Cloneable {
                 ", sellerName='" + seller + '\'' +
                 '}';
     }
+
+    public enum OperationType {SELL, REFUND, EDIT};
+
 }

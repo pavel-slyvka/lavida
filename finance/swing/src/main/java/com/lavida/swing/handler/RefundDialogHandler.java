@@ -45,7 +45,8 @@ public class RefundDialogHandler {
         }
         articleJdo.setSold(null);
         articleJdo.setSellType(null);
-        articleJdo.setRefundDate(new Date());
+        Date refundDate = new Date();
+        articleJdo.setRefundDate(refundDate);
         articleJdo.setSaleDate(null);
         articleJdo.setTags(null);
         articleServiceSwingWrapper.update(articleJdo);
@@ -53,7 +54,7 @@ public class RefundDialogHandler {
             articleServiceSwingWrapper.updateToSpreadsheet(articleJdo, new Boolean(false));
         } catch (Exception e) {        // todo change to Custom exception
             e.printStackTrace();
-            articleJdo.setPostponedOperationDate(new Date());
+            articleJdo.setPostponedOperationDate(refundDate);
             articleServiceSwingWrapper.update(articleJdo);
             refundDialog.hide();
             refundDialog.getSoldProductsDialog().getTableModel().setSelectedArticle(null);

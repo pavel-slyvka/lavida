@@ -102,7 +102,7 @@ public class AddNewProductsDialogHandler {
                     if (dialog.getTableModel().getOpenedFile() == null) {
                         saveItemClicked();
                     } else {
-                        saveData(dialog.getTableModel().getOpenedFile());
+                        saveData();
                     }
                     break;
                 case JOptionPane.NO_OPTION:
@@ -118,6 +118,11 @@ public class AddNewProductsDialogHandler {
     }
 
     public void acceptProductsButtonClicked() {
+        if (dialog.getTableModel().getOpenedFile() == null) {
+            saveItemClicked();
+        } else {
+            saveData();
+        }
         List<ArticleJdo> newArticles = dialog.getTableModel().getTableData();
         while (newArticles.size() > 0) {
             ArticleJdo newArticle = newArticles.get(0);
@@ -270,16 +275,16 @@ public class AddNewProductsDialogHandler {
                 return;
             }
         }
-        saveData(file);
         dialog.getTableModel().setOpenedFile(file);
+        saveData();
         fileChooser.setSelectedFile(new File("Приём товара " +
                 new SimpleDateFormat("dd-MM-yyyy").format(new Date()) + ".xml"));
 
     }
 
-    private void saveData(File file) {
+    private void saveData() {
         try {
-            articleServiceSwingWrapper.saveToXml(dialog.getTableModel().getTableData(), file);
+            articleServiceSwingWrapper.saveToXml(dialog.getTableModel().getTableData(), dialog.getTableModel().getOpenedFile());
         } catch (JAXBException e) {
             logger.error(e.getMessage(), e);
             dialog.showWarningMessage("mainForm.exception.message.dialog.title", "mainForm.exception.xml.JAXB.message");

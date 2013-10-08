@@ -25,7 +25,7 @@ import java.util.*;
 @Service
 public class ArticleService {
     private final static Logger logger = LoggerFactory.getLogger(ArticleService.class);
-
+    private static final String DATE_FORMAT = "dd.MM.yyyy";
     @Resource
     private ArticleDao articleDao;
 
@@ -245,12 +245,12 @@ public class ArticleService {
      */
     public List<ArticleJdo> mergePostponedWithDatabase(List<ArticleJdo> loadedArticles) {
         List<ArticleJdo> fromDatabaseArticles = getAll();
-        List<ArticleJdo> forUpdateArticles = new ArrayList<ArticleJdo>();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
+        List<ArticleJdo> forUpdateArticles = new ArrayList<>();
+        SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         label:
         for (ArticleJdo loadedArticle : loadedArticles) {
-            if (dateFormat.format(loadedArticle.getPostponedOperationDate()).equals(dateFormat.format(loadedArticle.getSaleDate().getTime()))
-                    && !loadedArticle.getSold().isEmpty()) {   // selling
+            if (dateFormat.format(loadedArticle.getPostponedOperationDate()).equals(formatCalendar(loadedArticle.getSaleDate()))
+                    && loadedArticle.getSold() != null) {   // selling
                 for (ArticleJdo fromDatabaseArticle : fromDatabaseArticles) {
                     if ((loadedArticle.getCode() != null) ? loadedArticle.getCode().equals(fromDatabaseArticle.getCode()) :
                             fromDatabaseArticle.getCode() == null &&
@@ -273,7 +273,7 @@ public class ArticleService {
                 }
             }
             if (loadedArticle.getPostponedOperationDate().equals(loadedArticle.getRefundDate()) &&
-                    loadedArticle.getSold().isEmpty()) {                 // refunding
+                    loadedArticle.getSold() == null) {                 // refunding
                 for (ArticleJdo fromDatabaseArticle : fromDatabaseArticles) {
                     if ((loadedArticle.getCode() != null) ? loadedArticle.getCode().equals(fromDatabaseArticle.getCode()) :
                             fromDatabaseArticle.getCode() == null &&
@@ -296,7 +296,7 @@ public class ArticleService {
                 }
             }
             if (!loadedArticle.getPostponedOperationDate().equals(loadedArticle.getRefundDate()) &&
-                    !dateFormat.format(loadedArticle.getPostponedOperationDate()).equals(dateFormat.format(loadedArticle.getSaleDate().getTime()))) {
+                    !dateFormat.format(loadedArticle.getPostponedOperationDate()).equals(formatCalendar(loadedArticle.getSaleDate()))) {
                 for (ArticleJdo fromDatabaseArticle : fromDatabaseArticles) {  // editing
                     if ((loadedArticle.getCode() != null) ? loadedArticle.getCode().equals(fromDatabaseArticle.getCode()) :
                             fromDatabaseArticle.getCode() == null &&
@@ -336,6 +336,13 @@ public class ArticleService {
         return forUpdateArticles;
     }
 
+    private String formatCalendar(Calendar calendar) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+        if (calendar != null) {
+          return  dateFormat.format(calendar.getTime());
+        }else return null;
+    }
+
     public void setArticleDao(ArticleDao articleDao) {
         this.articleDao = articleDao;
     }
@@ -343,4 +350,7 @@ public class ArticleService {
     public void setRemoteService(RemoteService remoteService) {
         this.remoteService = remoteService;
     }
+
+
+
 }

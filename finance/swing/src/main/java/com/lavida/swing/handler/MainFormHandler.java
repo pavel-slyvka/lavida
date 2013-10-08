@@ -4,6 +4,7 @@ import com.google.gdata.util.ServiceException;
 import com.lavida.TaskProgressEvent;
 import com.lavida.service.ArticleUpdateInfo;
 import com.lavida.service.DiscountCardsUpdateInfo;
+import com.lavida.service.utils.DateConverter;
 import com.lavida.swing.dialog.settings.NotSoldArticlesTableViewSettingsDialog;
 import com.lavida.swing.dialog.settings.SoldArticlesTableViewSettingsDialog;
 import com.lavida.swing.form.component.TablePrintPreviewComponent;
@@ -31,6 +32,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import javax.naming.AuthenticationException;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.xml.bind.JAXBException;
@@ -129,6 +131,17 @@ public class MainFormHandler implements ApplicationContextAware {
      * goods and renders to the articleTable.
      */
     public void refreshTableItemClicked() {
+        final boolean needToLoadPostponed = hasPostponed() == true;
+        String postponedOperations = messageSource.getMessage("mainForm.handler.string.postponed.operations", null, localeHolder.getLocale());
+        String currentDay = new SimpleDateFormat("dd-MM-yyyy").format(new Date());
+        String filePath = System.getProperty("user.dir") + System.getProperty("file.separator") +
+                postponedOperations + currentDay + ".xml";
+        final File fileToLoad = new File(filePath);
+        if (hasPostponed()) {
+            savePostponed(fileToLoad);
+            deletePostponedOperations();
+        }
+
         concurrentOperationsService.startOperation(new Runnable() {
             @Override
             public void run() {
@@ -159,19 +172,21 @@ public class MainFormHandler implements ApplicationContextAware {
                     List<ArticleJdo> articles = articleServiceSwingWrapper.loadArticlesFromRemoteServer();
                     articleUpdateInfo = articleServiceSwingWrapper.updateDatabaseFromRemote(articles);
                     applicationContext.publishEvent(new TaskProgressEvent(this, TaskProgressEvent.TaskProgressType.COMPLETE));
-                } catch (IOException e) {
-                    throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.GOOGLE_IO_EXCEPTION, e, form);
-                } catch (ServiceException e) {
-                    throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.GOOGLE_SERVICE_EXCEPTION, e, form);
-                }
-                try {
+
                     List<DiscountCardJdo> discountCardJdoList = discountCardServiceSwingWrapper.loadDiscountCardsFromRemoteServer();
                     applicationContext.publishEvent(new TaskProgressEvent(this, TaskProgressEvent.TaskProgressType.COMPLETE));
                     discountCardsUpdateInfo = discountCardServiceSwingWrapper.updateDatabaseFromRemote(discountCardJdoList);
                     applicationContext.publishEvent(new TaskProgressEvent(this, TaskProgressEvent.TaskProgressType.COMPLETE));
-
-                } catch (IOException | ServiceException e) {
-                    logger.warn(e.getMessage(), e);
+                } catch (IOException | ServiceException  e) {
+                    Thread.currentThread().interrupt();
+                    progressComponent.getProgressBar().setVisible(false);
+                    progressComponent.getLabel().setVisible(false);
+                    if (needToLoadPostponed) {
+                        loadPostponed(fileToLoad);
+                    }
+                    form.setRefreshTableItemEnable(true);
+                    form.update();    // repaint MainForm in some time
+                    throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.GOOGLE_IO_EXCEPTION, e, form);
                 }
                 showUpdateInfoMessage(articleUpdateInfo, discountCardsUpdateInfo);
                 if (articleUpdateInfo.getChangedFieldJdoList() != null) {
@@ -188,8 +203,23 @@ public class MainFormHandler implements ApplicationContextAware {
                 Settings settings = settingsService.getSettings();
                 settings.setSheetRefreshTasksTimes(correctedTimesBuilder.toString().substring(2));
                 settingsService.saveSettings(settings);
+
+                if (needToLoadPostponed) {
+                    loadPostponed(fileToLoad);
+                    showPostponedOperationsMessage();
+                }
             }
         });
+    }
+
+    private boolean hasPostponed() {
+        for (ArticleJdo articleJdo : articleServiceSwingWrapper.getAll()) {
+            if (articleJdo.getPostponedOperationDate() != null) return true;
+        }
+        for (DiscountCardJdo discountCardJdo : discountCardServiceSwingWrapper.getAll()) {
+            if (discountCardJdo.getPostponedDate() != null) return true;
+        }
+        return false;
     }
 
     /**
@@ -219,7 +249,7 @@ public class MainFormHandler implements ApplicationContextAware {
         if (articleUpdateInfo.getUpdatedCount() > 0 || discountCardsUpdateInfo.getUpdatedCount() > 0) {
             messageBuilder.append(messageSource.getMessage("mainForm.panel.refresh.message.updated",
                     null, localeHolder.getLocale()));
-            if (articleUpdateInfo.getUpdatedCount() > 0 ) {
+            if (articleUpdateInfo.getUpdatedCount() > 0) {
                 messageBuilder.append(messageSource.getMessage("mainForm.panel.refresh.message.articles.added",
                         null, localeHolder.getLocale()));
                 messageBuilder.append(articleUpdateInfo.getUpdatedCount());
@@ -256,7 +286,7 @@ public class MainFormHandler implements ApplicationContextAware {
     }
 
     private String convertToMultiline(String orig) {
-        return "<html>" + orig.replaceAll("\n", "<br>") ; //+ "</html>"
+        return "<html>" + orig.replaceAll("\n", "<br>"); //+ "</html>"
     }
 
     public void sellButtonClicked() {
@@ -270,45 +300,55 @@ public class MainFormHandler implements ApplicationContextAware {
     }
 
     public void recommitPostponedItemClicked() {
-        List<ArticleJdo> articles = articleServiceSwingWrapper.getAll();
-        for (ArticleJdo articleJdo : articles) {
-            if (articleJdo.getPostponedOperationDate() != null) {
-                try {
-                    if (articleJdo.getSold() != null) {   //recommit selling
-                        articleServiceSwingWrapper.updateToSpreadsheet(articleJdo, true);
-                    } else if (articleJdo.getSold() == null && articleJdo.getRefundDate() != null) {  // recommit refunding
-                        articleServiceSwingWrapper.updateToSpreadsheet(articleJdo, false);
-                        articleJdo.setSaleDate(null);
-                    } else {
-                        articleServiceSwingWrapper.updateToSpreadsheet(articleJdo, null); // recommit other changes
+        concurrentOperationsService.startOperation(new Runnable() {
+            @Override
+            public void run() {
+                form.getRecommitPostponedItem().setEnabled(false);
+                List<ArticleJdo> articles = articleServiceSwingWrapper.getAll();
+                for (ArticleJdo articleJdo : articles) {
+                    if (articleJdo.getPostponedOperationDate() != null) {
+                        try {
+                            if (articleJdo.getSold() != null) {   //recommit selling
+                                articleServiceSwingWrapper.updateToSpreadsheet(articleJdo, true);
+                            } else if (articleJdo.getSold() == null && articleJdo.getRefundDate() != null) {  // recommit refunding
+                                articleServiceSwingWrapper.updateToSpreadsheet(articleJdo, false);
+                                articleJdo.setSaleDate(null);
+                            } else {
+                                articleServiceSwingWrapper.updateToSpreadsheet(articleJdo, null); // recommit other changes
+                            }
+                            articleJdo.setPostponedOperationDate(null);
+                            articleServiceSwingWrapper.update(articleJdo);
+                        } catch (IOException | ServiceException e) {
+//                            Thread.currentThread().interrupt();
+                            showPostponedOperationsMessage();
+                            form.getRecommitPostponedItem().setEnabled(true);
+                            form.update();
+                            throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.GOOGLE_IO_EXCEPTION, e, form);
+                        }
                     }
-                    articleJdo.setPostponedOperationDate(null);
-                    articleServiceSwingWrapper.update(articleJdo);
-                } catch (IOException e) {
-                    logger.warn(e.getMessage(), e);
-                    form.showWarningMessage("mainForm.exception.message.dialog.title", "sellDialog.handler.sold.article.not.saved.to.worksheet");
-                    throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.GOOGLE_IO_EXCEPTION, e, form);
-                } catch (ServiceException e) {
-                    logger.warn(e.getMessage(), e);
-                    form.showWarningMessage("mainForm.exception.message.dialog.title", "sellDialog.handler.sold.article.not.saved.to.worksheet");
-                    throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.GOOGLE_SERVICE_EXCEPTION, e, form);
                 }
-            }
-        }
-        List<DiscountCardJdo> discountCardJdoList = discountCardServiceSwingWrapper.getAll();
-        for (DiscountCardJdo discountCardJdo : discountCardJdoList) {
-            if (discountCardJdo.getPostponedDate() != null) {
-                try {
-                    discountCardServiceSwingWrapper.updateToSpreadsheet(discountCardJdo);
-                    discountCardJdo.setPostponedDate(null);
-                    discountCardServiceSwingWrapper.update(discountCardJdo);
-                } catch (IOException | ServiceException e) {
-                    logger.warn(e.getMessage(), e);
+                List<DiscountCardJdo> discountCardJdoList = discountCardServiceSwingWrapper.getAll();
+                for (DiscountCardJdo discountCardJdo : discountCardJdoList) {
+                    if (discountCardJdo.getPostponedDate() != null) {
+                        try {
+                            discountCardServiceSwingWrapper.updateToSpreadsheet(discountCardJdo);
+                            discountCardJdo.setPostponedDate(null);
+                            discountCardServiceSwingWrapper.update(discountCardJdo);
+                        } catch (IOException | ServiceException e) {
+                            Thread.currentThread().interrupt();
+                            showPostponedOperationsMessage();
+                            form.getRecommitPostponedItem().setEnabled(true);
+                            form.update();
+                            throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.GOOGLE_SERVICE_EXCEPTION, e, form);
+                        }
+                    }
                 }
+                showPostponedOperationsMessage();
+                form.getRecommitPostponedItem().setEnabled(true);
+                form.update();
+
             }
-        }
-        showPostponedOperationsMessage();
-        form.update();
+        });
     }
 
     /**
@@ -537,23 +577,23 @@ public class MainFormHandler implements ApplicationContextAware {
         }
         loadedArticles = postponedType.getArticles();
         loadedDiscountCards = postponedType.getDiscountCards();
-        if (loadedArticles.size() > 0) {
+        if (loadedArticles != null) {
             List<ArticleJdo> forUpdateArticles = articleServiceSwingWrapper.mergePostponedWithDatabase(loadedArticles);
             for (ArticleJdo articleJdo : forUpdateArticles) {
                 articleServiceSwingWrapper.update(articleJdo);
             }
             showPostponedOperationsMessage();
-        } else {
-            form.showWarningMessage("mainForm.attention.message.dialog.title", "mainForm.handler.postponed.articles.not.exist.message");
+//        } else {
+//            form.showWarningMessage("mainForm.attention.message.dialog.title", "mainForm.handler.postponed.articles.not.exist.message");
         }
-        if (loadedDiscountCards.size() > 0) {
+        if (loadedDiscountCards != null) {
             List<DiscountCardJdo> forUpdateDiscountCards = discountCardServiceSwingWrapper.mergePostponedWithDatabase(loadedDiscountCards);
             for (DiscountCardJdo discountCardJdo : forUpdateDiscountCards) {
                 discountCardServiceSwingWrapper.update(discountCardJdo);
             }
             showPostponedOperationsMessage();
-        } else {
-            form.showWarningMessage("mainForm.attention.message.dialog.title", "mainForm.handler.postponed.discountCards.not.exist.message");
+//        } else {
+//            form.showWarningMessage("mainForm.attention.message.dialog.title", "mainForm.handler.postponed.discountCards.not.exist.message");
         }
     }
 

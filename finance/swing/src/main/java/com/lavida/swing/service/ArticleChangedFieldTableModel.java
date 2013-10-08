@@ -364,17 +364,18 @@ public class ArticleChangedFieldTableModel extends AbstractTableModel implements
      * @param articleChangedFieldJdo the articleChangedFieldJdo to be updated.
      */
     private void updateTable(final ArticleChangedFieldJdo articleChangedFieldJdo) {
+        if (queryName != null) {
+
         concurrentOperationsService.startOperation(new Runnable() {
             @Override
             public void run() {
-                if (queryName != null) {
                     articleChangedFieldServiceSwingWrapper.update(articleChangedFieldJdo);
                     tableData = articleChangedFieldServiceSwingWrapper.get(queryName);
                 }
-                fireTableDataChanged();
-
-            }
         });
+            fireTableDataChanged();
+
+        }
     }
 
 
