@@ -1,27 +1,19 @@
 package com.lavida.swing.form.component;
 
 import com.lavida.swing.LocaleHolder;
+import com.lavida.swing.exception.LavidaSwingRuntimeException;
 import org.springframework.context.MessageSource;
-import sun.awt.image.ToolkitImage;
 
 import javax.print.attribute.HashPrintRequestAttributeSet;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.table.JTableHeader;
-import javax.swing.table.TableColumn;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
-import java.awt.image.ConvolveOp;
-import java.awt.image.Kernel;
 import java.awt.print.*;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.io.*;
 import java.text.MessageFormat;
-import java.util.Enumeration;
 
 /**
  * The TablePrintPreviewComponent
@@ -42,13 +34,13 @@ public class TablePrintPreviewComponent {
     private Page[] previewPages;
     double zoomScale;
 
-    private JComboBox pageNumberBox, tableScaleBox;
+    private JComboBox<String>  tableScaleBox;
+    private JComboBox<String> pageNumberBox;
     private JCheckBox footerCheckBox;
     private JSlider slider;
 
-    private JButton pageSetUpButton, printButton, printCurrentPageButton, forwardButton, backwardButton, cancelButton;
+    private JButton pageSetUpButton, printButton, forwardButton, backwardButton, cancelButton;
     private JTextField headerTextField;
-    private JFormattedTextField footerTextField;
     private boolean pageNumbering;
     private Printable targetPrintable;
     private Pageable targetPageable;
@@ -61,8 +53,8 @@ public class TablePrintPreviewComponent {
     public TablePrintPreviewComponent() {
         printingComplete = false;
         String[] scales = {"10 %", "25 %", "50 %", "75 %", "100 %"};
-        tableScaleBox = new JComboBox(scales);
-        pageNumberBox = new JComboBox();
+        tableScaleBox = new JComboBox<>(scales);
+        pageNumberBox = new JComboBox<>();
         zoomScale = 1.0;
         cardLayout = new CardLayout();
         previewPanel = new JPanel(cardLayout);
@@ -70,7 +62,6 @@ public class TablePrintPreviewComponent {
         printerJob = PrinterJob.getPrinterJob();
         attributeSet = new HashPrintRequestAttributeSet();
         pageFormat = printerJob.getPageFormat(attributeSet);
-//        pageFormat = new PageFormat();
     }
 
     public boolean showPrintPreviewDialog(Component parent, JTable table, MessageSource messageSource, LocaleHolder localeHolder) {
@@ -143,7 +134,6 @@ public class TablePrintPreviewComponent {
 
         JLabel footerLabel = new JLabel();
         footerLabel.setText(messageSource.getMessage("component.print.preview.table.label.footer", null, localeHolder.getLocale()));
-//        footerLabel.setLabelFor(headerTextField);
         footerLabel.setLabelFor(footerCheckBox);
         constraints.fill = GridBagConstraints.NONE;
         constraints.gridwidth = GridBagConstraints.RELATIVE;
@@ -151,16 +141,6 @@ public class TablePrintPreviewComponent {
         constraints.weightx = 0.0;
         headerFooterPanel.add(footerLabel, constraints);
 
-/*
-        footerTextField = new JFormattedTextField(new Integer(pageNumber));
-        footerTextField.setColumns(20);
-        footerTextField.addPropertyChangeListener("value", new PropertyChangeListener() {
-            @Override
-            public void propertyChange(PropertyChangeEvent evt) {
-                pageNumber = ((Number) footerTextField.getValue()).intValue();
-            }
-        });
-*/
         footerCheckBox = new JCheckBox();
         footerCheckBox.addItemListener(new ItemListener() {
             @Override
@@ -178,7 +158,6 @@ public class TablePrintPreviewComponent {
         constraints.anchor = GridBagConstraints.EAST;
         constraints.weightx = 1.0;
         headerFooterPanel.add(footerCheckBox, constraints);
-//        headerFooterPanel.add(footerTextField, constraints);
 
         previewDialog.getContentPane().add(headerFooterPanel, BorderLayout.SOUTH);
     }
@@ -192,7 +171,6 @@ public class TablePrintPreviewComponent {
         pageSetUpButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-//                pageFormat = printerJob.pageDialog(pageFormat);
                 pageFormat = printerJob.pageDialog(attributeSet);
                 updatePreviewDialog();
             }
@@ -205,7 +183,9 @@ public class TablePrintPreviewComponent {
             @Override
             public void actionPerformed(ActionEvent e) {
                 printPageable();
-                cancelButton.doClick();
+                tableScaleBox.setSelectedItem("100 %");
+                footerCheckBox.setSelected(true);
+                previewDialog.dispose();
             }
         });
         toolBar.add(printButton);
@@ -244,7 +224,6 @@ public class TablePrintPreviewComponent {
                         previewPages[pageNumberBox.getSelectedIndex()].refreshZoomScale();
                         backwardButton.setEnabled(pageNumberBox.getSelectedIndex() != 0);
                         forwardButton.setEnabled(pageNumberBox.getSelectedIndex() != pageNumberBox.getItemCount() - 1);
-//                previewDialog.validate();
                     }
                 }
             }
@@ -264,18 +243,6 @@ public class TablePrintPreviewComponent {
         });
         toolBar.add(forwardButton);
 
-/*
-        printCurrentPageButton = new JButton();
-        printCurrentPageButton.setText(messageSource.getMessage("component.print.preview.table.button.printCurrentPage", null, localeHolder.getLocale()));
-        printCurrentPageButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                printCurrentPage();
-                previewDialog.dispose();
-            }
-        });
-        toolBar.add(printCurrentPageButton);
-*/
         toolBar.add(Box.createHorizontalGlue());
 
         slider.setBorder(new TitledBorder("Zoom"));
@@ -351,7 +318,6 @@ public class TablePrintPreviewComponent {
         previewPages = new Page[targetPageable.getNumberOfPages()];
         System.gc();
         pageNumberBox.removeAllItems();
-//        PageFormat pf = targetPageable.getPageFormat(0);
         PageFormat pf = pageFormat;
         Dimension size = new Dimension((int) pf.getPaper().getWidth(), (int) pf.getPaper().getHeight());
         if (pf.getOrientation() != PageFormat.PORTRAIT)
@@ -372,7 +338,7 @@ public class TablePrintPreviewComponent {
                 int n = 0;
                 try {
                     while (targetPrintable.print(g, pageFormat, n) ==
-                            targetPrintable.PAGE_EXISTS) n++;
+                            Printable.PAGE_EXISTS) n++;
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
@@ -380,7 +346,6 @@ public class TablePrintPreviewComponent {
             }
 
             public PageFormat getPageFormat(int x) {
-//                return printerJob.getPageFormat(attributeSet);
                 return pageFormat;
             }
 
@@ -398,29 +363,9 @@ public class TablePrintPreviewComponent {
         this.targetPrintable = tableToPrint.getPrintable(JTable.PrintMode.NORMAL, headerFormat, footerFormat);
     }
 
- /*   private void printCurrentPage() {
-        updatePageable();
-        try {
-            printerJob.defaultPage(pageFormat);
-            printerJob.setPrintable(new PsuedoPrintable());
-//            if (printerJob.printDialog(attributeSet)){
-            if (printerJob.printDialog()){
-                printerJob.print();
-//                printerJob.print(attributeSet);
-                printingComplete = true;
-            }
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(null, ex.toString(), "Error in Printing", 1);
-            printingComplete = false;
-        }
-
-    }
-*/
-
     private void printPageable() {
         updatePrintable();
         printerJob.defaultPage(pageFormat);
-//        printerJob.setPageable(targetPageable);
         printerJob.setPrintable(targetPrintable);
         if (printerJob.printDialog()) {
             try {
@@ -428,11 +373,7 @@ public class TablePrintPreviewComponent {
             printingComplete = true;
             } catch (PrinterException e) {
                 printingComplete = false;
-                JOptionPane.showMessageDialog(parentComponent,
-                        messageSource.getMessage("mainForm.handler.print.exception.message", null, localeHolder.getLocale()),
-                        messageSource.getMessage("mainForm.exception.message.dialog.title", null, localeHolder.getLocale()),
-                        JOptionPane.WARNING_MESSAGE);
-                e.printStackTrace();
+                throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.PRINTER_EXCEPTION, e);
             }
         }
     }
@@ -447,7 +388,7 @@ public class TablePrintPreviewComponent {
 
         public Page(int x, Dimension size) {
             this.size = size;
-            bi = new java.awt.image.BufferedImage(size.width, size.height, java.awt.image.BufferedImage.TYPE_INT_RGB);   // todo java.lang.OutOfMemoryError: Java heap space
+            bi = new BufferedImage(size.width, size.height, BufferedImage.TYPE_INT_RGB);   // todo java.lang.OutOfMemoryError: Java heap space
             n = x;
             pf = pageFormat;
             Graphics g = bi.getGraphics();
@@ -459,6 +400,7 @@ public class TablePrintPreviewComponent {
                 g.clipRect(0, 0, (int)pf.getWidth(), (int)pf.getHeight());
                 targetPrintable.print(g, pf, n);
             } catch (Exception ex) {
+                throw new RuntimeException("Can't draw an image!", ex);
             }
             this.setIcon(new ImageIcon(bi));
             this.repaint();
@@ -466,30 +408,15 @@ public class TablePrintPreviewComponent {
 
         public void refreshZoomScale() {
             if (zoomScale != 1.0) {
-//                ((ImageIcon)this.getIcon()).setImage(bi.getScaledInstance((int) (size.width * zoomScale), (int) (size.height * zoomScale), bi.SCALE_SMOOTH));
-                this.setIcon(new ImageIcon(bi.getScaledInstance((int) (size.width * zoomScale), (int) (size.height * zoomScale), bi.SCALE_SMOOTH)));
+                this.setIcon(new ImageIcon(bi.getScaledInstance((int) (size.width * zoomScale), (int) (size.height * zoomScale), BufferedImage.SCALE_SMOOTH)));
             }else{
                 this.setIcon(new ImageIcon(bi));
-//                ((ImageIcon)this.getIcon()).setImage(bi);
             }
             this.validate();
             this.repaint();
         }
     }
 
-/*
-    class PsuedoPrintable implements Printable {
-        public int print(Graphics g, PageFormat fmt, int index) {
-            if (index > 0) return Printable.NO_SUCH_PAGE;
-            int n = pageNumberBox.getSelectedIndex();
-            try {
-                return targetPrintable.print(g, fmt, n);
-            } catch (Exception ex) {
-            }
-            return Printable.PAGE_EXISTS;
-        }
-    }
-*/
 }
 
 

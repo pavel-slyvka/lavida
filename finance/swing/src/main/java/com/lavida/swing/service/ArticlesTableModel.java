@@ -18,7 +18,6 @@ import org.springframework.context.MessageSource;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.swing.table.AbstractTableModel;
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
@@ -47,7 +46,7 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
     private double totalPurchaseCostEUR, totalCostEUR, totalPriceUAH, totalCostUAH, minimalMultiplier, normalMultiplier,
             totalTransportCostEUR, profitUAH;
     private String sellerName;
-    private File openedFile;
+//    private File openedFile;
 
     @Resource
     private ArticleDao articleDao;
@@ -73,14 +72,6 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
 
     private String queryName;
     private List<ArticleJdo> tableData;
-    private static final List<String> FORBIDDEN_ROLES = new ArrayList<>();
-
-    static {
-        FORBIDDEN_ROLES.add("ROLE_SELLER_LA_VIDA");
-        FORBIDDEN_ROLES.add("ROLE_SELLER_SLAVYANKA");
-        FORBIDDEN_ROLES.add("ROLE_SELLER_NOVOMOSKOVSK");
-        FORBIDDEN_ROLES.add("ROLE_SELLER_ALEXANDRIA");
-    }
 
     @Override
     public void onApplicationEvent(ArticleUpdateEvent event) {
@@ -196,7 +187,8 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
                                 viewColumn.titleKey().equals("mainForm.table.articles.column.tags.title") ||
                                 viewColumn.titleKey().equals("mainForm.table.articles.column.raised.price.uah.title") ||
                                 viewColumn.titleKey().equals("mainForm.table.articles.column.old.price.uah.title") ||
-                                viewColumn.titleKey().equals("mainForm.table.articles.column.refund.title"))) {
+                                viewColumn.titleKey().equals("mainForm.table.articles.column.refund.title"))
+                        ) {
                     this.articleFieldsSequence.add(field.getName());
                     if (viewColumn.titleKey().isEmpty()) {
                         this.headerTitles.add(field.getName());
@@ -261,15 +253,6 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
                 if (userRoles.contains(forbiddenRole.trim())) {
                     return true;
                 }
-            }
-        }
-        return false;
-    }
-
-    private boolean isForbidden(List<String> userRoles, List<String> forbiddenRoles) {
-        for (String forbiddenRole : forbiddenRoles) {
-            if (userRoles.contains(forbiddenRole)) {
-                return true;
             }
         }
         return false;
@@ -355,8 +338,17 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
         if (articleFieldsSequence.get(columnIndex).equals("totalCostEUR") ||
                 articleFieldsSequence.get(columnIndex).equals("calculatedSalePrice")) {
             return false;
-        } else
-            return !isForbidden(userService.getCurrentUserRoles(), FORBIDDEN_ROLES);
+        }
+        if (queryName == null) {
+            return true;
+        }
+        if (articleFieldsSequence.get(columnIndex).equals("code") ||
+                articleFieldsSequence.get(columnIndex).equals("size")) {
+            if (queryName != null) {
+                return false;
+            }
+        }
+        return !userService.hasForbiddenRole();
     }
 
     /**
@@ -421,6 +413,9 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
                     if (field.getName().equals("multiplier") || field.getName().equals("totalCostUAH")) {
                         articleCalculator.calculateCalculatedSalePrice(articleJdo);
                     }
+                    if (field.getName().equals("salePrice") && queryName == null) {
+                        articleCalculator.calculateMultiplier(articleJdo);
+                    }
                 } else return;
             } else if (char.class == field.getType()) {
                 char typeValue = value.charAt(0);
@@ -476,6 +471,9 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
                     }
                     if (field.getName().equals("multiplier") || field.getName().equals("totalCostUAH")) {
                         articleCalculator.calculateCalculatedSalePrice(articleJdo);
+                    }
+                    if (field.getName().equals("salePrice") && queryName == null) {
+                        articleCalculator.calculateMultiplier(articleJdo);
                     }
                 } else return;
             } else if (Character.class == field.getType()) {
@@ -569,7 +567,7 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
      */
     private void updateTable(final ArticleJdo changedArticle) {
         if (queryName != null) {
-        concurrentOperationsService.startOperation("Field changing.", new Runnable() {
+        concurrentOperationsService.startOperation("Article updating.", new Runnable() {
 
             @Override
             public void run() {
@@ -752,11 +750,11 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
         return queryName;
     }
 
-    public File getOpenedFile() {
-        return openedFile;
-    }
+//    public File getOpenedFile() {
+//        return openedFile;
+//    }
 
-    public void setOpenedFile(File openedFile) {
-        this.openedFile = openedFile;
-    }
+//    public void setOpenedFile(File openedFile) {
+//        this.openedFile = openedFile;
+//    }
 }

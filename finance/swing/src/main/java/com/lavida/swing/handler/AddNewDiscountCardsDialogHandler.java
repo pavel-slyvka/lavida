@@ -1,6 +1,7 @@
 package com.lavida.swing.handler;
 
 import com.google.gdata.util.ServiceException;
+import com.lavida.swing.form.component.TablePrintPreviewComponent;
 import com.lavida.swing.service.UserSettingsService;
 import com.lavida.service.entity.DiscountCardJdo;
 import com.lavida.swing.preferences.UsersSettingsHolder;
@@ -113,6 +114,18 @@ public class AddNewDiscountCardsDialogHandler {
     }
 
     public void printItemClicked() {
+        TablePrintPreviewComponent tablePrintPreviewComponent = new TablePrintPreviewComponent();
+        boolean done = tablePrintPreviewComponent.showPrintPreviewDialog(dialog.getDialog(), dialog.getCardTableComponent().getDiscountCardsTable(),
+                messageSource, localeHolder);
+        if (done) {
+            dialog.showInformationMessage("mainForm.menu.table.print.message.title",
+                    messageSource.getMessage("mainForm.menu.table.print.finished.message.body", null, localeHolder.getLocale()));
+        } else {
+            dialog.showInformationMessage("mainForm.menu.table.print.message.title",
+                    messageSource.getMessage("mainForm.menu.table.print.cancel.message.body", null, localeHolder.getLocale()));
+        }
+
+/*
         MessageFormat header = new MessageFormat(messageSource.getMessage("dialog.discounts.card.menu.file.print.header", null, localeHolder.getLocale()));
         MessageFormat footer = new MessageFormat(messageSource.getMessage("mainForm.menu.table.print.footer", null, localeHolder.getLocale()));
         boolean fitPageWidth = false;
@@ -133,7 +146,6 @@ public class AddNewDiscountCardsDialogHandler {
             logger.warn(e.getMessage(), e);
             dialog.showWarningMessage("mainForm.exception.message.dialog.title", "mainForm.handler.print.exception.message");
         }
-
-
+*/
     }
 }

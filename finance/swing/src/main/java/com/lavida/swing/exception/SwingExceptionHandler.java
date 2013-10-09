@@ -78,7 +78,7 @@ public class SwingExceptionHandler implements Thread.UncaughtExceptionHandler {
                 messageKey = "mainForm.exception.service.load.google.spreadsheet.table.data";
                 break;
         }
-        JOptionPane.showMessageDialog(e.getForm().getForm(),
+        JOptionPane.showMessageDialog(null,
                 messageSource.getMessage(messageKey, null, localeHolder.getLocale()),
                 messageSource.getMessage(titleKey, null, localeHolder.getLocale()),
                 JOptionPane.ERROR_MESSAGE);

@@ -70,10 +70,10 @@ public class LoginFormHandler {
             validateCredentials(loginEntered, passwordEntered);
             userService.login(loginEntered, passwordEntered);
             loadUserSettings(loginEntered);
-            mainForm.filterTableByRoles(userService.getCurrentUserRoles());
+            mainForm.filterTableByRoles();
             mainForm.filterTableDataByRole(userService.getCurrentUserRoles());
             mainForm.filterAnalyzePanelByRoles(userService.getCurrentUserRoles());
-            mainForm.filterMenuBarByRoles(userService.getCurrentUserRoles());
+            mainForm.filterMenuBarByRoles();
             mainForm.removeFiltersByRoles(userService.getCurrentUserRoles());
             mainForm.filterSellDialogByRoles(userService.getCurrentUserRoles());
             mainForm.initializeTableViewComponents();

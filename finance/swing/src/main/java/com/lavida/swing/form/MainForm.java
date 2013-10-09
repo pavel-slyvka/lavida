@@ -1,5 +1,6 @@
 package com.lavida.swing.form;
 
+import com.lavida.service.UserService;
 import com.lavida.swing.dialog.*;
 import com.lavida.swing.dialog.settings.AllDiscountCardsTableViewSettingsDialog;
 import com.lavida.swing.dialog.settings.NotSoldArticlesTableViewSettingsDialog;
@@ -23,6 +24,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -68,6 +70,8 @@ public class MainForm extends AbstractForm {
     @Resource
     private ArticleChangesDialog articleChangesDialog;
 
+    @Resource
+    private UserService userService;
 
     @Resource
     private ProgressComponent progressComponent;
@@ -75,17 +79,8 @@ public class MainForm extends AbstractForm {
     @Resource
     private UsersSettingsHolder usersSettingsHolder;
 
-    private static final List<String> FORBIDDEN_ROLES = new ArrayList<String>();
-
-    static {
-        FORBIDDEN_ROLES.add("ROLE_SELLER_LA_VIDA");
-        FORBIDDEN_ROLES.add("ROLE_SELLER_SLAVYANKA");
-        FORBIDDEN_ROLES.add("ROLE_SELLER_NOVOMOSKOVSK");
-        FORBIDDEN_ROLES.add("ROLE_SELLER_ALEXANDRIA");
-    }
-
     private JPanel operationPanel, southPanel, desktopPanel, filtersPanel, analyzePanel, mainPanel, statusBarPanel;
-    private Button  sellButton, showSoldProductsButton;
+    private Button sellButton, showSoldProductsButton;
     private JLabel postponedOperations, postponedMessage, errorMessage, presetNameLabel, presetNameField;
     private JMenuBar menuBar;
     private JMenu postponedMenu, productsMenu, settingsMenu, tablesViewItem, discountsMenu, tableMenu, selectedMenu;
@@ -98,6 +93,8 @@ public class MainForm extends AbstractForm {
             moveToShopItem, deselectArticlesItem;
     private ArticleTableComponent articleTableComponent = new ArticleTableComponent();
     private String updateInfoToolTip = "";
+    private List<PopupWrapper> statusBarPopupList = new ArrayList<>();
+    private PopupFactory popupFactory = PopupFactory.getSharedInstance();
 
     @Override
     protected void initializeForm() {
@@ -515,12 +512,11 @@ public class MainForm extends AbstractForm {
 
     /**
      * Filters the JTable by permissions of roles (ROLE_SELLER). It removes certain columns.
-     *
-     * @param userRoles
      */
-    public void filterTableByRoles(List<String> userRoles) {
-        articleTableComponent.filterTableByRoles(userRoles);
-        soldProductsDialog.filterTableByRoles(userRoles);
+    public void filterTableByRoles() {
+        articleTableComponent.filterTableByRoles(userService);
+        soldProductsDialog.getArticleTableComponent().filterTableByRoles(userService);
+        addNewProductsDialog.getArticleTableComponent().filterTableByRoles(userService);
 
     }
 
@@ -532,6 +528,8 @@ public class MainForm extends AbstractForm {
         articleTableComponent.getArticleFiltersComponent().getArticleAnalyzeComponent().
                 filterAnalyzeComponentByRoles(userRoles);
         soldProductsDialog.getArticleTableComponent().getArticleFiltersComponent().getArticleAnalyzeComponent().
+                filterAnalyzeComponentByRoles(userRoles);
+        addNewProductsDialog.getArticleTableComponent().getArticleFiltersComponent().getArticleAnalyzeComponent().
                 filterAnalyzeComponentByRoles(userRoles);
         allDiscountCardsDialog.getCardTableComponent().getCardFiltersComponent().getCardAnalyzeComponent().
                 filterAnalyzeComponentByRoles(userRoles);
@@ -549,9 +547,9 @@ public class MainForm extends AbstractForm {
         soldProductsDialog.getTableModel().filterTableDataByRole(userRoles);
     }
 
-    public void filterMenuBarByRoles(List<String> userRoles) {
-        if (isForbidden(userRoles, FORBIDDEN_ROLES)) {
-            addNewProductsItem.setEnabled(false);
+    public void filterMenuBarByRoles() {
+        if (userService.hasForbiddenRole()) {
+//            addNewProductsItem.setEnabled(false);
             moveToShopItem.setEnabled(false);
             printItem.setEnabled(false);
             articleChangesItem.setEnabled(false);
@@ -602,7 +600,7 @@ public class MainForm extends AbstractForm {
         handler.createDefaultPreset();
     }
 
-    public void updatePresetNameField(){
+    public void updatePresetNameField() {
         presetNameField.setText(usersSettingsHolder.getPresetName());
     }
 
@@ -610,14 +608,14 @@ public class MainForm extends AbstractForm {
      * The custom button.
      */
     private class Button extends JButton {
-        private Button() {
-            super();
-            setHorizontalTextPosition(JButton.CENTER);
-            setPreferredSize(new Dimension(150, 20));
-            setMaximumSize(new Dimension(150, 20));
-            setMinimumSize(new Dimension(150, 20));
-
-        }
+//        private Button() {
+//            super();
+//            setHorizontalTextPosition(JButton.CENTER);
+//            setPreferredSize(new Dimension(150, 20));
+//            setMaximumSize(new Dimension(150, 20));
+//            setMinimumSize(new Dimension(150, 20));
+//
+//        }
 
         private Button(String text) {
             super(text);
@@ -630,15 +628,6 @@ public class MainForm extends AbstractForm {
 
     public ArticlesTableModel getTableModel() {
         return tableModel;
-    }
-
-    private boolean isForbidden(List<String> userRoles, List<String> forbiddenRoles) {
-        for (String forbiddenRole : forbiddenRoles) {
-            if (userRoles.contains(forbiddenRole)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     public void setRefreshTableItemEnable(boolean isVisible) {
@@ -682,12 +671,12 @@ public class MainForm extends AbstractForm {
 //        return errorMessage;
 //    }
 
-    public void showUpdateInfoToolTip (final String message) {
+    public void showInfoToolTip(final String message) {
         if (message.replaceFirst("<html>", "").isEmpty()) {
             return;
         }
-         PopupFactory popupFactory = PopupFactory.getSharedInstance();
-         JToolTip jtoolTip = statusBarPanel.createToolTip();
+
+        JToolTip jtoolTip = statusBarPanel.createToolTip();
         jtoolTip.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -695,39 +684,58 @@ public class MainForm extends AbstractForm {
 
             }
         });
-        updateInfoToolTip = message;
-        jtoolTip.setTipText(updateInfoToolTip);
+        jtoolTip.setTipText(message);
         jtoolTip.setBackground(Color.ORANGE);
         jtoolTip.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
-        int xLocation = getForm().getLocation().x + getForm().getWidth() - jtoolTip.getUI().getPreferredSize(jtoolTip).width ;
-        int yLocation = getForm().getLocation().y + getForm().getHeight() - jtoolTip.getUI().getPreferredSize(jtoolTip).height;
+        int tipWidth = jtoolTip.getUI().getPreferredSize(jtoolTip).width;
+        int tipHeight = jtoolTip.getUI().getPreferredSize(jtoolTip).height;
+        int xLocation = getForm().getLocation().x + getForm().getWidth() - tipWidth;
+        int yLocation = getForm().getLocation().y + getForm().getHeight() - tipHeight;
 
         final Popup popup = popupFactory.getPopup(statusBarPanel, jtoolTip, xLocation, yLocation);
+        final PopupWrapper popupWrapper = new PopupWrapper(popup, jtoolTip, new Point(xLocation, yLocation),
+                new Dimension(tipWidth, tipHeight), System.currentTimeMillis());
+        statusBarPopupList.add(popupWrapper);
+        sortStatusBarPopupList(statusBarPopupList);
         jtoolTip.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 super.mouseClicked(e);
-                popup.hide();
-                updateInfoToolTip = "";
+                popupWrapper.popup.hide();
+                statusBarPopupList.remove(popupWrapper);
+                sortStatusBarPopupList(statusBarPopupList);
             }
         });
-        popup.show();
-/*
 
-        new Thread (new Runnable() {
+        new Thread(new Runnable() {
             @Override
             public void run() {
-                popup.show();
+                popupWrapper.popup.show();
                 try {
-                    Thread.currentThread().sleep(20000);
+                    Thread.currentThread().sleep(30000);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    logger.warn(e.getMessage(), e);
                 }
-
-                popup.hide();
+                popupWrapper.popup.hide();
+                statusBarPopupList.remove(popupWrapper);
+                sortStatusBarPopupList(statusBarPopupList);
             }
         }).start();
-*/
+    }
+
+    private void sortStatusBarPopupList(List<PopupWrapper> statusBarPopupList) {
+        int lastXLeft = getForm().getLocation().x + getForm().getWidth();
+        int lastYDown = getForm().getLocation().y + getForm().getHeight();
+        Collections.sort(statusBarPopupList);
+        for (PopupWrapper popupWrapper : statusBarPopupList) {
+            int xLocation = lastXLeft - popupWrapper.dimension.width;
+            int yLocation = lastYDown - popupWrapper.dimension.height;
+            popupWrapper.popup.hide();
+            popupWrapper.popup = popupFactory.getPopup(statusBarPanel, popupWrapper.jToolTip, xLocation, yLocation);
+            lastYDown = yLocation;
+            if ((System.currentTimeMillis() - popupWrapper.startTime) < 29500) popupWrapper.popup.show();
+        }
+
     }
 
     public JMenuItem getSavePostponedItem() {
@@ -742,5 +750,26 @@ public class MainForm extends AbstractForm {
         return deletePostponedItem;
     }
 
+
+    private class PopupWrapper implements Comparable<PopupWrapper> {
+        Popup popup;
+        JToolTip jToolTip;
+        Point location;
+        Dimension dimension;
+        long startTime;
+
+        private PopupWrapper(Popup popup, JToolTip jToolTip, Point location, Dimension dimension, long startTime) {
+            this.popup = popup;
+            this.jToolTip = jToolTip;
+            this.location = location;
+            this.dimension = dimension;
+            this.startTime = startTime;
+        }
+
+        @Override
+        public int compareTo(PopupWrapper o) {
+            return this.location.y - o.location.y;
+        }
+    }
 }
 

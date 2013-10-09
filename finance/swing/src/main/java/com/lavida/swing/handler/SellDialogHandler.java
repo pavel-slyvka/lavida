@@ -7,6 +7,7 @@ import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.dialog.SellDialog;
 import com.lavida.swing.service.ArticleServiceSwingWrapper;
 import com.lavida.swing.service.ArticlesTableModel;
+import com.lavida.swing.service.ConcurrentOperationsService;
 import com.lavida.swing.service.DiscountCardServiceSwingWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +50,9 @@ public class SellDialogHandler {
 
     @Resource(name = "notSoldArticleTableModel")
     private ArticlesTableModel tableModel;
+
+    @Resource
+    private ConcurrentOperationsService concurrentOperationsService;
 
     /**
      * Performs selling operation.
@@ -146,26 +150,41 @@ public class SellDialogHandler {
         tableModel.setSellerName(seller);
         dialog.getSellerNames().setSelectedItem(seller);
         articleJdo.setSeller(seller);
-        articleJdo.setSold(messageSource.getMessage("sellDialog.button.sell.clicked.sold", null, localeHolder.getLocale()));
-
-        articleServiceSwingWrapper.update(articleJdo);
-        try {
-            articleServiceSwingWrapper.updateToSpreadsheet(articleJdo, new Boolean(true));
-        } catch (Exception e) {        // todo change to Custom exception
-            logger.warn(e.getMessage(), e);
-            articleJdo.setPostponedOperationDate(new Date());
-            articleServiceSwingWrapper.update(articleJdo);
-            dialog.hide();
-            dialog.showWarningMessage("mainForm.exception.message.dialog.title", "sellDialog.handler.sold.article.not.saved.to.worksheet");
-            dialog.getMainForm().getHandler().showPostponedOperationsMessage();
-            dialog.getMainForm().getTableModel().setSelectedArticle(null);
-            dialog.getMainForm().update();
-            return;
+        if (articleJdo.getRefundDate() != null) {
+            articleJdo.setRefundDate(null);
         }
+        articleJdo.setSold(messageSource.getMessage("sellDialog.button.sell.clicked.sold", null, localeHolder.getLocale()));
+        updateArticle(articleJdo);
         dialog.hide();
         dialog.getMainForm().getTableModel().setSelectedArticle(null);
+        dialog.getMainForm().getHandler().showPostponedOperationsMessage();
         dialog.getMainForm().update();
         dialog.getMainForm().show();
+    }
+
+    private void updateArticle(final ArticleJdo articleJdo) {
+        concurrentOperationsService.startOperation("Selling", new Runnable() {
+            @Override
+            public void run() {
+                StringBuilder stringBuilder = new StringBuilder();
+                stringBuilder.append(messageSource.getMessage("sellDialog.selling.finished.message", null, localeHolder.getLocale()));
+                stringBuilder.append("\n");
+                try {
+                    articleServiceSwingWrapper.updateToSpreadsheet(articleJdo, true);
+                } catch (IOException | ServiceException e) {
+                    logger.warn(e.getMessage(), e);
+                    stringBuilder.append(messageSource.getMessage("sellDialog.handler.sold.article.not.saved.to.worksheet", null, localeHolder.getLocale()));
+                    articleJdo.setPostponedOperationDate(new Date());
+                }
+                articleServiceSwingWrapper.update(articleJdo);
+                String message = convertToMultiline(new String(stringBuilder));
+                dialog.getMainForm().showInfoToolTip(message);
+            }
+        });
+    }
+
+    private String convertToMultiline(String orig) {
+        return "<html>" + orig.replaceAll("\n", "<br>"); //+ "</html>"
     }
 
 
@@ -234,7 +253,7 @@ public class SellDialogHandler {
         if (discountVale > 0) {
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.append(messageSource.getMessage("sellDialog.comment.discountCard.number", null, localeHolder.getLocale()));
-            stringBuilder.append(" " );
+            stringBuilder.append(" ");
             stringBuilder.append(cardNumber);
             stringBuilder.append(", ");
             stringBuilder.append(discountVale);

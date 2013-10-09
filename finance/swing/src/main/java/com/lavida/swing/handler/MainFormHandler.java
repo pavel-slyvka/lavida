@@ -4,9 +4,6 @@ import com.google.gdata.util.ServiceException;
 import com.lavida.TaskProgressEvent;
 import com.lavida.service.ArticleUpdateInfo;
 import com.lavida.service.DiscountCardsUpdateInfo;
-import com.lavida.service.utils.DateConverter;
-import com.lavida.swing.dialog.settings.NotSoldArticlesTableViewSettingsDialog;
-import com.lavida.swing.dialog.settings.SoldArticlesTableViewSettingsDialog;
 import com.lavida.swing.form.component.TablePrintPreviewComponent;
 import com.lavida.swing.preferences.UsersSettings;
 import com.lavida.swing.service.*;
@@ -32,7 +29,6 @@ import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import javax.naming.AuthenticationException;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.xml.bind.JAXBException;
@@ -80,20 +76,20 @@ public class MainFormHandler implements ApplicationContextAware {
     @Resource
     private SellDialog sellDialog;
 
-    @Resource
-    private SoldProductsDialog soldProductsDialog;
-
-    @Resource
-    private AddNewProductsDialog addNewProductsDialog;
-
-    @Resource
-    private NotSoldArticlesTableViewSettingsDialog notSoldArticlesTableViewSettingsDialog;
-
-    @Resource
-    private SoldArticlesTableViewSettingsDialog soldArticlesTableViewSettingsDialog;
-
-    @Resource
-    private AllDiscountCardsDialog allDiscountCardsDialog;
+//    @Resource
+//    private SoldProductsDialog soldProductsDialog;
+//
+//    @Resource
+//    private AddNewProductsDialog addNewProductsDialog;
+//
+//    @Resource
+//    private NotSoldArticlesTableViewSettingsDialog notSoldArticlesTableViewSettingsDialog;
+//
+//    @Resource
+//    private SoldArticlesTableViewSettingsDialog soldArticlesTableViewSettingsDialog;
+//
+//    @Resource
+//    private AllDiscountCardsDialog allDiscountCardsDialog;
 
 
     @Resource(name = "notSoldArticleTableModel")
@@ -117,8 +113,8 @@ public class MainFormHandler implements ApplicationContextAware {
     @Resource
     private ConcurrentOperationsService concurrentOperationsService;
 
-    @Resource
-    private UpdateInfoMessageDialog updateInfoMessageDialog;
+//    @Resource
+//    private UpdateInfoMessageDialog updateInfoMessageDialog;
 
     private ApplicationContext applicationContext;
     private String[] shopArray = {"", "LA VIDA", "СЛАВЯНСКИЙ", "НОВОМОСКОВСК"};
@@ -130,11 +126,10 @@ public class MainFormHandler implements ApplicationContextAware {
      * goods and renders to the articleTable.
      */
     public void refreshTableItemClicked() {
-        final boolean needToLoadPostponed = hasPostponed() == true;
+        final boolean needToLoadPostponed = hasPostponed();
         String postponedOperations = messageSource.getMessage("mainForm.handler.string.postponed.operations", null, localeHolder.getLocale());
-        String currentDay = new SimpleDateFormat("dd-MM-yyyy").format(new Date());
         String filePath = System.getProperty("user.dir") + System.getProperty("file.separator") +
-                postponedOperations + currentDay + ".xml";
+                postponedOperations  + ".xml";
         final File fileToLoad = new File(filePath);
         if (hasPostponed()) {
             savePostponed(fileToLoad);
@@ -185,7 +180,7 @@ public class MainFormHandler implements ApplicationContextAware {
                     }
                     form.setRefreshTableItemEnable(true);
                     form.update();    // repaint MainForm in some time
-                    throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.GOOGLE_IO_EXCEPTION, e, form);
+                    throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.GOOGLE_IO_EXCEPTION, e);
                 }
                 showUpdateInfoMessage(articleUpdateInfo, discountCardsUpdateInfo);
                 if (articleUpdateInfo.getChangedFieldJdoList() != null) {
@@ -225,7 +220,7 @@ public class MainFormHandler implements ApplicationContextAware {
      * Shows a JOptionPane message with the information about the articles updating  process.
      *
      * @param articleUpdateInfo       the ArticleUpdateInfo to be shown.
-     * @param discountCardsUpdateInfo
+     * @param discountCardsUpdateInfo the DiscountCardsUpdateInfo to be shown.
      */
     private void showUpdateInfoMessage(ArticleUpdateInfo articleUpdateInfo, DiscountCardsUpdateInfo discountCardsUpdateInfo) {
         StringBuilder messageBuilder = new StringBuilder();
@@ -280,7 +275,7 @@ public class MainFormHandler implements ApplicationContextAware {
         }
         String message = convertToMultiline(new String(messageBuilder));
 //        updateInfoMessageDialog.showUpdateInfoMessage(message);
-        form.showUpdateInfoToolTip(message);
+        form.showInfoToolTip(message);
 //        form.showInformationMessage("mainForm.panel.refresh.message.title", message);
     }
 
@@ -331,7 +326,7 @@ public class MainFormHandler implements ApplicationContextAware {
                             showPostponedOperationsMessage();
                             form.getRecommitPostponedItem().setEnabled(true);
                             form.update();
-                            throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.GOOGLE_IO_EXCEPTION, e, form);
+                            throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.GOOGLE_IO_EXCEPTION, e);
                         }
                     }
                 }
@@ -346,7 +341,7 @@ public class MainFormHandler implements ApplicationContextAware {
                             showPostponedOperationsMessage();
                             form.getRecommitPostponedItem().setEnabled(true);
                             form.update();
-                            throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.GOOGLE_SERVICE_EXCEPTION, e, form);
+                            throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.GOOGLE_SERVICE_EXCEPTION, e);
                         }
                     }
                 }
@@ -398,7 +393,7 @@ public class MainFormHandler implements ApplicationContextAware {
      * @param file the chosen xml file.
      */
     public void savePostponed(File file) {
-        List<ArticleJdo> articlesPostponed = new ArrayList<ArticleJdo>();
+        List<ArticleJdo> articlesPostponed = new ArrayList<>();
         List<ArticleJdo> articlesAll = articleServiceSwingWrapper.getAll();
         for (ArticleJdo articleJdo : articlesAll) {
             if (articleJdo.getPostponedOperationDate() != null) {
@@ -637,7 +632,7 @@ public class MainFormHandler implements ApplicationContextAware {
                 form.showInformationMessage("mainForm.menu.table.print.message.title",
                         messageSource.getMessage("mainForm.menu.table.print.cancel.message.body", null, localeHolder.getLocale()));
             }
-        } catch (PrinterException e) {
+        } catch (PRINTER_EXCEPTION e) {
             logger.warn(e.getMessage(), e);
             Toolkit.getDefaultToolkit().beep();
             form.showWarningMessage("mainForm.exception.message.dialog.title", "mainForm.handler.print.exception.message");
@@ -764,10 +759,10 @@ public class MainFormHandler implements ApplicationContextAware {
             selectionValues = new Object[presetNames.length - 2];
         }
         int order = 0;
-        for (int i = 0; i < presetNames.length; ++i) {
-            String presetName = (String) presetNames[i];
+        for (Object preset : presetNames) {
+            String presetName = (String) preset;
             if (!(currentPresetName.equals(presetName) || defaultPresetName.equals(presetName))) {
-                selectionValues[order] = presetNames[i];
+                selectionValues[order] = presetName;
                 ++order;
             }
         }
@@ -778,9 +773,7 @@ public class MainFormHandler implements ApplicationContextAware {
             try {
                 userSettingsService.saveSettings(usersSettingsHolder.getUsersSettings());
             } catch (IOException | JAXBException e) {
-                logger.warn(e.getMessage(), e);
-                Toolkit.getDefaultToolkit().beep();
-                form.showWarningMessage("mainForm.exception.message.dialog.title", "mainForm.handler.save.usersSettings.error.message");
+                throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.JAXB_EXCEPTION, e);
             }
         }
 

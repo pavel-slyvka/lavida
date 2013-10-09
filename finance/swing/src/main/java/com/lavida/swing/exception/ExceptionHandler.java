@@ -82,12 +82,27 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler{
                 messageKey = "mainForm.exception.service.load.google.spreadsheet.table.data";
                 break;
 
+            case LavidaSwingRuntimeException.JAXB_EXCEPTION:
+                titleKey = "mainForm.exception.message.dialog.title";
+                messageKey = "mainForm.exception.xml.JAXB.message";
+                break;
+
+            case LavidaSwingRuntimeException.IO_EXCEPTION:
+                titleKey = "mainForm.exception.message.dialog.title";
+                messageKey = "mainForm.exception.io.xml.file";
+                break;
+
+            case LavidaSwingRuntimeException.PRINTER_EXCEPTION:
+                titleKey = "mainForm.exception.message.dialog.title";
+                messageKey = "mainForm.handler.print.exception.message";
+                break;
+
             default:
                 titleKey = "mainForm.exception.message.dialog.title";
                 messageKey = "mainForm.exception.service.load.google.spreadsheet.table.data";
                 break;
         }
-        JOptionPane.showMessageDialog(e.getForm().getForm(),
+        JOptionPane.showMessageDialog(null,
                 messageSource.getMessage(messageKey, null, localeHolder.getLocale()),
                 messageSource.getMessage(titleKey, null, localeHolder.getLocale()),
                 JOptionPane.ERROR_MESSAGE);

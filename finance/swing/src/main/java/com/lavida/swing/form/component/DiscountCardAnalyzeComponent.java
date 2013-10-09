@@ -9,7 +9,6 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import java.awt.*;
 import java.math.BigDecimal;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,7 +20,7 @@ import java.util.List;
  */
 public class DiscountCardAnalyzeComponent {
 
-    private static final List<String> FORBIDDEN_ROLES = new ArrayList<String>();
+    private static final List<String> FORBIDDEN_ROLES = new ArrayList<>();
     static {
         FORBIDDEN_ROLES.add("ROLE_SELLER_LA_VIDA");
         FORBIDDEN_ROLES.add("ROLE_SELLER_SLAVYANKA");
@@ -30,17 +29,18 @@ public class DiscountCardAnalyzeComponent {
     }
 
     private DiscountCardsTableModel tableModel;
-    private MessageSource messageSource;
-    private LocaleHolder localeHolder;
+//    private MessageSource messageSource;
+//    private LocaleHolder localeHolder;
 
-    private JPanel analyzePanel, totalCountPanel, totalSumPanel;
-    private JLabel totalCountLabel, totalCountField, totalSumLabel, totalSumField;
+    private JPanel analyzePanel,  totalSumPanel;
+    private JLabel  totalCountField,  totalSumField;
 
     public void initializeComponents(DiscountCardsTableModel tableModel, MessageSource messageSource, LocaleHolder localeHolder) {
         this.tableModel = tableModel;
-        this.messageSource = messageSource;
-        this.localeHolder = localeHolder;
-
+//        this.messageSource = messageSource;
+//        this.localeHolder = localeHolder;
+        JLabel totalCountLabel,  totalSumLabel;
+        JPanel totalCountPanel;
 
 //        panel for analyzing total cost, price, count of products , shown in the table
         FlowLayout flowLayout = new FlowLayout();
@@ -59,9 +59,9 @@ public class DiscountCardAnalyzeComponent {
         totalCountLabel.setBorder(BorderFactory.createEmptyBorder(-2,0,0,0));
         totalCountLabel.setText(messageSource.getMessage("component.discounts.analyze.label.total.count.title",
                 null, localeHolder.getLocale()));
+        totalCountField = new JLabel();
         totalCountLabel.setLabelFor(totalCountField);
         totalCountPanel.add(totalCountLabel);
-        totalCountField = new JLabel();
         totalCountField.setBorder(BorderFactory.createCompoundBorder(fieldsBorder,BorderFactory.createEmptyBorder(-2,0,0,0)));
         totalCountField.setText(String.valueOf(tableModel.getTotalCountCards()));
         totalCountPanel.add(totalCountField);
@@ -77,9 +77,9 @@ public class DiscountCardAnalyzeComponent {
         totalSumLabel.setBorder(BorderFactory.createEmptyBorder(-2, 0, 0, 0));
         totalSumLabel.setText(messageSource.getMessage("component.discounts.analyze.label.total.sum",
                 null, localeHolder.getLocale()));
+        totalSumField = new JLabel();
         totalSumLabel.setLabelFor(totalSumField);
         totalSumPanel.add(totalSumLabel);
-        totalSumField = new JLabel();
         totalSumField.setText(roundTwoDecimals(tableModel.getTotalSumUAH()));
         totalSumField.setBorder(BorderFactory.createCompoundBorder(fieldsBorder, BorderFactory.createEmptyBorder(-2, 0, 0, 0)));
         totalSumPanel.add(totalSumField);
@@ -99,7 +99,7 @@ public class DiscountCardAnalyzeComponent {
     /**
      * Formats double number to rounded String expression.
      * @param number double to be formatted.
-     * @return
+     * @return string representation of the double number
      */
     private String roundTwoDecimals (double number) {
         number = BigDecimal.valueOf(number).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue();

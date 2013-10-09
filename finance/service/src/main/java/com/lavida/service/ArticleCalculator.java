@@ -49,4 +49,11 @@ public class ArticleCalculator {
         return Double.parseDouble(doubleString);
     }
 
+    public void calculateMultiplier(ArticleJdo articleJdo) {
+        if (articleJdo.getTotalCostUAH() == 0) return;
+        double multiplier = articleJdo.getSalePrice() / articleJdo.getTotalCostUAH();
+        multiplier = BigDecimal.valueOf(multiplier).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue();
+        articleJdo.setMultiplier(multiplier);
+        calculateCalculatedSalePrice(articleJdo);
+    }
 }

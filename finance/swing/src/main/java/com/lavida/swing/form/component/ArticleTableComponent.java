@@ -1,6 +1,8 @@
 package com.lavida.swing.form.component;
 
+import com.lavida.service.UserService;
 import com.lavida.service.entity.ArticleJdo;
+import com.lavida.service.entity.UserJdo;
 import com.lavida.swing.preferences.*;
 import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.service.ArticlesTableModel;
@@ -136,12 +138,16 @@ public class ArticleTableComponent implements TableModelListener {
     /**
      * Filters the JTable by permissions of roles (ROLE_SELLER). It removes certain columns.
      *
-     * @param userRoles current user's roles.
+     * @param userService current userService..
      */
-    public void filterTableByRoles(java.util.List<String> userRoles) {
-        java.util.List<String> forbiddenHeaders = tableModel.getForbiddenHeadersToShow(messageSource, localeHolder.getLocale(), userRoles);
+    public void filterTableByRoles(UserService userService) {
+        java.util.List<String> forbiddenHeaders = tableModel.getForbiddenHeadersToShow(messageSource, localeHolder.getLocale(), userService.getCurrentUserRoles());
         for (String forbiddenHeader : forbiddenHeaders) {
             articlesTable.removeColumn(articlesTable.getColumn(forbiddenHeader));
+        }
+        if (tableModel.getQueryName() == null && userService.hasForbiddenRole()) {
+            articlesTable.removeColumn(articlesTable.getColumn(messageSource.
+                    getMessage("mainForm.table.articles.column.sell.price.uah.title", null, localeHolder.getLocale())));
         }
     }
 

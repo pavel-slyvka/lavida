@@ -187,20 +187,6 @@ public class SoldProductsDialog extends AbstractDialog {
 
     }
 
-    /**
-     * Filters the JTable by permissions of roles (ROLE_SELLER). It removes certain columns.
-     *
-     * @param userRoles the list of user's roles
-     */
-    public void filterTableByRoles(java.util.List<String> userRoles) {
-        articleTableComponent.filterTableByRoles(userRoles);
-    }
-
-//    public void filterAnalyzePanelByRoles(java.util.List<String> userRoles) {
-//        articleTableComponent.getArticleFiltersComponent().getArticleAnalyzeComponent().
-//                filterAnalyzeComponentByRoles(userRoles);
-//    }
-
     public ArticleTableComponent getArticleTableComponent() {
         return articleTableComponent;
     }

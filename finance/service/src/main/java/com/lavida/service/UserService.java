@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -21,6 +22,14 @@ import java.util.List;
  */
 @Service
 public class UserService {
+    private static final List<String> FORBIDDEN_ROLES = new ArrayList<>();
+
+    static {
+        FORBIDDEN_ROLES.add("ROLE_SELLER_LA_VIDA");
+        FORBIDDEN_ROLES.add("ROLE_SELLER_SLAVYANKA");
+        FORBIDDEN_ROLES.add("ROLE_SELLER_NOVOMOSKOVSK");
+        FORBIDDEN_ROLES.add("ROLE_SELLER_ALEXANDRIA");
+    }
 
     @Resource
     private DaoUserDetailsManagerImpl userDetailsManager;
@@ -39,6 +48,16 @@ public class UserService {
     public List<String> getCurrentUserRoles() {
         return userDetailsManager.getRoles();
     }
+
+    public boolean hasForbiddenRole() {
+        for (String role : getCurrentUserRoles()) {
+            if (FORBIDDEN_ROLES.contains(role)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     public List<UserJdo> getAll() {
         return userDao.getAll(UserJdo.class);

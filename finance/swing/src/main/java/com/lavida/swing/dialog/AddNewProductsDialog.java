@@ -87,7 +87,9 @@ public class AddNewProductsDialog extends AbstractDialog {
         operationPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(messageSource.
                 getMessage("mainForm.panel.operation.title", null, localeHolder.getLocale())),
                 BorderFactory.createEmptyBorder(0, 5, 0, 5)));
-
+        operationPanel.setMinimumSize(new Dimension(160, 110));
+        operationPanel.setPreferredSize(new Dimension(160, 110));
+        operationPanel.setSize(new Dimension(160, 110));
         addRowButton = new JButton();
         addRowButton.setHorizontalTextPosition(JButton.CENTER);
         addRowButton.setPreferredSize(new Dimension(150, 25));
@@ -129,8 +131,10 @@ public class AddNewProductsDialog extends AbstractDialog {
 
         operationPanel.add(Box.createVerticalGlue());
         operationPanel.add(addRowButton);
+        operationPanel.add(Box.createHorizontalStrut(5));
         operationPanel.add(Box.createVerticalGlue());
         operationPanel.add(deleteRowButton);
+        operationPanel.add(Box.createHorizontalStrut(5));
         operationPanel.add(Box.createVerticalGlue());
         operationPanel.add(copyRowButton);
         operationPanel.add(Box.createVerticalGlue());
@@ -293,11 +297,15 @@ public class AddNewProductsDialog extends AbstractDialog {
         return articleTableComponent;
     }
 
-    public JLabel getErrorMessage() {
-        return errorMessage;
-    }
+//    public JLabel getErrorMessage() {
+//        return errorMessage;
+//    }
 
     public JMenuItem getPrintItem() {
         return printItem;
+    }
+
+    public JButton getAcceptProductsButton() {
+        return acceptProductsButton;
     }
 }

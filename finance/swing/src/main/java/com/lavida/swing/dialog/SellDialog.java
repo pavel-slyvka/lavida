@@ -53,7 +53,6 @@ public class SellDialog extends AbstractDialog {
     private JLabel errorMessage;
 
     private String defaultShop;
-    private String[] shopArray = {"СКЛАД", "LA VIDA", "СЛАВЯНСКИЙ", "НОВОМОСКОВСК", "АЛЕКСАНДРИЯ"};
 
     @Override
     protected void initializeForm() {
@@ -257,7 +256,7 @@ public class SellDialog extends AbstractDialog {
         constraints.weightx = 0.0;
         inputPanel.add(shopLabel, constraints);
 
-        shopComboBox = new JComboBox(shopArray);
+        shopComboBox = new JComboBox(ArticleJdo.SHOP_ARRAY);
         shopComboBox.setEditable(false);
         shopComboBox.setSelectedItem("LA VIDA");
         constraints.fill = GridBagConstraints.HORIZONTAL;
@@ -539,9 +538,9 @@ public class SellDialog extends AbstractDialog {
         return clientCheckBox;
     }
 
-    public JLabel getErrorMessage() {
-        return errorMessage;
-    }
+//    public JLabel getErrorMessage() {
+//        return errorMessage;
+//    }
 
     public String getDefaultShop() {
         return defaultShop;
