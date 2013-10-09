@@ -72,9 +72,9 @@ public class ProgressComponent implements ApplicationListener<TaskProgressEvent>
         int max = 0;
         int lastThreshold = 0;
         for (ProgressWorkHolder progressWorkHolder : progressWorkQueue) {
-            progressWorkHolder.progressThreshold = (int) (lastThreshold + progressWorkHolder.waitingTimeInMilis / 100);
+            progressWorkHolder.progressThreshold = (int) (lastThreshold + progressWorkHolder.waitingTimeInMillis / 100);
             lastThreshold = progressWorkHolder.progressThreshold;
-            max += progressWorkHolder.waitingTimeInMilis / 100;
+            max += progressWorkHolder.waitingTimeInMillis / 100;
         }
         progressBar.setMaximum(max);
         progressBar.setValue(0);
@@ -131,12 +131,12 @@ public class ProgressComponent implements ApplicationListener<TaskProgressEvent>
     }
 
     private class ProgressWorkHolder {
-        long waitingTimeInMilis;
+        long waitingTimeInMillis;
         boolean needTimer;
         int progressThreshold;
 
         private ProgressWorkHolder(long waitingTimeInMilis, boolean needTimer) {
-            this.waitingTimeInMilis = waitingTimeInMilis;
+            this.waitingTimeInMillis = waitingTimeInMilis;
             this.needTimer = needTimer;
         }
     }

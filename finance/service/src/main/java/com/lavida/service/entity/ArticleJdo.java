@@ -634,7 +634,7 @@ public class ArticleJdo implements Cloneable {
             return false;
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
         if (sellType != null ? !sellType.equals(that.sellType) : that.sellType != null) return false;
-        if (refundDate != null ? refundDate.getTime() != that.refundDate.getTime() : that.refundDate!=null) return false;
+        if (refundDate != null ? refundDate.equals(that.refundDate) : that.refundDate!=null) return false;
         if (saleDate != null ? !saleDate.equals(that.saleDate) : that.saleDate != null) return false;
         if (shop != null ? !shop.equals(that.shop) : that.shop != null) return false;
         if (size != null ? !size.equals(that.size) : that.size != null) return false;
