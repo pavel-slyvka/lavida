@@ -12,6 +12,8 @@ import com.lavida.swing.preferences.PresetSettings;
 import com.lavida.swing.preferences.UsersSettings;
 import com.lavida.swing.preferences.UsersSettingsHolder;
 import com.lavida.swing.service.ArticlesTableModel;
+import com.lavida.swing.service.ConcurrentOperation;
+import com.lavida.swing.service.ConcurrentOperationsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -79,6 +81,9 @@ public class MainForm extends AbstractForm {
     @Resource
     private UsersSettingsHolder usersSettingsHolder;
 
+    @Resource
+    private ConcurrentOperationsService concurrentOperationsService;
+
     private JPanel operationPanel, southPanel, desktopPanel, filtersPanel, analyzePanel, mainPanel, statusBarPanel;
     private Button sellButton, showSoldProductsButton;
     private JLabel postponedOperations, postponedMessage, errorMessage, presetNameLabel, presetNameField;
@@ -103,6 +108,29 @@ public class MainForm extends AbstractForm {
         form.setResizable(true);
         form.setBounds(100, 100, 900, 700);
         form.setLocationRelativeTo(null);
+        form.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                super.windowClosing(e);
+                if (concurrentOperationsService.hasActiveThreads()) {
+                    int result = showConfirmDialog("mainForm.closing.warning.title", "mainForm.closing.warning.message");
+                    switch (result) {
+                        case JOptionPane.NO_OPTION :
+//                            form.setVisible(true);
+                            break;
+
+                        case JOptionPane.YES_OPTION :
+                            form.dispose();
+                            System.exit(0);
+//                            break;
+                    }
+                } else {
+                    form.dispose();
+                    System.exit(0);
+
+                }
+            }
+        });
     }
 
     @Override

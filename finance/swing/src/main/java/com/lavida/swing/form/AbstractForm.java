@@ -43,7 +43,8 @@ public abstract class AbstractForm implements MessageSourceAware {
     }
 
     protected void initializeForm() {
-        form.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//        form.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        form.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         form.setResizable(false);
     }
 

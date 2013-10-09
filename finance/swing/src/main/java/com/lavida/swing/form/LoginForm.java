@@ -11,10 +11,7 @@ import javax.annotation.Resource;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
+import java.awt.event.*;
 
 /**
  * LoginForm allows users to enter the program LaVida.
@@ -49,6 +46,13 @@ public class LoginForm extends AbstractForm {
         super.initializeForm();
         form.setBounds(200, 200, 300, 200);
         form.setTitle(messageSource.getMessage("loginForm.form.title", null, localeHolder.getLocale()));
+        form.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                super.windowClosing(e);
+                System.exit(0);
+            }
+        });
     }
 
 
