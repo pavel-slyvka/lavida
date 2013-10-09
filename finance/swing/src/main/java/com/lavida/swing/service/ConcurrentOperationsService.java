@@ -2,9 +2,7 @@ package com.lavida.swing.service;
 
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 
 /**
  * ConcurrentOperationsService
@@ -15,22 +13,26 @@ import java.util.Set;
  */
 @Service
 public class ConcurrentOperationsService {
-    private Set<Thread> threads = new HashSet<>();
+    private Set<ConcurrentOperation> concurrentOperations = new HashSet<>();
 
-    public void startOperation(Runnable runnable) {
-        Thread newThread = new Thread(runnable);
-        threads.add(newThread);
+    public void startOperation(String operationName, Runnable thread) {
+        Thread newThread = new Thread(thread);
+        concurrentOperations.add(new ConcurrentOperation(operationName, new Date(), newThread));
 //        newThread.setDaemon(true);    // todo possible
         newThread.start();
     }
 
-    public boolean hasActiveThreads() { // todo use
-        for (Iterator<Thread> it = threads.iterator(); it.hasNext();) {
-            Thread thread = it.next();
-            if (!thread.isAlive()) {
+    public List<ConcurrentOperation> getActiveThreads() { // todo use for active threads table
+        for (Iterator<ConcurrentOperation> it = concurrentOperations.iterator(); it.hasNext();) {
+            ConcurrentOperation concurrentOperation = it.next();
+            if (!concurrentOperation.getThread().isAlive()) {
                 it.remove();
             }
         }
-        return !threads.isEmpty();
+        return new ArrayList<>(concurrentOperations);
+    }
+
+    public boolean hasActiveThreads() { // todo use when application is about to close
+        return !getActiveThreads().isEmpty();
     }
 }

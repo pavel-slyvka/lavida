@@ -366,7 +366,7 @@ public class ArticleChangedFieldTableModel extends AbstractTableModel implements
     private void updateTable(final ArticleChangedFieldJdo articleChangedFieldJdo) {
         if (queryName != null) {
 
-        concurrentOperationsService.startOperation(new Runnable() {
+        concurrentOperationsService.startOperation("Field changing.", new Runnable() {
             @Override
             public void run() {
                     articleChangedFieldServiceSwingWrapper.update(articleChangedFieldJdo);

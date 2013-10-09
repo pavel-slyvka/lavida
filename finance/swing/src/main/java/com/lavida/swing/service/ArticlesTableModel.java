@@ -569,7 +569,7 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
      */
     private void updateTable(final ArticleJdo changedArticle) {
         if (queryName != null) {
-        concurrentOperationsService.startOperation(new Runnable() {
+        concurrentOperationsService.startOperation("Field changing.", new Runnable() {
 
             @Override
             public void run() {

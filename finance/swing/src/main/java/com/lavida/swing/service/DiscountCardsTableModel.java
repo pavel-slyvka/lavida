@@ -456,7 +456,7 @@ public class DiscountCardsTableModel extends AbstractTableModel implements Appli
      */
     private void updateTable(final DiscountCardJdo discountCardJdo) {
         if (query != null) {
-            concurrentOperationsService.startOperation(new Runnable() {
+            concurrentOperationsService.startOperation("Discount card update.", new Runnable() {
            @Override
            public void run() {
                    try {

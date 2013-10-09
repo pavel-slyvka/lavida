@@ -142,7 +142,7 @@ public class MainFormHandler implements ApplicationContextAware {
             deletePostponedOperations();
         }
 
-        concurrentOperationsService.startOperation(new Runnable() {
+        concurrentOperationsService.startOperation("Synchronization.", new Runnable() {
             @Override
             public void run() {
                 form.setRefreshTableItemEnable(false);
@@ -300,7 +300,7 @@ public class MainFormHandler implements ApplicationContextAware {
     }
 
     public void recommitPostponedItemClicked() {
-        concurrentOperationsService.startOperation(new Runnable() {
+        concurrentOperationsService.startOperation("Recommit.", new Runnable() {
             @Override
             public void run() {
                 form.getRecommitPostponedItem().setEnabled(false);
