@@ -41,9 +41,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
+import java.util.*;
 import java.util.List;
 
 /**
@@ -56,6 +54,7 @@ import java.util.List;
 @Component
 public class MainFormHandler implements ApplicationContextAware {
     private static final Logger logger = LoggerFactory.getLogger(MainFormHandler.class);
+    private static final String DATE_FORMAT = "dd.MM.yyyy";
 
     @Resource
     private MessageSource messageSource;
@@ -147,7 +146,7 @@ public class MainFormHandler implements ApplicationContextAware {
             public void run() {
                 form.setRefreshTableItemEnable(false);
                 ArticleUpdateInfo articleUpdateInfo;
-                DiscountCardsUpdateInfo discountCardsUpdateInfo = null;
+                DiscountCardsUpdateInfo discountCardsUpdateInfo;
                 try {
                     List<Long> refreshTaskTimes = Arrays.asList(6000L, 14000L, 8000L, 300L, 3000L, 100L);
                     String refreshTaskTimesString = settingsService.getSettings().getSheetRefreshTasksTimes();
@@ -299,18 +298,28 @@ public class MainFormHandler implements ApplicationContextAware {
         }
     }
 
+    private String formatCalendar(Calendar calendar) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+        if (calendar != null) {
+            return  dateFormat.format(calendar.getTime());
+        }else return null;
+    }
+
     public void recommitPostponedItemClicked() {
         concurrentOperationsService.startOperation(new Runnable() {
             @Override
             public void run() {
                 form.getRecommitPostponedItem().setEnabled(false);
+                SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
                 List<ArticleJdo> articles = articleServiceSwingWrapper.getAll();
                 for (ArticleJdo articleJdo : articles) {
                     if (articleJdo.getPostponedOperationDate() != null) {
                         try {
-                            if (articleJdo.getSold() != null) {   //recommit selling
+                            if (articleJdo.getSold() != null && dateFormat.format(articleJdo.getPostponedOperationDate()).
+                                    equals(formatCalendar(articleJdo.getSaleDate()))) {   //recommit selling
                                 articleServiceSwingWrapper.updateToSpreadsheet(articleJdo, true);
-                            } else if (articleJdo.getSold() == null && articleJdo.getRefundDate() != null) {  // recommit refunding
+                            } else if (articleJdo.getSold() == null && dateFormat.format(articleJdo.getRefundDate()).
+                                    equals(dateFormat.format(articleJdo.getRefundDate()))) {  // recommit refunding
                                 articleServiceSwingWrapper.updateToSpreadsheet(articleJdo, false);
                                 articleJdo.setSaleDate(null);
                             } else {
@@ -319,7 +328,6 @@ public class MainFormHandler implements ApplicationContextAware {
                             articleJdo.setPostponedOperationDate(null);
                             articleServiceSwingWrapper.update(articleJdo);
                         } catch (IOException | ServiceException e) {
-//                            Thread.currentThread().interrupt();
                             showPostponedOperationsMessage();
                             form.getRecommitPostponedItem().setEnabled(true);
                             form.update();
@@ -335,7 +343,6 @@ public class MainFormHandler implements ApplicationContextAware {
                             discountCardJdo.setPostponedDate(null);
                             discountCardServiceSwingWrapper.update(discountCardJdo);
                         } catch (IOException | ServiceException e) {
-                            Thread.currentThread().interrupt();
                             showPostponedOperationsMessage();
                             form.getRecommitPostponedItem().setEnabled(true);
                             form.update();

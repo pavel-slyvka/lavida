@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.List;
 
 /**
@@ -32,7 +33,7 @@ public class GoogleSpreadsheetWorker {
     private WorksheetEntry discountCardsWorksheetEntry;
     private URL discountCardsWorksheetUrl;
 
-    public GoogleSpreadsheetWorker(Settings settings) throws ServiceException, IOException {
+    public GoogleSpreadsheetWorker(Settings settings) throws  ServiceException, IOException {
         loginToGmail(spreadsheetService, settings.getRemoteUser(), settings.getRemotePass());
         List spreadsheets = getSpreadsheetList(spreadsheetService);
         SpreadsheetEntry articleSpreadsheet = getSpreadsheetByName(spreadsheets, settings.getSpreadsheetName());
