@@ -109,7 +109,7 @@ public class DiscountCardAnalyzeComponent {
     }
 
     public void filterAnalyzeComponentByRoles(java.util.List<String> userRoles) {
-        if (hasForbiddenRole(userRoles)) {
+        if (hasForbiddenRole(userRoles) || tableModel.getQuery() == null) {
             totalSumPanel.setVisible(false);
         }
 
