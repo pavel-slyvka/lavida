@@ -12,7 +12,6 @@ import com.lavida.swing.preferences.PresetSettings;
 import com.lavida.swing.preferences.UsersSettings;
 import com.lavida.swing.preferences.UsersSettingsHolder;
 import com.lavida.swing.service.ArticlesTableModel;
-import com.lavida.swing.service.ConcurrentOperation;
 import com.lavida.swing.service.ConcurrentOperationsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,12 +91,11 @@ public class MainForm extends AbstractForm {
     private JMenuItem savePostponedItem, loadPostponedItem, recommitPostponedItem, deletePostponedItem,
             addNewProductsItem, refreshTableItem, articleChangesItem,
             savePresetItem, selectPresetItem, createPresetItem, deletePresetItem,
-            notSoldArticlesTableViewItem, soldArticlesTableViewItem, discountCardsTableViewItem,
+            notSoldArticlesTableViewItem,
             addNewDiscountCardItem, allDiscountCardsItem,
             printItem, fixTableDataItem,
             moveToShopItem, deselectArticlesItem;
     private ArticleTableComponent articleTableComponent = new ArticleTableComponent();
-    private String updateInfoToolTip = "";
     private List<PopupWrapper> statusBarPopupList = new ArrayList<>();
     private PopupFactory popupFactory = PopupFactory.getSharedInstance();
 
@@ -368,39 +366,14 @@ public class MainForm extends AbstractForm {
         settingsMenu = new JMenu();
         settingsMenu.setText(messageSource.getMessage("mainForm.menu.settings.title", null, localeHolder.getLocale()));
 
-        tablesViewItem = new JMenu();
-        tablesViewItem.setText(messageSource.getMessage("mainForm.menu.settings.item.view.tables", null, localeHolder.getLocale()));
-
         notSoldArticlesTableViewItem = new JMenuItem();
-        notSoldArticlesTableViewItem.setText(messageSource.getMessage("mainForm.menu.settings.item.view.tables.articles.notSold", null, localeHolder.getLocale()));
+        notSoldArticlesTableViewItem.setText(messageSource.getMessage("mainForm.menu.settings.item.view.tables", null, localeHolder.getLocale()));
         notSoldArticlesTableViewItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 notSoldArticlesTableViewSettingsDialog.show();
             }
         });
-
-        soldArticlesTableViewItem = new JMenuItem();
-        soldArticlesTableViewItem.setText(messageSource.getMessage("mainForm.menu.settings.item.view.tables.articles.sold", null, localeHolder.getLocale()));
-        soldArticlesTableViewItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                soldArticlesTableViewSettingsDialog.show();
-            }
-        });
-
-        discountCardsTableViewItem = new JMenuItem();
-        discountCardsTableViewItem.setText(messageSource.getMessage("mainForm.menu.settings.item.view.tables.discount.cards", null, localeHolder.getLocale()));
-        discountCardsTableViewItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                allDiscountCardsTableViewSettingsDialog.show();
-            }
-        });
-
-        tablesViewItem.add(notSoldArticlesTableViewItem);
-        tablesViewItem.add(soldArticlesTableViewItem);
-        tablesViewItem.add(discountCardsTableViewItem);
 
         savePresetItem = new JMenuItem();
         savePresetItem.setText(messageSource.getMessage("mainForm.menu.settings.save", null, localeHolder.getLocale()));
@@ -438,7 +411,7 @@ public class MainForm extends AbstractForm {
             }
         });
 
-        settingsMenu.add(tablesViewItem);
+        settingsMenu.add(notSoldArticlesTableViewItem);
         settingsMenu.addSeparator();
         settingsMenu.add(savePresetItem);
         settingsMenu.add(selectPresetItem);
@@ -740,7 +713,7 @@ public class MainForm extends AbstractForm {
             public void run() {
                 popupWrapper.popup.show();
                 try {
-                    Thread.currentThread().sleep(30000);
+                    Thread.sleep(30000);
                 } catch (InterruptedException e) {
                     logger.warn(e.getMessage(), e);
                 }

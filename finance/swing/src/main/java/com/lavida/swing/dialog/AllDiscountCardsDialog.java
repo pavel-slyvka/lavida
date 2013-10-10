@@ -1,5 +1,6 @@
 package com.lavida.swing.dialog;
 
+import com.lavida.swing.dialog.settings.AllDiscountCardsTableViewSettingsDialog;
 import com.lavida.swing.form.component.DiscountCardTableComponent;
 import com.lavida.swing.handler.AllDiscountCardsDialogHandler;
 import com.lavida.swing.service.DiscountCardsTableModel;
@@ -26,6 +27,9 @@ public class AllDiscountCardsDialog extends AbstractDialog {
     @Resource(name = "allDiscountCardsTableModel")
     private DiscountCardsTableModel tableModel;
 
+    @Resource
+    private AllDiscountCardsTableViewSettingsDialog allDiscountCardsTableViewSettingsDialog;
+
     private JPanel operationPanel, southPanel, desktopPanel, filtersPanel, analyzePanel, mainPanel,
             buttonPanel;
     private JButton activateButton, disableButton, cancelButton;
@@ -33,7 +37,7 @@ public class AllDiscountCardsDialog extends AbstractDialog {
     private JLabel errorMessage;
     private JMenuBar menuBar;
     private JMenu fileMenu;
-    private JMenuItem printItem;
+    private JMenuItem printItem, discountCardsTableViewItem;
 
     @Override
     protected void initializeForm() {
@@ -213,7 +217,21 @@ public class AllDiscountCardsDialog extends AbstractDialog {
 
         fileMenu.add(printItem);
 
+        JMenu settingsMenu = new JMenu();
+        settingsMenu.setText(messageSource.getMessage("mainForm.menu.settings.title", null, localeHolder.getLocale()));
+
+        discountCardsTableViewItem = new JMenuItem();
+        discountCardsTableViewItem.setText(messageSource.getMessage("mainForm.menu.settings.item.view.tables", null, localeHolder.getLocale()));
+        discountCardsTableViewItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                allDiscountCardsTableViewSettingsDialog.show();
+            }
+        });
+        settingsMenu.add(discountCardsTableViewItem);
+
         menuBar.add(fileMenu);
+        menuBar.add(settingsMenu);
 
 
     }

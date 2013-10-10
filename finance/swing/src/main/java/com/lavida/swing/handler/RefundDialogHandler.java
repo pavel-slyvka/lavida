@@ -83,7 +83,7 @@ public class RefundDialogHandler {
                 } catch (IOException | ServiceException e) {
                     logger.warn(e.getMessage(), e);
                     stringBuilder.append(messageSource.getMessage("sellDialog.handler.sold.article.not.saved.to.worksheet", null, localeHolder.getLocale()));
-                    articleJdo.setPostponedOperationDate(new Date());
+                    articleJdo.setPostponedOperationDate(articleJdo.getRefundDate());
                 }
                 articleServiceSwingWrapper.update(articleJdo);
                 String message = convertToMultiline(new String(stringBuilder));

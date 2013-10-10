@@ -1,5 +1,6 @@
 package com.lavida.swing.dialog;
 
+import com.lavida.swing.dialog.settings.SoldArticlesTableViewSettingsDialog;
 import com.lavida.swing.form.component.ArticleTableComponent;
 import com.lavida.swing.handler.SoldProductsDialogHandler;
 import com.lavida.swing.service.ArticlesTableModel;
@@ -25,10 +26,13 @@ public class SoldProductsDialog extends AbstractDialog {
     @Resource
     private SoldProductsDialogHandler handler;
 
+    @Resource
+    private SoldArticlesTableViewSettingsDialog soldArticlesTableViewSettingsDialog;
+
     private ArticleTableComponent articleTableComponent = new ArticleTableComponent();
     private JMenuBar menuBar;
     private JMenu fileMenu, selectedMenu;
-    private JMenuItem printItem, deselectArticlesItem;
+    private JMenuItem printItem, deselectArticlesItem, soldArticlesTableViewItem;
 
 //    private JLabel errorMessage;
 
@@ -180,10 +184,22 @@ public class SoldProductsDialog extends AbstractDialog {
 
         selectedMenu.add(deselectArticlesItem);
 
+        JMenu settingsMenu = new JMenu();
+        settingsMenu.setText(messageSource.getMessage("mainForm.menu.settings.title", null, localeHolder.getLocale()));
+
+        soldArticlesTableViewItem = new JMenuItem();
+        soldArticlesTableViewItem.setText(messageSource.getMessage("mainForm.menu.settings.item.view.tables", null, localeHolder.getLocale()));
+        soldArticlesTableViewItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                soldArticlesTableViewSettingsDialog.show();
+            }
+        });
+        settingsMenu.add(soldArticlesTableViewItem);
 
         menuBar.add(fileMenu);
         menuBar.add(selectedMenu);
-
+        menuBar.add(settingsMenu);
 
     }
 
