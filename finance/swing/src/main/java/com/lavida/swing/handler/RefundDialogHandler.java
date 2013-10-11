@@ -1,18 +1,16 @@
 package com.lavida.swing.handler;
 
-import com.google.gdata.util.ServiceException;
 import com.lavida.service.entity.ArticleJdo;
 import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.dialog.RefundDialog;
+import com.lavida.swing.exception.LavidaSwingRuntimeException;
+import com.lavida.swing.exception.RemoteUpdateException;
 import com.lavida.swing.service.ArticleServiceSwingWrapper;
 import com.lavida.swing.service.ConcurrentOperationsService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.io.IOException;
 import java.util.Date;
 
 /**
@@ -23,7 +21,7 @@ import java.util.Date;
 
 @Component
 public class RefundDialogHandler {
-    private static final Logger logger = LoggerFactory.getLogger(RefundDialogHandler.class);
+//    private static final Logger logger = LoggerFactory.getLogger(RefundDialogHandler.class);
 
     @Resource
     RefundDialog dialog;
@@ -46,6 +44,12 @@ public class RefundDialogHandler {
      * @param articleJdo the selected articleJdo to be refunded.
      */
     public void refundButtonClicked (ArticleJdo articleJdo){
+        ArticleJdo oldArticle;
+        try {
+            oldArticle = (ArticleJdo)articleJdo.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
         if (dialog.getCommentTextField().getText().trim().isEmpty() ||
                 dialog.getCommentTextField().getText().trim().equals(articleJdo.getComment() != null ? articleJdo.getComment() : "")) {
             dialog.showWarningMessage("mainForm.exception.message.dialog.title", "refundDialog.handler.comment.not.entered");
@@ -63,7 +67,7 @@ public class RefundDialogHandler {
         articleJdo.setRefundDate(refundDate);
         articleJdo.setSaleDate(null);
         articleJdo.setTags(null);
-        updateArticle(articleJdo);
+        updateArticle(oldArticle, articleJdo);
         dialog.hide();
         dialog.getMainForm().update();
         dialog.getSoldProductsDialog().getTableModel().setSelectedArticle(null);
@@ -71,23 +75,26 @@ public class RefundDialogHandler {
         dialog.getSoldProductsDialog().show();
     }
 
-    private void updateArticle(final ArticleJdo articleJdo) {
+    private void updateArticle(final ArticleJdo oldArticleJdo, final ArticleJdo articleJdo) {
         concurrentOperationsService.startOperation("Refunding", new Runnable() {
             @Override
             public void run() {
                 StringBuilder stringBuilder = new StringBuilder();
                 stringBuilder.append(messageSource.getMessage("dialog.refund.finished.message", null, localeHolder.getLocale()));
                 stringBuilder.append("\n");
+                boolean postponed = false;
+                RemoteUpdateException exception = null;
                 try {
-                    articleServiceSwingWrapper.updateToSpreadsheet(articleJdo, false);
-                } catch (IOException | ServiceException e) {
-                    logger.warn(e.getMessage(), e);
-                    stringBuilder.append(messageSource.getMessage("sellDialog.handler.sold.article.not.saved.to.worksheet", null, localeHolder.getLocale()));
-                    articleJdo.setPostponedOperationDate(articleJdo.getRefundDate());
+                    articleServiceSwingWrapper.updateToSpreadsheet(oldArticleJdo, articleJdo, false);
+                } catch (RemoteUpdateException e) {
+                    exception = e;
+                    postponed = true;
                 }
-                articleServiceSwingWrapper.update(articleJdo);
                 String message = convertToMultiline(new String(stringBuilder));
                 dialog.getMainForm().showInfoToolTip(message);
+                if (postponed) {
+                    throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.GOOGLE_SERVICE_EXCEPTION, exception);
+                }
             }
         });
     }

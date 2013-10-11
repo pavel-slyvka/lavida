@@ -1,11 +1,11 @@
 package com.lavida.swing.service;
 
+import com.lavida.service.FiltersPurpose;
 import com.lavida.service.ViewColumn;
-import com.lavida.service.entity.ArticleChangedFieldJdo;
-import com.lavida.service.entity.ArticleJdo;
+import com.lavida.service.entity.ChangedFieldJdo;
 import com.lavida.service.utils.DateConverter;
 import com.lavida.swing.LocaleHolder;
-import com.lavida.swing.event.ArticleChangedFieldEvent;
+import com.lavida.swing.event.ChangedFieldEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
@@ -21,24 +21,24 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
- * The ArticleChangedFieldTableModel
+ * The ChangedFieldTableModel
  * <p/>
  * Created: 01.10.13 21:36.
  *
  * @author Ruslan.
  */
-public class ArticleChangedFieldTableModel extends AbstractTableModel implements ApplicationListener<ArticleChangedFieldEvent> {
-    private static final Logger logger = LoggerFactory.getLogger(ArticleChangedFieldTableModel.class);
+public class ChangedFieldTableModel extends AbstractTableModel implements ApplicationListener<ChangedFieldEvent> {
+    private static final Logger logger = LoggerFactory.getLogger(ChangedFieldTableModel.class);
 
     private List<String> headerTitles = new ArrayList<>();
     private List<String> fieldsSequence;
     private Map<Integer, SimpleDateFormat> columnIndexToDateFormat;
     private String queryName;
-    private List<ArticleChangedFieldJdo> tableData;
-    private ArticleChangedFieldJdo selectedArticleChangedField;
+    private List<ChangedFieldJdo> tableData;
+    private ChangedFieldJdo selectedChangedField;
 
     @Resource
-    private ArticleChangedFieldServiceSwingWrapper articleChangedFieldServiceSwingWrapper;
+    private ChangedFieldServiceSwingWrapper changedFieldServiceSwingWrapper;
 
     @Resource
     private MessageSource messageSource;
@@ -50,16 +50,26 @@ public class ArticleChangedFieldTableModel extends AbstractTableModel implements
     private ConcurrentOperationsService concurrentOperationsService;
 
     @Override
-    public void onApplicationEvent(ArticleChangedFieldEvent event) {
+    public void onApplicationEvent(ChangedFieldEvent event) {
         if (queryName != null) {
-            tableData = articleChangedFieldServiceSwingWrapper.get(queryName);
+            tableData = changedFieldServiceSwingWrapper.get(queryName);
         }
         fireTableDataChanged();
     }
 
-    public List<ArticleChangedFieldJdo> getTableData() {
+    public FiltersPurpose getFiltersPurpose() {
+        switch (queryName) {
+            case  ChangedFieldJdo.FIND_POSTPONED :
+                return FiltersPurpose.POSTPONED_CHANGED_FIELDS;
+
+            default:
+                return FiltersPurpose.REFRESHED_CHANGED_FIELDS;
+        }
+    }
+
+        public List<ChangedFieldJdo> getTableData() {
         if (tableData == null && queryName != null) {
-            tableData = articleChangedFieldServiceSwingWrapper.get(queryName);
+            tableData = changedFieldServiceSwingWrapper.get(queryName);
         }
         return tableData;
     }
@@ -92,16 +102,16 @@ public class ArticleChangedFieldTableModel extends AbstractTableModel implements
         }
     }
 
-    public ArticleChangedFieldJdo getArticleChangedFieldJdoByRowIndex(int rowIndex) {
+    public ChangedFieldJdo getChangedFieldJdoByRowIndex(int rowIndex) {
         return getTableData().get(rowIndex);
     }
 
     public Object getRawValueAt(int rowIndex, int columnIndex) {
-        ArticleChangedFieldJdo articleChangedFieldJdo = getArticleChangedFieldJdoByRowIndex(rowIndex);
+        ChangedFieldJdo changedFieldJdo = getChangedFieldJdoByRowIndex(rowIndex);
         try {
-            Field field = ArticleChangedFieldJdo.class.getDeclaredField(fieldsSequence.get(columnIndex));
+            Field field = ChangedFieldJdo.class.getDeclaredField(fieldsSequence.get(columnIndex));
             field.setAccessible(true);
-            return field.get(articleChangedFieldJdo);
+            return field.get(changedFieldJdo);
 
         } catch (Exception e) {
             logger.warn(e.getMessage(), e);
@@ -115,21 +125,31 @@ public class ArticleChangedFieldTableModel extends AbstractTableModel implements
         this.headerTitles = new ArrayList<>();
         this.columnIndexToDateFormat = new HashMap<>();
         if (queryName != null) {
-            this.tableData = articleChangedFieldServiceSwingWrapper.clearAndReturnForCurrentDay();
+            this.tableData = changedFieldServiceSwingWrapper.clearAndReturnForCurrentDay();
         } else {
             this.tableData = new ArrayList<>();
         }
-        for (Field field : ArticleChangedFieldJdo.class.getDeclaredFields()) {
+        for (Field field : ChangedFieldJdo.class.getDeclaredFields()) {
             ViewColumn viewColumn = field.getAnnotation(ViewColumn.class);
             if (viewColumn != null && viewColumn.show()) {
                 field.setAccessible(true);
-                if (ArticleChangedFieldJdo.FIND_All.equals(queryName)) {
+                if (ChangedFieldJdo.FIND_REFRESHED.equals(queryName) &&
+                        !(viewColumn.titleKey().equals("dialog.changed.field.article.table.postponedDate.title"))) {
                     this.fieldsSequence.add(field.getName());
                     if (viewColumn.titleKey().isEmpty()) {
                         this.headerTitles.add(field.getName());
                     } else {
                         this.headerTitles.add(messageSource.getMessage(viewColumn.titleKey(), null, localeHolder.getLocale()));
                     }
+                } else if (ChangedFieldJdo.FIND_POSTPONED.equals(queryName) &&
+                        !(viewColumn.titleKey().equals("dialog.changed.field.article.table.refreshOperationType.title"))) {
+                    this.fieldsSequence.add(field.getName());
+                    if (viewColumn.titleKey().isEmpty()) {
+                        this.headerTitles.add(field.getName());
+                    } else {
+                        this.headerTitles.add(messageSource.getMessage(viewColumn.titleKey(), null, localeHolder.getLocale()));
+                    }
+
                 }
 
                 if (field.getType() == Calendar.class) {
@@ -148,7 +168,7 @@ public class ArticleChangedFieldTableModel extends AbstractTableModel implements
         label:
         for (String columnHeader : headerTitles) {
             Integer width;
-            for (Field field : ArticleChangedFieldJdo.class.getDeclaredFields()) {
+            for (Field field : ChangedFieldJdo.class.getDeclaredFields()) {
                 ViewColumn viewColumn = field.getAnnotation(ViewColumn.class);
                 if (viewColumn != null) {
                     if (viewColumn.titleKey().isEmpty() && columnHeader.equals(field.getName())) {
@@ -206,13 +226,13 @@ public class ArticleChangedFieldTableModel extends AbstractTableModel implements
      */
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-        ArticleChangedFieldJdo articleChangedFieldJdo = getArticleChangedFieldJdoByRowIndex(rowIndex);
+        ChangedFieldJdo changedFieldJdo = getChangedFieldJdoByRowIndex(rowIndex);
         String value = aValue.toString();
         SimpleDateFormat calendarFormatter = new SimpleDateFormat("dd.MM.yyyy");
         calendarFormatter.setLenient(false);
         boolean toUpdate = true;
         try {
-            Field field = ArticleChangedFieldJdo.class.getDeclaredField(fieldsSequence.get(columnIndex));
+            Field field = ChangedFieldJdo.class.getDeclaredField(fieldsSequence.get(columnIndex));
             field.setAccessible(true);
             if (int.class == field.getType()) {
                 int typeValue;
@@ -221,16 +241,16 @@ public class ArticleChangedFieldTableModel extends AbstractTableModel implements
                 } else {
                     typeValue = Integer.parseInt(value);
                 }
-                if (typeValue != field.getInt(articleChangedFieldJdo)) {
-                    field.setInt(articleChangedFieldJdo, typeValue);
+                if (typeValue != field.getInt(changedFieldJdo)) {
+                    field.setInt(changedFieldJdo, typeValue);
                 } else return;
             } else if (boolean.class == field.getType()) {
                 boolean typeValue = Boolean.parseBoolean(value);
                 if (field.getName().equals("selected")) {
                     toUpdate = false;
                 }
-                if (typeValue != field.getBoolean(articleChangedFieldJdo)) {
-                    field.setBoolean(articleChangedFieldJdo, typeValue);
+                if (typeValue != field.getBoolean(changedFieldJdo)) {
+                    field.setBoolean(changedFieldJdo, typeValue);
                 } else return;
             } else if (double.class == field.getType()) {
                 double typeValue;
@@ -240,18 +260,18 @@ public class ArticleChangedFieldTableModel extends AbstractTableModel implements
                     typeValue = fixIfNeedAndParseDouble(value);
                     typeValue = BigDecimal.valueOf(typeValue).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue();
                 }
-                if (typeValue != field.getDouble(articleChangedFieldJdo)) {
-                        field.setDouble(articleChangedFieldJdo, typeValue);
+                if (typeValue != field.getDouble(changedFieldJdo)) {
+                        field.setDouble(changedFieldJdo, typeValue);
                 } else return;
             } else if (char.class == field.getType()) {
                 char typeValue = value.charAt(0);
-                if (typeValue != field.getChar(articleChangedFieldJdo)) {
-                    field.setChar(articleChangedFieldJdo, typeValue);
+                if (typeValue != field.getChar(changedFieldJdo)) {
+                    field.setChar(changedFieldJdo, typeValue);
                 } else return;
             } else if (long.class == field.getType()) {
                 long typeValue = Long.parseLong(value);
-                if (typeValue != field.getLong(articleChangedFieldJdo)) {
-                    field.setLong(articleChangedFieldJdo, typeValue);
+                if (typeValue != field.getLong(changedFieldJdo)) {
+                    field.setLong(changedFieldJdo, typeValue);
                 } else return;
             } else if (Integer.class == field.getType()) {
                 Integer typeValue;
@@ -260,16 +280,16 @@ public class ArticleChangedFieldTableModel extends AbstractTableModel implements
                 } else {
                     typeValue = Integer.parseInt(value);
                 }
-                if (!typeValue.equals(field.get(articleChangedFieldJdo))) {
-                    field.set(articleChangedFieldJdo, typeValue);
+                if (!typeValue.equals(field.get(changedFieldJdo))) {
+                    field.set(changedFieldJdo, typeValue);
                 } else return;
             } else if (Boolean.class == field.getType()) {
                 Boolean typeValue = Boolean.parseBoolean(value);
                 if (field.getName().equals("selected")) {
                     toUpdate = false;
                 }
-                if (typeValue != field.getBoolean(articleChangedFieldJdo)) {
-                    field.setBoolean(articleChangedFieldJdo, typeValue);
+                if (typeValue != field.getBoolean(changedFieldJdo)) {
+                    field.setBoolean(changedFieldJdo, typeValue);
                 } else return;
             } else if (Double.class == field.getType()) {
                 Double typeValue;
@@ -279,18 +299,18 @@ public class ArticleChangedFieldTableModel extends AbstractTableModel implements
                     typeValue = fixIfNeedAndParseDouble(value);
                     typeValue = BigDecimal.valueOf(typeValue).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue();
                 }
-                if (!typeValue.equals(field.get(articleChangedFieldJdo))) {
-                        field.setDouble(articleChangedFieldJdo, typeValue);
+                if (!typeValue.equals(field.get(changedFieldJdo))) {
+                        field.setDouble(changedFieldJdo, typeValue);
                 } else return;
             } else if (Character.class == field.getType()) {
                 Character typeValue = value.charAt(0);
-                if (!typeValue.equals(field.get(articleChangedFieldJdo))) {
-                    field.set(articleChangedFieldJdo, typeValue);
+                if (!typeValue.equals(field.get(changedFieldJdo))) {
+                    field.set(changedFieldJdo, typeValue);
                 } else return;
             } else if (Long.class == field.getType()) {
                 Long typeValue = Long.parseLong(value);
-                if (!typeValue.equals(field.get(articleChangedFieldJdo))) {
-                    field.set(articleChangedFieldJdo, typeValue);
+                if (!typeValue.equals(field.get(changedFieldJdo))) {
+                    field.set(changedFieldJdo, typeValue);
                 } else return;
             } else if (Calendar.class == field.getType()) {
                 Calendar typeValue = Calendar.getInstance();
@@ -305,13 +325,13 @@ public class ArticleChangedFieldTableModel extends AbstractTableModel implements
                             return;
                         }
                         typeValue.setTime(time);
-                        if (!typeValue.equals(field.get(articleChangedFieldJdo))) {
-                            field.set(articleChangedFieldJdo, typeValue);
+                        if (!typeValue.equals(field.get(changedFieldJdo))) {
+                            field.set(changedFieldJdo, typeValue);
                         } else return;
                     }
                 } else {
-                    if (field.get(articleChangedFieldJdo) != null) {
-                        field.set(articleChangedFieldJdo, null);
+                    if (field.get(changedFieldJdo) != null) {
+                        field.set(changedFieldJdo, null);
                     } else return;
                 }
             } else if (Date.class == field.getType()) {
@@ -325,18 +345,18 @@ public class ArticleChangedFieldTableModel extends AbstractTableModel implements
                             logger.warn(e.getMessage(), e);
                             return;
                         }
-                        if (!typeValue.equals(field.get(articleChangedFieldJdo))) {
-                            field.set(articleChangedFieldJdo, typeValue);
+                        if (!typeValue.equals(field.get(changedFieldJdo))) {
+                            field.set(changedFieldJdo, typeValue);
                         } else return;
                     }
                 } else {
-                    if (field.get(articleChangedFieldJdo) != null) {
-                        field.set(articleChangedFieldJdo, null);
+                    if (field.get(changedFieldJdo) != null) {
+                        field.set(changedFieldJdo, null);
                     } else return;
                 }
             } else {
-                if (!value.equals(field.get(articleChangedFieldJdo))) {
-                    field.set(articleChangedFieldJdo, value);
+                if (!value.equals(field.get(changedFieldJdo))) {
+                    field.set(changedFieldJdo, value);
                 } else return;
             }
         } catch (NumberFormatException e) {
@@ -347,7 +367,7 @@ public class ArticleChangedFieldTableModel extends AbstractTableModel implements
             throw new RuntimeException(e);
         }
         if (toUpdate) {
-            updateTable(articleChangedFieldJdo);
+            updateTable(changedFieldJdo);
         }
     }
 
@@ -359,18 +379,18 @@ public class ArticleChangedFieldTableModel extends AbstractTableModel implements
     }
 
     /**
-     * Updates table with the articleChangedFieldJdo.
+     * Updates table with the changedFieldJdo.
      *
-     * @param articleChangedFieldJdo the articleChangedFieldJdo to be updated.
+     * @param changedFieldJdo the changedFieldJdo to be updated.
      */
-    private void updateTable(final ArticleChangedFieldJdo articleChangedFieldJdo) {
+    private void updateTable(final ChangedFieldJdo changedFieldJdo) {
         if (queryName != null) {
 
         concurrentOperationsService.startOperation("Field changing.", new Runnable() {
             @Override
             public void run() {
-                    articleChangedFieldServiceSwingWrapper.update(articleChangedFieldJdo);
-                    tableData = articleChangedFieldServiceSwingWrapper.get(queryName);
+                    changedFieldServiceSwingWrapper.update(changedFieldJdo);
+                    tableData = changedFieldServiceSwingWrapper.get(queryName);
                 }
         });
             fireTableDataChanged();
@@ -383,15 +403,16 @@ public class ArticleChangedFieldTableModel extends AbstractTableModel implements
         this.queryName = queryName;
     }
 
-    public String getQueryName() {
-        return queryName;
+//    public String getQueryName() {
+//        return queryName;
+//    }
+//
+    public ChangedFieldJdo getSelectedChangedField() {
+        return selectedChangedField;
     }
 
-    public ArticleChangedFieldJdo getSelectedArticleChangedField() {
-        return selectedArticleChangedField;
+    public void setSelectedChangedField(ChangedFieldJdo selectedChangedField) {
+        this.selectedChangedField = selectedChangedField;
     }
 
-    public void setSelectedArticleChangedField(ArticleChangedFieldJdo selectedArticleChangedField) {
-        this.selectedArticleChangedField = selectedArticleChangedField;
-    }
 }

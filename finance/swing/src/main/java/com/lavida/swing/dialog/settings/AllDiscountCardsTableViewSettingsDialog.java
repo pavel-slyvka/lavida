@@ -43,7 +43,7 @@ public class AllDiscountCardsTableViewSettingsDialog extends AbstractDialog{
 
         tableViewComponent.initializeComponents(this, allDiscountCardsDialog.getCardTableComponent().getDiscountCardsTable(),
                 allDiscountCardsDialog.getCardTableComponent().getHeadersAndColumnsMap(),
-                messageSource, localeHolder, usersSettingsHolder);
+                messageSource, localeHolder);
         JPanel mainPanel = tableViewComponent.getMainPanel();
         rootContainer.add(mainPanel);
 

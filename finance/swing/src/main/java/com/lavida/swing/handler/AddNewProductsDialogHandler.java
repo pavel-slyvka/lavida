@@ -1,12 +1,12 @@
 package com.lavida.swing.handler;
 
-import com.google.gdata.util.ServiceException;
 import com.lavida.service.ArticleCalculator;
 import com.lavida.service.UserService;
 import com.lavida.service.entity.ArticleJdo;
 import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.dialog.AddNewProductsDialog;
 import com.lavida.swing.exception.LavidaSwingRuntimeException;
+import com.lavida.swing.exception.RemoteUpdateException;
 import com.lavida.swing.form.component.TablePrintPreviewComponent;
 import com.lavida.swing.service.ArticleServiceSwingWrapper;
 import com.lavida.swing.service.ConcurrentOperationsService;
@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -48,15 +47,6 @@ public class AddNewProductsDialogHandler {
 
     @Resource
     protected LocaleHolder localeHolder;
-
-//    @Resource
-//    private FileChooserComponent fileChooser;
-
-//    @Resource
-//    private UsersSettingsHolder usersSettingsHolder;
-//
-//    @Resource
-//    private UserSettingsService userSettingsService;
 
     @Resource
     private ArticleCalculator articleCalculator;
@@ -108,11 +98,7 @@ public class AddNewProductsDialogHandler {
             int result = dialog.showConfirmDialog("dialog.add.new.products.save.confirm.title", "dialog.add.new.products.save.confirm.message");
             switch (result) {
                 case JOptionPane.YES_OPTION:
-//                    if (dialog.getTableModel().getOpenedFile() == null) {
-//                        saveItemClicked();
-//                    } else {
                     saveData();
-//                    }
                     break;
                 case JOptionPane.NO_OPTION:
                     break;
@@ -120,60 +106,60 @@ public class AddNewProductsDialogHandler {
 
         }
         dialog.getTableModel().setTableData(new ArrayList<ArticleJdo>());
-//        dialog.getTableModel().setOpenedFile(null);
         dialog.getTableModel().fireTableDataChanged();
         dialog.hide();
         dialog.getMainForm().update();
     }
 
     public void acceptProductsButtonClicked() {
-//        if (dialog.getTableModel().getOpenedFile() == null) {
-//            saveItemClicked();
-//        } else {
-            saveData();
-//        }
+        saveData();
         if (userService.hasForbiddenRole()) {
             return;
         }
         final String acceptingOk = messageSource.getMessage("dialog.add.new.products.accepting.ok.message", null, localeHolder.getLocale());
-        final String postponedSaved = messageSource.getMessage("sellDialog.handler.sold.article.not.saved.to.worksheet", null, localeHolder.getLocale());
         concurrentOperationsService.startOperation("Accept new products", new Runnable() {
             @Override
             public void run() {
                 dialog.getAcceptProductsButton().setEnabled(false);
+                boolean postponed = false;
+                RemoteUpdateException exception = null;
                 StringBuilder stringBuilder = new StringBuilder();
                 stringBuilder.append(acceptingOk);
                 stringBuilder.append("\n");
-                boolean postponedExist = false;
                 List<ArticleJdo> newArticles = dialog.getTableModel().getTableData();
                 while (newArticles.size() > 0) {
                     ArticleJdo newArticle = newArticles.get(0);
+                    ArticleJdo oldArticle;
+                    try {
+                        oldArticle = (ArticleJdo) newArticle.clone();
+                    } catch (CloneNotSupportedException e) {
+                        dialog.getAcceptProductsButton().setEnabled(true);
+                        throw new RuntimeException(e);
+                    }
                     if (newArticle.getCode().isEmpty() || newArticle.getDeliveryDate() == null
                             || newArticle.getTotalCostUAH() == 0 || newArticle.getSalePrice() == -1.0) {
                         dialog.showWarningMessage("mainForm.exception.message.dialog.title", "dialog.add.new.product.code.deliveryDate.totalCostUAH.not.filled.message");
                         dialog.getTableModel().fireTableDataChanged();
                         dialog.getArticleTableComponent().getArticleFiltersComponent().updateAnalyzeComponent();
+                        dialog.getAcceptProductsButton().setEnabled(true);
                         return;
                     }
                     try {
-                        articleServiceSwingWrapper.updateToSpreadsheet(newArticle, null);
-                    } catch (IOException | ServiceException e) {
-                        logger.warn(e.getMessage(), e);
-                        newArticle.setPostponedOperationDate(new Date());
-                        postponedExist = true;
+                        articleServiceSwingWrapper.updateToSpreadsheet(oldArticle, newArticle, null);
+                    } catch (RemoteUpdateException e) {
+                        postponed = true;
+                        exception = e;
                     }
-                    articleServiceSwingWrapper.update(newArticle);
                     newArticles.remove(newArticle);
                 }
                 dialog.getTableModel().fireTableDataChanged();
                 dialog.getArticleTableComponent().getArticleFiltersComponent().updateAnalyzeComponent();
                 dialog.getAcceptProductsButton().setEnabled(true);
-                if (postponedExist) {
-                    stringBuilder.append(postponedSaved);
-                }
                 String message = convertToMultiline(new String(stringBuilder));
                 dialog.getMainForm().showInfoToolTip(message);
-                dialog.getMainForm().getHandler().showPostponedOperationsMessage();
+                if (postponed) {
+                    throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.GOOGLE_SERVICE_EXCEPTION, exception);
+                }
             }
         });
 
@@ -212,29 +198,6 @@ public class AddNewProductsDialogHandler {
             dialog.showInformationMessage("mainForm.menu.table.print.message.title",
                     messageSource.getMessage("mainForm.menu.table.print.cancel.message.body", null, localeHolder.getLocale()));
         }
-
-/*
-        MessageFormat header = new MessageFormat(messageSource.getMessage("dialog.add.new.products.menu.file.print.header", null, localeHolder.getLocale()));
-        MessageFormat footer = new MessageFormat(messageSource.getMessage("mainForm.menu.table.print.footer", null, localeHolder.getLocale()));
-        boolean fitPageWidth = false;
-        boolean showPrintDialog = true;
-        boolean interactive = true;
-        JTable.PrintMode printMode = fitPageWidth ? JTable.PrintMode.FIT_WIDTH : JTable.PrintMode.NORMAL;
-        try {
-            boolean complete = dialog.getArticleTableComponent().getArticlesTable().print(printMode, header, footer,
-                    showPrintDialog, null, interactive, null);
-            if (complete) {
-                dialog.showInformationMessage("mainForm.menu.table.print.message.title",
-                        messageSource.getMessage("mainForm.menu.table.print.finished.message.body", null, localeHolder.getLocale()));
-            } else {
-                dialog.showInformationMessage("mainForm.menu.table.print.message.title",
-                        messageSource.getMessage("mainForm.menu.table.print.cancel.message.body", null, localeHolder.getLocale()));
-            }
-        } catch (PrinterException e) {
-                   throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.PRINTER_EXCEPTION, e, dialog.getMainForm());
-        }
-*/
-
     }
 
     public void calculateTransportCostEURItemClicked() {
@@ -273,73 +236,15 @@ public class AddNewProductsDialogHandler {
             }
         } else {
             dialog.showWarningMessage("mainForm.exception.message.dialog.title", "dialog.add.new.product.articles.not.added.message");
-//            return;
         }
     }
 
     public void saveItemClicked() {
-
-/*
-        fileChooser.setFileFilter(new FileNameExtensionFilter("XML", "xml"));
-        fileChooser.setSelectedFile(new File("Приём товара " +
-                new SimpleDateFormat("dd-MM-yyyy").format(new Date()) + ".xml"));
-        File file;
-        while (true) {
-            int choice = fileChooser.showSaveDialog(dialog.getDialog());
-            if (choice == JFileChooser.APPROVE_OPTION) {
-                file = fileChooser.getSelectedFile();
-                if (!fileChooser.isValidFile(file)) {
-                    fileChooser.showWarningMessage("mainForm.exception.message.dialog.title",
-                            "mainForm.handler.fileChooser.fileName.format.message");
-                    fileChooser.setSelectedFile(new File("Приём товара " +
-                            new SimpleDateFormat("dd-MM-yyyy").format(new Date()) + ".xml"));
-                    continue;
-                }
-
-                if (!fileChooser.isFileFilterSelected()) {
-                    fileChooser.showWarningMessage("mainForm.exception.message.dialog.title",
-                            "mainForm.handler.fileChooser.fileFilter.selection.message");
-                    continue;
-                }
-
-                file = fileChooser.improveFileExtension(file);
-
-                if (file.exists()) {
-                    int result = fileChooser.showConfirmDialog("mainForm.handler.fileChooser.file.exists.dialog.title",
-                            "mainForm.handler.fileChooser.file.exists.dialog.message");
-                    switch (result) {
-                        case JOptionPane.YES_OPTION:
-                            break;
-                        case JOptionPane.NO_OPTION:
-                            continue;
-                        case JOptionPane.CLOSED_OPTION:
-                            continue;
-                        case JOptionPane.CANCEL_OPTION:
-                            fileChooser.setSelectedFile(new File("Приём товара " +
-                                    new SimpleDateFormat("dd-MM-yyyy").format(new Date()) + ".xml"));
-                            fileChooser.cancelSelection();
-                            return;
-                    }
-                }
-                break;
-            } else {
-                fileChooser.setSelectedFile(new File("Приём товара " +
-                        new SimpleDateFormat("dd-MM-yyyy").format(new Date()) + ".xml"));
-                fileChooser.cancelSelection();
-                return;
-            }
-        }
-        dialog.getTableModel().setOpenedFile(file);
-*/
         saveData();
-//        fileChooser.setSelectedFile(new File("Приём товара " +
-//                new SimpleDateFormat("dd-MM-yyyy").format(new Date()) + ".xml"));
-
     }
 
     private void saveData() {
         try {
-//            articleServiceSwingWrapper.saveToXml(dialog.getTableModel().getTableData(), dialog.getTableModel().getOpenedFile());
             articleServiceSwingWrapper.saveToXml(dialog.getTableModel().getTableData(), FILE_TO_SAVE);
         } catch (JAXBException e) {
             throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.JAXB_EXCEPTION, e);
@@ -349,42 +254,7 @@ public class AddNewProductsDialogHandler {
     }
 
     public void openItemClicked() {
-/*
-        fileChooser.setFileFilter(new FileNameExtensionFilter("XML", "xml"));
-        if (dialog.getTableModel().getOpenedFile() == null) {
-            fileChooser.setSelectedFile(null);
-        } else {
-            fileChooser.setSelectedFile(dialog.getTableModel().getOpenedFile());
-        }
-
-        File file;
-        while (true) {
-            int choice = fileChooser.showOpenDialog(dialog.getDialog());
-            if (choice == JFileChooser.APPROVE_OPTION) {
-                file = fileChooser.getSelectedFile();
-                if (!fileChooser.isValidFile(file)) {
-                    fileChooser.showWarningMessage("mainForm.exception.message.dialog.title",
-                            "mainForm.handler.fileChooser.fileName.format.message");
-                    fileChooser.setSelectedFile(null);
-                    continue;
-                }
-
-                if (!fileChooser.isFileFilterSelected()) {
-                    fileChooser.showWarningMessage("mainForm.exception.message.dialog.title",
-                            "mainForm.handler.fileChooser.fileFilter.selection.message");
-                    continue;
-                }
-                break;
-            } else {
-                fileChooser.setSelectedFile(null);
-                fileChooser.cancelSelection();
-                return;
-            }
-        }
-*/
         openData(FILE_TO_SAVE);
-//        dialog.getTableModel().setOpenedFile(file);
-//        fileChooser.setSelectedFile(null);
         dialog.getTableModel().fireTableDataChanged();
         dialog.getArticleTableComponent().getArticleFiltersComponent().updateAnalyzeComponent();
 

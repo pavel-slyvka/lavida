@@ -2,6 +2,7 @@ package com.lavida.service;
 
 import com.google.gdata.util.ServiceException;
 import com.lavida.service.dao.DiscountCardDao;
+import com.lavida.service.entity.ChangedFieldJdo;
 import com.lavida.service.entity.DiscountCardJdo;
 import com.lavida.service.remote.RemoteService;
 import org.springframework.stereotype.Service;
@@ -10,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -46,32 +48,45 @@ public class DiscountCardService {
     @Transactional
     public DiscountCardsUpdateInfo updateDatabaseFromRemote(List<DiscountCardJdo> remoteDiscountCards) {
         List<DiscountCardJdo> dbOldDiscountCards = getAll();
-
         List<DiscountCardJdo> discountCardsToUpdate = new ArrayList<DiscountCardJdo>();
         List<DiscountCardJdo> discountCardsToDelete = new ArrayList<DiscountCardJdo>();
+
+        List<ChangedFieldJdo> changedFieldJdoList = new ArrayList<>();
+        Date operationDate = new Date();
         l:
         for (DiscountCardJdo dbOldDiscountCard : dbOldDiscountCards) {
             if (dbOldDiscountCard.getPostponedDate() != null) {
                 throw new RuntimeException("Postponed operations must be operated firstly!");
             }
             for (int i = 0; i < remoteDiscountCards.size(); ++i) {
-                DiscountCardJdo remoteArticle = remoteDiscountCards.get(i);
-                if (dbOldDiscountCard.getSpreadsheetRow() == remoteArticle.getSpreadsheetRow()) {
+                DiscountCardJdo remoteCard = remoteDiscountCards.get(i);
+                if (dbOldDiscountCard.getSpreadsheetRow() == remoteCard.getSpreadsheetRow()) {
                     remoteDiscountCards.remove(i);
-                    if (!dbOldDiscountCard.equals(remoteArticle)) {
-                        remoteArticle.setId(dbOldDiscountCard.getId());
-                        discountCardsToUpdate.add(remoteArticle);
+                    if (!dbOldDiscountCard.equals(remoteCard)) {
+                        remoteCard.setId(dbOldDiscountCard.getId());
+                        discountCardsToUpdate.add(remoteCard);
+                        changedFieldJdoList.addAll(remoteCard.findUpdateChanges(dbOldDiscountCard,
+                                ChangedFieldJdo.RefreshOperationType.UPDATED));
                     }
                     continue l;
                 }
             }
             discountCardsToDelete.add(dbOldDiscountCard);
+            changedFieldJdoList.add(new ChangedFieldJdo(operationDate, ChangedFieldJdo.ObjectType.DISCOUNT_CARD, dbOldDiscountCard.getId(),
+                    dbOldDiscountCard.getNumber(), null, null, null, null, ChangedFieldJdo.RefreshOperationType.DELETED, null));
+        }
+
+        for (DiscountCardJdo discountCardJdo : remoteDiscountCards) {
+            changedFieldJdoList.add(new ChangedFieldJdo(operationDate, ChangedFieldJdo.ObjectType.DISCOUNT_CARD, discountCardJdo.getId(),
+                    discountCardJdo.getNumber(), null, null, null, null, ChangedFieldJdo.RefreshOperationType.SAVED, null));
+
         }
 
         DiscountCardsUpdateInfo discountCardsUpdateInfo = new DiscountCardsUpdateInfo();
         discountCardsUpdateInfo.setAddedCount(remoteDiscountCards.size());
         discountCardsUpdateInfo.setUpdatedCount(discountCardsToUpdate.size());
         discountCardsUpdateInfo.setDeletedCount(discountCardsToDelete.size());
+        discountCardsUpdateInfo.setChangedFieldJdoList(changedFieldJdoList);
         remove(discountCardsToDelete);
         update(discountCardsToUpdate);
         save(remoteDiscountCards);

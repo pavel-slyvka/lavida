@@ -5,6 +5,7 @@ import com.lavida.swing.dialog.*;
 import com.lavida.swing.dialog.settings.AllDiscountCardsTableViewSettingsDialog;
 import com.lavida.swing.dialog.settings.NotSoldArticlesTableViewSettingsDialog;
 import com.lavida.swing.dialog.settings.SoldArticlesTableViewSettingsDialog;
+import com.lavida.swing.event.PostponedOperationEvent;
 import com.lavida.swing.form.component.ArticleTableComponent;
 import com.lavida.swing.form.component.ProgressComponent;
 import com.lavida.swing.handler.MainFormHandler;
@@ -15,6 +16,7 @@ import com.lavida.swing.service.ArticlesTableModel;
 import com.lavida.swing.service.ConcurrentOperationsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -35,7 +37,7 @@ import java.util.List;
  * @author Ruslan
  */
 @Component
-public class MainForm extends AbstractForm {
+public class MainForm extends AbstractForm implements ApplicationListener<PostponedOperationEvent> {
     private static final Logger logger = LoggerFactory.getLogger(MainFormHandler.class);
 
     @Resource
@@ -69,7 +71,10 @@ public class MainForm extends AbstractForm {
     private AllDiscountCardsTableViewSettingsDialog allDiscountCardsTableViewSettingsDialog;
 
     @Resource
-    private ArticleChangesDialog articleChangesDialog;
+    private RefreshChangesDialog refreshChangesDialog;
+
+    @Resource
+    private PostponedChangesDialog postponedChangesDialog;
 
     @Resource
     private UserService userService;
@@ -87,9 +92,8 @@ public class MainForm extends AbstractForm {
     private Button sellButton, showSoldProductsButton;
     private JLabel postponedOperations, postponedMessage, errorMessage, presetNameLabel, presetNameField;
     private JMenuBar menuBar;
-    private JMenu postponedMenu, productsMenu, settingsMenu, tablesViewItem, discountsMenu, tableMenu, selectedMenu;
-    private JMenuItem savePostponedItem, loadPostponedItem, recommitPostponedItem, deletePostponedItem,
-            addNewProductsItem, refreshTableItem, articleChangesItem,
+    private JMenu  productsMenu, settingsMenu, discountsMenu, tableMenu, selectedMenu;
+    private JMenuItem addNewProductsItem, refreshTableItem, articleChangesItem,
             savePresetItem, selectPresetItem, createPresetItem, deletePresetItem,
             notSoldArticlesTableViewItem,
             addNewDiscountCardItem, allDiscountCardsItem,
@@ -113,14 +117,12 @@ public class MainForm extends AbstractForm {
                 if (concurrentOperationsService.hasActiveThreads()) {
                     int result = showConfirmDialog("mainForm.closing.warning.title", "mainForm.closing.warning.message");
                     switch (result) {
-                        case JOptionPane.NO_OPTION :
-//                            form.setVisible(true);
+                        case JOptionPane.NO_OPTION:
                             break;
 
-                        case JOptionPane.YES_OPTION :
+                        case JOptionPane.YES_OPTION:
                             form.dispose();
                             System.exit(0);
-//                            break;
                     }
                 } else {
                     form.dispose();
@@ -141,13 +143,11 @@ public class MainForm extends AbstractForm {
 
 //      desktop pane
         desktopPanel = new JPanel();
-//        desktopPanel.setBackground(Color.white);
         desktopPanel.setLayout(new BorderLayout());
         desktopPanel.setBorder(BorderFactory.createEmptyBorder());
 
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.insets = new Insets(1, 5, 1, 5);
-//        constraints.fill = GridBagConstraints.HORIZONTAL;
 
 
         articleTableComponent.initializeComponents(tableModel, messageSource, localeHolder, usersSettingsHolder);
@@ -159,9 +159,6 @@ public class MainForm extends AbstractForm {
 
 //      analyze panel for total analyses
         analyzePanel = articleTableComponent.getArticleFiltersComponent().getArticleAnalyzeComponent().getAnalyzePanel();
-//        analyzePanel.setPreferredSize(new Dimension(300, 200));
-//        analyzePanel.setMinimumSize(new Dimension(300, 200));
-//        analyzePanel.setMaximumSize(new Dimension(1000, 1000));
 
 //      panel for search operations
         filtersPanel = articleTableComponent.getArticleFiltersComponent().getFiltersPanel();
@@ -281,51 +278,6 @@ public class MainForm extends AbstractForm {
     private void initializeMenuBar() {
         menuBar = new JMenuBar();
 
-//        postponed menu
-        postponedMenu = new JMenu();
-        postponedMenu.setText(messageSource.getMessage("mainForm.menu.postponed.title", null, localeHolder.getLocale()));
-
-        savePostponedItem = new JMenuItem();
-        savePostponedItem.setText(messageSource.getMessage("mainForm.menu.postponed.save.title", null, localeHolder.getLocale()));
-        savePostponedItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                handler.savePostponedItemClicked();
-            }
-        });
-
-        loadPostponedItem = new JMenuItem();
-        loadPostponedItem.setText(messageSource.getMessage("mainForm.menu.postponed.load.title", null, localeHolder.getLocale()));
-        loadPostponedItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                handler.loadPostponedItemClicked();
-            }
-        });
-
-        recommitPostponedItem = new JMenuItem();
-        recommitPostponedItem.setText(messageSource.getMessage("mainForm.button.recommit.title", null, localeHolder.getLocale()));
-        recommitPostponedItem.add(new JSeparator());
-        recommitPostponedItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                handler.recommitPostponedItemClicked();
-            }
-        });
-
-        deletePostponedItem = new JMenuItem();
-        deletePostponedItem.setText(messageSource.getMessage("mainForm.menu.postponed.delete.title", null, localeHolder.getLocale()));
-        deletePostponedItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                handler.deletePostponedItemClicked();
-            }
-        });
-
-        postponedMenu.add(savePostponedItem);
-        postponedMenu.add(loadPostponedItem);
-        postponedMenu.add(recommitPostponedItem);
-        postponedMenu.add(deletePostponedItem);
 
 //        products menu
         productsMenu = new JMenu();
@@ -345,7 +297,7 @@ public class MainForm extends AbstractForm {
         articleChangesItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                articleChangesDialog.show();
+                refreshChangesDialog.show();
             }
         });
 
@@ -365,6 +317,15 @@ public class MainForm extends AbstractForm {
 //        settings menu
         settingsMenu = new JMenu();
         settingsMenu.setText(messageSource.getMessage("mainForm.menu.settings.title", null, localeHolder.getLocale()));
+
+        JMenuItem postponedItem = new JMenuItem();
+        postponedItem.setText(messageSource.getMessage("mainForm.menu.postponed.title", null, localeHolder.getLocale()));
+        postponedItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                postponedChangesDialog.show();
+            }
+        });
 
         notSoldArticlesTableViewItem = new JMenuItem();
         notSoldArticlesTableViewItem.setText(messageSource.getMessage("mainForm.menu.settings.item.view.tables", null, localeHolder.getLocale()));
@@ -411,6 +372,7 @@ public class MainForm extends AbstractForm {
             }
         });
 
+        settingsMenu.add(postponedItem);
         settingsMenu.add(notSoldArticlesTableViewItem);
         settingsMenu.addSeparator();
         settingsMenu.add(savePresetItem);
@@ -496,7 +458,6 @@ public class MainForm extends AbstractForm {
         menuBar.add(discountsMenu);
         menuBar.add(selectedMenu);
         menuBar.add(settingsMenu);
-        menuBar.add(postponedMenu);
     }
 
     /**
@@ -525,22 +486,22 @@ public class MainForm extends AbstractForm {
         sellDialog.filterByRoles(userRoles);
     }
 
-    public void filterAnalyzePanelByRoles(List<String> userRoles) {
+    public void filterAnalyzePanelByRoles() {
         articleTableComponent.getArticleFiltersComponent().getArticleAnalyzeComponent().
-                filterAnalyzeComponentByRoles(userRoles);
+                filterAnalyzeComponentByRoles(userService);
         soldProductsDialog.getArticleTableComponent().getArticleFiltersComponent().getArticleAnalyzeComponent().
-                filterAnalyzeComponentByRoles(userRoles);
+                filterAnalyzeComponentByRoles(userService);
         addNewProductsDialog.getArticleTableComponent().getArticleFiltersComponent().getArticleAnalyzeComponent().
-                filterAnalyzeComponentByRoles(userRoles);
+                filterAnalyzeComponentByRoles(userService);
         allDiscountCardsDialog.getCardTableComponent().getCardFiltersComponent().getCardAnalyzeComponent().
-                filterAnalyzeComponentByRoles(userRoles);
+                filterAnalyzeComponentByRoles(userService);
         addNewDiscountCardsDialog.getCardTableComponent().getCardFiltersComponent().getCardAnalyzeComponent().
-                filterAnalyzeComponentByRoles(userRoles);
+                filterAnalyzeComponentByRoles(userService);
     }
 
-    public void removeFiltersByRoles(List<String> userRoles) {
-        articleTableComponent.getArticleFiltersComponent().removeFiltersByRoles(userRoles);
-        soldProductsDialog.getArticleTableComponent().getArticleFiltersComponent().removeFiltersByRoles(userRoles);
+    public void removeFiltersByRoles() {
+        articleTableComponent.getArticleFiltersComponent().removeFiltersByRoles(userService);
+        soldProductsDialog.getArticleTableComponent().getArticleFiltersComponent().removeFiltersByRoles(userService);
     }
 
     public void filterTableDataByRole(List<String> userRoles) {
@@ -550,7 +511,6 @@ public class MainForm extends AbstractForm {
 
     public void filterMenuBarByRoles() {
         if (userService.hasForbiddenRole()) {
-//            addNewProductsItem.setEnabled(false);
             moveToShopItem.setEnabled(false);
             printItem.setEnabled(false);
             articleChangesItem.setEnabled(false);
@@ -605,19 +565,15 @@ public class MainForm extends AbstractForm {
         presetNameField.setText(usersSettingsHolder.getPresetName());
     }
 
+    @Override
+    public void onApplicationEvent(PostponedOperationEvent event) {
+        handler.showPostponedOperationsMessage();
+    }
+
     /**
      * The custom button.
      */
     private class Button extends JButton {
-//        private Button() {
-//            super();
-//            setHorizontalTextPosition(JButton.CENTER);
-//            setPreferredSize(new Dimension(150, 20));
-//            setMaximumSize(new Dimension(150, 20));
-//            setMinimumSize(new Dimension(150, 20));
-//
-//        }
-
         private Button(String text) {
             super(text);
             setHorizontalTextPosition(JButton.CENTER);
@@ -667,10 +623,6 @@ public class MainForm extends AbstractForm {
         soldArticlesTableViewSettingsDialog.postInit();
         allDiscountCardsTableViewSettingsDialog.postInit();
     }
-
-//    public JLabel getErrorMessage() {
-//        return errorMessage;
-//    }
 
     public void showInfoToolTip(final String message) {
         if (message.replaceFirst("<html>", "").isEmpty()) {
@@ -739,17 +691,6 @@ public class MainForm extends AbstractForm {
 
     }
 
-    public JMenuItem getSavePostponedItem() {
-        return savePostponedItem;
-    }
-
-    public JMenuItem getRecommitPostponedItem() {
-        return recommitPostponedItem;
-    }
-
-    public JMenuItem getDeletePostponedItem() {
-        return deletePostponedItem;
-    }
 
 
     private class PopupWrapper implements Comparable<PopupWrapper> {

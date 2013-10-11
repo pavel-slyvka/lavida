@@ -1,6 +1,5 @@
 package com.lavida.swing.service;
 
-import com.google.gdata.util.ServiceException;
 import com.lavida.service.FiltersPurpose;
 import com.lavida.service.UserService;
 import com.lavida.service.ViewColumn;
@@ -8,15 +7,14 @@ import com.lavida.service.entity.DiscountCardJdo;
 import com.lavida.service.utils.DateConverter;
 import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.event.DiscountCardUpdateEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.lavida.swing.exception.LavidaSwingRuntimeException;
+import com.lavida.swing.exception.RemoteUpdateException;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.MessageSource;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.swing.table.AbstractTableModel;
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.text.ParseException;
@@ -30,22 +28,13 @@ import java.util.*;
  * @author Ruslan
  */
 public class DiscountCardsTableModel extends AbstractTableModel implements ApplicationListener<DiscountCardUpdateEvent> {
-    private static final Logger logger = LoggerFactory.getLogger(DiscountCardsTableModel.class);
+//    private static final Logger logger = LoggerFactory.getLogger(DiscountCardsTableModel.class);
 
     private List<String> headerTitles;
     private List<String> discountCardFieldsSequence;
     private Map<Integer, SimpleDateFormat> columnIndexToDateFormat;
     private List<DiscountCardJdo> tableData;
     private DiscountCardJdo selectedCard;
-
-    private static final List<String> FORBIDDEN_ROLES = new ArrayList<String>();
-
-    static {
-        FORBIDDEN_ROLES.add("ROLE_SELLER_LA_VIDA");
-        FORBIDDEN_ROLES.add("ROLE_SELLER_SLAVYANKA");
-        FORBIDDEN_ROLES.add("ROLE_SELLER_NOVOMOSKOVSK");
-        FORBIDDEN_ROLES.add("ROLE_SELLER_ALEXANDRIA");
-    }
 
     @Resource
     private MessageSource messageSource;
@@ -69,13 +58,13 @@ public class DiscountCardsTableModel extends AbstractTableModel implements Appli
 
     @PostConstruct
     public void initHeaderFieldAndTitles() {
-        this.discountCardFieldsSequence = new ArrayList<String>();
-        this.headerTitles = new ArrayList<String>();
-        this.columnIndexToDateFormat = new HashMap<Integer, SimpleDateFormat>();
+        this.discountCardFieldsSequence = new ArrayList<>();
+        this.headerTitles = new ArrayList<>();
+        this.columnIndexToDateFormat = new HashMap<>();
         if (query != null) {
             this.tableData = discountCardServiceSwingWrapper.get(query);
         } else {
-            this.tableData = new ArrayList<DiscountCardJdo>();
+            this.tableData = new ArrayList<>();
         }
         for (Field field : DiscountCardJdo.class.getDeclaredFields()) {
             ViewColumn viewColumn = field.getAnnotation(ViewColumn.class);
@@ -116,7 +105,7 @@ public class DiscountCardsTableModel extends AbstractTableModel implements Appli
     }
 
     public List<String> getForbiddenHeadersToShow(MessageSource messageSource, Locale locale, List<String> userRoles) {
-        List<String> forbiddenHeaders = new ArrayList<String>();
+        List<String> forbiddenHeaders = new ArrayList<>();
         for (Field field : DiscountCardJdo.class.getDeclaredFields()) {
             ViewColumn viewColumn = field.getAnnotation(ViewColumn.class);
             if (viewColumn != null && viewColumn.show()) {
@@ -170,7 +159,7 @@ public class DiscountCardsTableModel extends AbstractTableModel implements Appli
     }
 
     public Map<String, Integer> getColumnHeaderToWidth() {
-        Map<String, Integer> columnHeaderToWidth = new HashMap<String, Integer>(headerTitles.size());
+        Map<String, Integer> columnHeaderToWidth = new HashMap<>(headerTitles.size());
         label:
         for (String columnHeader : headerTitles) {
             Integer width;
@@ -230,7 +219,6 @@ public class DiscountCardsTableModel extends AbstractTableModel implements Appli
             return field.get(discountCardJdo);
 
         } catch (Exception e) {
-            logger.warn(e.getMessage(), e);
             throw new RuntimeException(e);
         }
     }
@@ -252,7 +240,7 @@ public class DiscountCardsTableModel extends AbstractTableModel implements Appli
             return false;
         } else if (discountCardFieldsSequence.get(columnIndex).equals("discountRate") ||
                 discountCardFieldsSequence.get(columnIndex).equals("bonusUAH")) {
-            return !isForbidden(userService.getCurrentUserRoles(), FORBIDDEN_ROLES);
+            return !userService.hasForbiddenRole();
         }
         return true;
     }
@@ -280,6 +268,12 @@ public class DiscountCardsTableModel extends AbstractTableModel implements Appli
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
         DiscountCardJdo discountCardJdo = getDiscountCardByRowIndex(rowIndex);
+        DiscountCardJdo oldDiscountCardJdo;
+        try {
+            oldDiscountCardJdo = (DiscountCardJdo) discountCardJdo.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
         String value = aValue.toString();
         SimpleDateFormat calendarFormatter = new SimpleDateFormat("dd.MM.yyyy");
         calendarFormatter.setLenient(false);
@@ -392,8 +386,7 @@ public class DiscountCardsTableModel extends AbstractTableModel implements Appli
                         try {
                             time = calendarFormatter.parse(formattedValue);
                         } catch (ParseException e) {
-                            logger.warn(e.getMessage(), e);
-                            return;
+                            throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.DATE_FORMAT_EXCEPTION, e);
                         }
                         typeValue.setTime(time);
                         if (!typeValue.equals(field.get(discountCardJdo))) {
@@ -413,8 +406,7 @@ public class DiscountCardsTableModel extends AbstractTableModel implements Appli
                         try {
                             typeValue = DateConverter.convertStringToDate(formattedValue);
                         } catch (ParseException e) {
-                            logger.warn(e.getMessage(), e);
-                            return;
+                            throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.DATE_FORMAT_EXCEPTION, e);
                         }
                         if (!typeValue.equals(field.get(discountCardJdo))) {
                             field.set(discountCardJdo, typeValue);
@@ -431,14 +423,12 @@ public class DiscountCardsTableModel extends AbstractTableModel implements Appli
                 } else return;
             }
         } catch (NumberFormatException e) {
-            logger.warn(e.getMessage(), e);
             throw new NumberFormatException(e.getMessage());
         } catch (Exception e) {
-            logger.warn(e.getMessage(), e);
             throw new RuntimeException(e);
         }
         if (toUpdate) {
-            updateTable(discountCardJdo);
+            updateTable(oldDiscountCardJdo, discountCardJdo);
         }
     }
 
@@ -454,22 +444,19 @@ public class DiscountCardsTableModel extends AbstractTableModel implements Appli
      *
      * @param discountCardJdo the DiscountCardJdo to be updated.
      */
-    private void updateTable(final DiscountCardJdo discountCardJdo) {
+    private void updateTable(final DiscountCardJdo oldDiscountCardJdo, final DiscountCardJdo discountCardJdo) {
         if (query != null) {
             concurrentOperationsService.startOperation("Discount card update.", new Runnable() {
-           @Override
-           public void run() {
-                   try {
-                       discountCardServiceSwingWrapper.updateToSpreadsheet(discountCardJdo);
-                   } catch (IOException | ServiceException e) {
-                       logger.warn(e.getMessage(), e);
-                       discountCardJdo.setPostponedDate(new Date());
-                   }
-                   discountCardServiceSwingWrapper.update(discountCardJdo);
-                   tableData = discountCardServiceSwingWrapper.get(query);
-
-           }
-       });
+                @Override
+                public void run() {
+                    try {
+                        discountCardServiceSwingWrapper.updateToSpreadsheet(oldDiscountCardJdo, discountCardJdo);
+                    } catch (RemoteUpdateException e) {
+                        fireTableDataChanged();
+                        throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.GOOGLE_SERVICE_EXCEPTION, e);
+                    }
+                }
+            });
         }
         fireTableDataChanged();
     }

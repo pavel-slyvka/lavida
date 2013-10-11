@@ -1,25 +1,19 @@
 package com.lavida.swing.handler;
 
-import com.google.gdata.util.ServiceException;
+import com.lavida.swing.exception.LavidaSwingRuntimeException;
+import com.lavida.swing.exception.RemoteUpdateException;
 import com.lavida.swing.form.component.TablePrintPreviewComponent;
-import com.lavida.swing.service.UserSettingsService;
 import com.lavida.service.entity.DiscountCardJdo;
-import com.lavida.swing.preferences.UsersSettingsHolder;
 import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.dialog.AllDiscountCardsDialog;
+import com.lavida.swing.service.ConcurrentOperationsService;
 import com.lavida.swing.service.DiscountCardServiceSwingWrapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import javax.swing.*;
-import java.awt.print.PrinterException;
-import java.io.IOException;
-import java.text.MessageFormat;
 import java.util.Calendar;
-import java.util.Date;
 
 /**
  * The handler for the {@link com.lavida.swing.dialog.AllDiscountCardsDialog}.
@@ -29,7 +23,7 @@ import java.util.Date;
  */
 @Component
 public class AllDiscountCardsDialogHandler {
-    private static final Logger logger = LoggerFactory.getLogger(AllDiscountCardsDialogHandler.class);
+//    private static final Logger logger = LoggerFactory.getLogger(AllDiscountCardsDialogHandler.class);
 
     @Resource
     private AllDiscountCardsDialog dialog;
@@ -44,29 +38,24 @@ public class AllDiscountCardsDialogHandler {
     protected LocaleHolder localeHolder;
 
     @Resource
-    private UsersSettingsHolder usersSettingsHolder;
-
-    @Resource
-    private UserSettingsService userSettingsService;
+    private ConcurrentOperationsService concurrentOperationsService;
 
     public void activateButtonClicked() {
         if (dialog.getTableModel().getSelectedCard() != null) {
             DiscountCardJdo discountCardJdo = dialog.getTableModel().getSelectedCard();
+            DiscountCardJdo oldDiscountCardJdo;
+            try {
+                oldDiscountCardJdo = (DiscountCardJdo) discountCardJdo.clone();
+            } catch (CloneNotSupportedException e) {
+                throw new RuntimeException(e);
+            }
             if (discountCardJdo.getActivationDate() == null) {
                 int result = dialog.showConfirmDialog("dialog.discounts.card.all.confirm.activate", "dialog.discounts.card.all.confirm.activate.question");
                 switch (result) {
                     case JOptionPane.YES_OPTION:
                         discountCardJdo.setActivationDate(Calendar.getInstance());
-                        try {
-                            discountCardServiceSwingWrapper.updateToSpreadsheet(discountCardJdo);
-                        } catch (IOException | ServiceException e) {
-                            logger.warn(e.getMessage(), e);
-                            discountCardJdo.setPostponedDate(new Date());
-                            dialog.getMainForm().getHandler().showPostponedOperationsMessage();
-                        }
-                        discountCardServiceSwingWrapper.update(discountCardJdo);
+                        changeDiscountCard(oldDiscountCardJdo, discountCardJdo);
                         dialog.getTableModel().setSelectedCard(null);
-                        dialog.getTableModel().fireTableDataChanged();
                         break;
                     case JOptionPane.NO_OPTION:
                         break;
@@ -85,22 +74,53 @@ public class AllDiscountCardsDialogHandler {
         }
     }
 
+    private void changeDiscountCard(final DiscountCardJdo oldDiscountCardJdo, final DiscountCardJdo discountCardJdo) {
+        concurrentOperationsService.startOperation("Discount card activation state changing" , new Runnable() {
+            @Override
+            public void run() {
+                boolean postponed = false;
+                RemoteUpdateException exception = null;
+                StringBuilder stringBuilder = new StringBuilder();
+                stringBuilder.append(messageSource.getMessage("dialog.discounts.card.all.activation.finished.message",
+                        null, localeHolder.getLocale()));
+                stringBuilder.append("\n");
+
+                try {
+                    discountCardServiceSwingWrapper.updateToSpreadsheet(oldDiscountCardJdo, discountCardJdo);
+                } catch (RemoteUpdateException e) {
+                    postponed = true;
+                    exception = e;
+                }
+                dialog.getTableModel().fireTableDataChanged();
+                String message = convertToMultiline(new String(stringBuilder));
+                dialog.getMainForm().showInfoToolTip(message);
+                if (postponed) {
+                    throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.GOOGLE_SERVICE_EXCEPTION, exception);
+                }
+
+            }
+        });
+    }
+
+    private String convertToMultiline(String orig) {
+        return "<html>" + orig.replaceAll("\n", "<br>"); //+ "</html>"
+    }
+
     public void disableButtonClicked() {
         if (dialog.getTableModel().getSelectedCard() != null) {
             DiscountCardJdo discountCardJdo = dialog.getTableModel().getSelectedCard();
+            DiscountCardJdo oldDiscountCardJdo;
+            try {
+                oldDiscountCardJdo = (DiscountCardJdo) discountCardJdo.clone();
+            } catch (CloneNotSupportedException e) {
+                throw new RuntimeException(e);
+            }
             if (discountCardJdo.getActivationDate() != null) {
-                int result = dialog.showConfirmDialog("dialog.discounts.card.all.confirm.activate", "dialog.discounts.card.all.confirm.activate.question");
+                int result = dialog.showConfirmDialog("dialog.discounts.card.all.confirm.disable", "dialog.discounts.card.all.confirm.disable.question");
                 switch (result) {
                     case JOptionPane.YES_OPTION:
                         discountCardJdo.setActivationDate(null);
-                        try {
-                            discountCardServiceSwingWrapper.updateToSpreadsheet(discountCardJdo);
-                        } catch (IOException | ServiceException e) {
-                            logger.warn(e.getMessage(), e);
-                            discountCardJdo.setPostponedDate(new Date());
-                            dialog.getMainForm().getHandler().showPostponedOperationsMessage();
-                        }
-                        discountCardServiceSwingWrapper.update(discountCardJdo);
+                        changeDiscountCard(oldDiscountCardJdo, discountCardJdo);
                         dialog.getTableModel().setSelectedCard(null);
                         dialog.getTableModel().fireTableDataChanged();
                         break;

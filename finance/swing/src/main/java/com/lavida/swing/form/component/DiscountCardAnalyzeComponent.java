@@ -1,5 +1,6 @@
 package com.lavida.swing.form.component;
 
+import com.lavida.service.UserService;
 import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.service.DiscountCardsTableModel;
 import org.springframework.context.MessageSource;
@@ -9,8 +10,6 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import java.awt.*;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * The component for analyze panel
@@ -20,13 +19,13 @@ import java.util.List;
  */
 public class DiscountCardAnalyzeComponent {
 
-    private static final List<String> FORBIDDEN_ROLES = new ArrayList<>();
-    static {
-        FORBIDDEN_ROLES.add("ROLE_SELLER_LA_VIDA");
-        FORBIDDEN_ROLES.add("ROLE_SELLER_SLAVYANKA");
-        FORBIDDEN_ROLES.add("ROLE_SELLER_NOVOMOSKOVSK");
-        FORBIDDEN_ROLES.add("ROLE_SELLER_ALEXANDRIA");
-    }
+//    private static final List<String> FORBIDDEN_ROLES = new ArrayList<>();
+//    static {
+//        FORBIDDEN_ROLES.add("ROLE_SELLER_LA_VIDA");
+//        FORBIDDEN_ROLES.add("ROLE_SELLER_SLAVYANKA");
+//        FORBIDDEN_ROLES.add("ROLE_SELLER_NOVOMOSKOVSK");
+//        FORBIDDEN_ROLES.add("ROLE_SELLER_ALEXANDRIA");
+//    }
 
     private DiscountCardsTableModel tableModel;
 //    private MessageSource messageSource;
@@ -108,20 +107,11 @@ public class DiscountCardAnalyzeComponent {
         return String.valueOf(number);
     }
 
-    public void filterAnalyzeComponentByRoles(java.util.List<String> userRoles) {
-        if (hasForbiddenRole(userRoles) || tableModel.getQuery() == null) {
+    public void filterAnalyzeComponentByRoles(UserService userService) {
+        if (userService.hasForbiddenRole() || tableModel.getQuery() == null) {
             totalSumPanel.setVisible(false);
         }
 
-    }
-
-    private boolean hasForbiddenRole (java.util.List<String> userRoles) {
-        for (String role : userRoles) {
-            if (FORBIDDEN_ROLES.contains(role)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     public JPanel getAnalyzePanel() {

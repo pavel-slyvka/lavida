@@ -1,7 +1,5 @@
 package com.lavida.swing.form;
 
-import com.lavida.swing.exception.ExceptionHandler;
-import com.lavida.swing.exception.SwingExceptionHandler;
 import com.lavida.swing.handler.LoginFormHandler;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -9,7 +7,6 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import javax.swing.*;
-import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.*;
 
@@ -27,19 +24,10 @@ public class LoginForm extends AbstractForm {
     @Resource
     private LoginFormHandler handler;
 
-    @Resource
-    private SwingExceptionHandler swingExceptionHandler;
-
-    private JButton submitButton, cancelButton;
+    private JButton submitButton;
     private JTextField loginField;
     private JPasswordField passwordField;
-    private JLabel loginLabel;
-    private JLabel passwordLabel;
-    private JLabel instructionsLabel;
     private JLabel errorLabel;
-    private JPanel informPanel;
-    private JPanel credentialPanel;
-    private JPanel buttonPanel;
 
     @Override
     protected void initializeForm() {
@@ -58,9 +46,9 @@ public class LoginForm extends AbstractForm {
 
     @Override
     protected void initializeComponents() {
-        informPanel = new JPanel(new GridLayout(2, 1));
+        JPanel informPanel = new JPanel(new GridLayout(2, 1));
         informPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        instructionsLabel = new JLabel(messageSource.getMessage("loginForm.label.instruction.title", null, localeHolder.getLocale()));
+        JLabel instructionsLabel = new JLabel(messageSource.getMessage("loginForm.label.instruction.title", null, localeHolder.getLocale()));
         instructionsLabel.setHorizontalAlignment(JLabel.CENTER);
         errorLabel = new JLabel();
         errorLabel.setForeground(Color.RED);
@@ -72,9 +60,9 @@ public class LoginForm extends AbstractForm {
         GridBagLayout bagLayout = new GridBagLayout();
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.insets = new Insets(2,5,2,5);
-        credentialPanel = new JPanel(bagLayout);
+         JPanel credentialPanel = new JPanel(bagLayout);
 
-        loginLabel = new JLabel(messageSource.getMessage("loginForm.label.login.title", null, localeHolder.getLocale()));
+        JLabel loginLabel = new JLabel(messageSource.getMessage("loginForm.label.login.title", null, localeHolder.getLocale()));
         loginLabel.setHorizontalAlignment(JLabel.RIGHT);
         loginLabel.setLabelFor(loginField);
         constraints.fill = GridBagConstraints.NONE;
@@ -100,7 +88,7 @@ public class LoginForm extends AbstractForm {
         constraints.weightx = 1.0;
         credentialPanel.add(loginField, constraints);
 
-        passwordLabel = new JLabel(messageSource.getMessage("loginForm.label.password.title", null, localeHolder.getLocale()));
+        JLabel passwordLabel = new JLabel(messageSource.getMessage("loginForm.label.password.title", null, localeHolder.getLocale()));
         passwordLabel.setHorizontalAlignment(JLabel.RIGHT);
         passwordLabel.setLabelFor(passwordField);
         constraints.fill = GridBagConstraints.NONE;
@@ -127,7 +115,7 @@ public class LoginForm extends AbstractForm {
         constraints.weightx = 1.0;
         credentialPanel.add(passwordField, constraints);
 
-        buttonPanel = new JPanel();
+        JPanel buttonPanel = new JPanel();
         FlowLayout flowLayout = new FlowLayout();
         flowLayout.setAlignment(FlowLayout.RIGHT);
         buttonPanel.setLayout(flowLayout);
@@ -138,7 +126,8 @@ public class LoginForm extends AbstractForm {
                 handler.submitButtonClicked(loginField.getText().trim(), new String(passwordField.getPassword()));
             }
         });
-        cancelButton = new JButton(messageSource.getMessage("loginForm.button.cancel.title", null, localeHolder.getLocale()));
+
+        JButton cancelButton = new JButton(messageSource.getMessage("loginForm.button.cancel.title", null, localeHolder.getLocale()));
         cancelButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

@@ -1,10 +1,11 @@
 package com.lavida.swing.handler;
 
-import com.google.gdata.util.ServiceException;
 import com.lavida.service.entity.ArticleJdo;
 import com.lavida.service.entity.DiscountCardJdo;
 import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.dialog.SellDialog;
+import com.lavida.swing.exception.LavidaSwingRuntimeException;
+import com.lavida.swing.exception.RemoteUpdateException;
 import com.lavida.swing.service.ArticleServiceSwingWrapper;
 import com.lavida.swing.service.ArticlesTableModel;
 import com.lavida.swing.service.ConcurrentOperationsService;
@@ -16,7 +17,6 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import javax.swing.*;
-import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -60,6 +60,13 @@ public class SellDialogHandler {
      * @param articleJdo the article to be sold.
      */
     public void sellButtonClicked(ArticleJdo articleJdo) {
+        ArticleJdo oldArticle;
+        try {
+            oldArticle = (ArticleJdo) articleJdo.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+
         if ((dialog.getCommentTextField().getText().trim().isEmpty() || dialog.getCommentTextField().getText().trim().
                 equals(articleJdo.getComment() != null ? articleJdo.getComment() : ""))
                 && (dialog.getOursCheckBox().isSelected() || dialog.getPresentCheckBox().isSelected())) {
@@ -76,18 +83,14 @@ public class SellDialogHandler {
             DiscountCardJdo discountCardJdo = discountCardServiceSwingWrapper.getByNumber(cardNumber);
             if (discountCardJdo != null) {
                 if (discountCardJdo.getActivationDate() != null) {
-                    discountCardJdo.setSumTotalUAH(discountCardJdo.getSumTotalUAH() + totalCostUAH);
+                    DiscountCardJdo oldDiscountCardJdo;
                     try {
-                        discountCardServiceSwingWrapper.updateToSpreadsheet(discountCardJdo);
-                    } catch (IOException e) {
-                        logger.warn(e.getMessage(), e);
-                        discountCardJdo.setPostponedDate(new Date());
-                    } catch (ServiceException e) {
-                        logger.warn(e.getMessage(), e);
-                        discountCardJdo.setPostponedDate(new Date());
-                        dialog.getMainForm().getHandler().showPostponedOperationsMessage();
+                        oldDiscountCardJdo = (DiscountCardJdo) discountCardJdo.clone();
+                    } catch (CloneNotSupportedException e) {
+                        throw new RuntimeException(e);
                     }
-                    discountCardServiceSwingWrapper.update(discountCardJdo);
+                    discountCardJdo.setSumTotalUAH(discountCardJdo.getSumTotalUAH() + totalCostUAH);
+                    updateDiscountCardWithPostponed(oldDiscountCardJdo, discountCardJdo);
                     dialog.getDiscountCardNumberTextField().setText("");
                 } else {
                     dialog.showWarningMessage("mainForm.exception.message.dialog.title", "sellDialog.handler.discountCard.isNot.active");
@@ -110,12 +113,7 @@ public class SellDialogHandler {
             Date saleDate = dateFormat.parse(saleDateStr);
             saleDateCalendar.setTime(saleDate);
         } catch (ParseException e) {
-            e.printStackTrace();
-            dialog.showWarningMessage("mainForm.exception.message.dialog.title", "sellDialog.handler.saleDate.not.correct.format");
-            dialog.hide();
-            dialog.getMainForm().getTableModel().setSelectedArticle(null);
-            dialog.getMainForm().update();
-            return;
+            throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.DATE_FORMAT_EXCEPTION, e);
         }
         articleJdo.setSaleDate(saleDateCalendar);
         if (dialog.getOursCheckBox().isSelected()) {
@@ -154,7 +152,7 @@ public class SellDialogHandler {
             articleJdo.setRefundDate(null);
         }
         articleJdo.setSold(messageSource.getMessage("sellDialog.button.sell.clicked.sold", null, localeHolder.getLocale()));
-        updateArticle(articleJdo);
+        updateArticleWithPostponed(oldArticle, articleJdo);
         dialog.hide();
         dialog.getMainForm().getTableModel().setSelectedArticle(null);
         dialog.getMainForm().getHandler().showPostponedOperationsMessage();
@@ -162,23 +160,40 @@ public class SellDialogHandler {
         dialog.getMainForm().show();
     }
 
-    private void updateArticle(final ArticleJdo articleJdo) {
+    private void updateDiscountCardWithPostponed(final DiscountCardJdo oldDiscountCardJdo,final DiscountCardJdo discountCardJdo) {
+        concurrentOperationsService.startOperation("Updating discount card", new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    discountCardServiceSwingWrapper.updateToSpreadsheet(oldDiscountCardJdo, discountCardJdo);
+                } catch (RemoteUpdateException e) {
+                    logger.warn(e.getMessage(), e);
+                }
+
+            }
+        });
+    }
+
+    private void updateArticleWithPostponed(final ArticleJdo oldArticle, final ArticleJdo articleJdo) {
         concurrentOperationsService.startOperation("Selling", new Runnable() {
             @Override
             public void run() {
                 StringBuilder stringBuilder = new StringBuilder();
                 stringBuilder.append(messageSource.getMessage("sellDialog.selling.finished.message", null, localeHolder.getLocale()));
                 stringBuilder.append("\n");
+                boolean postponed = false;
+                RemoteUpdateException exception = null;
                 try {
-                    articleServiceSwingWrapper.updateToSpreadsheet(articleJdo, true);
-                } catch (IOException | ServiceException e) {
-                    logger.warn(e.getMessage(), e);
-                    stringBuilder.append(messageSource.getMessage("sellDialog.handler.sold.article.not.saved.to.worksheet", null, localeHolder.getLocale()));
-                    articleJdo.setPostponedOperationDate(articleJdo.getSaleDate().getTime());
+                    articleServiceSwingWrapper.updateToSpreadsheet(oldArticle, articleJdo, true);
+                } catch (RemoteUpdateException e) {
+                    postponed = true;
+                    exception = e;
                 }
-                articleServiceSwingWrapper.update(articleJdo);
                 String message = convertToMultiline(new String(stringBuilder));
                 dialog.getMainForm().showInfoToolTip(message);
+                if (postponed) {
+                    throw  new LavidaSwingRuntimeException(LavidaSwingRuntimeException.GOOGLE_SERVICE_EXCEPTION, exception);
+                }
             }
         });
     }

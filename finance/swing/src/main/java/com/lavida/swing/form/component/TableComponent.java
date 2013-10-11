@@ -7,8 +7,6 @@ import javax.swing.table.TableColumn;
 import javax.swing.text.JTextComponent;
 import java.awt.*;
 import java.awt.event.KeyEvent;
-import java.awt.image.BufferedImage;
-import java.lang.reflect.Field;
 import java.util.Enumeration;
 import java.util.EventObject;
 
@@ -20,10 +18,8 @@ import java.util.EventObject;
  * @author Ruslan.
  */
 public class TableComponent extends JTable {
-    private Throwable printError;
 
     private int lastRow;
-    private int lastColumn;
     private int selectedRow;
     private int selectedColumn;
     private int oldTableScale = 100;
@@ -32,7 +28,6 @@ public class TableComponent extends JTable {
     @Override
     public boolean editCellAt(int row, int column, EventObject e) {
         lastRow = getRowCount() - 1;
-        lastColumn = getColumnCount() - 1;
         selectedRow = row;
         selectedColumn = column;
 
@@ -47,7 +42,7 @@ public class TableComponent extends JTable {
             if (editor instanceof JTextComponent) {
                 JTextComponent textComponent = (JTextComponent) editor;
                 textComponent.selectAll();
-            } else if (editor instanceof JComboBox) {
+            } else {
                 JComboBox comboBox = (JComboBox) editor;
                 comboBox.setEditable(true);
                 JTextComponent textComponent = (JTextComponent) comboBox.getEditor().getEditorComponent();
@@ -74,9 +69,9 @@ public class TableComponent extends JTable {
         }
     }
 
-    public int getTableScale() {
-        return tableScale;
-    }
+//    public int getTableScale() {
+//        return tableScale;
+//    }
 
     public void setTableScale(int tableScale) {
         this.tableScale = tableScale;

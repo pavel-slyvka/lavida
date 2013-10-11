@@ -4,6 +4,7 @@ import com.google.gdata.util.ServiceException;
 import com.lavida.TaskProgressEvent;
 import com.lavida.service.ArticleUpdateInfo;
 import com.lavida.service.DiscountCardsUpdateInfo;
+import com.lavida.swing.exception.RemoteUpdateException;
 import com.lavida.swing.form.component.TablePrintPreviewComponent;
 import com.lavida.swing.preferences.UsersSettings;
 import com.lavida.swing.service.*;
@@ -12,13 +13,10 @@ import com.lavida.service.entity.DiscountCardJdo;
 import com.lavida.service.settings.Settings;
 import com.lavida.service.settings.SettingsService;
 import com.lavida.swing.preferences.UsersSettingsHolder;
-import com.lavida.service.xml.PostponedType;
-import com.lavida.service.xml.PostponedXmlService;
 import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.dialog.*;
 import com.lavida.swing.exception.LavidaSwingRuntimeException;
 import com.lavida.swing.form.MainForm;
-import com.lavida.swing.form.component.FileChooserComponent;
 import com.lavida.swing.form.component.ProgressComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,14 +27,10 @@ import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import javax.swing.*;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.xml.bind.JAXBException;
 import java.awt.*;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
 
@@ -50,7 +44,6 @@ import java.util.List;
 @Component
 public class MainFormHandler implements ApplicationContextAware {
     private static final Logger logger = LoggerFactory.getLogger(MainFormHandler.class);
-    private static final String DATE_FORMAT = "dd.MM.yyyy";
 
     @Resource
     private MessageSource messageSource;
@@ -65,10 +58,7 @@ public class MainFormHandler implements ApplicationContextAware {
     private DiscountCardServiceSwingWrapper discountCardServiceSwingWrapper;
 
     @Resource
-    private ArticleChangedFieldServiceSwingWrapper articleChangedFieldServiceSwingWrapper;
-
-    @Resource
-    private PostponedXmlService postponedXmlService;
+    private ChangedFieldServiceSwingWrapper changedFieldServiceSwingWrapper;
 
     @Resource
     private MainForm form;
@@ -76,27 +66,14 @@ public class MainFormHandler implements ApplicationContextAware {
     @Resource
     private SellDialog sellDialog;
 
-//    @Resource
-//    private SoldProductsDialog soldProductsDialog;
-//
-//    @Resource
-//    private AddNewProductsDialog addNewProductsDialog;
-//
-//    @Resource
-//    private NotSoldArticlesTableViewSettingsDialog notSoldArticlesTableViewSettingsDialog;
-//
-//    @Resource
-//    private SoldArticlesTableViewSettingsDialog soldArticlesTableViewSettingsDialog;
-//
-//    @Resource
-//    private AllDiscountCardsDialog allDiscountCardsDialog;
+    @Resource
+    private PostponedChangesDialog postponedChangesDialog;
 
+    @Resource
+    private PostponedChangesDialogHandler postponedChangesDialogHandler;
 
     @Resource(name = "notSoldArticleTableModel")
     private ArticlesTableModel tableModel;
-
-    @Resource
-    private FileChooserComponent fileChooser;
 
     @Resource
     private ProgressComponent progressComponent;
@@ -117,7 +94,7 @@ public class MainFormHandler implements ApplicationContextAware {
 //    private UpdateInfoMessageDialog updateInfoMessageDialog;
 
     private ApplicationContext applicationContext;
-    private String[] shopArray = {"", "LA VIDA", "СЛАВЯНСКИЙ", "НОВОМОСКОВСК"};
+//    private String[] shopArray = {"", "LA VIDA", "СЛАВЯНСКИЙ", "НОВОМОСКОВСК"};
 
     /**
      * The ActionListener for refreshButton component.
@@ -129,11 +106,11 @@ public class MainFormHandler implements ApplicationContextAware {
         final boolean needToLoadPostponed = hasPostponed();
         String postponedOperations = messageSource.getMessage("mainForm.handler.string.postponed.operations", null, localeHolder.getLocale());
         String filePath = System.getProperty("user.dir") + System.getProperty("file.separator") +
-                postponedOperations  + ".xml";
+                postponedOperations + ".xml";
         final File fileToLoad = new File(filePath);
         if (hasPostponed()) {
-            savePostponed(fileToLoad);
-            deletePostponedOperations();
+            postponedChangesDialogHandler.savePostponed(fileToLoad);
+            postponedChangesDialogHandler.deletePostponedOperations();
         }
 
         concurrentOperationsService.startOperation("Synchronization.", new Runnable() {
@@ -171,12 +148,12 @@ public class MainFormHandler implements ApplicationContextAware {
                     applicationContext.publishEvent(new TaskProgressEvent(this, TaskProgressEvent.TaskProgressType.COMPLETE));
                     discountCardsUpdateInfo = discountCardServiceSwingWrapper.updateDatabaseFromRemote(discountCardJdoList);
                     applicationContext.publishEvent(new TaskProgressEvent(this, TaskProgressEvent.TaskProgressType.COMPLETE));
-                } catch (IOException | ServiceException  e) {
+                } catch (IOException | ServiceException e) {
                     Thread.currentThread().interrupt();
                     progressComponent.getProgressBar().setVisible(false);
                     progressComponent.getLabel().setVisible(false);
                     if (needToLoadPostponed) {
-                        loadPostponed(fileToLoad);
+                        postponedChangesDialogHandler.loadPostponed(fileToLoad);
                     }
                     form.setRefreshTableItemEnable(true);
                     form.update();    // repaint MainForm in some time
@@ -184,7 +161,10 @@ public class MainFormHandler implements ApplicationContextAware {
                 }
                 showUpdateInfoMessage(articleUpdateInfo, discountCardsUpdateInfo);
                 if (articleUpdateInfo.getChangedFieldJdoList() != null) {
-                    articleChangedFieldServiceSwingWrapper.update(articleUpdateInfo.getChangedFieldJdoList());
+                    changedFieldServiceSwingWrapper.update(articleUpdateInfo.getChangedFieldJdoList());
+                }
+                if (discountCardsUpdateInfo.getChangedFieldJdoList() != null) {
+                    changedFieldServiceSwingWrapper.update(discountCardsUpdateInfo.getChangedFieldJdoList());
                 }
                 form.update();    // repaint MainForm in some time
                 form.setRefreshTableItemEnable(true);
@@ -199,7 +179,7 @@ public class MainFormHandler implements ApplicationContextAware {
                 settingsService.saveSettings(settings);
 
                 if (needToLoadPostponed) {
-                    loadPostponed(fileToLoad);
+                    postponedChangesDialogHandler.loadPostponed(fileToLoad);
                     showPostponedOperationsMessage();
                 }
             }
@@ -293,66 +273,6 @@ public class MainFormHandler implements ApplicationContextAware {
         }
     }
 
-    private String formatCalendar(Calendar calendar) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-        if (calendar != null) {
-            return  dateFormat.format(calendar.getTime());
-        }else return null;
-    }
-
-    public void recommitPostponedItemClicked() {
-        concurrentOperationsService.startOperation("Recommit.", new Runnable() {
-            @Override
-            public void run() {
-                form.getRecommitPostponedItem().setEnabled(false);
-                SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-                List<ArticleJdo> articles = articleServiceSwingWrapper.getAll();
-                for (ArticleJdo articleJdo : articles) {
-                    if (articleJdo.getPostponedOperationDate() != null) {
-                        try {
-                            if (articleJdo.getSold() != null && dateFormat.format(articleJdo.getPostponedOperationDate()).
-                                    equals(formatCalendar(articleJdo.getSaleDate()))) {   //recommit selling
-                                articleServiceSwingWrapper.updateToSpreadsheet(articleJdo, true);
-                            } else if (articleJdo.getSold() == null && dateFormat.format(articleJdo.getRefundDate()).
-                                    equals(dateFormat.format(articleJdo.getRefundDate()))) {  // recommit refunding
-                                articleServiceSwingWrapper.updateToSpreadsheet(articleJdo, false);
-                                articleJdo.setSaleDate(null);
-                            } else {
-                                articleServiceSwingWrapper.updateToSpreadsheet(articleJdo, null); // recommit other changes
-                            }
-                            articleJdo.setPostponedOperationDate(null);
-                            articleServiceSwingWrapper.update(articleJdo);
-                        } catch (IOException | ServiceException e) {
-                            showPostponedOperationsMessage();
-                            form.getRecommitPostponedItem().setEnabled(true);
-                            form.update();
-                            throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.GOOGLE_IO_EXCEPTION, e);
-                        }
-                    }
-                }
-                List<DiscountCardJdo> discountCardJdoList = discountCardServiceSwingWrapper.getAll();
-                for (DiscountCardJdo discountCardJdo : discountCardJdoList) {
-                    if (discountCardJdo.getPostponedDate() != null) {
-                        try {
-                            discountCardServiceSwingWrapper.updateToSpreadsheet(discountCardJdo);
-                            discountCardJdo.setPostponedDate(null);
-                            discountCardServiceSwingWrapper.update(discountCardJdo);
-                        } catch (IOException | ServiceException e) {
-                            showPostponedOperationsMessage();
-                            form.getRecommitPostponedItem().setEnabled(true);
-                            form.update();
-                            throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.GOOGLE_SERVICE_EXCEPTION, e);
-                        }
-                    }
-                }
-                showPostponedOperationsMessage();
-                form.getRecommitPostponedItem().setEnabled(true);
-                form.update();
-
-            }
-        });
-    }
-
     /**
      * Shows postponedOperationMessageLabel in the statusBarPanel of the mainForm.
      */
@@ -374,230 +294,19 @@ public class MainFormHandler implements ApplicationContextAware {
             form.getPostponedMessage().setText(String.valueOf(count));
             form.getPostponedMessage().setVisible(true);
             form.getPostponedOperations().setVisible(true);
-            form.getSavePostponedItem().setEnabled(true);
-            form.getRecommitPostponedItem().setEnabled(true);
-            form.getDeletePostponedItem().setEnabled(true);
+            postponedChangesDialog.getSavePostponedItem().setEnabled(true);
+            postponedChangesDialog.getRecommitPostponedItem().setEnabled(true);
+            postponedChangesDialog.getDeletePostponedItem().setEnabled(true);
         } else {
             form.getPostponedMessage().setText(String.valueOf(count));
             form.getPostponedMessage().setVisible(false);
             form.getPostponedOperations().setVisible(false);
-            form.getSavePostponedItem().setEnabled(false);
-            form.getRecommitPostponedItem().setEnabled(false);
-            form.getDeletePostponedItem().setEnabled(false);
+            postponedChangesDialog.getSavePostponedItem().setEnabled(false);
+            postponedChangesDialog.getRecommitPostponedItem().setEnabled(false);
+            postponedChangesDialog.getDeletePostponedItem().setEnabled(false);
         }
     }
 
-    /**
-     * Saves the List{@code <}{@link ArticleJdo}{@code >} with postponed operation to chosen xml file.
-     *
-     * @param file the chosen xml file.
-     */
-    public void savePostponed(File file) {
-        List<ArticleJdo> articlesPostponed = new ArrayList<>();
-        List<ArticleJdo> articlesAll = articleServiceSwingWrapper.getAll();
-        for (ArticleJdo articleJdo : articlesAll) {
-            if (articleJdo.getPostponedOperationDate() != null) {
-                articlesPostponed.add(articleJdo);
-            }
-        }
-
-        List<DiscountCardJdo> discountCardsPostponed = new ArrayList<>();
-        List<DiscountCardJdo> discountCardJdoList = discountCardServiceSwingWrapper.getAll();
-        for (DiscountCardJdo discountCardJdo : discountCardJdoList) {
-            if (discountCardJdo.getPostponedDate() != null) {
-                discountCardsPostponed.add(discountCardJdo);
-            }
-        }
-
-        PostponedType postponedType = new PostponedType();
-        postponedType.setArticles(articlesPostponed);
-        postponedType.setDiscountCards(discountCardsPostponed);
-        try {
-//            articleServiceSwingWrapper.saveToXml(articlesPostponed, file);
-            postponedXmlService.marshal(postponedType, file);
-        } catch (JAXBException e) {
-            logger.warn(e.getMessage(), e);
-            form.showWarningMessage("mainForm.exception.message.dialog.title", "mainForm.exception.xml.JAXB.message");
-        } catch (IOException e) {
-            logger.warn(e.getMessage(), e);
-            form.showWarningMessage("mainForm.exception.message.dialog.title", "mainForm.exception.io.xml.file");
-        }
-    }
-
-    /**
-     * Shows a dialog for choosing the file for saving postponed operations.
-     */
-    public void savePostponedItemClicked() {
-        fileChooser.setFileFilter(new FileNameExtensionFilter("XML", "xml"));
-        fileChooser.setSelectedFile(new File("postponed_" +
-                new SimpleDateFormat("dd-MM-yyyy").format(new Date()) + ".xml"));
-        File file;
-        while (true) {
-            int choice = fileChooser.showSaveDialog(form.getForm());
-            if (choice == JFileChooser.APPROVE_OPTION) {
-                file = fileChooser.getSelectedFile();
-                if (!fileChooser.isValidFile(file)) {
-                    fileChooser.showWarningMessage("mainForm.exception.message.dialog.title",
-                            "mainForm.handler.fileChooser.fileName.format.message");
-                    fileChooser.setSelectedFile(new File("postponed_" +
-                            new SimpleDateFormat("dd-MM-yyyy").format(new Date()) + ".xml"));
-                    continue;
-                }
-
-                if (!fileChooser.isFileFilterSelected()) {
-                    fileChooser.showWarningMessage("mainForm.exception.message.dialog.title",
-                            "mainForm.handler.fileChooser.fileFilter.selection.message");
-                    continue;
-                }
-
-                file = fileChooser.improveFileExtension(file);
-
-                if (file.exists()) {
-                    int result = fileChooser.showConfirmDialog("mainForm.handler.fileChooser.file.exists.dialog.title",
-                            "mainForm.handler.fileChooser.file.exists.dialog.message");
-                    switch (result) {
-                        case JOptionPane.YES_OPTION:
-                            break;
-                        case JOptionPane.NO_OPTION:
-                            continue;
-                        case JOptionPane.CLOSED_OPTION:
-                            continue;
-                        case JOptionPane.CANCEL_OPTION:
-                            fileChooser.setSelectedFile(new File("postponed_" +
-                                    new SimpleDateFormat("dd-MM-yyyy").format(new Date()) + ".xml"));
-                            fileChooser.cancelSelection();
-                            return;
-                    }
-                }
-                break;
-            } else {
-                fileChooser.setSelectedFile(new File("postponed_" +
-                        new SimpleDateFormat("dd-MM-yyyy").format(new Date()) + ".xml"));
-                fileChooser.cancelSelection();
-                return;
-            }
-        }
-        savePostponed(file);
-        form.update();
-        fileChooser.setSelectedFile(new File("postponed_" +
-                new SimpleDateFormat("dd-MM-yyyy").format(new Date()) + ".xml"));
-    }
-
-    /**
-     * Deletes all postponed operations from the database.
-     */
-    public void deletePostponedItemClicked() {
-        int result = form.showConfirmDialog("mainForm.menu.postponed.delete.message.title",
-                "mainForm.menu.postponed.delete.message.body");
-        switch (result) {
-            case JOptionPane.YES_OPTION:
-                deletePostponedOperations();
-                form.update();
-            case JOptionPane.NO_OPTION:
-                return;
-            case JOptionPane.CLOSED_OPTION:
-        }
-    }
-
-    /**
-     * Deletes all postponed operations from the database and updates the PostponedOperationsMessage label of the
-     * mainForm.
-     */
-    private void deletePostponedOperations() {
-        List<ArticleJdo> allArticles = articleServiceSwingWrapper.getAll();
-        for (ArticleJdo articleJdo : allArticles) {
-            if (articleJdo.getPostponedOperationDate() != null) {
-                articleJdo.setPostponedOperationDate(null);
-                articleServiceSwingWrapper.update(articleJdo);
-            }
-        }
-        List<DiscountCardJdo> discountCardJdoList = discountCardServiceSwingWrapper.getAll();
-        for (DiscountCardJdo discountCardJdo : discountCardJdoList) {
-            if (discountCardJdo.getPostponedDate() != null) {
-                discountCardJdo.setPostponedDate(null);
-                discountCardServiceSwingWrapper.update(discountCardJdo);
-            }
-        }
-
-        showPostponedOperationsMessage();
-    }
-
-    /**
-     * Shows a dialog for choosing the xml file with postponed operations and loads them to the database.
-     */
-    public void loadPostponedItemClicked() {
-        fileChooser.setFileFilter(new FileNameExtensionFilter("XML", "xml"));
-        fileChooser.setSelectedFile(null);
-        File file;
-        while (true) {
-            int choice = fileChooser.showOpenDialog(form.getForm());
-            if (choice == JFileChooser.APPROVE_OPTION) {
-                file = fileChooser.getSelectedFile();
-                if (!fileChooser.isValidFile(file)) {
-                    fileChooser.showWarningMessage("mainForm.exception.message.dialog.title",
-                            "mainForm.handler.fileChooser.fileName.format.message");
-                    fileChooser.setSelectedFile(null);
-                    continue;
-                }
-
-                if (!fileChooser.isFileFilterSelected()) {
-                    fileChooser.showWarningMessage("mainForm.exception.message.dialog.title",
-                            "mainForm.handler.fileChooser.fileFilter.selection.message");
-                    continue;
-                }
-                break;
-            } else {
-                fileChooser.setSelectedFile(null);
-                fileChooser.cancelSelection();
-                return;
-            }
-        }
-        loadPostponed(file);
-        form.update();
-        fileChooser.setSelectedFile(null);
-    }
-
-    /**
-     * Loads postponed operations to the database.
-     *
-     * @param file the chosen xml file with postponed operations to be loaded.
-     */
-    private void loadPostponed(File file) {
-        List<ArticleJdo> loadedArticles;
-        List<DiscountCardJdo> loadedDiscountCards;
-        PostponedType postponedType;
-        try {
-            postponedType = postponedXmlService.unmarshal(file);
-        } catch (JAXBException e) {
-            logger.error(e.getMessage(), e);
-            form.showWarningMessage("mainForm.exception.message.dialog.title", "mainForm.exception.xml.JAXB.message");
-            return;
-        } catch (FileNotFoundException e) {
-            logger.error(e.getMessage(), e);
-            form.showWarningMessage("mainForm.exception.message.dialog.title", "mainForm.exception.io.xml.file");
-            return;
-        }
-        loadedArticles = postponedType.getArticles();
-        loadedDiscountCards = postponedType.getDiscountCards();
-        if (loadedArticles != null) {
-            List<ArticleJdo> forUpdateArticles = articleServiceSwingWrapper.mergePostponedWithDatabase(loadedArticles);
-            for (ArticleJdo articleJdo : forUpdateArticles) {
-                articleServiceSwingWrapper.update(articleJdo);
-            }
-            showPostponedOperationsMessage();
-//        } else {
-//            form.showWarningMessage("mainForm.attention.message.dialog.title", "mainForm.handler.postponed.articles.not.exist.message");
-        }
-        if (loadedDiscountCards != null) {
-            List<DiscountCardJdo> forUpdateDiscountCards = discountCardServiceSwingWrapper.mergePostponedWithDatabase(loadedDiscountCards);
-            for (DiscountCardJdo discountCardJdo : forUpdateDiscountCards) {
-                discountCardServiceSwingWrapper.update(discountCardJdo);
-            }
-            showPostponedOperationsMessage();
-//        } else {
-//            form.showWarningMessage("mainForm.attention.message.dialog.title", "mainForm.handler.postponed.discountCards.not.exist.message");
-        }
-    }
 
     public void printItemClicked() {
         TablePrintPreviewComponent tablePrintPreviewComponent = new TablePrintPreviewComponent();
@@ -666,26 +375,49 @@ public class MainFormHandler implements ApplicationContextAware {
 
     public void moveToShopItemClicked() {
         String shop = (String) (form.showInputDialog("mainForm.menu.selected.moveToShop.select.title", "mainForm.menu.selected.moveToShop.select.message",
-                null, shopArray, shopArray[0]));
+                null, ArticleJdo.SHOP_ARRAY, ArticleJdo.SHOP_ARRAY[0]));
 
         if (shop != null) {
-            for (ArticleJdo articleJdo : form.getTableModel().getTableData()) {
-                if (articleJdo.isSelected()) {
-                    articleJdo.setShop(shop);
-                    articleJdo.setSelected(false);
-                    try {
-                        articleServiceSwingWrapper.updateToSpreadsheet(articleJdo, null);
-                    } catch (IOException | ServiceException e) {
-                        logger.warn(e.getMessage(), e);
-                        Toolkit.getDefaultToolkit().beep();
-                        articleJdo.setPostponedOperationDate(new Date());
-                        form.showWarningMessage("mainForm.exception.message.dialog.title", "sellDialog.handler.sold.article.not.saved.to.worksheet");
-                    }
-                    articleServiceSwingWrapper.update(articleJdo);
-                }
-            }
-            form.update();
+            moveToShop(shop);
         }
+    }
+
+    private void moveToShop(final String shop) {
+        concurrentOperationsService.startOperation("Moving articles to the " + shop, new Runnable() {
+            @Override
+            public void run() {
+                StringBuilder stringBuilder = new StringBuilder();
+                stringBuilder.append(messageSource.getMessage("mainForm.moveToShop.finished.message", null, localeHolder.getLocale()));
+                stringBuilder.append("\n");
+                boolean postponedExist = false;
+                RemoteUpdateException exception = null;
+                for (ArticleJdo articleJdo : form.getTableModel().getTableData()) {
+                    if (articleJdo.isSelected()) {
+                        ArticleJdo oldArticle;
+                        try {
+                            oldArticle = (ArticleJdo) articleJdo.clone();
+                        } catch (CloneNotSupportedException e) {
+                            throw new RuntimeException(e);
+                        }
+                        articleJdo.setShop(shop);
+                        articleJdo.setSelected(false);
+                        try {
+                            articleServiceSwingWrapper.updateToSpreadsheet(oldArticle, articleJdo, null);
+                        } catch (RemoteUpdateException e) {
+                            exception = e;
+                            postponedExist = true;
+                        }
+                    }
+                }
+                String message = convertToMultiline(new String(stringBuilder));
+                form.showInfoToolTip(message);
+                form.update();
+                if (postponedExist) {
+                    throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.GOOGLE_SERVICE_EXCEPTION, exception);
+                }
+
+            }
+        });
     }
 
     public void deselectArticlesItemClicked() {

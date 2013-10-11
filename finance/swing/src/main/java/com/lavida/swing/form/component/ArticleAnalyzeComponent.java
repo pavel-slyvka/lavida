@@ -1,5 +1,6 @@
 package com.lavida.swing.form.component;
 
+import com.lavida.service.UserService;
 import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.service.ArticlesTableModel;
 import org.springframework.context.MessageSource;
@@ -9,8 +10,6 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import java.awt.*;
 import java.text.DecimalFormat;
-import java.util.*;
-import java.util.List;
 
 /**
  * The component for analyze panel
@@ -19,31 +18,15 @@ import java.util.List;
  * @author Ruslan
  */
 public class ArticleAnalyzeComponent {
-    private static final List<String> FORBIDDEN_ROLES = new ArrayList<String>();
-
-    static {
-        FORBIDDEN_ROLES.add("ROLE_SELLER_LA_VIDA");
-        FORBIDDEN_ROLES.add("ROLE_SELLER_SLAVYANKA");
-        FORBIDDEN_ROLES.add("ROLE_SELLER_NOVOMOSKOVSK");
-        FORBIDDEN_ROLES.add("ROLE_SELLER_ALEXANDRIA");
-    }
-
-    private ArticlesTableModel tableModel;
-    private MessageSource messageSource;
-    private LocaleHolder localeHolder;
 
     private JPanel analyzePanel;
-    private JLabel totalCountLabel, totalCountField, totalCostEURLabel, totalCostEURField,
+    private JLabel  totalCountField, totalCostEURLabel, totalCostEURField,
             totalPriceLabel, totalPriceField, totalPurchaseCostEURLabel, totalPurchaseCostEURField,
             totalCostUAHLabel, totalCostUAHField, minimalMultiplierLabel, minimalMultiplierField,
             normalMultiplierLabel, normalMultiplierField, totalTransportCostEURLabel, totalTransportCostEURField,
             profitUAHLabel, profitUAHField;
 
-    public void initializeComponents(ArticlesTableModel articlesTableModel, MessageSource messageSource, LocaleHolder localeHolder) {
-        this.tableModel = articlesTableModel;
-        this.messageSource = messageSource;
-        this.localeHolder = localeHolder;
-
+    public void initializeComponents(ArticlesTableModel tableModel, MessageSource messageSource, LocaleHolder localeHolder) {
 //        panel for analyzing total cost, price, count of products etc., shown in the table
         Border fieldsBorder = BorderFactory.createBevelBorder(BevelBorder.LOWERED);
         analyzePanel = new JPanel(new GridBagLayout());
@@ -54,7 +37,7 @@ public class ArticleAnalyzeComponent {
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.insets = new Insets(2, 5, 2, 5);
 
-        totalCountLabel = new JLabel();
+        JLabel totalCountLabel = new JLabel();
         totalCountLabel.setBorder(BorderFactory.createEmptyBorder());
         totalCountLabel.setText(messageSource.getMessage("component.article.analyze.label.total.count.title",
                 null, localeHolder.getLocale()));
@@ -253,7 +236,7 @@ public class ArticleAnalyzeComponent {
      * @param totalCount   int , total count of articles shown in the totalCountField;
      * @param totalCostEUR double, total original cost of articles shown in the totalCostEURField;
      * @param totalPrice   double, total price of articles shown in the totalPriceField.
-     * @param profitUAH
+     * @param profitUAH double profit UAH
      */
     public void updateFields(int totalCount, double totalPurchaseCostEUR, double totalCostEUR, double totalCostUAH,
                              double minimalMultiplier, double normalMultiplier, double totalPrice, double totalTransportCostEUR, double profitUAH) {
@@ -279,8 +262,8 @@ public class ArticleAnalyzeComponent {
         return decimalFormat.format(number);
     }
 
-    public void filterAnalyzeComponentByRoles(java.util.List<String> userRoles) {
-        if (hasForbiddenRole(userRoles)) {
+    public void filterAnalyzeComponentByRoles(UserService userService) {
+        if (userService.hasForbiddenRole()) {
             totalCostEURLabel.setVisible(false);
             totalCostEURField.setVisible(false);
             totalPriceLabel.setVisible(false);
@@ -299,15 +282,6 @@ public class ArticleAnalyzeComponent {
             profitUAHField.setVisible(false);
         }
 
-    }
-
-    private boolean hasForbiddenRole(java.util.List<String> userRoles) {
-        for (String role : userRoles) {
-            if (FORBIDDEN_ROLES.contains(role)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     public JPanel getAnalyzePanel() {

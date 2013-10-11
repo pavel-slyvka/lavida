@@ -3,19 +3,19 @@ package com.lavida.swing.event;
 import org.springframework.context.ApplicationEvent;
 
 /**
- * The ArticleChangedFieldEvent
+ * The PostponedOperationEvent
  * <p/>
- * Created: 01.10.13 21:30.
+ * Created: 10.10.13 21:26.
  *
  * @author Ruslan.
  */
-public class ArticleChangedFieldEvent extends ApplicationEvent {
+public class PostponedOperationEvent extends ApplicationEvent {
     /**
      * Create a new ApplicationEvent.
      *
      * @param source the component that published the event (never {@code null})
      */
-    public ArticleChangedFieldEvent(Object source) {
+    public PostponedOperationEvent(Object source) {
         super(source);
     }
 }

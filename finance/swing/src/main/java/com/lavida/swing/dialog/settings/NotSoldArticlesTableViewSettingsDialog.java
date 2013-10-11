@@ -35,7 +35,7 @@ public class NotSoldArticlesTableViewSettingsDialog extends AbstractDialog {
         rootContainer.setLayout(new BorderLayout());
         tableViewComponent.initializeComponents(this, mainForm.getArticleTableComponent().getArticlesTable(),
                  mainForm.getArticleTableComponent().getHeadersAndColumnsMap(),
-                messageSource, localeHolder, usersSettingsHolder);
+                messageSource, localeHolder);
         JPanel mainPanel = tableViewComponent.getMainPanel();
         rootContainer.add(mainPanel);
     }

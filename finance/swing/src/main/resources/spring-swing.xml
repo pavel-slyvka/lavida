@@ -29,7 +29,8 @@
     <util:constant id="ArticleJdo.FIND_SOLD" static-field="com.lavida.service.entity.ArticleJdo.FIND_SOLD" />
     <util:constant id="DiscountCardJdo.FIND_ALL"
                    static-field="com.lavida.service.entity.DiscountCardJdo.FIND_ALL"/>
-    <util:constant id="ArticleChangedFieldJdo.FIND_All" static-field="com.lavida.service.entity.ArticleChangedFieldJdo.FIND_All"/>
+    <util:constant id="ArticleChangedFieldJdo.FIND_REFRESHED" static-field="com.lavida.service.entity.ChangedFieldJdo.FIND_REFRESHED"/>
+    <util:constant id="ArticleChangedFieldJdo.FIND_POSTPONED" static-field="com.lavida.service.entity.ChangedFieldJdo.FIND_POSTPONED"/>
 
     <bean id="notSoldArticleTableModel" class="com.lavida.swing.service.ArticlesTableModel">
         <property name="queryName" ref="ArticleJdo.FIND_NOT_SOLD" />
@@ -47,8 +48,12 @@
         <property name="query" ref="DiscountCardJdo.FIND_ALL"/>
     </bean>
 
-    <bean id="articleChangedFieldTableModel" class="com.lavida.swing.service.ArticleChangedFieldTableModel">
-        <property name="queryName" ref="ArticleChangedFieldJdo.FIND_All"/>
+    <bean id="articleRefreshChangedFieldTableModel" class="com.lavida.swing.service.ChangedFieldTableModel">
+        <property name="queryName" ref="ArticleChangedFieldJdo.FIND_REFRESHED"/>
+    </bean>
+
+    <bean id="articlePostponedChangedFieldTableModel" class="com.lavida.swing.service.ChangedFieldTableModel">
+        <property name="queryName" ref="ArticleChangedFieldJdo.FIND_POSTPONED"/>
     </bean>
 
 </beans>

@@ -6,7 +6,6 @@ import com.lavida.service.FiltersPurpose;
 import com.lavida.service.ViewColumn;
 import com.lavida.service.entity.DiscountCardJdo;
 import com.lavida.swing.LocaleHolder;
-import com.lavida.swing.service.ArticlesTableModel;
 import com.lavida.swing.service.DiscountCardsTableModel;
 import org.springframework.context.MessageSource;
 
@@ -36,7 +35,6 @@ public class DiscountCardFiltersComponent {
     private DiscountCardsTableModel tableModel;
     private List<FilterUnit> filters;
     private JPanel filtersPanel;
-    private JButton clearSearchButton;
     private TableRowSorter<DiscountCardsTableModel> sorter;
     private DiscountCardAnalyzeComponent cardAnalyzeComponent = new DiscountCardAnalyzeComponent();
 
@@ -147,7 +145,7 @@ public class DiscountCardFiltersComponent {
             }
         }
 
-        clearSearchButton = new JButton(messageSource.getMessage("mainForm.button.clear.title", null,
+        JButton clearSearchButton = new JButton(messageSource.getMessage("mainForm.button.clear.title", null,
                 localeHolder.getLocale()));
         clearSearchButton.setPreferredSize(new Dimension(500, 20));
         clearSearchButton.setMaximumSize(new Dimension(500, 20));
@@ -173,7 +171,7 @@ public class DiscountCardFiltersComponent {
             }
         });
         filtersPanel.add(clearSearchButton, constraints);
-        sorter = new TableRowSorter<DiscountCardsTableModel>(tableModel);
+        sorter = new TableRowSorter<>(tableModel);
 
         cardAnalyzeComponent.initializeComponents(tableModel, messageSource, localeHolder);
 
@@ -193,7 +191,7 @@ public class DiscountCardFiltersComponent {
      * Filters table by name, by code, by price.
      */
     private void applyFilters() {
-        List<RowFilter<DiscountCardsTableModel, Integer>> andFilters = new ArrayList<RowFilter<DiscountCardsTableModel, Integer>>();
+        List<RowFilter<DiscountCardsTableModel, Integer>> andFilters = new ArrayList<>();
         for (final FilterUnit filterUnit : filters) {
             final int columnIndex = tableModel.findColumn(filterUnit.columnTitle);
 
@@ -318,10 +316,10 @@ public class DiscountCardFiltersComponent {
     /**
      * Returns date in the format: neededDatePattern, in case if year or month isn't entered, current year/month is put.
      *
-     * @return
+     * @return correct date.
      */
     private Date getCorrectedDate(String enteredDate) {
-        Queue<String> dateParts = new ArrayDeque<String>(3);
+        Queue<String> dateParts = new ArrayDeque<>(3);
         StringBuilder number = new StringBuilder();
         for (char symbol : enteredDate.toCharArray()) {
             if (Character.isDigit(symbol)) {
@@ -360,7 +358,7 @@ public class DiscountCardFiltersComponent {
         double totalSumUAH = 0;
 
         int viewRows = sorter.getViewRowCount();
-        List<DiscountCardJdo> selectedCards = new ArrayList<DiscountCardJdo>();
+        List<DiscountCardJdo> selectedCards = new ArrayList<>();
         for (int i = 0; i < viewRows; i++) {
             int row = sorter.convertRowIndexToModel(i);
             selectedCards.add(tableModel.getDiscountCardByRowIndex(row));
@@ -400,17 +398,17 @@ public class DiscountCardFiltersComponent {
         return sorter;
     }
 
-    public List<FilterUnit> getFilters() {
-        return filters;
-    }
+//    public List<FilterUnit> getFilters() {
+//        return filters;
+//    }
 
     public DiscountCardAnalyzeComponent getCardAnalyzeComponent() {
         return cardAnalyzeComponent;
     }
 
-    public JButton getClearSearchButton() {
-        return clearSearchButton;
-    }
+//    public JButton getClearSearchButton() {
+//        return clearSearchButton;
+//    }
 
 
 }

@@ -4,14 +4,19 @@ import com.lavida.service.FilterColumn;
 import com.lavida.service.FilterType;
 import com.lavida.service.ViewColumn;
 import com.lavida.service.remote.SpreadsheetColumn;
+import com.lavida.utils.ReflectionUtils;
 
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 /**
  * The entity for discount cards.
@@ -245,6 +250,83 @@ public class DiscountCardJdo implements Cloneable {
         this.spreadsheetRow = spreadsheetRow;
     }
 
+    public List<ChangedFieldJdo> findUpdateChanges(DiscountCardJdo oldCard, ChangedFieldJdo.RefreshOperationType refreshOperationType) {
+        List<ChangedFieldJdo> changedFieldJdoList = new ArrayList<>();
+        ChangedFieldJdo.RefreshOperationType operationType = refreshOperationType;
+        ChangedFieldJdo.ObjectType objectType = ChangedFieldJdo.ObjectType.DISCOUNT_CARD;
+        Date operationDate = new Date();
+        ChangedFieldJdo changedFieldJdo;
+        if (number != null && !number.isEmpty() ? !number.equals(oldCard.number) : oldCard.number != null && !oldCard.number.isEmpty()) {
+            changedFieldJdo = new ChangedFieldJdo(operationDate, objectType, id, number, null, "number", oldCard.number,
+                    number, operationType, null);
+            changedFieldJdoList.add(changedFieldJdo);
+        }
+        if (name != null && !name.isEmpty() ? !name.equals(oldCard.name) : oldCard.name != null && !oldCard.name.isEmpty()) {
+            changedFieldJdo = new ChangedFieldJdo(operationDate, objectType, id, number, null, "name", oldCard.name,
+                    name, operationType, null);
+            changedFieldJdoList.add(changedFieldJdo);
+        }
+        if (phone != null && !phone.isEmpty() ? !phone.equals(oldCard.phone) : oldCard.phone != null && !oldCard.phone.isEmpty()) {
+            changedFieldJdo = new ChangedFieldJdo(operationDate, objectType, id, number, null, "phone", oldCard.phone,
+                    phone, operationType, null);
+            changedFieldJdoList.add(changedFieldJdo);
+        }
+        if (city != null && !city.isEmpty() ? !city.equals(oldCard.city) : oldCard.city != null && !oldCard.city.isEmpty()) {
+            changedFieldJdo = new ChangedFieldJdo(operationDate, objectType, id, number, null, "city", oldCard.city,
+                    city, operationType, null);
+            changedFieldJdoList.add(changedFieldJdo);
+        }
+        if (address != null && !address.isEmpty() ? !address.equals(oldCard.address) : oldCard.address != null && !oldCard.address.isEmpty()) {
+            changedFieldJdo = new ChangedFieldJdo(operationDate, objectType, id, number, null, "address", oldCard.address,
+                    address, operationType, null);
+            changedFieldJdoList.add(changedFieldJdo);
+        }
+        if (eMail != null && !eMail.isEmpty() ? !eMail.equals(oldCard.eMail) : oldCard.eMail != null && !oldCard.eMail.isEmpty()) {
+            changedFieldJdo = new ChangedFieldJdo(operationDate, objectType, id, number, null, "eMail", oldCard.eMail,
+                    eMail, operationType, null);
+            changedFieldJdoList.add(changedFieldJdo);
+        }
+        if (Double.compare(oldCard.sumTotalUAH, sumTotalUAH) != 0) {
+            changedFieldJdo = new ChangedFieldJdo(operationDate, objectType, id, number, null, "sumTotalUAH", String.valueOf(oldCard.sumTotalUAH),
+                    String.valueOf(sumTotalUAH), operationType, null);
+            changedFieldJdoList.add(changedFieldJdo);
+        }
+        if (Double.compare(oldCard.discountRate, discountRate) != 0) {
+            changedFieldJdo = new ChangedFieldJdo(operationDate, objectType, id, number, null, "discountRate",
+                    String.valueOf(oldCard.discountRate), String.valueOf(discountRate), operationType, null);
+            changedFieldJdoList.add(changedFieldJdo);
+        }
+        if (Double.compare(oldCard.bonusUAH, bonusUAH) != 0) {
+            changedFieldJdo = new ChangedFieldJdo(operationDate, objectType, id, number, null, "bonusUAH",
+                    String.valueOf(oldCard.bonusUAH), String.valueOf(bonusUAH), operationType, null);
+            changedFieldJdoList.add(changedFieldJdo);
+        }
+        if (registrationDate != null ? !registrationDate.equals(oldCard.registrationDate) : oldCard.registrationDate != null) {
+            String pattern = ReflectionUtils.getFieldAnnotation(DiscountCardJdo.class, "registrationDate", SpreadsheetColumn.class).datePattern();
+            DateFormat formatter = new SimpleDateFormat(pattern);
+            changedFieldJdo = new ChangedFieldJdo(operationDate, objectType, id, number, null, "registrationDate",
+                    oldCard.registrationDate != null ? formatter.format(oldCard.registrationDate.getTime()) : null,
+                    registrationDate != null ?  formatter.format(registrationDate.getTime()) : null, operationType, null);
+            changedFieldJdoList.add(changedFieldJdo);
+        }
+        if (activationDate != null ? !activationDate.equals(oldCard.activationDate) : oldCard.activationDate != null) {
+            String pattern = ReflectionUtils.getFieldAnnotation(DiscountCardJdo.class, "activationDate", SpreadsheetColumn.class).datePattern();
+            DateFormat formatter = new SimpleDateFormat(pattern);
+            changedFieldJdo = new ChangedFieldJdo(operationDate, objectType, id, number, null, "activationDate",
+                    oldCard.activationDate != null ? formatter.format(oldCard.activationDate.getTime()) : null,
+                    activationDate != null ?  formatter.format(activationDate.getTime()) : null, operationType, null);
+            changedFieldJdoList.add(changedFieldJdo);
+        }
+
+        return changedFieldJdoList;
+    }
+
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -264,8 +346,6 @@ public class DiscountCardJdo implements Cloneable {
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
         if (number != null ? !number.equals(that.number) : that.number != null) return false;
         if (phone != null ? !phone.equals(that.phone) : that.phone != null) return false;
-        if (postponedDate != null ? !postponedDate.equals(that.postponedDate) : that.postponedDate != null)
-            return false;
         if (registrationDate != null ? !registrationDate.equals(that.registrationDate) : that.registrationDate != null)
             return false;
 
@@ -291,20 +371,14 @@ public class DiscountCardJdo implements Cloneable {
         result = 31 * result + (int) (temp ^ (temp >>> 32));
         result = 31 * result + (registrationDate != null ? registrationDate.hashCode() : 0);
         result = 31 * result + (activationDate != null ? activationDate.hashCode() : 0);
-        result = 31 * result + (postponedDate != null ? postponedDate.hashCode() : 0);
         return result;
-    }
-
-    @Override
-    public Object clone() throws CloneNotSupportedException {
-        return super.clone();
     }
 
     @Override
     public String toString() {
         return "DiscountCardJdo{" +
                 "id=" + id +
-                ", spreadsheetRow=" + spreadsheetRow +
+                ", spreadsheetRow='" + spreadsheetRow + '\'' +
                 ", number='" + number + '\'' +
                 ", name='" + name + '\'' +
                 ", phone='" + phone + '\'' +

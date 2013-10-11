@@ -31,8 +31,7 @@ public class SoldProductsDialog extends AbstractDialog {
 
     private ArticleTableComponent articleTableComponent = new ArticleTableComponent();
     private JMenuBar menuBar;
-    private JMenu fileMenu, selectedMenu;
-    private JMenuItem printItem, deselectArticlesItem, soldArticlesTableViewItem;
+    private JMenuItem printItem;
 
 //    private JLabel errorMessage;
 
@@ -156,7 +155,7 @@ public class SoldProductsDialog extends AbstractDialog {
     private void initializeMenuBar() {
         menuBar = new JMenuBar();
 
-        fileMenu = new JMenu();
+        JMenu fileMenu = new JMenu();
         fileMenu.setText(messageSource.getMessage("mainForm.menu.table", null, localeHolder.getLocale()));
 
         printItem = new JMenuItem();
@@ -170,10 +169,10 @@ public class SoldProductsDialog extends AbstractDialog {
 
         fileMenu.add(printItem);
 
-        selectedMenu = new JMenu();
+        JMenu selectedMenu = new JMenu();
         selectedMenu.setText(messageSource.getMessage("mainForm.menu.selected", null, localeHolder.getLocale()));
 
-        deselectArticlesItem = new JMenuItem();
+        JMenuItem deselectArticlesItem = new JMenuItem();
         deselectArticlesItem.setText(messageSource.getMessage("mainForm.menu.selected.deselect.articles", null, localeHolder.getLocale()));
         deselectArticlesItem.addActionListener(new ActionListener() {
             @Override
@@ -187,7 +186,7 @@ public class SoldProductsDialog extends AbstractDialog {
         JMenu settingsMenu = new JMenu();
         settingsMenu.setText(messageSource.getMessage("mainForm.menu.settings.title", null, localeHolder.getLocale()));
 
-        soldArticlesTableViewItem = new JMenuItem();
+        JMenuItem soldArticlesTableViewItem = new JMenuItem();
         soldArticlesTableViewItem.setText(messageSource.getMessage("mainForm.menu.settings.item.view.tables", null, localeHolder.getLocale()));
         soldArticlesTableViewItem.addActionListener(new ActionListener() {
             @Override

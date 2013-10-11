@@ -1,6 +1,6 @@
 package com.lavida.service;
 
-import com.lavida.service.entity.ArticleChangedFieldJdo;
+import com.lavida.service.entity.ChangedFieldJdo;
 
 import java.util.List;
 
@@ -14,7 +14,7 @@ public class ArticleUpdateInfo {
     private int addedCount;
     private int updatedCount;
     private int deletedCount;
-    private List<ArticleChangedFieldJdo> changedFieldJdoList;
+    private List<ChangedFieldJdo> changedFieldJdoList;
 
 
     public int getAddedCount() {
@@ -41,11 +41,11 @@ public class ArticleUpdateInfo {
         this.deletedCount = deletedCount;
     }
 
-    public List<ArticleChangedFieldJdo> getChangedFieldJdoList() {
+    public List<ChangedFieldJdo> getChangedFieldJdoList() {
         return changedFieldJdoList;
     }
 
-    public void setChangedFieldJdoList(List<ArticleChangedFieldJdo> changedFieldJdoList) {
+    public void setChangedFieldJdoList(List<ChangedFieldJdo> changedFieldJdoList) {
         this.changedFieldJdoList = changedFieldJdoList;
     }
 

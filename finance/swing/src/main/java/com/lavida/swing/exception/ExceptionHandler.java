@@ -97,6 +97,11 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler{
                 messageKey = "mainForm.handler.print.exception.message";
                 break;
 
+            case LavidaSwingRuntimeException.DATE_FORMAT_EXCEPTION:
+                titleKey = "mainForm.exception.message.dialog.title";
+                messageKey = "sellDialog.handler.saleDate.not.correct.format";
+                break;
+
             default:
                 titleKey = "mainForm.exception.message.dialog.title";
                 messageKey = "mainForm.exception.service.load.google.spreadsheet.table.data";

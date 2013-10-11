@@ -130,10 +130,7 @@ public class FileChooserComponent extends JFileChooser {
      * @return true if {@link FileNameExtensionFilter} is selected.
      */
     public boolean isFileFilterSelected() {
-        if (getFileFilter() instanceof FileNameExtensionFilter) {
-            return true;
-        }
-        return false;
+        return getFileFilter() instanceof FileNameExtensionFilter;
     }
 
     /**
@@ -171,7 +168,6 @@ public class FileChooserComponent extends JFileChooser {
     private boolean isRightFileExtension(String fileExtension) {
         FileNameExtensionFilter extensionFilter = (FileNameExtensionFilter) getFileFilter();
         String[] extensions = extensionFilter.getExtensions();
-        boolean rightExtension = false;
         for (String extension : extensions) {
             if (extension.equals(fileExtension)) {
                 return true;
@@ -196,10 +192,7 @@ public class FileChooserComponent extends JFileChooser {
 
         String enteredFileName = file.getName();
         String[] nameParts = enteredFileName.split(Pattern.quote("."));
-        if (nameParts.length > 2) {
-            return false;
-        }
-        return true;
+        return !(nameParts.length > 2);
     }
 
 }

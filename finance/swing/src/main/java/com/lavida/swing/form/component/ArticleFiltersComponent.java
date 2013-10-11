@@ -1,9 +1,6 @@
 package com.lavida.swing.form.component;
 
-import com.lavida.service.FilterColumn;
-import com.lavida.service.FilterType;
-import com.lavida.service.FiltersPurpose;
-import com.lavida.service.ViewColumn;
+import com.lavida.service.*;
 import com.lavida.service.entity.ArticleJdo;
 import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.service.ArticlesTableModel;
@@ -33,26 +30,13 @@ import java.util.Queue;
  * @author Pavel
  */
 public class ArticleFiltersComponent {
-    private static final List<String> FORBIDDEN_ROLES = new ArrayList<>();
-
-    static {
-        FORBIDDEN_ROLES.add("ROLE_SELLER_LA_VIDA");
-        FORBIDDEN_ROLES.add("ROLE_SELLER_SLAVYANKA");
-        FORBIDDEN_ROLES.add("ROLE_SELLER_NOVOMOSKOVSK");
-        FORBIDDEN_ROLES.add("ROLE_SELLER_ALEXANDRIA");
-    }
-
-
     private ArticlesTableModel tableModel;
     private MessageSource messageSource;
     private LocaleHolder localeHolder;
     private List<FilterUnit> filters;
     private JPanel filtersPanel;
-    private JButton clearSearchButton;
-    private JCheckBox currentDateCheckBox;
     private TableRowSorter<ArticlesTableModel> sorter;
     private ArticleAnalyzeComponent articleAnalyzeComponent = new ArticleAnalyzeComponent();
-    private Map<String, String[]> comboBoxItemsMap;
 
     public void initializeComponents(ArticlesTableModel tableModel, MessageSource messageSource, LocaleHolder localeHolder) {
         this.tableModel = tableModel;
@@ -61,7 +45,7 @@ public class ArticleFiltersComponent {
         this.filters = new ArrayList<>();
         FiltersPurpose filtersPurpose = tableModel.getFiltersPurpose();
         FilterElementsListener filterElementsListener = new FilterElementsListener();
-        comboBoxItemsMap = new HashMap<>();
+        Map<String, String[]> comboBoxItemsMap = new HashMap<>();
         comboBoxItemsMap.put("brand", ArticleJdo.BRAND_ARRAY);
         comboBoxItemsMap.put("size", ArticleJdo.SIZE_ARRAY);
         comboBoxItemsMap.put("shop", ArticleJdo.SHOP_ARRAY);
@@ -104,7 +88,7 @@ public class ArticleFiltersComponent {
                         filterUnit.label = new JLabel(messageSource.getMessage(filterColumn.labelKey(), null, localeHolder.getLocale()));
                         JTextComponent textComponent;
                         if (FilterType.COMBOBOX == filterUnit.filterType) {
-                            filterUnit.comboBox = new JComboBox(comboBoxItemsMap.get(field.getName()));
+                            filterUnit.comboBox = new JComboBox<>(comboBoxItemsMap.get(field.getName()));
                             filterUnit.comboBox.setEditable(true);
                             filterUnit.comboBox.setSelectedItem(null);
                             textComponent = (JTextComponent) filterUnit.comboBox.getEditor().getEditorComponent();
@@ -200,7 +184,7 @@ public class ArticleFiltersComponent {
             }
         }
         if (soldPurpose) {
-            currentDateCheckBox = new JCheckBox();
+            JCheckBox currentDateCheckBox = new JCheckBox();
             currentDateCheckBox.setText(messageSource.getMessage("dialog.sold.products.checkBox.current.date.title",
                     null, localeHolder.getLocale()));
             final String saleDateColumn = messageSource.getMessage("mainForm.table.articles.column.sell.date.title", null, localeHolder.getLocale());
@@ -233,7 +217,7 @@ public class ArticleFiltersComponent {
             filtersPanel.add(currentDateCheckBox, constraints);
         }
 
-        clearSearchButton = new JButton(messageSource.getMessage("mainForm.button.clear.title", null,
+        JButton clearSearchButton = new JButton(messageSource.getMessage("mainForm.button.clear.title", null,
                 localeHolder.getLocale()));
         clearSearchButton.setPreferredSize(new Dimension(500, 20));
         clearSearchButton.setMaximumSize(new Dimension(500, 20));
@@ -285,7 +269,7 @@ public class ArticleFiltersComponent {
      * Filters table by name, by code, by price.
      */
     private void applyFilters() {
-        List<RowFilter<ArticlesTableModel, Integer>> andFilters = new ArrayList<RowFilter<ArticlesTableModel, Integer>>();
+        List<RowFilter<ArticlesTableModel, Integer>> andFilters = new ArrayList<>();
         for (final FilterUnit filterUnit : filters) {
             final int columnIndex = tableModel.findColumn(filterUnit.columnTitle);
 
@@ -326,7 +310,7 @@ public class ArticleFiltersComponent {
                     text = filterUnit.textField.getText();
                 }
 
-                List<RowFilter<ArticlesTableModel, Integer>> orFilters = new ArrayList<RowFilter<ArticlesTableModel, Integer>>();
+                List<RowFilter<ArticlesTableModel, Integer>> orFilters = new ArrayList<>();
                 String[] statements = text.split(",");
                 for (String statement : statements) {
                     statement = statement.trim();
@@ -568,10 +552,10 @@ public class ArticleFiltersComponent {
     /**
      * Removes filters from the filterPanel according to users' roles.
      *
-     * @param userRoles the list of user's role.
+     * @param userService the userService.
      */
-    public void removeFiltersByRoles(List<String> userRoles) {
-        if (hasForbiddenRole(userRoles)) {
+    public void removeFiltersByRoles(UserService userService) {
+        if (userService.hasForbiddenRole()) {
             Component[] components = filtersPanel.getComponents();
             for (Component component : components) {
                 if (component instanceof JLabel) {
@@ -588,14 +572,6 @@ public class ArticleFiltersComponent {
         }
     }
 
-    private boolean hasForbiddenRole(java.util.List<String> userRoles) {
-        for (String role : userRoles) {
-            if (FORBIDDEN_ROLES.contains(role)) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     public JPanel getFiltersPanel() {
         return filtersPanel;
@@ -605,9 +581,9 @@ public class ArticleFiltersComponent {
         return sorter;
     }
 
-    public List<FilterUnit> getFilters() {
-        return filters;
-    }
+//    public List<FilterUnit> getFilters() {
+//        return filters;
+//    }
 
     public ArticleAnalyzeComponent getArticleAnalyzeComponent() {
         return articleAnalyzeComponent;

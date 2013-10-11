@@ -2,25 +2,14 @@ package com.lavida.swing.handler;
 
 import com.lavida.service.entity.ArticleJdo;
 import com.lavida.swing.form.component.TablePrintPreviewComponent;
-import com.lavida.swing.service.UserSettingsService;
-import com.lavida.swing.preferences.UsersSettingsHolder;
 import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.dialog.RefundDialog;
 import com.lavida.swing.dialog.SoldProductsDialog;
-import com.lavida.swing.form.component.FilterUnit;
 import com.lavida.swing.service.ArticlesTableModel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import javax.swing.*;
-import java.awt.print.PrinterException;
-import java.text.MessageFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.List;
 
 /**
  * Created: 15:32 18.08.13
@@ -30,7 +19,7 @@ import java.util.List;
  */
 @Component
 public class SoldProductsDialogHandler {
-    private static final Logger logger = LoggerFactory.getLogger(SoldProductsDialogHandler.class);
+//    private static final Logger logger = LoggerFactory.getLogger(SoldProductsDialogHandler.class);
 
     @Resource
     private SoldProductsDialog dialog;
@@ -46,12 +35,6 @@ public class SoldProductsDialogHandler {
 
     @Resource(name = "soldArticleTableModel")
     private ArticlesTableModel tableModel;
-
-    @Resource
-    private UsersSettingsHolder usersSettingsHolder;
-
-    @Resource
-    private UserSettingsService userSettingsService;
 
     /**
      * Handles refund button clicking.
@@ -71,36 +54,6 @@ public class SoldProductsDialogHandler {
      */
     public void cancelButtonClicked() {
         dialog.getDialog().setVisible(false);
-    }
-
-    /**
-     * Handles the CurrentDateCheckBox selecting.
-     */
-    public void currentDateCheckBoxSelected() {
-        String currentDate = new SimpleDateFormat("dd.MM.yyyy").format(Calendar.getInstance().getTime());
-
-        List<FilterUnit> filters = dialog.getArticleTableComponent().
-                getArticleFiltersComponent().getFilters();
-        for (FilterUnit filterUnit : filters) {
-            if (messageSource.getMessage("mainForm.table.articles.column.sell.date.title", null, localeHolder.getLocale()).
-                    equalsIgnoreCase(filterUnit.columnTitle)) {
-                filterUnit.textField.setText(currentDate);
-            }
-        }
-    }
-
-    /**
-     * Handles the CurrentDateCheckBox deselecting.
-     */
-    public void currentDateCheckBoxDeSelected() {
-        List<FilterUnit> filters = dialog.getArticleTableComponent().
-                getArticleFiltersComponent().getFilters();
-        for (FilterUnit filterUnit : filters) {
-            if (messageSource.getMessage("mainForm.table.articles.column.sell.date.title", null, localeHolder.getLocale()).
-                    equalsIgnoreCase(filterUnit.columnTitle)) {
-                filterUnit.textField.setText("");
-            }
-        }
     }
 
     public void printItemClicked() {

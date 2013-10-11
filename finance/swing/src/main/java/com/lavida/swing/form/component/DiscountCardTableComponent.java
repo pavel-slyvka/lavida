@@ -14,10 +14,7 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
-import javax.swing.text.JTextComponent;
 import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.util.*;
 import java.util.List;
 
@@ -31,13 +28,12 @@ import java.util.List;
 public class DiscountCardTableComponent implements TableModelListener {
 
     private DiscountCardsTableModel tableModel;
-    private MessageSource messageSource;
-    private LocaleHolder localeHolder;
+//    private MessageSource messageSource;
+//    private LocaleHolder localeHolder;
     private UsersSettingsHolder usersSettingsHolder;
 
     private JPanel mainPanel;
     private JTable discountCardsTable;
-    private JScrollPane tableScrollPane;
     private DiscountCardFiltersComponent cardFiltersComponent = new DiscountCardFiltersComponent();
     private Map<String, TableColumn> headersAndColumnsMap;
 
@@ -45,10 +41,9 @@ public class DiscountCardTableComponent implements TableModelListener {
                                      LocaleHolder localeHolder, UsersSettingsHolder usersSettingsHolder) {
         this.tableModel = discountCardsTableModel;
         this.tableModel.addTableModelListener(this);
-        this.messageSource = messageSource;
-        this.localeHolder = localeHolder;
+//        this.messageSource = messageSource;
+//        this.localeHolder = localeHolder;
         this.usersSettingsHolder = usersSettingsHolder;
-
         tableModel.initAnalyzeFields();
 
 //      main panel for table of goods
@@ -84,7 +79,7 @@ public class DiscountCardTableComponent implements TableModelListener {
             }
         });
 
-        tableScrollPane = new JScrollPane(discountCardsTable);
+        JScrollPane tableScrollPane = new JScrollPane(discountCardsTable);
         tableScrollPane.setPreferredSize(new Dimension(1000, 700));
 //        initTableColumnsWidth();
         mainPanel.add(tableScrollPane, BorderLayout.CENTER);
@@ -94,17 +89,17 @@ public class DiscountCardTableComponent implements TableModelListener {
         discountCardsTable.setRowSorter(cardFiltersComponent.getSorter());
     }
 
-    /**
-     * Filters the JTable by permissions of roles (ROLE_SELLER). It removes certain columns.
-     *
-     * @param userRoles current user's roles.
-     */
-    public void filterTableByRoles(java.util.List<String> userRoles) {
-        java.util.List<String> forbiddenHeaders = tableModel.getForbiddenHeadersToShow(messageSource, localeHolder.getLocale(), userRoles);
-        for (String forbiddenHeader : forbiddenHeaders) {
-            discountCardsTable.removeColumn(discountCardsTable.getColumn(forbiddenHeader));
-        }
-    }
+//    /**
+//     * Filters the JTable by permissions of roles (ROLE_SELLER). It removes certain columns.
+//     *
+//     * @param userRoles current user's roles.
+//     */
+//    public void filterTableByRoles(java.util.List<String> userRoles) {
+//        java.util.List<String> forbiddenHeaders = tableModel.getForbiddenHeadersToShow(messageSource, localeHolder.getLocale(), userRoles);
+//        for (String forbiddenHeader : forbiddenHeaders) {
+//            discountCardsTable.removeColumn(discountCardsTable.getColumn(forbiddenHeader));
+//        }
+//    }
 
     /**
      * Sets preferred width to certain columns
@@ -203,7 +198,7 @@ public class DiscountCardTableComponent implements TableModelListener {
             String columnHeader = (String) column.getHeaderValue();
             java.util.List<String> comboBoxItemList = getColumnEditorComboBoxItems(tableEditorSettings, columnHeader);
             if (comboBoxItemList != null && comboBoxItemList.size() > 0) {
-                JComboBox comboBox = new JComboBox(comboBoxItemList.toArray());
+                JComboBox comboBox = new JComboBox<>(comboBoxItemList.toArray());
                 TableCellEditor tableCellEditor = new DefaultCellEditor(comboBox);
                 column.setCellEditor(tableCellEditor);
             }

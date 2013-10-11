@@ -3,20 +3,20 @@ package com.lavida.swing.service;
 import com.google.gdata.util.ServiceException;
 import com.lavida.service.DiscountCardService;
 import com.lavida.service.DiscountCardsUpdateInfo;
-import com.lavida.service.entity.ArticleJdo;
+import com.lavida.service.entity.ChangedFieldJdo;
 import com.lavida.service.entity.DiscountCardJdo;
-import com.lavida.service.xml.DiscountCardsXmlService;
 import com.lavida.swing.event.DiscountCardUpdateEvent;
+import com.lavida.swing.event.PostponedOperationEvent;
+import com.lavida.swing.exception.LavidaSwingRuntimeException;
+import com.lavida.swing.exception.RemoteUpdateException;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import javax.xml.bind.JAXBException;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -32,8 +32,11 @@ public class DiscountCardServiceSwingWrapper  implements ApplicationContextAware
     @Resource
     private DiscountCardService discountCardService;
 
+//    @Resource
+//    private DiscountCardsXmlService discountCardsXmlService;
+
     @Resource
-    private DiscountCardsXmlService discountCardsXmlService;
+    private ChangedFieldServiceSwingWrapper changedFieldServiceSwingWrapper;
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
@@ -91,10 +94,25 @@ public class DiscountCardServiceSwingWrapper  implements ApplicationContextAware
         return discountCardService.mergePostponedWithDatabase(loadedDiscountCards);
     }
 
-    public void updateToSpreadsheet(DiscountCardJdo discountCardJdo) throws IOException, ServiceException {
-        discountCardService.updateToSpreadsheet(discountCardJdo);
+    public void updateToSpreadsheet(DiscountCardJdo oldDiscountCardJdo, DiscountCardJdo discountCardJdo) throws RemoteUpdateException {
+        Date postponedDate = new Date();
+        try {
+            discountCardService.updateToSpreadsheet(discountCardJdo);
+        } catch (IOException | ServiceException e) {
+            List<ChangedFieldJdo> changedFieldJdoList = discountCardJdo.findUpdateChanges(oldDiscountCardJdo, null);
+            for (ChangedFieldJdo changedFieldJdo: changedFieldJdoList) {
+                changedFieldJdo.setPostponedDate(postponedDate);
+            }
+            changedFieldServiceSwingWrapper.update(changedFieldJdoList);
+            discountCardJdo.setPostponedDate(postponedDate);
+            update(discountCardJdo);
+            applicationContext.publishEvent(new PostponedOperationEvent(this));
+            throw new RemoteUpdateException(e);
+        }
+        update(discountCardJdo);
     }
 
+/*
     public void saveToXml(List<DiscountCardJdo> discountCardJdoList, File file) throws JAXBException, IOException {
         String filePath = file.getAbsolutePath();
         discountCardsXmlService.marshal(discountCardJdoList, filePath);
@@ -104,5 +122,6 @@ public class DiscountCardServiceSwingWrapper  implements ApplicationContextAware
         String filePath = file.getAbsolutePath();
         return discountCardsXmlService.unmarshal(filePath);
     }
+*/
 
 }

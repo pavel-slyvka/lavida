@@ -2,11 +2,12 @@ package com.lavida.swing.form.component;
 
 import com.lavida.service.FilterColumn;
 import com.lavida.service.FilterType;
+import com.lavida.service.FiltersPurpose;
 import com.lavida.service.ViewColumn;
-import com.lavida.service.entity.ArticleChangedFieldJdo;
+import com.lavida.service.entity.ChangedFieldJdo;
 import com.lavida.service.entity.ArticleJdo;
 import com.lavida.swing.LocaleHolder;
-import com.lavida.swing.service.ArticleChangedFieldTableModel;
+import com.lavida.swing.service.ChangedFieldTableModel;
 import org.springframework.context.MessageSource;
 
 import javax.swing.*;
@@ -26,32 +27,33 @@ import java.util.*;
 import java.util.List;
 
 /**
- * The ArticleChangedFieldFiltersComponent
+ * The ChangedFieldFiltersComponent
  * <p/>
  * Created: 02.10.13 11:53.
  *
  * @author Ruslan.
  */
-public class ArticleChangedFieldFiltersComponent {
-    private ArticleChangedFieldTableModel tableModel;
+public class ChangedFieldFiltersComponent {
+    private ChangedFieldTableModel tableModel;
     //    private MessageSource messageSource;
 //    private LocaleHolder localeHolder;
     private List<FilterUnit> filters;
     private JPanel filtersPanel;
-    private JButton clearSearchButton;
-    private TableRowSorter<ArticleChangedFieldTableModel> sorter;
-    private Map<String, String[]> comboBoxItemsMap;
+//    private JButton clearSearchButton;
+    private TableRowSorter<ChangedFieldTableModel> sorter;
+//    private Map<String, String[]> comboBoxItemsMap;
 
-    public void initializeComponents(ArticleChangedFieldTableModel aTableModel, MessageSource messageSource, LocaleHolder localeHolder) {
+    public void initializeComponents(ChangedFieldTableModel aTableModel, MessageSource messageSource, LocaleHolder localeHolder) {
         this.tableModel = aTableModel;
 //        this.messageSource = messageSource;
 //        this.localeHolder = localeHolder;
         this.filters = new ArrayList<>();
         FilterElementsListener filterElementsListener = new FilterElementsListener();
-        comboBoxItemsMap = new HashMap<>();
+        Map<String, String[]>  comboBoxItemsMap = new HashMap<>();
         comboBoxItemsMap.put("brand", ArticleJdo.BRAND_ARRAY);
         comboBoxItemsMap.put("size", ArticleJdo.SIZE_ARRAY);
         comboBoxItemsMap.put("shop", ArticleJdo.SHOP_ARRAY);
+        FiltersPurpose filtersPurpose = tableModel.getFiltersPurpose();
 
 //      panel for search operations
         filtersPanel = new JPanel();
@@ -64,67 +66,75 @@ public class ArticleChangedFieldFiltersComponent {
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.insets = new Insets(1, 5, 1, 5);
 
-        for (Field field : ArticleChangedFieldJdo.class.getDeclaredFields()) {
+        boolean postponed = FiltersPurpose.POSTPONED_CHANGED_FIELDS == filtersPurpose;
+        boolean refreshed = FiltersPurpose.REFRESHED_CHANGED_FIELDS == filtersPurpose;
+        for (Field field : ChangedFieldJdo.class.getDeclaredFields()) {
             FilterColumn filterColumn = field.getAnnotation(FilterColumn.class);
             if (filterColumn != null) {
-                FilterUnit filterUnit = new FilterUnit();
-                filterUnit.order = filterColumn.orderForArticleChangedField();
-                filterUnit.order = filterUnit.order == 0 ? Integer.MAX_VALUE : filterUnit.order;
-                filterUnit.filterType = filterColumn.type();
-                filterUnit.columnTitle = getColumnTitle(field, messageSource, localeHolder);
-                filterUnit.columnDatePattern = getColumnDatePattern(field);
-                filterUnit.label = new JLabel();
-                if (!filterColumn.labelKey().isEmpty()) {
-                    filterUnit.label.setText(messageSource.getMessage(filterColumn.labelKey(), null, localeHolder.getLocale()));
-                }
-                JTextComponent textComponent = null;
-                if (FilterType.COMBOBOX == filterUnit.filterType) {
-                    filterUnit.comboBox = new JComboBox(comboBoxItemsMap.get(field.getName()));
-                    filterUnit.comboBox.setEditable(true);
-                    filterUnit.comboBox.setSelectedItem(null);
-                    textComponent = (JTextComponent) filterUnit.comboBox.getEditor().getEditorComponent();
-                } else if (FilterType.CHECKBOXES == filterUnit.filterType || FilterType.BOOLEAN_CHECKBOX == filterUnit.filterType) {
-                    if (filterColumn.checkBoxesNumber() > 0) {
-                        filterUnit.checkBoxes = new JCheckBox[filterColumn.checkBoxesNumber()];
-                        for (int i = 0; i < filterColumn.checkBoxesNumber(); ++i) {
-                            String text = messageSource.getMessage(filterColumn.checkBoxesText()[i], null, localeHolder.getLocale());
-                            String actionCommand = null;
-                            if (text.equals(messageSource.getMessage("dialog.changed.field.article.filter.checkBox.update", null, localeHolder.getLocale()))) {
-                                actionCommand = ArticleChangedFieldJdo.OperationType.UPDATED.name();
-                            } else if (text.equals(messageSource.getMessage("dialog.changed.field.article.filter.checkBox.save", null, localeHolder.getLocale()))) {
-                                actionCommand = ArticleChangedFieldJdo.OperationType.SAVED.name();
-                            } else if (text.equals(messageSource.getMessage("dialog.changed.field.article.filter.checkBox.delete", null, localeHolder.getLocale()))) {
-                                actionCommand = ArticleChangedFieldJdo.OperationType.DELETED.name();
-                            }
-                            filterUnit.checkBoxes[i] = new JCheckBox(text);
-                            filterUnit.checkBoxes[i].setActionCommand(actionCommand);
-                            if (FilterType.CHECKBOXES == filterUnit.filterType) {
-                                filterUnit.checkBoxes[i].setSelected(true);
-                            } else if (FilterType.BOOLEAN_CHECKBOX == filterUnit.filterType) {
-                                filterUnit.checkBoxes[i].setSelected(false);
-                            }
-                            filterUnit.checkBoxes[i].addItemListener(new ItemListener() {
-                                @Override
-                                public void itemStateChanged(ItemEvent e) {
-                                    int state = e.getStateChange();
-                                    if (state == ItemEvent.SELECTED) {
-                                        applyFilters();
-                                    } else if (state == ItemEvent.DESELECTED) {
-                                        applyFilters();
-                                    }
-                                }
-                            });
-                        }
+                if (postponed && filterColumn.showForPostponed() || refreshed && filterColumn.showForRefreshed()) {
+                    FilterUnit filterUnit = new FilterUnit();
+                    if (postponed) {
+                        filterUnit.order = filterColumn.orderForPostponed();
+                    } else if (refreshed) {
+                        filterUnit.order = filterColumn.orderForRefreshed();
                     }
-                } else {
-                    filterUnit.textField = new JTextField(filterColumn.editSize());
-                    textComponent = filterUnit.textField;
-                }
-                if (textComponent != null) {
-                    textComponent.getDocument().addDocumentListener(filterElementsListener);
-                }
+                    filterUnit.order = filterUnit.order == 0 ? Integer.MAX_VALUE : filterUnit.order;
+                    filterUnit.filterType = filterColumn.type();
+                    filterUnit.columnTitle = getColumnTitle(field, messageSource, localeHolder);
+                    filterUnit.columnDatePattern = getColumnDatePattern(field);
+                    filterUnit.label = new JLabel();
+                    if (!filterColumn.labelKey().isEmpty()) {
+                        filterUnit.label.setText(messageSource.getMessage(filterColumn.labelKey(), null, localeHolder.getLocale()));
+                    }
+                    JTextComponent textComponent = null;
+                    if (FilterType.COMBOBOX == filterUnit.filterType) {
+                        filterUnit.comboBox = new JComboBox<>(comboBoxItemsMap.get(field.getName()));
+                        filterUnit.comboBox.setEditable(true);
+                        filterUnit.comboBox.setSelectedItem(null);
+                        textComponent = (JTextComponent) filterUnit.comboBox.getEditor().getEditorComponent();
+                    } else if (FilterType.CHECKBOXES == filterUnit.filterType || FilterType.BOOLEAN_CHECKBOX == filterUnit.filterType) {
+                        if (filterColumn.checkBoxesNumber() > 0) {
+                            filterUnit.checkBoxes = new JCheckBox[filterColumn.checkBoxesNumber()];
+                            for (int i = 0; i < filterColumn.checkBoxesNumber(); ++i) {
+                                String text = messageSource.getMessage(filterColumn.checkBoxesText()[i], null, localeHolder.getLocale());
+                                String actionCommand = null;
+                                if (text.equals(messageSource.getMessage("dialog.changed.field.article.filter.checkBox.update", null, localeHolder.getLocale()))) {
+                                    actionCommand = ChangedFieldJdo.RefreshOperationType.UPDATED.name();
+                                } else if (text.equals(messageSource.getMessage("dialog.changed.field.article.filter.checkBox.save", null, localeHolder.getLocale()))) {
+                                    actionCommand = ChangedFieldJdo.RefreshOperationType.SAVED.name();
+                                } else if (text.equals(messageSource.getMessage("dialog.changed.field.article.filter.checkBox.delete", null, localeHolder.getLocale()))) {
+                                    actionCommand = ChangedFieldJdo.RefreshOperationType.DELETED.name();
+                                }
+                                filterUnit.checkBoxes[i] = new JCheckBox(text);
+                                filterUnit.checkBoxes[i].setActionCommand(actionCommand);
+                                if (FilterType.CHECKBOXES == filterUnit.filterType) {
+                                    filterUnit.checkBoxes[i].setSelected(true);
+                                } else if (FilterType.BOOLEAN_CHECKBOX == filterUnit.filterType) {
+                                    filterUnit.checkBoxes[i].setSelected(false);
+                                }
+                                filterUnit.checkBoxes[i].addItemListener(new ItemListener() {
+                                    @Override
+                                    public void itemStateChanged(ItemEvent e) {
+                                        int state = e.getStateChange();
+                                        if (state == ItemEvent.SELECTED) {
+                                            applyFilters();
+                                        } else if (state == ItemEvent.DESELECTED) {
+                                            applyFilters();
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    } else {
+                        filterUnit.textField = new JTextField(filterColumn.editSize());
+                        textComponent = filterUnit.textField;
+                    }
+                    if (textComponent != null) {
+                        textComponent.getDocument().addDocumentListener(filterElementsListener);
+                    }
 
-                filters.add(filterUnit);
+                    filters.add(filterUnit);
+                }
             }
         }
 
@@ -186,7 +196,7 @@ public class ArticleChangedFieldFiltersComponent {
             }
         }
 
-        clearSearchButton = new JButton(messageSource.getMessage("mainForm.button.clear.title", null,
+        JButton clearSearchButton = new JButton(messageSource.getMessage("mainForm.button.clear.title", null,
                 localeHolder.getLocale()));
         clearSearchButton.setPreferredSize(new Dimension(500, 20));
         clearSearchButton.setMaximumSize(new Dimension(500, 20));
@@ -235,17 +245,17 @@ public class ArticleChangedFieldFiltersComponent {
      * Filters table by name, by code, by price.
      */
     private void applyFilters() {
-        List<RowFilter<ArticleChangedFieldTableModel, Integer>> andFilters = new ArrayList<>();
+        List<RowFilter<ChangedFieldTableModel, Integer>> andFilters = new ArrayList<>();
         for (final FilterUnit filterUnit : filters) {
             final int columnIndex = tableModel.findColumn(filterUnit.columnTitle);
 
-            RowFilter<ArticleChangedFieldTableModel, Integer> filter = null;
+            RowFilter<ChangedFieldTableModel, Integer> filter = null;
             if (filterUnit.checkBoxes != null) {
                 if (FilterType.CHECKBOXES == filterUnit.filterType) {
                     if (anyDeselected(filterUnit.checkBoxes)) {
-                        filter = new RowFilter<ArticleChangedFieldTableModel, Integer>() {
+                        filter = new RowFilter<ChangedFieldTableModel, Integer>() {
                             @Override
-                            public boolean include(Entry<? extends ArticleChangedFieldTableModel, ? extends Integer> entry) {
+                            public boolean include(Entry<? extends ChangedFieldTableModel, ? extends Integer> entry) {
                                 Object operationType = tableModel.getRawValueAt(entry.getIdentifier(), columnIndex);
                                 return correspondsToCheckBoxes(filterUnit.checkBoxes, operationType);
                             }
@@ -253,9 +263,9 @@ public class ArticleChangedFieldFiltersComponent {
                     }
                 } else if (FilterType.BOOLEAN_CHECKBOX == filterUnit.filterType) {
                     if (anySelected(filterUnit.checkBoxes)) {
-                        filter = new RowFilter<ArticleChangedFieldTableModel, Integer>() {
+                        filter = new RowFilter<ChangedFieldTableModel, Integer>() {
                             @Override
-                            public boolean include(Entry<? extends ArticleChangedFieldTableModel, ? extends Integer> entry) {
+                            public boolean include(Entry<? extends ChangedFieldTableModel, ? extends Integer> entry) {
                                 Object obj = tableModel.getRawValueAt(entry.getIdentifier(), columnIndex);
                                 return (Boolean) obj;
                             }
@@ -264,9 +274,9 @@ public class ArticleChangedFieldFiltersComponent {
                 }
             } else if (filterUnit.textField != null) {
                 if (" ".equals(filterUnit.textField.getText())) {
-                    filter = new RowFilter<ArticleChangedFieldTableModel, Integer>() {
+                    filter = new RowFilter<ChangedFieldTableModel, Integer>() {
                         @Override
-                        public boolean include(Entry<? extends ArticleChangedFieldTableModel, ? extends Integer> entry) {
+                        public boolean include(Entry<? extends ChangedFieldTableModel, ? extends Integer> entry) {
                             Object obj = tableModel.getRawValueAt(entry.getIdentifier(), columnIndex);
                             return obj == null || obj.toString().trim().isEmpty();
                         }
@@ -294,9 +304,9 @@ public class ArticleChangedFieldFiltersComponent {
                             String numbers1 = numbers[1].replace(",", ".").replaceAll("[^0-9.]", "");
                             final Double number1 = Double.parseDouble(numbers0);
                             final Double number2 = Double.parseDouble(numbers1);
-                            filter = new RowFilter<ArticleChangedFieldTableModel, Integer>() {
+                            filter = new RowFilter<ChangedFieldTableModel, Integer>() {
                                 @Override
-                                public boolean include(Entry<? extends ArticleChangedFieldTableModel, ? extends Integer> entry) {
+                                public boolean include(Entry<? extends ChangedFieldTableModel, ? extends Integer> entry) {
                                     Double number = (Double) tableModel.getRawValueAt(entry.getIdentifier(), columnIndex);
                                     return number > number1 && number < number2;
                                 }
@@ -316,9 +326,9 @@ public class ArticleChangedFieldFiltersComponent {
                         if (dates.length > 1 && !dates[0].trim().isEmpty() && !dates[1].trim().isEmpty()) {
                             final Date correctedDate1 = getCorrectedDate(dates[0]);
                             final Date correctedDate2 = getCorrectedDate(dates[1]);
-                            filter = new RowFilter<ArticleChangedFieldTableModel, Integer>() {
+                            filter = new RowFilter<ChangedFieldTableModel, Integer>() {
                                 @Override
-                                public boolean include(Entry<? extends ArticleChangedFieldTableModel, ? extends Integer> entry) {
+                                public boolean include(Entry<? extends ChangedFieldTableModel, ? extends Integer> entry) {
                                     Object saleDateObj = tableModel.getRawValueAt(entry.getIdentifier(), columnIndex);
                                     if (saleDateObj != null) {
                                         Date date = ((Calendar) tableModel.getRawValueAt(entry.getIdentifier(), columnIndex)).getTime();
@@ -334,9 +344,9 @@ public class ArticleChangedFieldFiltersComponent {
             } else if (filterUnit.comboBox != null) {
                 JTextComponent textComponent = (JTextComponent) filterUnit.comboBox.getEditor().getEditorComponent();
                 if (" ".equals(textComponent.getText())) {
-                    filter = new RowFilter<ArticleChangedFieldTableModel, Integer>() {
+                    filter = new RowFilter<ChangedFieldTableModel, Integer>() {
                         @Override
-                        public boolean include(Entry<? extends ArticleChangedFieldTableModel, ? extends Integer> entry) {
+                        public boolean include(Entry<? extends ChangedFieldTableModel, ? extends Integer> entry) {
                             Object obj = tableModel.getRawValueAt(entry.getIdentifier(), columnIndex);
                             return obj == null || obj.toString().trim().isEmpty();
                         }
@@ -357,10 +367,10 @@ public class ArticleChangedFieldFiltersComponent {
     }
 
     private boolean correspondsToCheckBoxes(JCheckBox[] checkBoxes, Object operationObject) {
-        if (operationObject instanceof ArticleChangedFieldJdo.OperationType) {
-            ArticleChangedFieldJdo.OperationType operationType = (ArticleChangedFieldJdo.OperationType) operationObject;
+        if (operationObject instanceof ChangedFieldJdo.RefreshOperationType) {
+            ChangedFieldJdo.RefreshOperationType refreshOperationType = (ChangedFieldJdo.RefreshOperationType) operationObject;
             for (JCheckBox checkBox : checkBoxes) {
-                if (checkBox.isSelected() && (operationType.name()).matches(checkBox.getActionCommand())) return true;
+                if (checkBox.isSelected() && (refreshOperationType.name()).matches(checkBox.getActionCommand())) return true;
             }
         }
         return false;
@@ -452,12 +462,12 @@ public class ArticleChangedFieldFiltersComponent {
         return filtersPanel;
     }
 
-    public TableRowSorter<ArticleChangedFieldTableModel> getSorter() {
+    public TableRowSorter<ChangedFieldTableModel> getSorter() {
         return sorter;
     }
 
-    public List<FilterUnit> getFilters() {
-        return filters;
-    }
+//    public List<FilterUnit> getFilters() {
+//        return filters;
+//    }
 
 }

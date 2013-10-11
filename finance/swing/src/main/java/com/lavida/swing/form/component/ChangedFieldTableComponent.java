@@ -1,8 +1,8 @@
 package com.lavida.swing.form.component;
 
-import com.lavida.service.entity.ArticleChangedFieldJdo;
+import com.lavida.service.entity.ChangedFieldJdo;
 import com.lavida.swing.LocaleHolder;
-import com.lavida.swing.service.ArticleChangedFieldTableModel;
+import com.lavida.swing.service.ChangedFieldTableModel;
 import org.springframework.context.MessageSource;
 
 import javax.swing.*;
@@ -16,23 +16,23 @@ import java.awt.*;
 import java.util.*;
 
 /**
- * The ArticleChangedFieldTableComponent
+ * The ChangedFieldTableComponent
  * <p/>
  * Created: 02.10.13 11:27.
  *
  * @author Ruslan.
  */
-public class ArticleChangedFieldTableComponent implements TableModelListener {
+public class ChangedFieldTableComponent implements TableModelListener {
 
-    private ArticleChangedFieldTableModel tableModel;
+    private ChangedFieldTableModel tableModel;
     private MessageSource messageSource;
     private LocaleHolder localeHolder;
 
     private JPanel mainPanel;
     private JTable table;
-    private ArticleChangedFieldFiltersComponent articleChangedFieldFiltersComponent = new ArticleChangedFieldFiltersComponent();
+    private ChangedFieldFiltersComponent changedFieldFiltersComponent = new ChangedFieldFiltersComponent();
 
-    public void initializeComponents(ArticleChangedFieldTableModel aTableModel, MessageSource messageSource,
+    public void initializeComponents(ChangedFieldTableModel aTableModel, MessageSource messageSource,
                                      LocaleHolder localeHolder) {
         this.tableModel = aTableModel;
         this.messageSource = messageSource;
@@ -68,8 +68,8 @@ public class ArticleChangedFieldTableComponent implements TableModelListener {
                 if (!listSelectionModel.isSelectionEmpty()) {
                     int viewRow = listSelectionModel.getMinSelectionIndex();
                     int selectedRow = table.convertRowIndexToModel(viewRow);
-                    ArticleChangedFieldJdo selectedArticleChangedField = tableModel.getArticleChangedFieldJdoByRowIndex(selectedRow);
-                    tableModel.setSelectedArticleChangedField(selectedArticleChangedField);
+                    ChangedFieldJdo selectedArticleChangedField = tableModel.getChangedFieldJdoByRowIndex(selectedRow);
+                    tableModel.setSelectedChangedField(selectedArticleChangedField);
                 }
             }
         });
@@ -79,8 +79,8 @@ public class ArticleChangedFieldTableComponent implements TableModelListener {
         mainPanel.add(tableScrollPane, BorderLayout.CENTER);
 
 //      panel for search operations
-        articleChangedFieldFiltersComponent.initializeComponents(tableModel, messageSource, localeHolder);
-        table.setRowSorter(articleChangedFieldFiltersComponent.getSorter());
+        changedFieldFiltersComponent.initializeComponents(tableModel, messageSource, localeHolder);
+        table.setRowSorter(changedFieldFiltersComponent.getSorter());
 
 
     }
@@ -91,30 +91,8 @@ public class ArticleChangedFieldTableComponent implements TableModelListener {
         selectionColumn.setCellEditor(table.getDefaultEditor(Boolean.class));
         selectionColumn.setCellRenderer(table.getDefaultRenderer(Boolean.class));
 
-/*
-        sizeBox = new JComboBox(ArticleJdo.SIZE_ARRAY);
-        sizeBox.setEditable(true);
-        TableCellEditor sizeEditor = new DefaultCellEditor(sizeBox);
-        TableColumn sizeColumn = table.getColumn(messageSource.getMessage("dialog.changed.field.article.table.size.title",
-                null, localeHolder.getLocale()));
-        sizeColumn.setCellEditor(sizeEditor);
-*/
-
     }
 
-    /**
-     * Filters the JTable by permissions of roles (ROLE_SELLER). It removes certain columns.
-     *
-     * @param userRoles current user's roles.
-     */
-/*
-    public void filterTableByRoles(java.util.List<String> userRoles) {
-        java.util.List<String> forbiddenHeaders = tableModel.getForbiddenHeadersToShow(messageSource, localeHolder.getLocale(), userRoles);
-        for (String forbiddenHeader : forbiddenHeaders) {
-            table.removeColumn(table.getColumn(forbiddenHeader));
-        }
-    }
-*/
 
     /**
      * Sets preferred width to certain columns
@@ -130,8 +108,8 @@ public class ArticleChangedFieldTableComponent implements TableModelListener {
         return mainPanel;
     }
 
-    public ArticleChangedFieldFiltersComponent getArticleChangedFieldFiltersComponent() {
-        return articleChangedFieldFiltersComponent;
+    public ChangedFieldFiltersComponent getChangedFieldFiltersComponent() {
+        return changedFieldFiltersComponent;
     }
 
     public JTable getTable() {

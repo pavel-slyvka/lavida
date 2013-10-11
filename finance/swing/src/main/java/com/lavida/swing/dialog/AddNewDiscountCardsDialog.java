@@ -220,4 +220,8 @@ public class AddNewDiscountCardsDialog extends AbstractDialog {
     public JMenuItem getPrintItem() {
         return printItem;
     }
+
+    public JButton getAcceptCardsButton() {
+        return acceptCardsButton;
+    }
 }

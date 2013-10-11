@@ -1,27 +1,20 @@
 package com.lavida.swing.handler;
 
-import com.google.gdata.util.ServiceException;
+import com.lavida.swing.exception.LavidaSwingRuntimeException;
+import com.lavida.swing.exception.RemoteUpdateException;
 import com.lavida.swing.form.component.TablePrintPreviewComponent;
-import com.lavida.swing.service.UserSettingsService;
+import com.lavida.swing.service.ConcurrentOperationsService;
 import com.lavida.service.entity.DiscountCardJdo;
-import com.lavida.swing.preferences.UsersSettingsHolder;
 import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.dialog.AddNewDiscountCardsDialog;
 import com.lavida.swing.service.DiscountCardServiceSwingWrapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
-import javax.swing.*;
-import java.awt.print.PrinterException;
-import java.io.IOException;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -31,7 +24,7 @@ import java.util.List;
  */
 @Component
 public class AddNewDiscountCardsDialogHandler {
-    private static final Logger logger = LoggerFactory.getLogger(AddNewDiscountCardsDialogHandler.class);
+//    private static final Logger logger = LoggerFactory.getLogger(AddNewDiscountCardsDialogHandler.class);
 
     @Resource
     private AddNewDiscountCardsDialog dialog;
@@ -44,6 +37,9 @@ public class AddNewDiscountCardsDialogHandler {
 
     @Resource
     protected LocaleHolder localeHolder;
+
+    @Resource
+    private ConcurrentOperationsService concurrentOperationsService;
 
     public void cancelButtonClicked() {
         dialog.getTableModel().setSelectedCard(null);
@@ -74,43 +70,73 @@ public class AddNewDiscountCardsDialogHandler {
 
     public void acceptCardsButtonClicked() {
         if (dialog.getCardTableComponent().getDiscountCardsTable().isEditing()) {
+            dialog.showWarningMessage("mainForm.exception.message.dialog.title", "dialog.discountCards.addNew.editing.not.finished.message");
             return;
         }
-        List<DiscountCardJdo> discountCardJdoList = dialog.getTableModel().getTableData();
-        while (discountCardJdoList.size() > 0) {
-            DiscountCardJdo discountCardJdo = discountCardJdoList.get(0);
-            String cardNumber = discountCardJdo.getNumber();
-            if (!StringUtils.isEmpty(cardNumber)) {
-                DiscountCardJdo existingCard = discountCardServiceSwingWrapper.getByNumber(cardNumber);
-                if (existingCard == null) {
-                    discountCardJdo.setRegistrationDate(Calendar.getInstance());
-                    discountCardJdo.setActivationDate(Calendar.getInstance());
+        concurrentOperationsService.startOperation("Accepting new discount cards", new Runnable() {
+            @Override
+            public void run() {
+                dialog.getAcceptCardsButton().setEnabled(false);
+                boolean postponed = false;
+                RemoteUpdateException exception = null;
+                String acceptingOk = messageSource.getMessage("dialog.discounts.card.addNew.accepting.ok.message", null, localeHolder.getLocale());
+                StringBuilder stringBuilder = new StringBuilder();
+                stringBuilder.append(acceptingOk);
+                stringBuilder.append("\n");
+                List<DiscountCardJdo> discountCardJdoList = dialog.getTableModel().getTableData();
+                while (discountCardJdoList.size() > 0) {
+                    DiscountCardJdo discountCardJdo = discountCardJdoList.get(0);
+                    DiscountCardJdo oldDiscountCardJdo;
                     try {
-                        discountCardServiceSwingWrapper.updateToSpreadsheet(discountCardJdo);
-                    } catch (IOException | ServiceException e) {
-                        logger.warn(e.getMessage(), e);
-                        discountCardJdo.setPostponedDate(new Date());
-                        dialog.getMainForm().getHandler().showPostponedOperationsMessage();
+                        oldDiscountCardJdo = (DiscountCardJdo) discountCardJdo.clone();
+                    } catch (CloneNotSupportedException e) {
+                        dialog.getAcceptCardsButton().setEnabled(true);
+                        throw new RuntimeException(e);
                     }
-                    discountCardServiceSwingWrapper.save(discountCardJdo);
-                } else {
-                    discountCardJdo.setNumber(null);
-                    dialog.showWarningMessage("mainForm.exception.message.dialog.title", "dialog.sell.handler.discount.card.number.exists.message");
-                    dialog.getTableModel().fireTableDataChanged();
-                    dialog.getCardTableComponent().getCardFiltersComponent().updateAnalyzeComponent();
-                    return;
+                    String cardNumber = discountCardJdo.getNumber();
+                    if (!StringUtils.isEmpty(cardNumber)) {
+                        DiscountCardJdo existingCard = discountCardServiceSwingWrapper.getByNumber(cardNumber);
+                        if (existingCard == null) {
+                            discountCardJdo.setRegistrationDate(Calendar.getInstance());
+                            discountCardJdo.setActivationDate(Calendar.getInstance());
+                            try {
+                                discountCardServiceSwingWrapper.updateToSpreadsheet(oldDiscountCardJdo, discountCardJdo);
+                            } catch (RemoteUpdateException e) {
+                                postponed = true;
+                                exception = e;
+                            }
+                        } else {
+                            discountCardJdo.setNumber(null);
+                            dialog.showWarningMessage("mainForm.exception.message.dialog.title", "dialog.sell.handler.discount.card.number.exists.message");
+                            dialog.getTableModel().fireTableDataChanged();
+                            dialog.getCardTableComponent().getCardFiltersComponent().updateAnalyzeComponent();
+                            dialog.getAcceptCardsButton().setEnabled(true);
+                            return;
+                        }
+                    } else {
+                        discountCardJdo.setNumber(null);
+                        dialog.showWarningMessage("mainForm.exception.message.dialog.title", "dialog.sell.handler.discount.card.number.enter.message");
+                        dialog.getTableModel().fireTableDataChanged();
+                        dialog.getCardTableComponent().getCardFiltersComponent().updateAnalyzeComponent();
+                        dialog.getAcceptCardsButton().setEnabled(true);
+                        return;
+                    }
+                    discountCardJdoList.remove(discountCardJdo);
                 }
-            } else {
-                discountCardJdo.setNumber(null);
-                dialog.showWarningMessage("mainForm.exception.message.dialog.title", "dialog.sell.handler.discount.card.number.enter.message");
+                dialog.getAcceptCardsButton().setEnabled(true);
                 dialog.getTableModel().fireTableDataChanged();
                 dialog.getCardTableComponent().getCardFiltersComponent().updateAnalyzeComponent();
-                return;
+                String message = convertToMultiline(new String(stringBuilder));
+                dialog.getMainForm().showInfoToolTip(message);
+                if (postponed) {
+                    throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.GOOGLE_SERVICE_EXCEPTION, exception);
+                }
             }
-            discountCardJdoList.remove(discountCardJdo);
-        }
-        dialog.getTableModel().fireTableDataChanged();
-        dialog.getCardTableComponent().getCardFiltersComponent().updateAnalyzeComponent();
+        });
+    }
+
+    private String convertToMultiline(String orig) {
+        return "<html>" + orig.replaceAll("\n", "<br>"); //+ "</html>"
     }
 
     public void printItemClicked() {

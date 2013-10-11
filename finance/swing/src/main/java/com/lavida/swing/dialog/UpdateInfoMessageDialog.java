@@ -14,6 +14,7 @@ import java.awt.*;
  * @author Ruslan.
  */
 @org.springframework.stereotype.Component
+@Deprecated
 public class UpdateInfoMessageDialog extends AbstractDialog{
 
     private JLabel infoLabel;

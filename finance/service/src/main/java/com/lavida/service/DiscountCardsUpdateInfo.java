@@ -1,5 +1,9 @@
 package com.lavida.service;
 
+import com.lavida.service.entity.ChangedFieldJdo;
+
+import java.util.List;
+
 /**
  * Created: 11:27 16.09.13
  *
@@ -9,6 +13,7 @@ public class DiscountCardsUpdateInfo {
     private int addedCount;
     private int updatedCount;
     private int deletedCount;
+    private List<ChangedFieldJdo> changedFieldJdoList;
 
     public int getAddedCount() {
         return addedCount;
@@ -32,6 +37,14 @@ public class DiscountCardsUpdateInfo {
 
     public void setDeletedCount(int deletedCount) {
         this.deletedCount = deletedCount;
+    }
+
+    public List<ChangedFieldJdo> getChangedFieldJdoList() {
+        return changedFieldJdoList;
+    }
+
+    public void setChangedFieldJdoList(List<ChangedFieldJdo> changedFieldJdoList) {
+        this.changedFieldJdoList = changedFieldJdoList;
     }
 
     @Override

@@ -72,9 +72,9 @@ public class LoginFormHandler {
             loadUserSettings(loginEntered);
             mainForm.filterTableByRoles();
             mainForm.filterTableDataByRole(userService.getCurrentUserRoles());
-            mainForm.filterAnalyzePanelByRoles(userService.getCurrentUserRoles());
+            mainForm.filterAnalyzePanelByRoles();
             mainForm.filterMenuBarByRoles();
-            mainForm.removeFiltersByRoles(userService.getCurrentUserRoles());
+            mainForm.removeFiltersByRoles();
             mainForm.filterSellDialogByRoles(userService.getCurrentUserRoles());
             mainForm.initializeTableViewComponents();
             if (!userSettingsService.userDefaultPresetExists()) {
@@ -88,13 +88,7 @@ public class LoginFormHandler {
             mainForm.getHandler().refreshTableItemClicked();
             mainForm.show();
             form.hide();
-        } catch (UserValidationException e1) {
-            Toolkit.getDefaultToolkit().beep();
-            form.showErrorMessage(e1.getMessage());
-        } catch (BadCredentialsException e) {
-            Toolkit.getDefaultToolkit().beep();
-            form.showErrorMessage(e.getMessage());
-        } catch (AuthenticationServiceException e) {
+        } catch (UserValidationException | BadCredentialsException | AuthenticationServiceException e) {
             Toolkit.getDefaultToolkit().beep();
             form.showErrorMessage(e.getMessage());
         }

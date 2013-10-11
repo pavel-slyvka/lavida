@@ -4,8 +4,12 @@ import com.google.gdata.util.ServiceException;
 import com.lavida.service.ArticleService;
 import com.lavida.service.ArticleUpdateInfo;
 import com.lavida.service.entity.ArticleJdo;
+import com.lavida.service.entity.ChangedFieldJdo;
 import com.lavida.service.xml.ArticlesXmlService;
 import com.lavida.swing.event.ArticleUpdateEvent;
+import com.lavida.swing.event.PostponedOperationEvent;
+import com.lavida.swing.exception.LavidaSwingRuntimeException;
+import com.lavida.swing.exception.RemoteUpdateException;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -16,6 +20,7 @@ import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -33,6 +38,9 @@ public class ArticleServiceSwingWrapper implements ApplicationContextAware {
 
     @Resource
     private ArticlesXmlService articlesXmlService;
+
+    @Resource
+    private ChangedFieldServiceSwingWrapper changedFieldServiceSwingWrapper;
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
@@ -73,8 +81,30 @@ public class ArticleServiceSwingWrapper implements ApplicationContextAware {
         return articleService.mergePostponedWithDatabase(loadedArticles);
     }
 
-    public void updateToSpreadsheet(ArticleJdo articleJdo, Boolean isSold) throws IOException, ServiceException {
-        articleService.updateToSpreadsheet(articleJdo, isSold);
+    public void updateToSpreadsheet(ArticleJdo oldArticle, ArticleJdo articleJdo, Boolean isSold) throws RemoteUpdateException {
+        try {
+            articleService.updateToSpreadsheet(articleJdo, isSold);
+        } catch (IOException | ServiceException e) {
+            Date postponedDate ;
+            if (isSold == null) {
+                postponedDate = new Date();
+            } else if (isSold) {
+                postponedDate = articleJdo.getSaleDate().getTime();
+            } else {
+                postponedDate = articleJdo.getRefundDate();
+            }
+            List<ChangedFieldJdo> changedFieldJdoList = articleJdo.findUpdateChanges(oldArticle, null);
+            for (ChangedFieldJdo changedFieldJdo: changedFieldJdoList) {
+                changedFieldJdo.setPostponedDate(postponedDate);
+            }
+            changedFieldServiceSwingWrapper.update(changedFieldJdoList);
+            articleJdo.setPostponedOperationDate(postponedDate);
+            update(articleJdo);
+            applicationContext.publishEvent(new PostponedOperationEvent(this));
+            throw new RemoteUpdateException(e);
+        }
+        update(articleJdo);
+
     }
 
     public void saveToXml(List<ArticleJdo> articleJdoList, File file) throws JAXBException, IOException {

@@ -1,6 +1,5 @@
 package com.lavida.swing.service;
 
-import com.google.gdata.util.ServiceException;
 import com.lavida.service.ArticleCalculator;
 import com.lavida.service.FiltersPurpose;
 import com.lavida.service.UserService;
@@ -10,6 +9,8 @@ import com.lavida.service.entity.ArticleJdo;
 import com.lavida.service.utils.DateConverter;
 import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.event.ArticleUpdateEvent;
+import com.lavida.swing.exception.LavidaSwingRuntimeException;
+import com.lavida.swing.exception.RemoteUpdateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
@@ -18,7 +19,6 @@ import org.springframework.context.MessageSource;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.swing.table.AbstractTableModel;
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.text.ParseException;
@@ -46,7 +46,6 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
     private double totalPurchaseCostEUR, totalCostEUR, totalPriceUAH, totalCostUAH, minimalMultiplier, normalMultiplier,
             totalTransportCostEUR, profitUAH;
     private String sellerName;
-//    private File openedFile;
 
     @Resource
     private ArticleDao articleDao;
@@ -92,6 +91,34 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
     }
 
     public FiltersPurpose getFiltersPurpose() {
+        if (queryName != null) {
+            switch (queryName) {
+                case ArticleJdo.FIND_SOLD:
+                    return FiltersPurpose.SOLD_PRODUCTS;
+                case ArticleJdo.FIND_SOLD_LA_VIDA:
+                    return FiltersPurpose.SOLD_PRODUCTS;
+                case ArticleJdo.FIND_SOLD_SLAVYANKA:
+                    return FiltersPurpose.SOLD_PRODUCTS;
+                case ArticleJdo.FIND_SOLD_NOVOMOSKOVSK:
+                    return FiltersPurpose.SOLD_PRODUCTS;
+                case ArticleJdo.FIND_SOLD_ALEXANDRIA:
+                    return FiltersPurpose.SOLD_PRODUCTS;
+
+                case ArticleJdo.FIND_NOT_SOLD:
+                    return FiltersPurpose.SELL_PRODUCTS;
+                case ArticleJdo.FIND_NOT_SOLD_LA_VIDA:
+                    return FiltersPurpose.SELL_PRODUCTS;
+                case ArticleJdo.FIND_NOT_SOLD_SLAVYANKA:
+                    return FiltersPurpose.SELL_PRODUCTS;
+                case ArticleJdo.FIND_NOT_SOLD_NOVOMOSKOVSK:
+                    return FiltersPurpose.SELL_PRODUCTS;
+                case ArticleJdo.FIND_NOT_SOLD_ALEXANDRIA:
+                    return FiltersPurpose.SELL_PRODUCTS;
+
+            }
+        }
+        return FiltersPurpose.ADD_NEW_PRODUCTS;
+/*
         if (ArticleJdo.FIND_SOLD.equals(queryName) || ArticleJdo.FIND_SOLD_LA_VIDA.equals(queryName) ||
                 ArticleJdo.FIND_SOLD_SLAVYANKA.equals(queryName) || ArticleJdo.FIND_SOLD_NOVOMOSKOVSK.equals(queryName)) {
             return FiltersPurpose.SOLD_PRODUCTS;
@@ -101,6 +128,7 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
         } else {
             return FiltersPurpose.ADD_NEW_PRODUCTS;
         }
+*/
     }
 
     @Override
@@ -362,11 +390,13 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
         ArticleJdo articleJdo = getArticleJdoByRowIndex(rowIndex);
+        ArticleJdo oldArticle;
         String value = aValue.toString();
         SimpleDateFormat calendarFormatter = new SimpleDateFormat("dd.MM.yyyy");
         calendarFormatter.setLenient(false);
         boolean toUpdate = true;
         try {
+            oldArticle = (ArticleJdo) articleJdo.clone();
             Field field = ArticleJdo.class.getDeclaredField(articleFieldsSequence.get(columnIndex));
             field.setAccessible(true);
             if (int.class == field.getType()) {
@@ -385,7 +415,7 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
                             newArticle.setSpreadsheetRow(0);
                             newArticle.setId(0);
                             tableData.add(newArticle);
-                            updateTable(newArticle);
+                            updateTable(oldArticle, newArticle);
                         }
                     }
                 } else return;
@@ -444,7 +474,7 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
                             newArticle.setSpreadsheetRow(0);
                             newArticle.setId(0);
                             tableData.add(newArticle);
-                            updateTable(newArticle);
+                            updateTable(oldArticle, newArticle);
                         }
                     }
                 } else return;
@@ -535,17 +565,14 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
                 } else return;
             }
         } catch (NumberFormatException e) {
-            logger.warn(e.getMessage(), e);
             throw new NumberFormatException(e.getMessage());
         } catch (Exception e) {
-            logger.warn(e.getMessage(), e);
             throw new RuntimeException(e);
         }
         if (toUpdate) {
-            updateTable(articleJdo);
+            updateTable(oldArticle, articleJdo);
         }
     }
-
 
 
     /**
@@ -565,22 +592,20 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
      *
      * @param changedArticle the articleJdo to be updated.
      */
-    private void updateTable(final ArticleJdo changedArticle) {
+    private void updateTable(final ArticleJdo oldArticle, final ArticleJdo changedArticle) {
         if (queryName != null) {
-        concurrentOperationsService.startOperation("Article updating.", new Runnable() {
+            concurrentOperationsService.startOperation("Article updating.", new Runnable() {
 
-            @Override
-            public void run() {
+                @Override
+                public void run() {
                     try {
-                        articleServiceSwingWrapper.updateToSpreadsheet(changedArticle, null);
-                    } catch (IOException | ServiceException e) {
-                        logger.warn(e.getMessage(), e);
-                        changedArticle.setPostponedOperationDate(new Date());
+                        articleServiceSwingWrapper.updateToSpreadsheet(oldArticle, changedArticle, null);
+                    } catch (RemoteUpdateException e) {
+                        fireTableDataChanged();
+                        throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.GOOGLE_SERVICE_EXCEPTION, e);
                     }
-                    articleServiceSwingWrapper.update(changedArticle);
-
-            }
-        });
+                }
+            });
         }
         fireTableDataChanged();
     }
@@ -593,47 +618,32 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
     public void filterTableDataByRole(List<String> userRoles) {
         if (ArticleJdo.FIND_NOT_SOLD.equals(queryName)) {
             for (String role : userRoles) {
-                switch (role){
-                    case "ROLE_SELLER_LA_VIDA":{
+                switch (role) {
+                    case "ROLE_SELLER_LA_VIDA": {
                         this.setQueryName(ArticleJdo.FIND_NOT_SOLD_LA_VIDA);
                         updateTableData();
                         fireTableDataChanged();
                         return;
-                    } case "ROLE_SELLER_SLAVYANKA":{
+                    }
+                    case "ROLE_SELLER_SLAVYANKA": {
                         this.setQueryName(ArticleJdo.FIND_NOT_SOLD_SLAVYANKA);
                         updateTableData();
                         fireTableDataChanged();
                         return;
-                    } case "ROLE_SELLER_NOVOMOSKOVSK": {
+                    }
+                    case "ROLE_SELLER_NOVOMOSKOVSK": {
                         this.setQueryName(ArticleJdo.FIND_NOT_SOLD_NOVOMOSKOVSK);
                         updateTableData();
                         fireTableDataChanged();
                         return;
-                    }case "ROLE_SELLER_ALEXANDRIA": {
+                    }
+                    case "ROLE_SELLER_ALEXANDRIA": {
                         this.setQueryName(ArticleJdo.FIND_NOT_SOLD_ALEXANDRIA);
                         updateTableData();
                         fireTableDataChanged();
                         return;
                     }
                 }
-/*
-                if ("ROLE_SELLER_LA_VIDA".equals(role)) {
-                    this.setQueryName(ArticleJdo.FIND_NOT_SOLD_LA_VIDA);
-                    updateTableData();
-                    fireTableDataChanged();
-                    return;
-                } else if ("ROLE_SELLER_SLAVYANKA".equals(role)) {
-                    this.setQueryName(ArticleJdo.FIND_NOT_SOLD_SLAVYANKA);
-                    updateTableData();
-                    fireTableDataChanged();
-                    return;
-                } else if ("ROLE_SELLER_NOVOMOSKOVSK".equals(role)) {
-                    this.setQueryName(ArticleJdo.FIND_NOT_SOLD_NOVOMOSKOVSK);
-                    updateTableData();
-                    fireTableDataChanged();
-                    return;
-                }
-*/
             }
         } else if (ArticleJdo.FIND_SOLD.equals(queryName)) {
             for (String role : userRoles) {
@@ -643,17 +653,20 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
                         updateTableData();
                         fireTableDataChanged();
                         return;
-                    } case "ROLE_SELLER_SLAVYANKA":{
+                    }
+                    case "ROLE_SELLER_SLAVYANKA": {
                         this.setQueryName(ArticleJdo.FIND_SOLD_SLAVYANKA);
                         updateTableData();
                         fireTableDataChanged();
                         return;
-                    }case "ROLE_SELLER_NOVOMOSKOVSK":{
+                    }
+                    case "ROLE_SELLER_NOVOMOSKOVSK": {
                         this.setQueryName(ArticleJdo.FIND_SOLD_NOVOMOSKOVSK);
                         updateTableData();
                         fireTableDataChanged();
                         return;
-                    }case "ROLE_SELLER_ALEXANDRIA": {
+                    }
+                    case "ROLE_SELLER_ALEXANDRIA": {
                         this.setQueryName(ArticleJdo.FIND_SOLD_ALEXANDRIA);
                         updateTableData();
                         fireTableDataChanged();

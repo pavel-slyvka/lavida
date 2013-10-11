@@ -1,8 +1,8 @@
 package com.lavida.swing.dialog;
 
-import com.lavida.swing.form.component.ArticleChangedFieldTableComponent;
-import com.lavida.swing.handler.ArticleChangesDialogHandler;
-import com.lavida.swing.service.ArticleChangedFieldTableModel;
+import com.lavida.swing.form.component.ChangedFieldTableComponent;
+import com.lavida.swing.handler.PostponedChangesDialogHandler;
+import com.lavida.swing.service.ChangedFieldTableModel;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -12,32 +12,31 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 /**
- * The ArticleChangesDialog
+ * The ArticlePostponedChangesDialog
  * <p/>
- * Created: 02.10.13 13:20.
+ * Created: 10.10.13 11:54.
  *
  * @author Ruslan.
  */
 @Component
-public class ArticleChangesDialog extends AbstractDialog {
+public class PostponedChangesDialog extends AbstractDialog {
 
     @Resource
-    private ArticleChangesDialogHandler handler;
+    private PostponedChangesDialogHandler handler;
 
-    @Resource(name = "articleChangedFieldTableModel")
-    private ArticleChangedFieldTableModel tableModel;
+    @Resource(name = "articlePostponedChangedFieldTableModel")
+    private ChangedFieldTableModel tableModel;
 
-    private JPanel  southPanel, desktopPanel, filtersPanel, mainPanel, buttonPanel;
-    private JButton  cancelButton;
     private JMenuBar menuBar;
-    private JMenu  selectedMenu;
-    private JMenuItem  deselectAllItem, deleteSelectedItem, revertChangesItem;
-    private ArticleChangedFieldTableComponent tableComponent = new ArticleChangedFieldTableComponent();
+//    private JMenu  selectedMenu;
+    private JMenuItem deletePostponedItem, recommitPostponedItem, loadPostponedItem, savePostponedItem;
+    private ChangedFieldTableComponent tableComponent = new ChangedFieldTableComponent();
+
 
     @Override
     protected void initializeForm() {
         super.initializeForm();
-        dialog.setTitle(messageSource.getMessage("dialog.changed.field.article.title", null, localeHolder.getLocale()));
+        dialog.setTitle(messageSource.getMessage("dialog.changed.field.postponed.title", null, localeHolder.getLocale()));
         dialog.setResizable(true);
         dialog.setBounds(100, 100, 900, 700);
         dialog.setLocationRelativeTo(null);
@@ -46,6 +45,10 @@ public class ArticleChangesDialog extends AbstractDialog {
 
     @Override
     protected void initializeComponents() {
+        JPanel  southPanel, desktopPanel, filtersPanel, mainPanel, buttonPanel;
+         JButton  cancelButton;
+
+
         rootContainer.setLayout(new BorderLayout());
 
 //        menuBar
@@ -71,7 +74,7 @@ public class ArticleChangesDialog extends AbstractDialog {
         southPanel.setBorder(BorderFactory.createEmptyBorder());
 
 //      panel for search operations
-        filtersPanel= tableComponent.getArticleChangedFieldFiltersComponent().getFiltersPanel();
+        filtersPanel= tableComponent.getChangedFieldFiltersComponent().getFiltersPanel();
         constraints.gridx = 0;
         constraints.gridy = 0;
         constraints.fill = GridBagConstraints.BOTH;
@@ -107,10 +110,61 @@ public class ArticleChangesDialog extends AbstractDialog {
         buttonPanel.add(cancelButton);
 
         rootContainer.add(buttonPanel, BorderLayout.SOUTH);
+
     }
 
     private void initializeMenuBar() {
+         JMenu  selectedMenu;
+         JMenuItem deselectAllItem, deleteSelectedItem, revertChangesItem;
+
         menuBar = new JMenuBar();
+
+        //        postponed menu
+        JMenu postponedMenu = new JMenu();
+        postponedMenu.setText(messageSource.getMessage("mainForm.menu.postponed.title", null, localeHolder.getLocale()));
+
+        savePostponedItem = new JMenuItem();
+        savePostponedItem.setText(messageSource.getMessage("mainForm.menu.postponed.save.title", null, localeHolder.getLocale()));
+        savePostponedItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handler.savePostponedItemClicked();
+            }
+        });
+
+        loadPostponedItem = new JMenuItem();
+        loadPostponedItem.setText(messageSource.getMessage("mainForm.menu.postponed.load.title", null, localeHolder.getLocale()));
+        loadPostponedItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handler.loadPostponedItemClicked();
+            }
+        });
+
+        recommitPostponedItem = new JMenuItem();
+        recommitPostponedItem.setText(messageSource.getMessage("mainForm.button.recommit.title", null, localeHolder.getLocale()));
+        recommitPostponedItem.add(new JSeparator());
+        recommitPostponedItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handler.recommitPostponedItemClicked();
+            }
+        });
+
+        deletePostponedItem = new JMenuItem();
+        deletePostponedItem.setText(messageSource.getMessage("mainForm.menu.postponed.delete.title", null, localeHolder.getLocale()));
+        deletePostponedItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handler.deletePostponedItemClicked();
+            }
+        });
+
+        postponedMenu.add(savePostponedItem);
+        postponedMenu.add(loadPostponedItem);
+        postponedMenu.add(recommitPostponedItem);
+        postponedMenu.add(deletePostponedItem);
+
 
         //        selected menu
         selectedMenu = new JMenu();
@@ -134,24 +188,31 @@ public class ArticleChangesDialog extends AbstractDialog {
             }
         });
 
-        revertChangesItem = new JMenuItem();
-        revertChangesItem.setText(messageSource.getMessage("dialog.changed.field.article.menu.selected.revertChanges", null, localeHolder.getLocale()));
-        revertChangesItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                handler.revertChangesItemClicked();
-            }
-        });
-
         selectedMenu.add(deselectAllItem);
         selectedMenu.add(deleteSelectedItem);
-        selectedMenu.add(revertChangesItem);
 
         menuBar.add(selectedMenu);
+        menuBar.add(postponedMenu);
 
     }
 
-    public ArticleChangedFieldTableModel getTableModel() {
+    public ChangedFieldTableModel getTableModel() {
         return tableModel;
+    }
+
+    public JMenuItem getDeletePostponedItem() {
+        return deletePostponedItem;
+    }
+
+    public JMenuItem getRecommitPostponedItem() {
+        return recommitPostponedItem;
+    }
+
+    public JMenuItem getLoadPostponedItem() {
+        return loadPostponedItem;
+    }
+
+    public JMenuItem getSavePostponedItem() {
+        return savePostponedItem;
     }
 }

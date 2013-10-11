@@ -42,7 +42,7 @@ public class SoldArticlesTableViewSettingsDialog extends AbstractDialog {
         rootContainer.setLayout(new BorderLayout());
         tableViewComponent.initializeComponents(this, soldProductsDialog.getArticleTableComponent().getArticlesTable(),
                 soldProductsDialog.getArticleTableComponent().getHeadersAndColumnsMap(),
-                messageSource, localeHolder, usersSettingsHolder);
+                messageSource, localeHolder);
         JPanel mainPanel = tableViewComponent.getMainPanel();
         rootContainer.add(mainPanel);
     }

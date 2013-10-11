@@ -39,7 +39,7 @@ public class TablePrintPreviewComponent {
     private JCheckBox footerCheckBox;
     private JSlider slider;
 
-    private JButton pageSetUpButton, printButton, forwardButton, backwardButton, cancelButton;
+    private JButton  forwardButton, backwardButton, cancelButton; //pageSetUpButton, printButton,
     private JTextField headerTextField;
     private boolean pageNumbering;
     private Printable targetPrintable;
@@ -166,7 +166,7 @@ public class TablePrintPreviewComponent {
         JToolBar toolBar = new JToolBar(JToolBar.HORIZONTAL);
         toolBar.setLayout(new BoxLayout(toolBar, BoxLayout.LINE_AXIS));
 
-        pageSetUpButton = new JButton();
+        JButton pageSetUpButton = new JButton();
         pageSetUpButton.setText(messageSource.getMessage("component.print.preview.table.button.pageSetUp", null, localeHolder.getLocale()));
         pageSetUpButton.addActionListener(new ActionListener() {
             @Override
@@ -177,7 +177,7 @@ public class TablePrintPreviewComponent {
         });
         toolBar.add(pageSetUpButton);
 
-        printButton = new JButton();
+        JButton printButton = new JButton();
         printButton.setText(messageSource.getMessage("component.print.preview.table.button.print", null, localeHolder.getLocale()));
         printButton.addActionListener(new ActionListener() {
             @Override

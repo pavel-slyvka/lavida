@@ -186,7 +186,6 @@ public class RemoteService implements ApplicationContextAware {
         Map<Integer, String> headers = cellsTransformer.cellsToColNumsAndItsValueMap(cellEntriesIterator.getNextLine());
         CellFeed discountCardFeed = null;
         if (discountCardJdo.getSpreadsheetRow() > 0) {
-            // take articles feed and check (by code and size) if all correct
             discountCardFeed = spreadsheetWorker.getDiscountCardsRow(discountCardJdo.getSpreadsheetRow());
             String numberColumnHeader = ReflectionUtils.getFieldAnnotation(DiscountCardJdo.class, "number", SpreadsheetColumn.class).column();
             String numberColumnValue = cellsTransformer.cellToValue(discountCardFeed, headers, numberColumnHeader);

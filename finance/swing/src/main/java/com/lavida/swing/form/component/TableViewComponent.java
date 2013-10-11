@@ -2,7 +2,6 @@ package com.lavida.swing.form.component;
 
 import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.dialog.AbstractDialog;
-import com.lavida.swing.preferences.*;
 import org.springframework.context.MessageSource;
 
 import javax.swing.*;
@@ -24,28 +23,30 @@ import java.util.List;
  * @author Ruslan.
  */
 public class TableViewComponent {
-    private MessageSource messageSource;
-    private LocaleHolder localeHolder;
+//    private MessageSource messageSource;
+//    private LocaleHolder localeHolder;
     private JTable table;
     private AbstractDialog dialog;
-    private UsersSettingsHolder usersSettingsHolder;
+//    private UsersSettingsHolder usersSettingsHolder;
 
-    private JPanel mainPanel, inputPanel, visibleColumnsPanel, notVisibleColumnsPanel, buttonPanel;
-    private JButton hideColumnButton, showColumnButton, applyButton, cancelButton;
+    private JPanel mainPanel;
+//            inputPanel, visibleColumnsPanel, notVisibleColumnsPanel, buttonPanel;
+    private JButton hideColumnButton, showColumnButton;
+//    , applyButton, cancelButton;
     private JList visibleColumnsList, notVisibleColumnsList;
-    private JScrollPane visibleListScrollPane, notVisibleListScrollPane;
+//    private JScrollPane visibleListScrollPane, notVisibleListScrollPane;
     private DefaultListModel<String> visibleColumnsListModel, notVisibleColumnsListModel;
 
     private Map<String, TableColumn> headersAndColumnsMap;
 
 
     public void initializeComponents(AbstractDialog dialog, JTable table, Map<String, TableColumn> headersAndColumnsMap,
-                                     MessageSource messageSource, LocaleHolder localeHolder, UsersSettingsHolder usersSettingsHolder) {
-        this.messageSource = messageSource;
-        this.localeHolder = localeHolder;
+                                     MessageSource messageSource, LocaleHolder localeHolder) {
+//        this.messageSource = messageSource;
+//        this.localeHolder = localeHolder;
         this.table = table;
         this.dialog = dialog;
-        this.usersSettingsHolder = usersSettingsHolder;
+//        this.usersSettingsHolder = usersSettingsHolder;
         this.headersAndColumnsMap = headersAndColumnsMap;
 
         visibleColumnsListModel = new DefaultListModel<>();
@@ -58,25 +59,25 @@ public class TableViewComponent {
 
         mainPanel = new JPanel(new BorderLayout());
 //      input panel
-        inputPanel = new JPanel(new GridLayout(1, 2));
+        JPanel inputPanel = new JPanel(new GridLayout(1, 2));
         inputPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.insets = new Insets(5, 0, 5, 0);
 
-        visibleColumnsPanel = new JPanel(new GridBagLayout());
+        JPanel visibleColumnsPanel = new JPanel(new GridBagLayout());
         visibleColumnsPanel.setPreferredSize(new Dimension(220, 270));
         visibleColumnsPanel.setMaximumSize(new Dimension(520, 570));
         visibleColumnsPanel.setMinimumSize(new Dimension(120, 170));
         visibleColumnsPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(messageSource.
                 getMessage("component.table.view.label.columns.visible", null, localeHolder.getLocale())),
                 BorderFactory.createEmptyBorder(5, 5, 5, 5)));
-        visibleColumnsList = new JList(visibleColumnsListModel);
+        visibleColumnsList = new JList<>(visibleColumnsListModel);
         visibleColumnsList.setLayoutOrientation(JList.VERTICAL);
         visibleColumnsList.addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
-                if (e.getValueIsAdjusting() == false) {
+                if (!e.getValueIsAdjusting()) {
                     if (visibleColumnsList.getSelectedIndex() == -1) {
                         hideColumnButton.setEnabled(false);
                     } else {
@@ -86,7 +87,7 @@ public class TableViewComponent {
             }
         });
         visibleColumnsList.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
-        visibleListScrollPane = new JScrollPane(visibleColumnsList);
+        JScrollPane visibleListScrollPane = new JScrollPane(visibleColumnsList);
         visibleListScrollPane.setPreferredSize(new Dimension(200, 200));
         visibleListScrollPane.setMaximumSize(new Dimension(500, 500));
         visibleListScrollPane.setMinimumSize(new Dimension(100, 50));
@@ -126,7 +127,7 @@ public class TableViewComponent {
         visibleColumnsPanel.add(hideColumnButton, constraints);
         inputPanel.add(visibleColumnsPanel);
 
-        notVisibleColumnsPanel = new JPanel(new GridBagLayout());
+        JPanel notVisibleColumnsPanel = new JPanel(new GridBagLayout());
         notVisibleColumnsPanel.setPreferredSize(new Dimension(220, 270));
         notVisibleColumnsPanel.setMaximumSize(new Dimension(520, 570));
         notVisibleColumnsPanel.setMinimumSize(new Dimension(120, 170));
@@ -134,12 +135,12 @@ public class TableViewComponent {
                 getMessage("component.table.view.label.columns.notVisible", null, localeHolder.getLocale())),
                 BorderFactory.createEmptyBorder(5, 5, 5, 5)));
 
-        notVisibleColumnsList = new JList(notVisibleColumnsListModel);
+        notVisibleColumnsList = new JList<>(notVisibleColumnsListModel);
         notVisibleColumnsList.setLayoutOrientation(JList.VERTICAL);
         notVisibleColumnsList.addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
-                if (e.getValueIsAdjusting() == false) {
+                if (!e.getValueIsAdjusting()) {
                     if (notVisibleColumnsList.getSelectedIndex() == -1) {
                         showColumnButton.setEnabled(false);
                     } else {
@@ -149,7 +150,7 @@ public class TableViewComponent {
             }
         });
         notVisibleColumnsList.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
-        notVisibleListScrollPane = new JScrollPane(notVisibleColumnsList);
+        JScrollPane notVisibleListScrollPane = new JScrollPane(notVisibleColumnsList);
         notVisibleListScrollPane.setPreferredSize(new Dimension(200, 200));
         notVisibleListScrollPane.setMaximumSize(new Dimension(500, 500));
         notVisibleListScrollPane.setMinimumSize(new Dimension(100, 50));
@@ -191,7 +192,7 @@ public class TableViewComponent {
         inputPanel.add(notVisibleColumnsPanel);
 
         //        button panel
-        buttonPanel = new JPanel();
+        JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.LINE_AXIS));
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
@@ -199,7 +200,7 @@ public class TableViewComponent {
 
         JPanel buttons = new JPanel();
         buttons.setLayout(new BoxLayout(buttons, BoxLayout.LINE_AXIS));
-        applyButton = new JButton(messageSource.getMessage("component.table.view.button.apply", null,
+        JButton applyButton = new JButton(messageSource.getMessage("component.table.view.button.apply", null,
                 localeHolder.getLocale()));
         applyButton.addActionListener(new ActionListener() {
             @Override
@@ -208,7 +209,7 @@ public class TableViewComponent {
             }
         });
 
-        cancelButton = new JButton(messageSource.getMessage("sellDialog.button.cancel.title", null, localeHolder.getLocale()));
+        JButton cancelButton = new JButton(messageSource.getMessage("sellDialog.button.cancel.title", null, localeHolder.getLocale()));
         cancelButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

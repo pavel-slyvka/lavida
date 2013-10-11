@@ -18,6 +18,7 @@ import javax.swing.*;
  * @author Pavel
  */
 @Component
+@Deprecated
 public class SwingExceptionHandler implements Thread.UncaughtExceptionHandler {
     private static final Logger logger = LoggerFactory.getLogger(SwingExceptionHandler.class);
 
