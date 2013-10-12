@@ -26,9 +26,9 @@ import javax.xml.bind.JAXBException;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.*;
 import java.util.List;
+import java.util.Timer;
 
 /**
  * The main form of application.
@@ -648,6 +648,7 @@ public class MainForm extends AbstractForm implements ApplicationListener<Postpo
         final Popup popup = popupFactory.getPopup(statusBarPanel, jtoolTip, xLocation, yLocation);
         final PopupWrapper popupWrapper = new PopupWrapper(popup, jtoolTip, new Point(xLocation, yLocation),
                 new Dimension(tipWidth, tipHeight), System.currentTimeMillis());
+        final java.util.Timer timer = new Timer(true);
         statusBarPopupList.add(popupWrapper);
         sortStatusBarPopupList(statusBarPopupList);
         jtoolTip.addMouseListener(new MouseAdapter() {
@@ -655,25 +656,19 @@ public class MainForm extends AbstractForm implements ApplicationListener<Postpo
             public void mouseClicked(MouseEvent e) {
                 super.mouseClicked(e);
                 popupWrapper.popup.hide();
+                timer.cancel();
                 statusBarPopupList.remove(popupWrapper);
                 sortStatusBarPopupList(statusBarPopupList);
             }
         });
-
-        new Thread(new Runnable() {
+        popupWrapper.popup.show();
+        timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                popupWrapper.popup.show();
-                try {
-                    Thread.sleep(30000);
-                } catch (InterruptedException e) {
-                    logger.warn(e.getMessage(), e);
-                }
-                popupWrapper.popup.hide();
-                statusBarPopupList.remove(popupWrapper);
-                sortStatusBarPopupList(statusBarPopupList);
+               popupWrapper.popup.hide();
+                timer.cancel();
             }
-        }).start();
+        }, 30000);
     }
 
     private void sortStatusBarPopupList(List<PopupWrapper> statusBarPopupList) {
