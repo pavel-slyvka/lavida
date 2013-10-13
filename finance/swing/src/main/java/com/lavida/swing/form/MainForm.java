@@ -336,6 +336,23 @@ public class MainForm extends AbstractForm implements ApplicationListener<Postpo
             }
         });
 
+        JMenu comboBoxColumnsMenu = new JMenu();
+        comboBoxColumnsMenu.setText(messageSource.getMessage("mainForm.menu.comboBoxes", null, localeHolder.getLocale()));
+
+        JMenuItem brandItem = new JMenuItem();
+        brandItem.setText(messageSource.getMessage("mainForm.menu.comboBoxes.brand", null, localeHolder.getLocale()));
+        brandItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handler.brandItemClicked();
+            }
+        });
+
+        comboBoxColumnsMenu.add(brandItem);
+
+        JMenu presetMenu = new JMenu();
+        presetMenu.setText(messageSource.getMessage("mainForm.menu.preset", null, localeHolder.getLocale()));
+
         savePresetItem = new JMenuItem();
         savePresetItem.setText(messageSource.getMessage("mainForm.menu.settings.save", null, localeHolder.getLocale()));
         savePresetItem.addActionListener(new ActionListener() {
@@ -372,13 +389,20 @@ public class MainForm extends AbstractForm implements ApplicationListener<Postpo
             }
         });
 
+        presetMenu.add(savePresetItem);
+        presetMenu.add(selectPresetItem);
+        presetMenu.add(createPresetItem);
+        presetMenu.add(deletePresetItem);
+
         settingsMenu.add(postponedItem);
         settingsMenu.add(notSoldArticlesTableViewItem);
+        settingsMenu.add(comboBoxColumnsMenu);
         settingsMenu.addSeparator();
-        settingsMenu.add(savePresetItem);
-        settingsMenu.add(selectPresetItem);
-        settingsMenu.add(createPresetItem);
-        settingsMenu.add(deletePresetItem);
+        settingsMenu.add(presetMenu);
+//        settingsMenu.add(savePresetItem);
+//        settingsMenu.add(selectPresetItem);
+//        settingsMenu.add(createPresetItem);
+//        settingsMenu.add(deletePresetItem);
 
 //        discounts menu
         discountsMenu = new JMenu();
@@ -519,6 +543,12 @@ public class MainForm extends AbstractForm implements ApplicationListener<Postpo
             addNewDiscountCardsDialog.getPrintItem().setEnabled(false);
             allDiscountCardsDialog.getPrintItem().setEnabled(false);
         }
+    }
+
+    public void updateBrandEditor() {
+        articleTableComponent.updateBrandColumnEditor();
+        soldProductsDialog.getArticleTableComponent().updateBrandColumnEditor();
+        addNewProductsDialog.getArticleTableComponent().updateBrandColumnEditor();
     }
 
     public JLabel getPostponedOperations() {

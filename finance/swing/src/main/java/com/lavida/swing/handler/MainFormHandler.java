@@ -3,7 +3,9 @@ package com.lavida.swing.handler;
 import com.google.gdata.util.ServiceException;
 import com.lavida.TaskProgressEvent;
 import com.lavida.service.ArticleUpdateInfo;
+import com.lavida.service.BrandService;
 import com.lavida.service.DiscountCardsUpdateInfo;
+import com.lavida.service.entity.BrandJdo;
 import com.lavida.swing.exception.RemoteUpdateException;
 import com.lavida.swing.form.component.TablePrintPreviewComponent;
 import com.lavida.swing.preferences.UsersSettings;
@@ -89,6 +91,9 @@ public class MainFormHandler implements ApplicationContextAware {
 
     @Resource
     private ConcurrentOperationsService concurrentOperationsService;
+
+    @Resource
+    private BrandService brandService;
 
 //    @Resource
 //    private UpdateInfoMessageDialog updateInfoMessageDialog;
@@ -511,4 +516,27 @@ public class MainFormHandler implements ApplicationContextAware {
 
     }
 
+    public void brandItemClicked() {
+        String brandName = (String) form.showInputDialog("mainForm.menu.comboBoxes.brand.add.title", "mainForm.menu.comboBoxes.brand.add.message",
+                null, null, null);
+
+        if (brandName != null) {
+            if(!brandExists(brandName)) {
+                brandService.update(new BrandJdo(brandName));
+                form.updateBrandEditor();
+
+            } else {
+                form.showWarningMessage("mainForm.exception.message.dialog.title", "mainForm.handler.settings.comboBoxes.brand.exists");
+            }
+        }
+    }
+
+    private boolean brandExists(String name) {
+        for (BrandJdo brandJdo : brandService.getAll()) {
+            if (name.equalsIgnoreCase(brandJdo.getName())) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

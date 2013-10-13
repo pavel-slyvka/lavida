@@ -1,9 +1,6 @@
 package com.lavida.swing.service;
 
-import com.lavida.service.ArticleCalculator;
-import com.lavida.service.FiltersPurpose;
-import com.lavida.service.UserService;
-import com.lavida.service.ViewColumn;
+import com.lavida.service.*;
 import com.lavida.service.dao.ArticleDao;
 import com.lavida.service.entity.ArticleJdo;
 import com.lavida.service.utils.DateConverter;
@@ -19,6 +16,7 @@ import org.springframework.context.MessageSource;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableColumn;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.text.ParseException;
@@ -67,6 +65,9 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
 
     @Resource
     private ConcurrentOperationsService concurrentOperationsService;
+
+    @Resource
+    private BrandService brandService;
 
 
     private String queryName;
@@ -770,4 +771,10 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
 //    public void setOpenedFile(File openedFile) {
 //        this.openedFile = openedFile;
 //    }
+
+
+    public BrandService getBrandService() {
+        return brandService;
+    }
+
 }

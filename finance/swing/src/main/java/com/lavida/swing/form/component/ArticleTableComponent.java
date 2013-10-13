@@ -2,6 +2,7 @@ package com.lavida.swing.form.component;
 
 import com.lavida.service.UserService;
 import com.lavida.service.entity.ArticleJdo;
+import com.lavida.service.entity.BrandJdo;
 import com.lavida.swing.preferences.*;
 import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.service.ArticlesTableModel;
@@ -15,6 +16,8 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
+import javax.swing.text.JTextComponent;
+import javax.swing.text.PlainDocument;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
@@ -25,7 +28,7 @@ import java.util.List;
  *
  * @author Pavel
  */
-public class ArticleTableComponent implements TableModelListener {
+public class ArticleTableComponent implements TableModelListener{
     private ArticlesTableModel tableModel;
     private MessageSource messageSource;
     private LocaleHolder localeHolder;
@@ -111,11 +114,12 @@ public class ArticleTableComponent implements TableModelListener {
         selectionColumn.setCellEditor(articlesTable.getDefaultEditor(Boolean.class));
         selectionColumn.setCellRenderer(articlesTable.getDefaultRenderer(Boolean.class));
 
-        JComboBox brandBox = new JComboBox<>(ArticleJdo.BRAND_ARRAY);
-        brandBox.setEditable(true);
-        TableCellEditor brandEditor = new DefaultCellEditor(brandBox);
-        TableColumn brandColumn = articlesTable.getColumn(messageSource.getMessage("mainForm.table.articles.column.brand.title", null, localeHolder.getLocale()));
-        brandColumn.setCellEditor(brandEditor);
+//        JComboBox brandBox = new JComboBox<>(ArticleJdo.BRAND_ARRAY);
+//        brandBox.setEditable(true);
+//        TableCellEditor brandEditor = new DefaultCellEditor(brandBox);
+//        TableColumn brandColumn = articlesTable.getColumn(messageSource.getMessage("mainForm.table.articles.column.brand.title", null, localeHolder.getLocale()));
+//        brandColumn.setCellEditor(brandEditor);
+        updateBrandColumnEditor();
 
         JComboBox sizeBox = new JComboBox<>(ArticleJdo.SIZE_ARRAY);
         sizeBox.setEditable(true);
@@ -327,5 +331,23 @@ public class ArticleTableComponent implements TableModelListener {
 
     public Map<String, TableColumn> getHeadersAndColumnsMap() {
         return headersAndColumnsMap;
+    }
+
+
+    public void updateBrandColumnEditor() {
+        List<BrandJdo> brandJdoList = (tableModel.getBrandService()).getAll();
+        String[] brandArray = new String[brandJdoList.size()];
+        for (int i = 0; i < brandJdoList.size(); ++i) {
+            brandArray[i] = brandJdoList.get(i).getName();
+        }
+        Collections.sort(Arrays.asList(brandArray));
+        JComboBox brandBox = new JComboBox<>(brandArray);
+        JTextComponent textComponent = (JTextComponent)brandBox.getEditor().getEditorComponent();
+        brandBox.setEditable(true);
+        textComponent.setDocument(new ComboBoxPlainDocumentComponent(brandBox));
+        TableCellEditor brandEditor = new DefaultCellEditor(brandBox);
+        TableColumn brandColumn = articlesTable.getColumn(messageSource.getMessage("mainForm.table.articles.column.brand.title", null, localeHolder.getLocale()));
+        brandColumn.setCellEditor(brandEditor);
+
     }
 }
