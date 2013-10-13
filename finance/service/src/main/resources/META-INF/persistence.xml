@@ -13,6 +13,8 @@ http://java.sun.com/xml/ns/persistence ">
         <class>com.lavida.service.entity.DiscountCardJdo</class>
         <class>com.lavida.service.entity.ChangedFieldJdo</class>
         <class>com.lavida.service.entity.BrandJdo</class>
+        <class>com.lavida.service.entity.SizeJdo</class>
+        <class>com.lavida.service.entity.ShopJdo</class>
 
         <properties>
             <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver" />

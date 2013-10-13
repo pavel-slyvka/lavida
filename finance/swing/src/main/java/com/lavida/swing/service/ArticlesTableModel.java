@@ -69,6 +69,11 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
     @Resource
     private BrandService brandService;
 
+    @Resource
+    private SizeService sizeService;
+
+    @Resource
+    private ShopService shopService;
 
     private String queryName;
     private List<ArticleJdo> tableData;
@@ -777,4 +782,11 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
         return brandService;
     }
 
+    public SizeService getSizeService() {
+        return sizeService;
+    }
+
+    public ShopService getShopService() {
+        return shopService;
+    }
 }

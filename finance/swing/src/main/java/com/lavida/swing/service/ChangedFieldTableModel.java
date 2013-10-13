@@ -1,7 +1,6 @@
 package com.lavida.swing.service;
 
-import com.lavida.service.FiltersPurpose;
-import com.lavida.service.ViewColumn;
+import com.lavida.service.*;
 import com.lavida.service.entity.ChangedFieldJdo;
 import com.lavida.service.utils.DateConverter;
 import com.lavida.swing.LocaleHolder;
@@ -48,6 +47,15 @@ public class ChangedFieldTableModel extends AbstractTableModel implements Applic
 
     @Resource
     private ConcurrentOperationsService concurrentOperationsService;
+
+    @Resource
+    private BrandService brandService;
+
+    @Resource
+    private SizeService sizeService;
+
+    @Resource
+    private ShopService shopService;
 
     @Override
     public void onApplicationEvent(ChangedFieldEvent event) {
@@ -415,4 +423,15 @@ public class ChangedFieldTableModel extends AbstractTableModel implements Applic
         this.selectedChangedField = selectedChangedField;
     }
 
+    public BrandService getBrandService() {
+        return brandService;
+    }
+
+    public SizeService getSizeService() {
+        return sizeService;
+    }
+
+    public ShopService getShopService() {
+        return shopService;
+    }
 }

@@ -2,6 +2,9 @@ package com.lavida.swing.form.component;
 
 import com.lavida.service.*;
 import com.lavida.service.entity.ArticleJdo;
+import com.lavida.service.entity.BrandJdo;
+import com.lavida.service.entity.ShopJdo;
+import com.lavida.service.entity.SizeJdo;
 import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.service.ArticlesTableModel;
 import org.springframework.context.MessageSource;
@@ -37,6 +40,7 @@ public class ArticleFiltersComponent {
     private JPanel filtersPanel;
     private TableRowSorter<ArticlesTableModel> sorter;
     private ArticleAnalyzeComponent articleAnalyzeComponent = new ArticleAnalyzeComponent();
+    private Map<String, String[]> comboBoxItemsMap;
 
     public void initializeComponents(ArticlesTableModel tableModel, MessageSource messageSource, LocaleHolder localeHolder) {
         this.tableModel = tableModel;
@@ -45,11 +49,7 @@ public class ArticleFiltersComponent {
         this.filters = new ArrayList<>();
         FiltersPurpose filtersPurpose = tableModel.getFiltersPurpose();
         FilterElementsListener filterElementsListener = new FilterElementsListener();
-        Map<String, String[]> comboBoxItemsMap = new HashMap<>();
-        comboBoxItemsMap.put("brand", ArticleJdo.BRAND_ARRAY);
-        comboBoxItemsMap.put("size", ArticleJdo.SIZE_ARRAY);
-        comboBoxItemsMap.put("shop", ArticleJdo.SHOP_ARRAY);
-
+        initializeComboBoxItemsMap();
 //      panel for search operations
         filtersPanel = new JPanel();
         filtersPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(messageSource.
@@ -92,6 +92,8 @@ public class ArticleFiltersComponent {
                             filterUnit.comboBox.setEditable(true);
                             filterUnit.comboBox.setSelectedItem(null);
                             textComponent = (JTextComponent) filterUnit.comboBox.getEditor().getEditorComponent();
+                            textComponent.setDocument(new ComboBoxPlainDocumentComponent(filterUnit.comboBox));
+
                         } else {
                             filterUnit.textField = new JTextField(filterColumn.editSize());
                             textComponent = filterUnit.textField;
@@ -252,6 +254,36 @@ public class ArticleFiltersComponent {
         sorter = new TableRowSorter<>(tableModel);
 
         articleAnalyzeComponent.initializeComponents(tableModel, messageSource, localeHolder);
+
+    }
+
+    private void initializeComboBoxItemsMap() {
+        comboBoxItemsMap = new HashMap<>();
+        List<BrandJdo> brandList = tableModel.getBrandService().getAll();
+        String[] brandArray = new String[brandList.size()];
+        for (int i = 0; i < brandList.size(); ++i) {
+            brandArray[i] = brandList.get(i).getName();
+        }
+        Arrays.sort(brandArray);
+
+        List<SizeJdo> sizeList = tableModel.getSizeService().getAll();
+        String[] sizeArray = new String[sizeList.size()];
+        for (int i = 0; i < sizeList.size(); ++i) {
+            sizeArray[i] = sizeList.get(i).getName();
+        }
+        Arrays.sort(sizeArray);
+
+        List<ShopJdo> shopList = tableModel.getShopService().getAll();
+        String[] shopArray = new String[shopList.size()];
+        for (int i = 0; i < shopList.size(); ++i) {
+            shopArray[i] = shopList.get(i).getName();
+        }
+        Arrays.sort(shopArray);
+
+        comboBoxItemsMap.put("brand", brandArray);
+        comboBoxItemsMap.put("size", sizeArray);
+        comboBoxItemsMap.put("shop", shopArray);
+
 
     }
 

@@ -4,8 +4,7 @@ import com.lavida.service.FilterColumn;
 import com.lavida.service.FilterType;
 import com.lavida.service.FiltersPurpose;
 import com.lavida.service.ViewColumn;
-import com.lavida.service.entity.ChangedFieldJdo;
-import com.lavida.service.entity.ArticleJdo;
+import com.lavida.service.entity.*;
 import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.service.ChangedFieldTableModel;
 import org.springframework.context.MessageSource;
@@ -39,9 +38,10 @@ public class ChangedFieldFiltersComponent {
 //    private LocaleHolder localeHolder;
     private List<FilterUnit> filters;
     private JPanel filtersPanel;
-//    private JButton clearSearchButton;
+    //    private JButton clearSearchButton;
     private TableRowSorter<ChangedFieldTableModel> sorter;
-//    private Map<String, String[]> comboBoxItemsMap;
+    //    private Map<String, String[]> comboBoxItemsMap;
+    private Map<String, String[]> comboBoxItemsMap;
 
     public void initializeComponents(ChangedFieldTableModel aTableModel, MessageSource messageSource, LocaleHolder localeHolder) {
         this.tableModel = aTableModel;
@@ -49,10 +49,7 @@ public class ChangedFieldFiltersComponent {
 //        this.localeHolder = localeHolder;
         this.filters = new ArrayList<>();
         FilterElementsListener filterElementsListener = new FilterElementsListener();
-        Map<String, String[]>  comboBoxItemsMap = new HashMap<>();
-        comboBoxItemsMap.put("brand", ArticleJdo.BRAND_ARRAY);
-        comboBoxItemsMap.put("size", ArticleJdo.SIZE_ARRAY);
-        comboBoxItemsMap.put("shop", ArticleJdo.SHOP_ARRAY);
+        initializeComboBoxItemsMap();
         FiltersPurpose filtersPurpose = tableModel.getFiltersPurpose();
 
 //      panel for search operations
@@ -92,6 +89,7 @@ public class ChangedFieldFiltersComponent {
                         filterUnit.comboBox.setEditable(true);
                         filterUnit.comboBox.setSelectedItem(null);
                         textComponent = (JTextComponent) filterUnit.comboBox.getEditor().getEditorComponent();
+                        textComponent.setDocument(new ComboBoxPlainDocumentComponent(filterUnit.comboBox));
                     } else if (FilterType.CHECKBOXES == filterUnit.filterType || FilterType.BOOLEAN_CHECKBOX == filterUnit.filterType) {
                         if (filterColumn.checkBoxesNumber() > 0) {
                             filterUnit.checkBoxes = new JCheckBox[filterColumn.checkBoxesNumber()];
@@ -229,6 +227,36 @@ public class ChangedFieldFiltersComponent {
         });
         filtersPanel.add(clearSearchButton, constraints);
         sorter = new TableRowSorter<>(tableModel);
+    }
+
+    private void initializeComboBoxItemsMap() {
+        comboBoxItemsMap = new HashMap<>();
+        List<BrandJdo> brandList = tableModel.getBrandService().getAll();
+        String[] brandArray = new String[brandList.size()];
+        for (int i = 0; i < brandList.size(); ++i) {
+            brandArray[i] = brandList.get(i).getName();
+        }
+        Arrays.sort(brandArray);
+
+        List<SizeJdo> sizeList = tableModel.getSizeService().getAll();
+        String[] sizeArray = new String[sizeList.size()];
+        for (int i = 0; i < sizeList.size(); ++i) {
+            sizeArray[i] = sizeList.get(i).getName();
+        }
+        Arrays.sort(sizeArray);
+
+        List<ShopJdo> shopList = tableModel.getShopService().getAll();
+        String[] shopArray = new String[shopList.size()];
+        for (int i = 0; i < shopList.size(); ++i) {
+            shopArray[i] = shopList.get(i).getName();
+        }
+        Arrays.sort(shopArray);
+
+        comboBoxItemsMap.put("brand", brandArray);
+        comboBoxItemsMap.put("size", sizeArray);
+        comboBoxItemsMap.put("shop", shopArray);
+
+
     }
 
     private String getColumnTitle(Field field, MessageSource messageSource, LocaleHolder localeHolder) {
@@ -370,7 +398,8 @@ public class ChangedFieldFiltersComponent {
         if (operationObject instanceof ChangedFieldJdo.RefreshOperationType) {
             ChangedFieldJdo.RefreshOperationType refreshOperationType = (ChangedFieldJdo.RefreshOperationType) operationObject;
             for (JCheckBox checkBox : checkBoxes) {
-                if (checkBox.isSelected() && (refreshOperationType.name()).matches(checkBox.getActionCommand())) return true;
+                if (checkBox.isSelected() && (refreshOperationType.name()).matches(checkBox.getActionCommand()))
+                    return true;
             }
         }
         return false;

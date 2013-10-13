@@ -2,16 +2,12 @@ package com.lavida.swing.handler;
 
 import com.google.gdata.util.ServiceException;
 import com.lavida.TaskProgressEvent;
-import com.lavida.service.ArticleUpdateInfo;
-import com.lavida.service.BrandService;
-import com.lavida.service.DiscountCardsUpdateInfo;
-import com.lavida.service.entity.BrandJdo;
+import com.lavida.service.*;
+import com.lavida.service.entity.*;
 import com.lavida.swing.exception.RemoteUpdateException;
 import com.lavida.swing.form.component.TablePrintPreviewComponent;
 import com.lavida.swing.preferences.UsersSettings;
 import com.lavida.swing.service.*;
-import com.lavida.service.entity.ArticleJdo;
-import com.lavida.service.entity.DiscountCardJdo;
 import com.lavida.service.settings.Settings;
 import com.lavida.service.settings.SettingsService;
 import com.lavida.swing.preferences.UsersSettingsHolder;
@@ -94,6 +90,12 @@ public class MainFormHandler implements ApplicationContextAware {
 
     @Resource
     private BrandService brandService;
+
+    @Resource
+    private SizeService sizeService;
+
+    @Resource
+    private ShopService shopService;
 
 //    @Resource
 //    private UpdateInfoMessageDialog updateInfoMessageDialog;
@@ -379,8 +381,10 @@ public class MainFormHandler implements ApplicationContextAware {
     }
 
     public void moveToShopItemClicked() {
+        String[] shopArray = tableModel.getShopService().getAll().toArray(new String[tableModel.getShopService().getAll().size()]);
+        Arrays.sort(shopArray);
         String shop = (String) (form.showInputDialog("mainForm.menu.selected.moveToShop.select.title", "mainForm.menu.selected.moveToShop.select.message",
-                null, ArticleJdo.SHOP_ARRAY, ArticleJdo.SHOP_ARRAY[0]));
+                null, shopArray, shopArray[0]));
 
         if (shop != null) {
             moveToShop(shop);
@@ -521,7 +525,7 @@ public class MainFormHandler implements ApplicationContextAware {
                 null, null, null);
 
         if (brandName != null) {
-            if(!brandExists(brandName)) {
+            if (!brandExists(brandName)) {
                 brandService.update(new BrandJdo(brandName));
                 form.updateBrandEditor();
 
@@ -533,10 +537,59 @@ public class MainFormHandler implements ApplicationContextAware {
 
     private boolean brandExists(String name) {
         for (BrandJdo brandJdo : brandService.getAll()) {
-            if (name.equalsIgnoreCase(brandJdo.getName())) {
+            if (name.equals(brandJdo.getName())) {
                 return true;
             }
         }
         return false;
     }
+
+    public void sizeItemClicked() {
+        String sizeName = (String) form.showInputDialog("mainForm.menu.comboBoxes.size.add.title", "mainForm.menu.comboBoxes.size.add.message",
+                null, null, null);
+
+        if (sizeName != null) {
+            if (!sizeExists(sizeName)) {
+                sizeService.update(new SizeJdo(sizeName));
+                form.updateSizeEditor();
+
+            } else {
+                form.showWarningMessage("mainForm.exception.message.dialog.title", "mainForm.handler.settings.comboBoxes.size.exists");
+            }
+        }
+    }
+
+    private boolean sizeExists(String name) {
+        for (SizeJdo sizeJdo : sizeService.getAll()) {
+            if (name.equals(sizeJdo.getName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void shopItemClicked() {
+        String shopName = (String) form.showInputDialog("mainForm.menu.comboBoxes.shop.add.title", "mainForm.menu.comboBoxes.shop.add.message",
+                null, null, null);
+
+        if (shopName != null) {
+            if (!shopExists(shopName)) {
+                shopService.update(new ShopJdo(shopName));
+                form.updateShopEditor();
+
+            } else {
+                form.showWarningMessage("mainForm.exception.message.dialog.title", "mainForm.handler.settings.comboBoxes.shop.exists");
+            }
+        }
+    }
+
+    private boolean shopExists(String name) {
+        for (ShopJdo shopJdo : shopService.getAll()) {
+            if (name.equals(shopJdo.getName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }

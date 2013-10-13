@@ -3,6 +3,8 @@ package com.lavida.swing.form.component;
 import com.lavida.service.UserService;
 import com.lavida.service.entity.ArticleJdo;
 import com.lavida.service.entity.BrandJdo;
+import com.lavida.service.entity.ShopJdo;
+import com.lavida.service.entity.SizeJdo;
 import com.lavida.swing.preferences.*;
 import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.service.ArticlesTableModel;
@@ -121,19 +123,21 @@ public class ArticleTableComponent implements TableModelListener{
 //        brandColumn.setCellEditor(brandEditor);
         updateBrandColumnEditor();
 
-        JComboBox sizeBox = new JComboBox<>(ArticleJdo.SIZE_ARRAY);
-        sizeBox.setEditable(true);
-        TableCellEditor sizeEditor = new DefaultCellEditor(sizeBox);
-        TableColumn sizeColumn = articlesTable.getColumn(messageSource.getMessage("mainForm.table.articles.column.size.title",
-                null, localeHolder.getLocale()));
-        sizeColumn.setCellEditor(sizeEditor);
+//        JComboBox sizeBox = new JComboBox<>(ArticleJdo.SIZE_ARRAY);
+//        sizeBox.setEditable(true);
+//        TableCellEditor sizeEditor = new DefaultCellEditor(sizeBox);
+//        TableColumn sizeColumn = articlesTable.getColumn(messageSource.getMessage("mainForm.table.articles.column.size.title",
+//                null, localeHolder.getLocale()));
+//        sizeColumn.setCellEditor(sizeEditor);
+        updateSizeColumnEditor();
 
-        JComboBox shopBox = new JComboBox<>(ArticleJdo.SHOP_ARRAY);
-        shopBox.setEditable(true);
-        TableCellEditor shopEditor = new DefaultCellEditor(shopBox);
-        TableColumn shopColumn = articlesTable.getColumn(messageSource.getMessage("mainForm.table.articles.column.shop.title",
-                null, localeHolder.getLocale()));
-        shopColumn.setCellEditor(shopEditor);
+//        JComboBox shopBox = new JComboBox<>(ArticleJdo.SHOP_ARRAY);
+//        shopBox.setEditable(true);
+//        TableCellEditor shopEditor = new DefaultCellEditor(shopBox);
+//        TableColumn shopColumn = articlesTable.getColumn(messageSource.getMessage("mainForm.table.articles.column.shop.title",
+//                null, localeHolder.getLocale()));
+//        shopColumn.setCellEditor(shopEditor);
+        updateShopColumnEditor();
     }
 
     /**
@@ -340,7 +344,7 @@ public class ArticleTableComponent implements TableModelListener{
         for (int i = 0; i < brandJdoList.size(); ++i) {
             brandArray[i] = brandJdoList.get(i).getName();
         }
-        Collections.sort(Arrays.asList(brandArray));
+        Arrays.sort(brandArray);
         JComboBox brandBox = new JComboBox<>(brandArray);
         JTextComponent textComponent = (JTextComponent)brandBox.getEditor().getEditorComponent();
         brandBox.setEditable(true);
@@ -350,4 +354,39 @@ public class ArticleTableComponent implements TableModelListener{
         brandColumn.setCellEditor(brandEditor);
 
     }
+
+    public void updateSizeColumnEditor() {
+        List<SizeJdo> sizeJdoList = (tableModel.getSizeService()).getAll();
+        String[] sizeArray = new String[sizeJdoList.size()];
+        for (int i = 0; i < sizeJdoList.size(); ++i) {
+            sizeArray[i] = sizeJdoList.get(i).getName();
+        }
+        Arrays.sort(sizeArray);
+        JComboBox sizeBox = new JComboBox<>(sizeArray);
+        JTextComponent textComponent = (JTextComponent)sizeBox.getEditor().getEditorComponent();
+        sizeBox.setEditable(true);
+        textComponent.setDocument(new ComboBoxPlainDocumentComponent(sizeBox));
+        TableCellEditor sizeEditor = new DefaultCellEditor(sizeBox);
+        TableColumn sizeColumn = articlesTable.getColumn(messageSource.getMessage("mainForm.table.articles.column.size.title", null, localeHolder.getLocale()));
+        sizeColumn.setCellEditor(sizeEditor);
+
+    }
+
+    public void updateShopColumnEditor() {
+        List<ShopJdo> shopJdoList = (tableModel.getShopService()).getAll();
+        String[] shopArray = new String[shopJdoList.size()];
+        for (int i = 0; i < shopJdoList.size(); ++i) {
+            shopArray[i] = shopJdoList.get(i).getName();
+        }
+        Arrays.sort(shopArray);
+        JComboBox shopBox = new JComboBox<>(shopArray);
+        JTextComponent textComponent = (JTextComponent)shopBox.getEditor().getEditorComponent();
+        shopBox.setEditable(true);
+        textComponent.setDocument(new ComboBoxPlainDocumentComponent(shopBox));
+        TableCellEditor shopEditor = new DefaultCellEditor(shopBox);
+        TableColumn shopColumn = articlesTable.getColumn(messageSource.getMessage("mainForm.table.articles.column.shop.title", null, localeHolder.getLocale()));
+        shopColumn.setCellEditor(shopEditor);
+
+    }
+
 }

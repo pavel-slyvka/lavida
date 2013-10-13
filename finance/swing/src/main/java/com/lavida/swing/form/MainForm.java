@@ -348,7 +348,28 @@ public class MainForm extends AbstractForm implements ApplicationListener<Postpo
             }
         });
 
+        JMenuItem sizeItem = new JMenuItem();
+        sizeItem.setText(messageSource.getMessage("mainForm.menu.comboBoxes.size", null, localeHolder.getLocale()));
+        sizeItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handler.sizeItemClicked();
+            }
+        });
+
+        JMenuItem shopItem = new JMenuItem();
+        shopItem.setText(messageSource.getMessage("mainForm.menu.comboBoxes.shop", null, localeHolder.getLocale()));
+        shopItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handler.shopItemClicked();
+            }
+        });
+
+
         comboBoxColumnsMenu.add(brandItem);
+        comboBoxColumnsMenu.add(sizeItem);
+        comboBoxColumnsMenu.add(shopItem);
 
         JMenu presetMenu = new JMenu();
         presetMenu.setText(messageSource.getMessage("mainForm.menu.preset", null, localeHolder.getLocale()));
@@ -549,6 +570,18 @@ public class MainForm extends AbstractForm implements ApplicationListener<Postpo
         articleTableComponent.updateBrandColumnEditor();
         soldProductsDialog.getArticleTableComponent().updateBrandColumnEditor();
         addNewProductsDialog.getArticleTableComponent().updateBrandColumnEditor();
+    }
+
+    public void updateSizeEditor() {
+        articleTableComponent.updateSizeColumnEditor();
+        soldProductsDialog.getArticleTableComponent().updateSizeColumnEditor();
+        addNewProductsDialog.getArticleTableComponent().updateSizeColumnEditor();
+    }
+
+    public void updateShopEditor() {
+        articleTableComponent.updateShopColumnEditor();
+        soldProductsDialog.getArticleTableComponent().updateShopColumnEditor();
+        addNewProductsDialog.getArticleTableComponent().updateShopColumnEditor();
     }
 
     public JLabel getPostponedOperations() {

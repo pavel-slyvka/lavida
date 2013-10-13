@@ -4,6 +4,7 @@ import com.lavida.service.SellerService;
 import com.lavida.service.TagService;
 import com.lavida.service.entity.ArticleJdo;
 import com.lavida.service.entity.SellerJdo;
+import com.lavida.service.entity.ShopJdo;
 import com.lavida.service.entity.TagJdo;
 import com.lavida.swing.handler.SellDialogHandler;
 import com.lavida.swing.service.ArticlesTableModel;
@@ -15,6 +16,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
@@ -256,7 +258,13 @@ public class SellDialog extends AbstractDialog {
         constraints.weightx = 0.0;
         inputPanel.add(shopLabel, constraints);
 
-        shopComboBox = new JComboBox(ArticleJdo.SHOP_ARRAY);
+        List<ShopJdo> shopJdoList = (tableModel.getShopService()).getAll();
+        String[] shopArray = new String[shopJdoList.size()];
+        for (int i = 0; i < shopJdoList.size(); ++i) {
+            shopArray[i] = shopJdoList.get(i).getName();
+        }
+        Arrays.sort(shopArray);
+        shopComboBox = new JComboBox(shopArray);
         shopComboBox.setEditable(false);
         shopComboBox.setSelectedItem("LA VIDA");
         constraints.fill = GridBagConstraints.HORIZONTAL;
