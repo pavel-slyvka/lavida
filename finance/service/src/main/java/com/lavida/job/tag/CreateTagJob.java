@@ -10,9 +10,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -23,12 +21,6 @@ import java.util.Scanner;
  */
 @Component
 public class CreateTagJob extends AbstractJob {
-
-    private static final List<String> FORBIDDEN_ROLES = new ArrayList<String>();
-
-    static {
-        FORBIDDEN_ROLES.add("ROLE_SELLER");
-    }
 
     @Resource
     private TagService tagService;
@@ -42,7 +34,6 @@ public class CreateTagJob extends AbstractJob {
     public void createTag() {
         Scanner scanner = new Scanner(System.in);
         boolean authenticated = false;
-        authentication:
         while (!authenticated) {
             System.out.println(messageSource.getMessage("job.google.change.credentials.enter.login", null, locale));
             String login = scanner.next().trim();
@@ -53,13 +44,11 @@ public class CreateTagJob extends AbstractJob {
                 authenticated = true;
             } catch (AuthenticationException e) {
                 System.out.println(messageSource.getMessage("job.google.change.credentials.exception.wrong.user", null, locale));
-                continue authentication;
             }
         }
-        List<String> userRoles = userService.getCurrentUserRoles();
         String uniqueName;
         String title;
-        if (!isForbidden(userRoles)) {
+        if (!userService.hasForbiddenRole()) {
             System.out.println(messageSource.getMessage("job.tag.create.uniqueName.enter", null, locale));
             uniqueName = scanner.next().trim();
             System.out.println(messageSource.getMessage("job.tag.create.title.enter", null, locale));
@@ -73,21 +62,6 @@ public class CreateTagJob extends AbstractJob {
 
         }
 
-    }
-
-    /**
-     * Checks if current user has forbidden roles.
-     *
-     * @param userRoles the List of roles
-     * @return true if the user has at least one forbidden role.
-     */
-    private boolean isForbidden(List<String> userRoles) {
-        for (String forbiddenRole : FORBIDDEN_ROLES) {
-            if (userRoles.contains(forbiddenRole)) {
-                return true;
-            }
-        }
-        return false;
     }
 
 

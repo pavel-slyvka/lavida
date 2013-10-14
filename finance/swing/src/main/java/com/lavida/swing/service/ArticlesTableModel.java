@@ -16,7 +16,6 @@ import org.springframework.context.MessageSource;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.TableColumn;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.text.ParseException;

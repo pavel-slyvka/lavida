@@ -4,6 +4,7 @@ import com.lavida.service.UserService;
 import com.lavida.swing.dialog.*;
 import com.lavida.swing.dialog.settings.AllDiscountCardsTableViewSettingsDialog;
 import com.lavida.swing.dialog.settings.NotSoldArticlesTableViewSettingsDialog;
+import com.lavida.swing.dialog.settings.SelectingCategoriesEditingDialog;
 import com.lavida.swing.dialog.settings.SoldArticlesTableViewSettingsDialog;
 import com.lavida.swing.event.PostponedOperationEvent;
 import com.lavida.swing.form.component.ArticleTableComponent;
@@ -77,6 +78,9 @@ public class MainForm extends AbstractForm implements ApplicationListener<Postpo
     private PostponedChangesDialog postponedChangesDialog;
 
     @Resource
+    private SelectingCategoriesEditingDialog selectingCategoriesEditingDialog;
+
+    @Resource
     private UserService userService;
 
     @Resource
@@ -94,7 +98,7 @@ public class MainForm extends AbstractForm implements ApplicationListener<Postpo
     private JMenuBar menuBar;
     private JMenu  productsMenu, settingsMenu, discountsMenu, tableMenu, selectedMenu;
     private JMenuItem addNewProductsItem, refreshTableItem, articleChangesItem,
-            savePresetItem, selectPresetItem, createPresetItem, deletePresetItem,
+            savePresetItem, selectPresetItem, createPresetItem, deletePresetItem, selectingCategoriesEditItem,
             notSoldArticlesTableViewItem,
             addNewDiscountCardItem, allDiscountCardsItem,
             printItem, fixTableDataItem,
@@ -336,6 +340,7 @@ public class MainForm extends AbstractForm implements ApplicationListener<Postpo
             }
         });
 
+/*
         JMenu comboBoxColumnsMenu = new JMenu();
         comboBoxColumnsMenu.setText(messageSource.getMessage("mainForm.menu.comboBoxes", null, localeHolder.getLocale()));
 
@@ -370,6 +375,16 @@ public class MainForm extends AbstractForm implements ApplicationListener<Postpo
         comboBoxColumnsMenu.add(brandItem);
         comboBoxColumnsMenu.add(sizeItem);
         comboBoxColumnsMenu.add(shopItem);
+*/
+
+        selectingCategoriesEditItem = new JMenuItem();
+        selectingCategoriesEditItem.setText(messageSource.getMessage("mainForm.menu.selectingCategoriesEdit", null, localeHolder.getLocale()));
+        selectingCategoriesEditItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                selectingCategoriesEditingDialog.show();
+            }
+        });
 
         JMenu presetMenu = new JMenu();
         presetMenu.setText(messageSource.getMessage("mainForm.menu.preset", null, localeHolder.getLocale()));
@@ -417,7 +432,8 @@ public class MainForm extends AbstractForm implements ApplicationListener<Postpo
 
         settingsMenu.add(postponedItem);
         settingsMenu.add(notSoldArticlesTableViewItem);
-        settingsMenu.add(comboBoxColumnsMenu);
+//        settingsMenu.add(comboBoxColumnsMenu);
+        settingsMenu.add(selectingCategoriesEditItem);
         settingsMenu.addSeparator();
         settingsMenu.add(presetMenu);
 //        settingsMenu.add(savePresetItem);

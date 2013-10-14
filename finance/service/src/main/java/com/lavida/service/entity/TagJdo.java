@@ -21,9 +21,9 @@ public class TagJdo {
     private int id;
 
     @Column(unique = true)
-    private String name;
+    private String name; //for database
 
-    private String title;
+    private String title; //for checkBoxes
 
     @Temporal(TemporalType.TIMESTAMP)
     private Date createDate;

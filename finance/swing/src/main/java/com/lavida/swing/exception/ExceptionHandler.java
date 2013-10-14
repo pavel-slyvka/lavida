@@ -33,14 +33,15 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler{
 
     @Override
     public void uncaughtException(Thread t, Throwable e) {
-        logger.error(e.getMessage(), e);
         if (e instanceof LavidaSwingRuntimeException) {
             handleLavidaSwingRuntimeException((LavidaSwingRuntimeException) e);
         } else if (e instanceof NumberFormatException ) {
             handleNumberFormatException((NumberFormatException) e);
         } else if (e instanceof RuntimeException) {
+            logger.error(e.getMessage(), e);
             handleRuntimeException((RuntimeException) e);
         } else {
+            logger.error(e.getMessage(), e);
             handleError(e);
         }
     }
