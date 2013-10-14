@@ -1,8 +1,25 @@
 Changelog of the LA VIDA Finance
 --------------------
 
-Version 0.2.1   release date:  26-09-2013
+Version 0.2.2   release date:  __-10-2013
 -----------------------------------------
+-
+- Added  re-counting the multiplier while salePrice changing in the AddNewProductsDialog;
+- Moved menu items of setting for showing table columns to their dialogs;
+- Added brand, size, shop to the local database;
+- Added exclusionary filtering of products tables by adding symbols "!" / "-" before expression;
+- Added ability for sellers to prepare the table for adding new products;
+- Added checking of not completed processes while closing the application;
+- Fixed bug of recommitting editing of sold products;
+- Improved exception handling;
+- Fixed bug of adding new discount cards;
+- Added information tooltip on the mainForm statusBar for the completion of concurrent processes;
+- Added refreshing from remote database while launching application;
+- Improved updating remote database concurrently;
+- Added dialog to watch changes of postponed operations;
+- Added dialog to watch changes of articles and discount cards while refreshing;
+- Improved printing of tables, added ability to scale;
+- Moved refreshButton to the tableMenu;
 - Added shops : ALEXANDRIA and SKLAD,- and sellerAlexandria;
 - Fixed bug on saving last preset and loading it;
 - Added deletePresetItem to the settingsMenu;
