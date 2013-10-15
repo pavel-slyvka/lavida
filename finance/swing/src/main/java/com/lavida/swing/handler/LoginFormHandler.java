@@ -80,10 +80,11 @@ public class LoginFormHandler {
             if (!userSettingsService.userDefaultPresetExists()) {
                 mainForm.createDefaultPreset();
             }
-            String defaultPresetName = messageSource.getMessage("settings.user.preset.default.name", null, localeHolder.getLocale());
-            if (!defaultPresetName.equals(usersSettingsHolder.getPresetName())) {
-                mainForm.initializeUserSettings();
-            }
+//            String defaultPresetName = messageSource.getMessage("settings.user.preset.default.name", null, localeHolder.getLocale());
+//            if (!defaultPresetName.equals(usersSettingsHolder.getPresetName())) {
+//                mainForm.initializeUserSettings();
+//            }
+            mainForm.initializePresetMenuItems();
             mainForm.updatePresetNameField();
             mainForm.getHandler().refreshTableItemClicked();
             mainForm.show();

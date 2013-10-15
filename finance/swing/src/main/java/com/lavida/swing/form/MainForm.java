@@ -7,10 +7,12 @@ import com.lavida.swing.dialog.settings.NotSoldArticlesTableViewSettingsDialog;
 import com.lavida.swing.dialog.settings.SelectingCategoriesEditingDialog;
 import com.lavida.swing.dialog.settings.SoldArticlesTableViewSettingsDialog;
 import com.lavida.swing.event.PostponedOperationEvent;
+import com.lavida.swing.exception.LavidaSwingRuntimeException;
 import com.lavida.swing.form.component.ArticleTableComponent;
 import com.lavida.swing.form.component.ProgressComponent;
 import com.lavida.swing.handler.MainFormHandler;
 import com.lavida.swing.preferences.PresetSettings;
+import com.lavida.swing.preferences.UserSettings;
 import com.lavida.swing.preferences.UsersSettings;
 import com.lavida.swing.preferences.UsersSettingsHolder;
 import com.lavida.swing.service.ArticlesTableModel;
@@ -27,6 +29,7 @@ import javax.xml.bind.JAXBException;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.*;
 import java.util.List;
 import java.util.Timer;
@@ -99,16 +102,18 @@ public class MainForm extends AbstractForm implements ApplicationListener<Postpo
     private Button sellButton, showSoldProductsButton;
     private JLabel postponedOperations, postponedMessage, errorMessage, presetNameLabel, presetNameField;
     private JMenuBar menuBar;
-    private JMenu  productsMenu, settingsMenu, discountsMenu, tableMenu, selectedMenu;
+    private JMenu  productsMenu, settingsMenu, discountsMenu, tableMenu, selectedMenu, selectPresetMenu;
     private JMenuItem addNewProductsItem, aliveOperationsItem, refreshTableItem, articleChangesItem,
-            savePresetItem, selectPresetItem, createPresetItem, deletePresetItem, selectingCategoriesEditItem,
+            savePresetItem, createPresetItem, deletePresetItem, selectingCategoriesEditItem,
             notSoldArticlesTableViewItem,
             addNewDiscountCardItem, allDiscountCardsItem,
             printItem, fixTableDataItem,
             moveToShopItem, deselectArticlesItem;
+    private ButtonGroup presetButtonGroup;
     private ArticleTableComponent articleTableComponent = new ArticleTableComponent();
     private List<PopupWrapper> statusBarPopupList = new ArrayList<>();
     private PopupFactory popupFactory = PopupFactory.getSharedInstance();
+    private Map<String, JRadioButtonMenuItem> presetMenuItemMap;
 
     @Override
     protected void initializeForm() {
@@ -142,6 +147,8 @@ public class MainForm extends AbstractForm implements ApplicationListener<Postpo
 
     @Override
     protected void initializeComponents() {
+        this.presetMenuItemMap = new HashMap<>();
+
         rootContainer.setLayout(new BorderLayout());
 
 //        menuBar
@@ -353,43 +360,6 @@ public class MainForm extends AbstractForm implements ApplicationListener<Postpo
             }
         });
 
-/*
-        JMenu comboBoxColumnsMenu = new JMenu();
-        comboBoxColumnsMenu.setText(messageSource.getMessage("mainForm.menu.comboBoxes", null, localeHolder.getLocale()));
-
-        JMenuItem brandItem = new JMenuItem();
-        brandItem.setText(messageSource.getMessage("mainForm.menu.comboBoxes.brand", null, localeHolder.getLocale()));
-        brandItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                handler.brandItemClicked();
-            }
-        });
-
-        JMenuItem sizeItem = new JMenuItem();
-        sizeItem.setText(messageSource.getMessage("mainForm.menu.comboBoxes.size", null, localeHolder.getLocale()));
-        sizeItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                handler.sizeItemClicked();
-            }
-        });
-
-        JMenuItem shopItem = new JMenuItem();
-        shopItem.setText(messageSource.getMessage("mainForm.menu.comboBoxes.shop", null, localeHolder.getLocale()));
-        shopItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                handler.shopItemClicked();
-            }
-        });
-
-
-        comboBoxColumnsMenu.add(brandItem);
-        comboBoxColumnsMenu.add(sizeItem);
-        comboBoxColumnsMenu.add(shopItem);
-*/
-
         selectingCategoriesEditItem = new JMenuItem();
         selectingCategoriesEditItem.setText(messageSource.getMessage("mainForm.menu.selectingCategoriesEdit", null, localeHolder.getLocale()));
         selectingCategoriesEditItem.addActionListener(new ActionListener() {
@@ -411,14 +381,15 @@ public class MainForm extends AbstractForm implements ApplicationListener<Postpo
             }
         });
 
-        selectPresetItem = new JMenuItem();
-        selectPresetItem.setText(messageSource.getMessage("mainForm.menu.settings.select", null, localeHolder.getLocale()));
-        selectPresetItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                handler.selectPresetItemClicked();
-            }
-        });
+        selectPresetMenu = new JMenu();
+        selectPresetMenu.setText(messageSource.getMessage("mainForm.menu.settings.select", null, localeHolder.getLocale()));
+//        selectPresetMenu.addActionListener(new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                handler.selectPresetItemClicked();
+//            }
+//        });
+        presetButtonGroup = new ButtonGroup();
 
         createPresetItem = new JMenuItem();
         createPresetItem.setText(messageSource.getMessage("mainForm.menu.settings.create", null, localeHolder.getLocale()));
@@ -439,20 +410,15 @@ public class MainForm extends AbstractForm implements ApplicationListener<Postpo
         });
 
         presetMenu.add(savePresetItem);
-        presetMenu.add(selectPresetItem);
+        presetMenu.add(selectPresetMenu);
         presetMenu.add(createPresetItem);
         presetMenu.add(deletePresetItem);
 
         settingsMenu.add(postponedItem);
         settingsMenu.add(notSoldArticlesTableViewItem);
-//        settingsMenu.add(comboBoxColumnsMenu);
         settingsMenu.add(selectingCategoriesEditItem);
         settingsMenu.addSeparator();
         settingsMenu.add(presetMenu);
-//        settingsMenu.add(savePresetItem);
-//        settingsMenu.add(selectPresetItem);
-//        settingsMenu.add(createPresetItem);
-//        settingsMenu.add(deletePresetItem);
 
 //        discounts menu
         discountsMenu = new JMenu();
@@ -676,6 +642,18 @@ public class MainForm extends AbstractForm implements ApplicationListener<Postpo
         }
     }
 
+    public Map<String, JRadioButtonMenuItem> getPresetMenuItemMap() {
+        return presetMenuItemMap;
+    }
+
+    public JMenu getSelectPresetMenu() {
+        return selectPresetMenu;
+    }
+
+    public ButtonGroup getPresetButtonGroup() {
+        return presetButtonGroup;
+    }
+
     public ArticlesTableModel getTableModel() {
         return tableModel;
     }
@@ -685,14 +663,11 @@ public class MainForm extends AbstractForm implements ApplicationListener<Postpo
     }
 
     public void initializeUserSettings() {
-        UsersSettings usersSettings = null;
+        UsersSettings usersSettings;
         try {
             usersSettings = userSettingsService.getSettings();
         } catch (JAXBException | FileNotFoundException e) {
-            Toolkit.getDefaultToolkit().beep();
-            logger.error(e.getMessage(), e);
-            showWarningMessage("mainForm.exception.message.dialog.title", "mainForm.handler.load.usersSettings.error.message");
-
+            throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.JAXB_EXCEPTION, e);
         }
         getArticleTableComponent().applyUserSettings(usersSettings, PresetSettings.NOT_SOLD_ARTICLES_TABLE);
         notSoldArticlesTableViewSettingsDialog.getTableViewComponent().updateListModels();
@@ -702,7 +677,16 @@ public class MainForm extends AbstractForm implements ApplicationListener<Postpo
         allDiscountCardsDialog.getCardTableComponent().applyUserSettings(usersSettings, PresetSettings.ALL_DISCOUNT_CARDS_TABLE);
         allDiscountCardsTableViewSettingsDialog.getTableViewComponent().updateListModels();
         addNewDiscountCardsDialog.getCardTableComponent().applyUserSettings(usersSettings, PresetSettings.ADD_NEW_DISCOUNT_CARDS_TABLE);
+    }
 
+    public void initializePresetMenuItems(){
+        List<String> presetNames = userSettingsService.getUserPresetNames();
+        for (String presetName : presetNames) {
+            handler.createPreset(presetName);
+        }
+        String currentPresetName = usersSettingsHolder.getPresetName();
+        JRadioButtonMenuItem presetItem = presetMenuItemMap.get(currentPresetName);
+        presetItem.setSelected(true);
     }
 
     public void initializeTableViewComponents() {
@@ -758,7 +742,7 @@ public class MainForm extends AbstractForm implements ApplicationListener<Postpo
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-               popupWrapper.popup.hide();
+                popupWrapper.popup.hide();
                 timer.cancel();
                 statusBarPopupList.remove(popupWrapper);
                 sortStatusBarPopupList(statusBarPopupList);

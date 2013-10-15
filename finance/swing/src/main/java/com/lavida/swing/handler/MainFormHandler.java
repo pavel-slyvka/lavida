@@ -25,8 +25,11 @@ import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import javax.swing.*;
 import javax.xml.bind.JAXBException;
 import java.awt.*;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -320,18 +323,16 @@ public class MainFormHandler implements ApplicationContextAware {
     }
 
     public void savePresetItemClicked() {
-        String defaultPresetName = messageSource.getMessage("settings.user.preset.default.name", null, localeHolder.getLocale());
-        if (!defaultPresetName.equals(usersSettingsHolder.getPresetName())) {
+//        String defaultPresetName = messageSource.getMessage("settings.user.preset.default.name", null, localeHolder.getLocale());
+//        if (!defaultPresetName.equals(usersSettingsHolder.getPresetName())) {
             form.holdAllTables();
             UsersSettings usersSettings = userSettingsService.updatePresetSettings();
             try {
                 userSettingsService.saveSettings(usersSettings);
             } catch (IOException | JAXBException e) {
-                logger.warn(e.getMessage(), e);
-                Toolkit.getDefaultToolkit().beep();
-                form.showWarningMessage("mainForm.exception.message.dialog.title", "mainForm.handler.save.usersSettings.error.message");
+                throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.JAXB_EXCEPTION, e);
             }
-        }
+//        }
     }
 
     @Override
@@ -412,13 +413,13 @@ public class MainFormHandler implements ApplicationContextAware {
         try {
             userSettingsService.saveSettings(usersSettings);
         } catch (IOException | JAXBException e) {
-            logger.warn(e.getMessage(), e);
-            Toolkit.getDefaultToolkit().beep();
-            form.showWarningMessage("mainForm.exception.message.dialog.title", "mainForm.handler.save.usersSettings.error.message");
+            throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.JAXB_EXCEPTION, e);
         }
+//        createPreset(defaultPresetName);
     }
 
 
+/*
     public void selectPresetItemClicked() {
         String currentPresetName = usersSettingsHolder.getPresetName();
         Object[] selectionValues = userSettingsService.getUserPresetNames().toArray();
@@ -432,22 +433,56 @@ public class MainFormHandler implements ApplicationContextAware {
             try {
                 userSettingsService.saveSettings(usersSettingsHolder.getUsersSettings());
             } catch (IOException | JAXBException e) {
-                logger.warn(e.getMessage(), e);
-                Toolkit.getDefaultToolkit().beep();
-                form.showWarningMessage("mainForm.exception.message.dialog.title", "mainForm.handler.save.usersSettings.error.message");
+                throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.JAXB_EXCEPTION, e);
             }
         }
     }
+*/
 
     public void createPresetItemClicked() {
         String presetName = (String) form.showInputDialog("mainForm.menu.settings.create.title", "mainForm.menu.settings.create.message",
                 null, null, null);
+        JRadioButtonMenuItem presetItem = createPreset(presetName);
+        form.getPresetButtonGroup().clearSelection();
+        presetItem.setSelected(true);
+    }
+
+    public JRadioButtonMenuItem createPreset(String presetName) {
         if (presetName != null) {
             form.holdAllTables();
             usersSettingsHolder.setPresetName(presetName);
             userSettingsService.updatePresetSettings();
         }
+        JRadioButtonMenuItem presetItem = createRadioButtonPresetMenuItem(presetName);
+        form.getPresetMenuItemMap().put(presetName, presetItem);
+        form.getSelectPresetMenu().add(presetItem);
+        form.getPresetButtonGroup().add(presetItem);
 
+        return presetItem;
+    }
+
+    private JRadioButtonMenuItem createRadioButtonPresetMenuItem(final String presetName) {
+        JRadioButtonMenuItem presetItem = new JRadioButtonMenuItem(presetName);
+        presetItem.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if (e.getStateChange() == ItemEvent.DESELECTED) {
+
+                } else if (e.getStateChange() == ItemEvent.SELECTED) {
+                    usersSettingsHolder.setPresetName(presetName);
+                    form.initializeUserSettings();
+                    userSettingsService.getUserSettings().setLastPresetName(presetName);
+                    form.updatePresetNameField();
+                    try {
+                        userSettingsService.saveSettings(usersSettingsHolder.getUsersSettings());
+                    } catch (IOException | JAXBException exception) {
+                        throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.JAXB_EXCEPTION, exception);
+                    }
+
+                }
+            }
+        });
+        return presetItem;
     }
 
     public void deletePresetItemClicked() {
@@ -482,6 +517,10 @@ public class MainFormHandler implements ApplicationContextAware {
             } catch (IOException | JAXBException e) {
                 throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.JAXB_EXCEPTION, e);
             }
+            JRadioButtonMenuItem deletedPreset = form.getPresetMenuItemMap().get(presetName);
+            form.getSelectPresetMenu().remove(deletedPreset);
+            form.getPresetButtonGroup().remove(deletedPreset);
+            form.getPresetMenuItemMap().remove(presetName);
         }
 
     }
