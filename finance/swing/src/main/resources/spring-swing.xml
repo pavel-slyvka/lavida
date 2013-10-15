@@ -56,4 +56,7 @@
         <property name="queryName" ref="ArticleChangedFieldJdo.FIND_POSTPONED"/>
     </bean>
 
+    <bean id="concurrentOperationTableModel" class="com.lavida.swing.service.ConcurrentOperationTableModel">
+    </bean>
+
 </beans>

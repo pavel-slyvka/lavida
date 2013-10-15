@@ -154,27 +154,5 @@ public class AllDiscountCardsDialogHandler {
                     messageSource.getMessage("mainForm.menu.table.print.cancel.message.body", null, localeHolder.getLocale()));
         }
 
-/*
-        MessageFormat header = new MessageFormat(messageSource.getMessage("dialog.discounts.card.all.menu.file.print.header", null, localeHolder.getLocale()));
-        MessageFormat footer = new MessageFormat(messageSource.getMessage("mainForm.menu.table.print.footer", null, localeHolder.getLocale()));
-        boolean fitPageWidth = false;
-        boolean showPrintDialog = true;
-        boolean interactive = true;
-        JTable.PrintMode printMode = fitPageWidth ? JTable.PrintMode.FIT_WIDTH : JTable.PrintMode.NORMAL;
-        try {
-            boolean complete = dialog.getCardTableComponent().getDiscountCardsTable().print(printMode, header, footer,
-                    showPrintDialog, null, interactive, null);
-            if (complete) {
-                dialog.showInformationMessage("mainForm.menu.table.print.message.title",
-                        messageSource.getMessage("mainForm.menu.table.print.finished.message.body", null, localeHolder.getLocale()));
-            } else {
-                dialog.showInformationMessage("mainForm.menu.table.print.message.title",
-                        messageSource.getMessage("mainForm.menu.table.print.cancel.message.body", null, localeHolder.getLocale()));
-            }
-        } catch (PrinterException e) {
-            logger.warn(e.getMessage(), e);
-            dialog.showWarningMessage("mainForm.exception.message.dialog.title", "mainForm.handler.print.exception.message");
-        }
-*/
     }
 }

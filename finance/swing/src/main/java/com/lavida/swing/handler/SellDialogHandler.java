@@ -169,7 +169,6 @@ public class SellDialogHandler {
                 } catch (RemoteUpdateException e) {
                     logger.warn(e.getMessage(), e);
                 }
-
             }
         });
     }

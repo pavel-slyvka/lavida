@@ -128,6 +128,7 @@ public class AddNewDiscountCardsDialogHandler {
                 dialog.getCardTableComponent().getCardFiltersComponent().updateAnalyzeComponent();
                 String message = convertToMultiline(new String(stringBuilder));
                 dialog.getMainForm().showInfoToolTip(message);
+                concurrentOperationsService.publishEvent();
                 if (postponed) {
                     throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.GOOGLE_SERVICE_EXCEPTION, exception);
                 }

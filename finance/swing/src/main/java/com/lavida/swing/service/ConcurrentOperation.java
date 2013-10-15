@@ -1,5 +1,7 @@
 package com.lavida.swing.service;
 
+import com.lavida.service.ViewColumn;
+
 import java.util.Date;
 
 /**
@@ -10,8 +12,14 @@ import java.util.Date;
  * @author Pavel
  */
 public class ConcurrentOperation {
+
+    @ViewColumn(titleKey = "dialog.concurrent.operations.name.titleKey", columnWidth = 150)
     private String name;
+
+    @ViewColumn(titleKey = "dialog.concurrent.operations.startTime.titleKey", datePattern = "dd.MM.yyyy HH:mm:ss",
+            columnWidth = 150)
     private Date startTime;
+
     private Thread thread;
 
     public ConcurrentOperation(String name, Date startTime, Thread thread) {

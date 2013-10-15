@@ -88,20 +88,10 @@ public class MainFormHandler implements ApplicationContextAware {
     @Resource
     private ConcurrentOperationsService concurrentOperationsService;
 
-    @Resource
-    private BrandService brandService;
-
-    @Resource
-    private SizeService sizeService;
-
-    @Resource
-    private ShopService shopService;
-
 //    @Resource
 //    private UpdateInfoMessageDialog updateInfoMessageDialog;
 
     private ApplicationContext applicationContext;
-//    private String[] shopArray = {"", "LA VIDA", "СЛАВЯНСКИЙ", "НОВОМОСКОВСК"};
 
     /**
      * The ActionListener for refreshButton component.
@@ -327,33 +317,6 @@ public class MainFormHandler implements ApplicationContextAware {
                     messageSource.getMessage("mainForm.menu.table.print.cancel.message.body", null, localeHolder.getLocale()));
         }
         form.getArticleTableComponent().initTableColumnsEditors();
-/*
-        MessageFormat header = new MessageFormat(messageSource.getMessage("mainForm.menu.table.print.header", null, localeHolder.getLocale()));
-        MessageFormat footer = new MessageFormat(messageSource.getMessage("mainForm.menu.table.print.footer", null, localeHolder.getLocale()));
-        boolean fitPageWidth = false;
-        boolean showPrintDialog = true;
-//        boolean interactive = false;
-        boolean interactive = true;
-        PrinterJob printerJob = PrinterJob.getPrinterJob();
-        HashPrintRequestAttributeSet attributeSet = new HashPrintRequestAttributeSet();
-
-        JTable.PrintMode printMode = fitPageWidth ? JTable.PrintMode.FIT_WIDTH : JTable.PrintMode.NORMAL;
-        try {
-            boolean complete = form.getArticleTableComponent().getArticlesTable().print(printMode, header, footer,
-                    showPrintDialog, null, interactive, null);
-            if (complete) {
-                form.showInformationMessage("mainForm.menu.table.print.message.title",
-                        messageSource.getMessage("mainForm.menu.table.print.finished.message.body", null, localeHolder.getLocale()));
-            } else {
-                form.showInformationMessage("mainForm.menu.table.print.message.title",
-                        messageSource.getMessage("mainForm.menu.table.print.cancel.message.body", null, localeHolder.getLocale()));
-            }
-        } catch (PRINTER_EXCEPTION e) {
-            logger.warn(e.getMessage(), e);
-            Toolkit.getDefaultToolkit().beep();
-            form.showWarningMessage("mainForm.exception.message.dialog.title", "mainForm.handler.print.exception.message");
-        }
-*/
     }
 
     public void savePresetItemClicked() {
@@ -381,11 +344,14 @@ public class MainFormHandler implements ApplicationContextAware {
     }
 
     public void moveToShopItemClicked() {
-        String[] shopArray = tableModel.getShopService().getAll().toArray(new String[tableModel.getShopService().getAll().size()]);
+        String[] shopArray = new String[tableModel.getShopService().getAll().size()];
+        List<ShopJdo> shopJdoList = tableModel.getShopService().getAll();
+        for (int i = 0; i < shopJdoList.size(); ++i) {
+            shopArray[i] = shopJdoList.get(i).getName();
+        }
         Arrays.sort(shopArray);
         String shop = (String) (form.showInputDialog("mainForm.menu.selected.moveToShop.select.title", "mainForm.menu.selected.moveToShop.select.message",
                 null, shopArray, shopArray[0]));
-
         if (shop != null) {
             moveToShop(shop);
         }
@@ -520,76 +486,5 @@ public class MainFormHandler implements ApplicationContextAware {
 
     }
 
-    public void brandItemClicked() {
-        String brandName = (String) form.showInputDialog("mainForm.menu.comboBoxes.brand.add.title", "mainForm.menu.comboBoxes.brand.add.message",
-                null, null, null);
-
-        if (brandName != null) {
-            if (!brandExists(brandName)) {
-                brandService.update(new BrandJdo(brandName));
-                form.updateBrandEditor();
-
-            } else {
-                form.showWarningMessage("mainForm.exception.message.dialog.title", "mainForm.handler.settings.comboBoxes.brand.exists");
-            }
-        }
-    }
-
-    private boolean brandExists(String name) {
-        for (BrandJdo brandJdo : brandService.getAll()) {
-            if (name.equals(brandJdo.getName())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public void sizeItemClicked() {
-        String sizeName = (String) form.showInputDialog("mainForm.menu.comboBoxes.size.add.title", "mainForm.menu.comboBoxes.size.add.message",
-                null, null, null);
-
-        if (sizeName != null) {
-            if (!sizeExists(sizeName)) {
-                sizeService.update(new SizeJdo(sizeName));
-                form.updateSizeEditor();
-
-            } else {
-                form.showWarningMessage("mainForm.exception.message.dialog.title", "mainForm.handler.settings.comboBoxes.size.exists");
-            }
-        }
-    }
-
-    private boolean sizeExists(String name) {
-        for (SizeJdo sizeJdo : sizeService.getAll()) {
-            if (name.equals(sizeJdo.getName())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public void shopItemClicked() {
-        String shopName = (String) form.showInputDialog("mainForm.menu.comboBoxes.shop.add.title", "mainForm.menu.comboBoxes.shop.add.message",
-                null, null, null);
-
-        if (shopName != null) {
-            if (!shopExists(shopName)) {
-                shopService.update(new ShopJdo(shopName));
-                form.updateShopEditor();
-
-            } else {
-                form.showWarningMessage("mainForm.exception.message.dialog.title", "mainForm.handler.settings.comboBoxes.shop.exists");
-            }
-        }
-    }
-
-    private boolean shopExists(String name) {
-        for (ShopJdo shopJdo : shopService.getAll()) {
-            if (name.equals(shopJdo.getName())) {
-                return true;
-            }
-        }
-        return false;
-    }
 
 }

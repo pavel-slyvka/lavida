@@ -81,6 +81,9 @@ public class MainForm extends AbstractForm implements ApplicationListener<Postpo
     private SelectingCategoriesEditingDialog selectingCategoriesEditingDialog;
 
     @Resource
+    private ConcurrentOperationsAliveDialog concurrentOperationsAliveDialog;
+
+    @Resource
     private UserService userService;
 
     @Resource
@@ -97,7 +100,7 @@ public class MainForm extends AbstractForm implements ApplicationListener<Postpo
     private JLabel postponedOperations, postponedMessage, errorMessage, presetNameLabel, presetNameField;
     private JMenuBar menuBar;
     private JMenu  productsMenu, settingsMenu, discountsMenu, tableMenu, selectedMenu;
-    private JMenuItem addNewProductsItem, refreshTableItem, articleChangesItem,
+    private JMenuItem addNewProductsItem, aliveOperationsItem, refreshTableItem, articleChangesItem,
             savePresetItem, selectPresetItem, createPresetItem, deletePresetItem, selectingCategoriesEditItem,
             notSoldArticlesTableViewItem,
             addNewDiscountCardItem, allDiscountCardsItem,
@@ -287,6 +290,15 @@ public class MainForm extends AbstractForm implements ApplicationListener<Postpo
         productsMenu = new JMenu();
         productsMenu.setText(messageSource.getMessage("mainForm.menu.products.title", null, localeHolder.getLocale()));
 
+        aliveOperationsItem = new JMenuItem();
+        aliveOperationsItem.setText(messageSource.getMessage("mainForm.menu.products.aliveOperations", null, localeHolder.getLocale()));
+        aliveOperationsItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                concurrentOperationsAliveDialog.show();
+            }
+        });
+
         refreshTableItem = new JMenuItem();
         refreshTableItem.setText(messageSource.getMessage("mainForm.menu.products.item.refresh", null, localeHolder.getLocale()));
         refreshTableItem.addActionListener(new ActionListener() {
@@ -314,6 +326,7 @@ public class MainForm extends AbstractForm implements ApplicationListener<Postpo
             }
         });
 
+        productsMenu.add(aliveOperationsItem);
         productsMenu.add(refreshTableItem);
         productsMenu.add(articleChangesItem);
         productsMenu.add(addNewProductsItem);
@@ -747,6 +760,8 @@ public class MainForm extends AbstractForm implements ApplicationListener<Postpo
             public void run() {
                popupWrapper.popup.hide();
                 timer.cancel();
+                statusBarPopupList.remove(popupWrapper);
+                sortStatusBarPopupList(statusBarPopupList);
             }
         }, 30000);
     }
