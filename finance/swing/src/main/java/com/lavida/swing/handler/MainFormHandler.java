@@ -448,11 +448,6 @@ public class MainFormHandler implements ApplicationContextAware {
     }
 
     public JRadioButtonMenuItem createPreset(String presetName) {
-        if (presetName != null) {
-            form.holdAllTables();
-            usersSettingsHolder.setPresetName(presetName);
-            userSettingsService.updatePresetSettings();
-        }
         JRadioButtonMenuItem presetItem = createRadioButtonPresetMenuItem(presetName);
         form.getPresetMenuItemMap().put(presetName, presetItem);
         form.getSelectPresetMenu().add(presetItem);

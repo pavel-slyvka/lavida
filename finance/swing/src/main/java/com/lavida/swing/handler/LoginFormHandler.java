@@ -3,6 +3,7 @@ package com.lavida.swing.handler;
 import com.lavida.service.UserService;
 import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.exception.ExceptionHandler;
+import com.lavida.swing.exception.LavidaSwingRuntimeException;
 import com.lavida.swing.preferences.UserSettings;
 import com.lavida.swing.preferences.UsersSettings;
 import com.lavida.swing.service.UserSettingsService;
@@ -127,9 +128,7 @@ public class LoginFormHandler {
                 userSettingsService.saveSettings(usersSettingsHolder.getUsersSettings());
             }
         } catch (JAXBException | IOException e) {
-            logger.error(e.getMessage(), e);
-            Toolkit.getDefaultToolkit().beep();
-            form.showWarningMessage("mainForm.exception.message.dialog.title", "mainForm.handler.save.usersSettings.error.message");
+            throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.JAXB_EXCEPTION, e);
         }
     }
 
