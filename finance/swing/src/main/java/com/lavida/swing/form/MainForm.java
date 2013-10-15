@@ -575,6 +575,7 @@ public class MainForm extends AbstractForm implements ApplicationListener<Postpo
             moveToShopItem.setEnabled(false);
             printItem.setEnabled(false);
             articleChangesItem.setEnabled(false);
+            selectingCategoriesEditItem.setEnabled(false);
             soldProductsDialog.getPrintItem().setEnabled(false);
             addNewProductsDialog.getPrintItem().setEnabled(false);
             addNewDiscountCardsDialog.getPrintItem().setEnabled(false);
