@@ -3,7 +3,6 @@ package com.lavida.service.remote.google;
 import com.google.gdata.client.spreadsheet.CellQuery;
 import com.google.gdata.client.spreadsheet.FeedURLFactory;
 import com.google.gdata.client.spreadsheet.SpreadsheetService;
-import com.google.gdata.data.Link;
 import com.google.gdata.data.spreadsheet.*;
 import com.google.gdata.util.AuthenticationException;
 import com.google.gdata.util.ServiceException;
@@ -13,7 +12,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URL;
-import java.net.UnknownHostException;
 import java.util.List;
 
 /**
@@ -33,16 +31,68 @@ public class GoogleSpreadsheetWorker {
     private WorksheetEntry discountCardsWorksheetEntry;
     private URL discountCardsWorksheetUrl;
 
-    public GoogleSpreadsheetWorker(Settings settings) throws  ServiceException, IOException {
+    public GoogleSpreadsheetWorker(Settings settings) throws ServiceException, IOException, LavidaGoogleException {
         loginToGmail(spreadsheetService, settings.getRemoteUser(), settings.getRemotePass());
         List spreadsheets = getSpreadsheetList(spreadsheetService);
         SpreadsheetEntry articleSpreadsheet = getSpreadsheetByName(spreadsheets, settings.getSpreadsheetName());
-        articleWorksheetEntry = articleSpreadsheet.getWorksheets().get(settings.getWorksheetNumber());
-        articleWorksheetUrl = getWorksheetUrl(articleSpreadsheet, settings.getWorksheetNumber());
+        articleWorksheetEntry = getWorksheetEntry(articleSpreadsheet, settings.getWorksheetNumber());
+        articleWorksheetUrl = getWorksheetUrl(articleWorksheetEntry);
 
         SpreadsheetEntry discountCardsSpreadsheet = getSpreadsheetByName(spreadsheets, settings.getDiscountSpreadsheetName());
-        discountCardsWorksheetEntry = discountCardsSpreadsheet.getWorksheets().get(settings.getDiscountWorksheetNumber());
-        discountCardsWorksheetUrl = getWorksheetUrl(discountCardsSpreadsheet, settings.getDiscountWorksheetNumber());
+        discountCardsWorksheetEntry = getWorksheetEntry(discountCardsSpreadsheet, settings.getDiscountWorksheetNumber());
+        discountCardsWorksheetUrl = getWorksheetUrl(discountCardsWorksheetEntry);
+    }
+
+    private void loginToGmail(SpreadsheetService spreadsheetService, String username, String password) throws LavidaGoogleException {
+        try {
+            spreadsheetService.setUserCredentials(username, password);
+        } catch (AuthenticationException e) {
+            throw new LavidaGoogleException(LavidaGoogleException.UNAUTHORIZED, e);
+        }
+    }
+
+    private List getSpreadsheetList(SpreadsheetService spreadsheetService) throws LavidaGoogleException {
+        FeedURLFactory factory = FeedURLFactory.getDefault();
+        SpreadsheetFeed feed ;
+        try {
+            feed = spreadsheetService.getFeed(factory.getSpreadsheetsFeedUrl(), SpreadsheetFeed.class);
+        } catch (IOException | ServiceException e) {
+            throw new LavidaGoogleException(LavidaGoogleException.NOT_FOUND_SPREADSHEET_LIST, e);
+        }
+        return feed.getEntries();
+    }
+
+    private SpreadsheetEntry getSpreadsheetByName(List spreadsheets, String spreadsheetName) throws LavidaGoogleException {
+        if (spreadsheetName == null) {
+            throw new LavidaGoogleException("Spreadsheet name is null!", LavidaGoogleException.EMPTY_SPREADSHEET_NAME);
+        }
+        for (Object spreadsheetObject : spreadsheets) {
+            if (spreadsheetObject instanceof SpreadsheetEntry) {
+                SpreadsheetEntry spreadsheet = (SpreadsheetEntry) spreadsheetObject;
+                String sheetTitle = spreadsheet.getTitle().getPlainText();
+                if (sheetTitle != null && sheetTitle.trim().equals(spreadsheetName.trim())) {
+                    return spreadsheet;
+                }
+
+            } else {
+                logger.warn("Found spreadsheet which is not SpreadsheetEntry instance: " + spreadsheetObject);
+            }
+        }
+        throw new LavidaGoogleException("Not found spreadsheet with name " + spreadsheetName + " !", LavidaGoogleException.NOT_FOUND_SPREADSHEET);
+    }
+
+    private WorksheetEntry getWorksheetEntry(SpreadsheetEntry spreadsheetEntry, int worksheetNumber) throws LavidaGoogleException {
+        WorksheetEntry worksheetEntry ;
+        try {
+            worksheetEntry =  spreadsheetEntry.getWorksheets().get(worksheetNumber);
+        } catch (IOException | ServiceException e) {
+            throw new LavidaGoogleException(LavidaGoogleException.NOT_FOUND_WORKSHEET, e);
+        }
+        return worksheetEntry;
+    }
+
+    private URL getWorksheetUrl(WorksheetEntry worksheetEntry) {
+        return worksheetEntry.getCellFeedUrl();
     }
 
     public CellFeed getArticleWholeDocument() throws IOException, ServiceException {
@@ -84,56 +134,12 @@ public class GoogleSpreadsheetWorker {
         }
     }
 
-
-//    public void deleteCells(List<CellEntry> cellEntries) throws IOException, ServiceException {
-//        for (CellEntry cellEntry :cellEntries) {
-//            Link link = cellEntry.getEditLink();
-//            URL url = new URL(link.getHref());
-//            String eTag = link.getEtag();
-//            spreadsheetService.delete(url, eTag);
-//        }
-//    }
-
     public CellFeed getArticleRow(int row) throws IOException, ServiceException {
         return getArticleCellsInRange(row, row, null, null);
     }
 
     public CellFeed getDiscountCardsRow(int row) throws IOException, ServiceException {
         return getDiscountCardsCellsInRange(row, row, null, null);
-    }
-
-    private void loginToGmail(SpreadsheetService spreadsheetService, String username, String password) throws AuthenticationException {
-        spreadsheetService.setUserCredentials(username, password);
-    }
-
-    private List getSpreadsheetList(SpreadsheetService spreadsheetService) throws IOException, ServiceException {
-        FeedURLFactory factory = FeedURLFactory.getDefault();
-        SpreadsheetFeed feed = spreadsheetService.getFeed(factory.getSpreadsheetsFeedUrl(), SpreadsheetFeed.class);
-        return feed.getEntries();
-    }
-
-    private SpreadsheetEntry getSpreadsheetByName(List spreadsheets, String spreadsheetName) {
-        if (spreadsheetName == null) {
-            throw new RuntimeException("Spreadsheet name is null!");
-        }
-        for (Object spreadsheetObject : spreadsheets) {
-            if (spreadsheetObject instanceof SpreadsheetEntry) {
-                SpreadsheetEntry spreadsheet = (SpreadsheetEntry) spreadsheetObject;
-                String sheetTitle = spreadsheet.getTitle().getPlainText();
-                if (sheetTitle != null && sheetTitle.trim().equals(spreadsheetName.trim())) {
-                    return spreadsheet;
-                }
-
-            } else {
-                logger.warn("Found spreadsheet which is not SpreadsheetEntry instance: " + spreadsheetObject);
-            }
-        }
-        throw new RuntimeException("No spreadsheet found with name");
-        // todo change exception
-    }
-
-    private URL getWorksheetUrl(SpreadsheetEntry spreadsheet, int worksheetNumber) throws IOException, ServiceException {
-        return spreadsheet.getWorksheets().get(worksheetNumber).getCellFeedUrl();
     }
 
     /**

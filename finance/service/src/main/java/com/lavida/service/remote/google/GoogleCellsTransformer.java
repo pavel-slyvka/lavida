@@ -27,10 +27,15 @@ import java.util.*;
 public class GoogleCellsTransformer {
     private static final Logger logger = LoggerFactory.getLogger(GoogleCellsTransformer.class);
 
-    public Map<Integer, String> cellsToColNumsAndItsValueMap(List<Cell> cells) {
-        Map<Integer, String> headers = new HashMap<Integer, String>(cells.size());
+    public Map<Integer, String> cellsToColNumsAndItsValueMap(List<Cell> cells) throws LavidaGoogleException {
+        Map<Integer, String> headers = new HashMap<>(cells.size());
+        int column = 1;
         for (Cell cell : cells) {
+            if (cell.getCol() != column) {
+                throw new LavidaGoogleException("Empty column header!", LavidaGoogleException.NOT_FOUND_COLUMN_MAPPING);
+            }
             headers.put(cell.getCol(), cell.getValue());
+            column ++;
         }
         return headers;
     }
@@ -79,9 +84,7 @@ public class GoogleCellsTransformer {
                             break;
                         }
                     }
-                } catch (IllegalAccessException e) {
-                    logger.warn(e.getMessage(), e);
-                } catch (ParseException e) {
+                } catch (IllegalAccessException | ParseException e) {
                     logger.warn(e.getMessage(), e);
                 }
             }
@@ -133,9 +136,7 @@ public class GoogleCellsTransformer {
                             break;
                         }
                     }
-                } catch (IllegalAccessException e) {
-                    logger.warn(e.getMessage(), e);
-                } catch (ParseException e) {
+                } catch (IllegalAccessException | ParseException e) {
                     logger.warn(e.getMessage(), e);
                 }
             }
@@ -187,9 +188,9 @@ public class GoogleCellsTransformer {
         return Double.parseDouble(doubleString.replace(" ", "").replace(",", "."));
     }
 
-    public List<CellEntry> articleToCellEntriesForUpdate(ArticleJdo articleJdo, Map<Integer, String> headers, CellFeed oldArticleFeed) {
+    public List<CellEntry> articleToCellEntriesForUpdate(ArticleJdo articleJdo, Map<Integer, String> headers, CellFeed oldArticleFeed) throws LavidaGoogleException {
         try {
-            List<CellEntry> cellEntriesForUpdate = new ArrayList<CellEntry>();
+            List<CellEntry> cellEntriesForUpdate = new ArrayList<>();
             List<CellEntry> oldCellEntries = oldArticleFeed.getEntries();
             l:
             for (Field field : ArticleJdo.class.getDeclaredFields()) {
@@ -214,7 +215,9 @@ public class GoogleCellsTransformer {
                         String newCellValue = fieldValueToString(field.get(articleJdo), spreadsheetColumn);
                         cellEntriesForUpdate.add(new CellEntry(articleJdo.getSpreadsheetRow(), cellCol, newCellValue));
                     } else {
-                        logger.warn(String.format("Found SpreadsheetColumn '%s' which don't have a mapping in the spreadsheet!", spreadsheetColumn.column()));
+//                        logger.warn(String.format("Found SpreadsheetColumn '%s' which don't have a mapping in the spreadsheet!", spreadsheetColumn.column()));
+                        throw new LavidaGoogleException(String.format("Found SpreadsheetColumn '%s' which don't have" +
+                                " a mapping in the spreadsheet!", spreadsheetColumn.column()), LavidaGoogleException.NOT_FOUND_COLUMN_MAPPING);
                     }
                 }
             }
@@ -225,9 +228,9 @@ public class GoogleCellsTransformer {
         }
     }
 
-    public List<CellEntry> discountCardToCellEntriesForUpdate(DiscountCardJdo discountCardJdo, Map<Integer, String> headers, CellFeed oldFeed) {
+    public List<CellEntry> discountCardToCellEntriesForUpdate(DiscountCardJdo discountCardJdo, Map<Integer, String> headers, CellFeed oldFeed) throws LavidaGoogleException {
         try {
-            List<CellEntry> cellEntriesForUpdate = new ArrayList<CellEntry>();
+            List<CellEntry> cellEntriesForUpdate = new ArrayList<>();
             List<CellEntry> oldCellEntries = oldFeed.getEntries();
             l:
             for (Field field : DiscountCardJdo.class.getDeclaredFields()) {
@@ -252,7 +255,9 @@ public class GoogleCellsTransformer {
                         String newCellValue = fieldValueToString(field.get(discountCardJdo), spreadsheetColumn);
                         cellEntriesForUpdate.add(new CellEntry(discountCardJdo.getSpreadsheetRow(), cellCol, newCellValue));
                     } else {
-                        logger.warn(String.format("Found SpreadsheetColumn '%s' which don't have a mapping in the spreadsheet!", spreadsheetColumn.column()));
+//                        logger.warn(String.format("Found SpreadsheetColumn '%s' which don't have a mapping in the spreadsheet!", spreadsheetColumn.column()));
+                        throw new LavidaGoogleException(String.format("Found SpreadsheetColumn '%s' which don't have" +
+                                " a mapping in the spreadsheet!", spreadsheetColumn.column()), LavidaGoogleException.NOT_FOUND_COLUMN_MAPPING);
                     }
                 }
             }

@@ -3,6 +3,7 @@ package com.lavida.swing.handler;
 import com.lavida.service.ArticleCalculator;
 import com.lavida.service.UserService;
 import com.lavida.service.entity.ArticleJdo;
+import com.lavida.service.remote.google.LavidaGoogleException;
 import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.dialog.AddNewProductsDialog;
 import com.lavida.swing.exception.LavidaSwingRuntimeException;
@@ -122,7 +123,7 @@ public class AddNewProductsDialogHandler {
             public void run() {
                 dialog.getAcceptProductsButton().setEnabled(false);
                 boolean postponed = false;
-                RemoteUpdateException exception = null;
+                Exception exception = null;
                 StringBuilder stringBuilder = new StringBuilder();
                 stringBuilder.append(acceptingOk);
                 stringBuilder.append("\n");
@@ -146,7 +147,7 @@ public class AddNewProductsDialogHandler {
                     }
                     try {
                         articleServiceSwingWrapper.updateToSpreadsheet(oldArticle, newArticle, null);
-                    } catch (RemoteUpdateException e) {
+                    } catch (RemoteUpdateException | LavidaGoogleException e) {
                         postponed = true;
                         exception = e;
                     }
@@ -158,7 +159,11 @@ public class AddNewProductsDialogHandler {
                 String message = convertToMultiline(new String(stringBuilder));
                 dialog.getMainForm().showInfoToolTip(message);
                 if (postponed) {
-                    throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.GOOGLE_SERVICE_EXCEPTION, exception);
+                    if (exception instanceof RemoteUpdateException) {
+                        throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.GOOGLE_SERVICE_EXCEPTION, exception);
+                    } else if (exception instanceof LavidaGoogleException) {
+                        throw new LavidaSwingRuntimeException(((LavidaGoogleException) exception).getErrorCode(), exception);
+                    }
                 }
             }
         });

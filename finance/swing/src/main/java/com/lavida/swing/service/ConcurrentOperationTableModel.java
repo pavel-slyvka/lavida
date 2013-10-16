@@ -3,8 +3,6 @@ package com.lavida.swing.service;
 import com.lavida.service.ViewColumn;
 import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.event.ConcurrentOperationCompleteEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.MessageSource;
 
@@ -120,6 +118,7 @@ public class ConcurrentOperationTableModel extends AbstractTableModel implements
         }
     }
 
+/*
     public List<String> getForbiddenHeadersToShow(MessageSource messageSource, Locale locale, List<String> userRoles) {
         List<String> forbiddenHeaders = new ArrayList<>();
         for (Field field : ConcurrentOperation.class.getDeclaredFields()) {
@@ -145,6 +144,7 @@ public class ConcurrentOperationTableModel extends AbstractTableModel implements
         }
         return false;
     }
+*/
 
     public Map<String, Integer> getColumnHeaderToWidth() {
         Map<String, Integer> columnHeaderToWidth = new HashMap<>(headerTitles.size());
@@ -209,9 +209,9 @@ public class ConcurrentOperationTableModel extends AbstractTableModel implements
         fireTableDataChanged();
     }
 
-    public ConcurrentOperation getSelectedOperation() {
-        return selectedOperation;
-    }
+//    public ConcurrentOperation getSelectedOperation() {
+//        return selectedOperation;
+//    }
 
     public void setSelectedOperation(ConcurrentOperation selectedOperation) {
         this.selectedOperation = selectedOperation;

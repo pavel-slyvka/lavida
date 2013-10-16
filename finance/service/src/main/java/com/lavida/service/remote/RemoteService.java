@@ -9,6 +9,7 @@ import com.lavida.service.entity.DiscountCardJdo;
 import com.lavida.service.remote.google.GoogleCellEntriesIterator;
 import com.lavida.service.remote.google.GoogleCellsTransformer;
 import com.lavida.service.remote.google.GoogleSpreadsheetWorker;
+import com.lavida.service.remote.google.LavidaGoogleException;
 import com.lavida.service.settings.SettingsHolder;
 import com.lavida.utils.ReflectionUtils;
 import org.springframework.beans.BeansException;
@@ -39,7 +40,7 @@ public class RemoteService implements ApplicationContextAware {
     @Resource
     private GoogleCellsTransformer cellsTransformer;
 
-    public List<ArticleJdo> loadArticles() throws ServiceException, IOException {
+    public List<ArticleJdo> loadArticles() throws ServiceException, IOException, LavidaGoogleException {
         GoogleSpreadsheetWorker worker = new GoogleSpreadsheetWorker(settingsHolder.getSettings());
         applicationContext.publishEvent(new TaskProgressEvent(this, TaskProgressEvent.TaskProgressType.COMPLETE));
         CellFeed cellFeed = worker.getArticleWholeDocument();
@@ -49,7 +50,7 @@ public class RemoteService implements ApplicationContextAware {
         Map<Integer, String> headers = cellsTransformer.cellsToColNumsAndItsValueMap(cellEntriesIterator.getNextLine());
         cellsTransformer.cellsToColNumsAndItsValueMap(cellEntriesIterator.getNextLine());   // header titles.
 
-        List<ArticleJdo> articles = new ArrayList<ArticleJdo>();
+        List<ArticleJdo> articles = new ArrayList<>();
         while (cellEntriesIterator.hasNext()) {
             ArticleJdo articleJdo = cellsTransformer.cellsToArticleJdo(cellEntriesIterator.getNextLine(), headers);
             articles.add(articleJdo);
@@ -58,7 +59,7 @@ public class RemoteService implements ApplicationContextAware {
         return articles;
     }
 
-    public List<DiscountCardJdo> loadDiscountCards() throws ServiceException, IOException {
+    public List<DiscountCardJdo> loadDiscountCards() throws ServiceException, IOException, LavidaGoogleException {
         GoogleSpreadsheetWorker worker = new GoogleSpreadsheetWorker(settingsHolder.getSettings());
         CellFeed cellFeed = worker.getDiscountCardsWholeDocument();
 
@@ -66,7 +67,7 @@ public class RemoteService implements ApplicationContextAware {
         Map<Integer, String> headers = cellsTransformer.cellsToColNumsAndItsValueMap(cellEntriesIterator.getNextLine());
         cellsTransformer.cellsToColNumsAndItsValueMap(cellEntriesIterator.getNextLine());   // header titles.
 
-        List<DiscountCardJdo> discountCardJdoList = new ArrayList<DiscountCardJdo>();
+        List<DiscountCardJdo> discountCardJdoList = new ArrayList<>();
         while (cellEntriesIterator.hasNext()) {
             DiscountCardJdo discountCardJdo = cellsTransformer.cellsToDicountCardJdo(cellEntriesIterator.getNextLine(), headers);
             discountCardJdoList.add(discountCardJdo);
@@ -75,7 +76,7 @@ public class RemoteService implements ApplicationContextAware {
     }
 
 
-    public void updateArticleToRemote(ArticleJdo articleJdo, Boolean isSold) throws IOException, ServiceException {
+    public void updateArticleToRemote(ArticleJdo articleJdo, Boolean isSold) throws IOException, ServiceException, LavidaGoogleException {
         GoogleSpreadsheetWorker spreadsheetWorker = new GoogleSpreadsheetWorker(settingsHolder.getSettings());
 
         // take headers
@@ -177,7 +178,7 @@ public class RemoteService implements ApplicationContextAware {
         spreadsheetWorker.saveOrUpdateArticleCells(cellEntriesForUpdate);
     }
 
-    public void updateDiscountCardToRemote(DiscountCardJdo discountCardJdo) throws IOException, ServiceException {
+    public void updateDiscountCardToRemote(DiscountCardJdo discountCardJdo) throws IOException, ServiceException, LavidaGoogleException {
         GoogleSpreadsheetWorker spreadsheetWorker = new GoogleSpreadsheetWorker(settingsHolder.getSettings());
 
         // take headers

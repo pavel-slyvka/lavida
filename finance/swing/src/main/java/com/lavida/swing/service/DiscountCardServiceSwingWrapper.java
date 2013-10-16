@@ -5,6 +5,7 @@ import com.lavida.service.DiscountCardService;
 import com.lavida.service.DiscountCardsUpdateInfo;
 import com.lavida.service.entity.ChangedFieldJdo;
 import com.lavida.service.entity.DiscountCardJdo;
+import com.lavida.service.remote.google.LavidaGoogleException;
 import com.lavida.swing.event.DiscountCardUpdateEvent;
 import com.lavida.swing.event.PostponedOperationEvent;
 import com.lavida.swing.exception.LavidaSwingRuntimeException;
@@ -70,7 +71,7 @@ public class DiscountCardServiceSwingWrapper  implements ApplicationContextAware
         return discountCardService.get(query);
     }
 
-    public List<DiscountCardJdo> loadDiscountCardsFromRemoteServer() throws IOException, ServiceException {
+    public List<DiscountCardJdo> loadDiscountCardsFromRemoteServer() throws IOException, ServiceException, LavidaGoogleException {
         return discountCardService.loadDiscountCardsFromRemoteServer();
     }
 
@@ -94,7 +95,7 @@ public class DiscountCardServiceSwingWrapper  implements ApplicationContextAware
         return discountCardService.mergePostponedWithDatabase(loadedDiscountCards);
     }
 
-    public void updateToSpreadsheet(DiscountCardJdo oldDiscountCardJdo, DiscountCardJdo discountCardJdo) throws RemoteUpdateException {
+    public void updateToSpreadsheet(DiscountCardJdo oldDiscountCardJdo, DiscountCardJdo discountCardJdo) throws RemoteUpdateException, LavidaGoogleException {
         Date postponedDate = new Date();
         try {
             discountCardService.updateToSpreadsheet(discountCardJdo);

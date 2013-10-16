@@ -3,6 +3,7 @@ package com.lavida.swing.service;
 import com.lavida.service.*;
 import com.lavida.service.dao.ArticleDao;
 import com.lavida.service.entity.ArticleJdo;
+import com.lavida.service.remote.google.LavidaGoogleException;
 import com.lavida.service.utils.DateConverter;
 import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.event.ArticleUpdateEvent;
@@ -605,8 +606,11 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
                 public void run() {
                     try {
                         articleServiceSwingWrapper.updateToSpreadsheet(oldArticle, changedArticle, null);
-                    } catch (RemoteUpdateException e) {
+                    } catch (RemoteUpdateException | LavidaGoogleException e) {
                         fireTableDataChanged();
+                        if (e instanceof LavidaGoogleException) {
+                            throw new LavidaSwingRuntimeException(((LavidaGoogleException) e).getErrorCode(), e);
+                        } else
                         throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.GOOGLE_SERVICE_EXCEPTION, e);
                     }
                 }

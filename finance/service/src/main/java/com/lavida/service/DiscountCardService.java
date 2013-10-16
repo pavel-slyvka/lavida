@@ -5,6 +5,7 @@ import com.lavida.service.dao.DiscountCardDao;
 import com.lavida.service.entity.ChangedFieldJdo;
 import com.lavida.service.entity.DiscountCardJdo;
 import com.lavida.service.remote.RemoteService;
+import com.lavida.service.remote.google.LavidaGoogleException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -137,11 +138,11 @@ public class DiscountCardService {
     }
 */
 
-    public List<DiscountCardJdo> loadDiscountCardsFromRemoteServer() throws IOException, ServiceException {
+    public List<DiscountCardJdo> loadDiscountCardsFromRemoteServer() throws IOException, ServiceException, LavidaGoogleException {
         return remoteService.loadDiscountCards();
     }
 
-    public void updateToSpreadsheet(DiscountCardJdo discountCardJdo) throws IOException, ServiceException {
+    public void updateToSpreadsheet(DiscountCardJdo discountCardJdo) throws IOException, ServiceException, LavidaGoogleException {
         remoteService.updateDiscountCardToRemote(discountCardJdo);
     }
 

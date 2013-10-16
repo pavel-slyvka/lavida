@@ -4,6 +4,7 @@ import com.google.gdata.util.ServiceException;
 import com.lavida.TaskProgressEvent;
 import com.lavida.service.*;
 import com.lavida.service.entity.*;
+import com.lavida.service.remote.google.LavidaGoogleException;
 import com.lavida.swing.exception.RemoteUpdateException;
 import com.lavida.swing.form.component.TablePrintPreviewComponent;
 import com.lavida.swing.preferences.UsersSettings;
@@ -16,8 +17,6 @@ import com.lavida.swing.dialog.*;
 import com.lavida.swing.exception.LavidaSwingRuntimeException;
 import com.lavida.swing.form.MainForm;
 import com.lavida.swing.form.component.ProgressComponent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -44,7 +43,7 @@ import java.util.List;
  */
 @Component
 public class MainFormHandler implements ApplicationContextAware {
-    private static final Logger logger = LoggerFactory.getLogger(MainFormHandler.class);
+//    private static final Logger logger = LoggerFactory.getLogger(MainFormHandler.class);
 
     @Resource
     private MessageSource messageSource;
@@ -140,11 +139,37 @@ public class MainFormHandler implements ApplicationContextAware {
                             .addWork(refreshTaskTimes.get(0), true).addWork(refreshTaskTimes.get(1), true).addWork(refreshTaskTimes.get(2), true)
                             .addWork(refreshTaskTimes.get(3), true).addWork(refreshTaskTimes.get(4), true).addWork(refreshTaskTimes.get(5), true)
                             .start();
-                    List<ArticleJdo> articles = articleServiceSwingWrapper.loadArticlesFromRemoteServer();
+                    List<ArticleJdo> articles;
+                    try {
+                        articles = articleServiceSwingWrapper.loadArticlesFromRemoteServer();
+                    } catch (LavidaGoogleException e) {
+                        Thread.currentThread().interrupt();
+                        progressComponent.getProgressBar().setVisible(false);
+                        progressComponent.getLabel().setVisible(false);
+                        if (needToLoadPostponed) {
+                            postponedChangesDialogHandler.loadPostponed(fileToLoad);
+                        }
+                        form.setRefreshTableItemEnable(true);
+                        form.update();    // repaint MainForm in some time
+                        throw new LavidaSwingRuntimeException(e.getErrorCode(), e);
+                    }
                     articleUpdateInfo = articleServiceSwingWrapper.updateDatabaseFromRemote(articles);
                     applicationContext.publishEvent(new TaskProgressEvent(this, TaskProgressEvent.TaskProgressType.COMPLETE));
 
-                    List<DiscountCardJdo> discountCardJdoList = discountCardServiceSwingWrapper.loadDiscountCardsFromRemoteServer();
+                    List<DiscountCardJdo> discountCardJdoList;
+                    try {
+                        discountCardJdoList = discountCardServiceSwingWrapper.loadDiscountCardsFromRemoteServer();
+                    } catch (LavidaGoogleException e) {
+                        Thread.currentThread().interrupt();
+                        progressComponent.getProgressBar().setVisible(false);
+                        progressComponent.getLabel().setVisible(false);
+                        if (needToLoadPostponed) {
+                            postponedChangesDialogHandler.loadPostponed(fileToLoad);
+                        }
+                        form.setRefreshTableItemEnable(true);
+                        form.update();    // repaint MainForm in some time
+                        throw new LavidaSwingRuntimeException(e.getErrorCode(), e);
+                    }
                     applicationContext.publishEvent(new TaskProgressEvent(this, TaskProgressEvent.TaskProgressType.COMPLETE));
                     discountCardsUpdateInfo = discountCardServiceSwingWrapper.updateDatabaseFromRemote(discountCardJdoList);
                     applicationContext.publishEvent(new TaskProgressEvent(this, TaskProgressEvent.TaskProgressType.COMPLETE));
@@ -345,6 +370,10 @@ public class MainFormHandler implements ApplicationContextAware {
     }
 
     public void moveToShopItemClicked() {
+        if (!hasSelectedArticles()) {
+            form.showWarningMessage("mainForm.exception.message.dialog.title", "mainForm.handler.sold.article.not.chosen");
+            return;
+        }
         String[] shopArray = new String[tableModel.getShopService().getAll().size()];
         List<ShopJdo> shopJdoList = tableModel.getShopService().getAll();
         for (int i = 0; i < shopJdoList.size(); ++i) {
@@ -358,6 +387,13 @@ public class MainFormHandler implements ApplicationContextAware {
         }
     }
 
+    private boolean hasSelectedArticles() {
+        for (ArticleJdo articleJdo : articleServiceSwingWrapper.getAll()) {
+            if (articleJdo.isSelected()) return true;
+        }
+        return false;
+    }
+
     private void moveToShop(final String shop) {
         concurrentOperationsService.startOperation("Moving articles to the " + shop, new Runnable() {
             @Override
@@ -366,7 +402,7 @@ public class MainFormHandler implements ApplicationContextAware {
                 stringBuilder.append(messageSource.getMessage("mainForm.moveToShop.finished.message", null, localeHolder.getLocale()));
                 stringBuilder.append("\n");
                 boolean postponedExist = false;
-                RemoteUpdateException exception = null;
+                Exception exception = null;
                 for (ArticleJdo articleJdo : form.getTableModel().getTableData()) {
                     if (articleJdo.isSelected()) {
                         ArticleJdo oldArticle;
@@ -379,7 +415,7 @@ public class MainFormHandler implements ApplicationContextAware {
                         articleJdo.setSelected(false);
                         try {
                             articleServiceSwingWrapper.updateToSpreadsheet(oldArticle, articleJdo, null);
-                        } catch (RemoteUpdateException e) {
+                        } catch (RemoteUpdateException | LavidaGoogleException e) {
                             exception = e;
                             postponedExist = true;
                         }
@@ -389,7 +425,11 @@ public class MainFormHandler implements ApplicationContextAware {
                 form.showInfoToolTip(message);
                 form.update();
                 if (postponedExist) {
-                    throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.GOOGLE_SERVICE_EXCEPTION, exception);
+                    if (exception instanceof RemoteUpdateException) {
+                        throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.GOOGLE_SERVICE_EXCEPTION, exception);
+                    } else if (exception instanceof LavidaGoogleException) {
+                        throw new LavidaSwingRuntimeException(((LavidaGoogleException) exception).getErrorCode(), exception);
+                    }
                 }
 
             }

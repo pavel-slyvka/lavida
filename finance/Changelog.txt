@@ -1,9 +1,11 @@
 Changelog of the LA VIDA Finance
 --------------------
 
-Version 0.2.2   release date:  __-10-2013
+Version 0.3   release date:  __-10-2013
 -----------------------------------------
--
+- Added dialog for watching progressing concurrent operations;
+- Added radioButton menu items for selecting presets;
+- Added dialog for managing selecting categories (brand, size, shop, seller, tag);
 - Added  re-counting the multiplier while salePrice changing in the AddNewProductsDialog;
 - Moved menu items of setting for showing table columns to their dialogs;
 - Added brand, size, shop to the local database;

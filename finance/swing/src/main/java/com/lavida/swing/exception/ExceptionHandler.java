@@ -1,12 +1,11 @@
 package com.lavida.swing.exception;
 
+import com.lavida.service.remote.google.LavidaGoogleException;
 import com.lavida.swing.LocaleHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 import javax.swing.*;
 
 /**
@@ -16,15 +15,12 @@ import javax.swing.*;
  *
  * @author Ruslan.
  */
-public class ExceptionHandler implements Thread.UncaughtExceptionHandler{
+public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
     private static final Logger logger = LoggerFactory.getLogger(ExceptionHandler.class);
 
     private MessageSource messageSource;
 
     private LocaleHolder localeHolder;
-
-    public ExceptionHandler() {
-    }
 
     public ExceptionHandler(MessageSource messageSource, LocaleHolder localeHolder) {
         this.messageSource = messageSource;
@@ -35,18 +31,36 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler{
     public void uncaughtException(Thread t, Throwable e) {
         if (e instanceof LavidaSwingRuntimeException) {
             handleLavidaSwingRuntimeException((LavidaSwingRuntimeException) e);
-        } else if (e instanceof NumberFormatException ) {
-            handleNumberFormatException((NumberFormatException) e);
+        } else if (e instanceof NumberFormatException) {
+            handleNumberFormatException();
         } else if (e instanceof RuntimeException) {
             logger.error(e.getMessage(), e);
-            handleRuntimeException((RuntimeException) e);
+            handleRuntimeException();
         } else {
             logger.error(e.getMessage(), e);
-            handleError(e);
+            handleError();
         }
     }
 
-    private void handleError(Throwable e) {
+    private void handleLavidaGoogleException(LavidaGoogleException e) {
+        String titleKey;
+        String messageKey;
+        switch (e.getErrorCode()) {
+
+            default:
+                titleKey = "mainForm.exception.message.dialog.title";
+                messageKey = "mainForm.exception.service.load.google.spreadsheet.table.data";
+                break;
+
+        }
+        JOptionPane.showMessageDialog(null,
+                messageSource.getMessage(messageKey, null, localeHolder.getLocale()),
+                messageSource.getMessage(titleKey, null, localeHolder.getLocale()),
+                JOptionPane.ERROR_MESSAGE);
+    }
+
+
+    private void handleError() {
         JOptionPane.showMessageDialog(null,
                 messageSource.getMessage("error.unknown.error.message", null, localeHolder.getLocale()),
                 messageSource.getMessage("mainForm.exception.message.dialog.title", null, localeHolder.getLocale()),
@@ -54,14 +68,14 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler{
         System.exit(1);
     }
 
-    private void handleRuntimeException(RuntimeException e) {
+    private void handleRuntimeException() {
         JOptionPane.showMessageDialog(null,
                 messageSource.getMessage("error.unknown.exception.message", null, localeHolder.getLocale()),
                 messageSource.getMessage("mainForm.exception.message.dialog.title", null, localeHolder.getLocale()),
                 JOptionPane.ERROR_MESSAGE);
     }
 
-    private void handleNumberFormatException(NumberFormatException e) {
+    private void handleNumberFormatException() {
         JOptionPane.showMessageDialog(null,
                 messageSource.getMessage("error.numberFormat.exception.message", null, localeHolder.getLocale()),
                 messageSource.getMessage("mainForm.exception.message.dialog.title", null, localeHolder.getLocale()),
@@ -101,6 +115,36 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler{
             case LavidaSwingRuntimeException.DATE_FORMAT_EXCEPTION:
                 titleKey = "mainForm.exception.message.dialog.title";
                 messageKey = "sellDialog.handler.saleDate.not.correct.format";
+                break;
+
+            case LavidaSwingRuntimeException.UNAUTHORIZED:
+                titleKey = "mainForm.exception.message.dialog.title";
+                messageKey = "exception.handler.google.authentication.message";
+                break;
+
+            case LavidaSwingRuntimeException.NOT_FOUND_SPREADSHEET_LIST:
+                titleKey = "mainForm.exception.message.dialog.title";
+                messageKey = "exception.handler.google.spreadsheetList.notFount.message";
+                break;
+
+            case LavidaSwingRuntimeException.NOT_FOUND_SPREADSHEET:
+                titleKey = "mainForm.exception.message.dialog.title";
+                messageKey = "exception.handler.google.spreadsheet.notFount.message";
+                break;
+
+            case LavidaSwingRuntimeException.EMPTY_SPREADSHEET_NAME:
+                titleKey = "mainForm.exception.message.dialog.title";
+                messageKey = "exception.handler.google.spreadsheet.emptyName.message";
+                break;
+
+            case LavidaSwingRuntimeException.NOT_FOUND_WORKSHEET:
+                titleKey = "mainForm.exception.message.dialog.title";
+                messageKey = "exception.handler.google.spreadsheet.emptyName.message";
+                break;
+
+            case LavidaSwingRuntimeException.NOT_FOUND_COLUMN_MAPPING:
+                titleKey = "mainForm.exception.message.dialog.title";
+                messageKey = "exception.handler.google.worksheet.damaged.message";
                 break;
 
             default:

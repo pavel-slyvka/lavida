@@ -3,6 +3,7 @@ package com.lavida.swing.handler;
 import com.lavida.service.entity.ChangedFieldJdo;
 import com.lavida.service.entity.ArticleJdo;
 import com.lavida.service.entity.DiscountCardJdo;
+import com.lavida.service.remote.google.LavidaGoogleException;
 import com.lavida.service.xml.PostponedType;
 import com.lavida.service.xml.PostponedXmlService;
 import com.lavida.swing.LocaleHolder;
@@ -297,7 +298,7 @@ public class PostponedChangesDialogHandler {
                 dialog.getRecommitPostponedItem().setEnabled(false);
                 SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
                 boolean postponed = false;
-                RemoteUpdateException exception = null;
+                Exception exception = null;
                 StringBuilder stringBuilder = new StringBuilder();
                 stringBuilder.append(messageSource.getMessage("dialog.changed.field.postponed.recommit.finished.message",
                         null, localeHolder.getLocale()));
@@ -319,7 +320,7 @@ public class PostponedChangesDialogHandler {
                             try {
                                 articleJdo.setPostponedOperationDate(null);
                                 articleServiceSwingWrapper.updateToSpreadsheet(oldArticle, articleJdo, true);
-                            } catch (RemoteUpdateException e) {
+                            } catch (RemoteUpdateException | LavidaGoogleException e) {
                                 postponed = true;
                                 exception = e;
                             }
@@ -328,7 +329,7 @@ public class PostponedChangesDialogHandler {
                             try {
                                 articleJdo.setPostponedOperationDate(null);
                                 articleServiceSwingWrapper.updateToSpreadsheet(oldArticle, articleJdo, false);
-                            } catch (RemoteUpdateException e) {
+                            } catch (RemoteUpdateException | LavidaGoogleException e) {
                                 postponed = true;
                                 exception = e;
                             }
@@ -337,7 +338,7 @@ public class PostponedChangesDialogHandler {
                             try {
                                 articleJdo.setPostponedOperationDate(null);
                                 articleServiceSwingWrapper.updateToSpreadsheet(oldArticle, articleJdo, null); // recommit other changes
-                            } catch (RemoteUpdateException e) {
+                            } catch (RemoteUpdateException | LavidaGoogleException e) {
                                 postponed = true;
                                 exception = e;
 
@@ -359,7 +360,7 @@ public class PostponedChangesDialogHandler {
                         }
                         try {
                             discountCardServiceSwingWrapper.updateToSpreadsheet(oldDiscountCardJdo, discountCardJdo);
-                        } catch (RemoteUpdateException e) {
+                        } catch (RemoteUpdateException | LavidaGoogleException e) {
                             postponed = true;
                             exception = e;
                         }
@@ -371,7 +372,11 @@ public class PostponedChangesDialogHandler {
                 dialog.getMainForm().getHandler().showPostponedOperationsMessage();
                 dialog.getMainForm().update();
                 if (postponed) {
-                    throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.GOOGLE_SERVICE_EXCEPTION, exception);
+                    if (exception instanceof RemoteUpdateException) {
+                        throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.GOOGLE_SERVICE_EXCEPTION, exception);
+                    } else if (exception instanceof LavidaGoogleException) {
+                        throw new LavidaSwingRuntimeException(((LavidaGoogleException) exception).getErrorCode(), exception);
+                    }
                 }
             }
 

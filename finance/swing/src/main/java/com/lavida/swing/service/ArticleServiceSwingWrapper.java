@@ -5,6 +5,7 @@ import com.lavida.service.ArticleService;
 import com.lavida.service.ArticleUpdateInfo;
 import com.lavida.service.entity.ArticleJdo;
 import com.lavida.service.entity.ChangedFieldJdo;
+import com.lavida.service.remote.google.LavidaGoogleException;
 import com.lavida.service.xml.ArticlesXmlService;
 import com.lavida.swing.event.ArticleUpdateEvent;
 import com.lavida.swing.event.PostponedOperationEvent;
@@ -51,7 +52,7 @@ public class ArticleServiceSwingWrapper implements ApplicationContextAware {
         return articleService.getAll();
     }
 
-    public List<ArticleJdo> loadArticlesFromRemoteServer() throws IOException, ServiceException {
+    public List<ArticleJdo> loadArticlesFromRemoteServer() throws IOException, ServiceException, LavidaGoogleException {
         return articleService.loadArticlesFromRemoteServer();
     }
 
@@ -81,7 +82,7 @@ public class ArticleServiceSwingWrapper implements ApplicationContextAware {
         return articleService.mergePostponedWithDatabase(loadedArticles);
     }
 
-    public void updateToSpreadsheet(ArticleJdo oldArticle, ArticleJdo articleJdo, Boolean isSold) throws RemoteUpdateException {
+    public void updateToSpreadsheet(ArticleJdo oldArticle, ArticleJdo articleJdo, Boolean isSold) throws RemoteUpdateException, LavidaGoogleException {
         try {
             articleService.updateToSpreadsheet(articleJdo, isSold);
         } catch (IOException | ServiceException e) {

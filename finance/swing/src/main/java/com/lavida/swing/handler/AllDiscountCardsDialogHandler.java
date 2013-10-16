@@ -1,5 +1,6 @@
 package com.lavida.swing.handler;
 
+import com.lavida.service.remote.google.LavidaGoogleException;
 import com.lavida.swing.exception.LavidaSwingRuntimeException;
 import com.lavida.swing.exception.RemoteUpdateException;
 import com.lavida.swing.form.component.TablePrintPreviewComponent;
@@ -79,7 +80,7 @@ public class AllDiscountCardsDialogHandler {
             @Override
             public void run() {
                 boolean postponed = false;
-                RemoteUpdateException exception = null;
+                Exception exception = null;
                 StringBuilder stringBuilder = new StringBuilder();
                 stringBuilder.append(messageSource.getMessage("dialog.discounts.card.all.activation.finished.message",
                         null, localeHolder.getLocale()));
@@ -87,7 +88,7 @@ public class AllDiscountCardsDialogHandler {
 
                 try {
                     discountCardServiceSwingWrapper.updateToSpreadsheet(oldDiscountCardJdo, discountCardJdo);
-                } catch (RemoteUpdateException e) {
+                } catch (RemoteUpdateException | LavidaGoogleException e) {
                     postponed = true;
                     exception = e;
                 }
@@ -95,7 +96,11 @@ public class AllDiscountCardsDialogHandler {
                 String message = convertToMultiline(new String(stringBuilder));
                 dialog.getMainForm().showInfoToolTip(message);
                 if (postponed) {
-                    throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.GOOGLE_SERVICE_EXCEPTION, exception);
+                    if (exception instanceof RemoteUpdateException) {
+                        throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.GOOGLE_SERVICE_EXCEPTION, exception);
+                    } else if (exception instanceof LavidaGoogleException) {
+                        throw new LavidaSwingRuntimeException(((LavidaGoogleException) exception).getErrorCode(), exception);
+                    }
                 }
 
             }

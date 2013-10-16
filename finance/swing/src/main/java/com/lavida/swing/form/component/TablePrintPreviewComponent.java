@@ -67,6 +67,10 @@ public class TablePrintPreviewComponent {
     public boolean showPrintPreviewDialog(Component parent, JTable table, MessageSource messageSource, LocaleHolder localeHolder) {
         this.messageSource = messageSource;
         this.localeHolder = localeHolder;
+        if (table.getModel().getRowCount() == 0) {
+            return false;
+        }
+
         this.tableToPrint = table;
         this.parentComponent = parent;
         reforming = true;

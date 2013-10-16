@@ -45,7 +45,7 @@ public class ArticleCalculator {
             return 0;
         }
             doubleString = doubleString.replace(" ", "");
-        doubleString = doubleString.replaceAll("[^0-9]", ".");
+//        doubleString = doubleString.replaceAll("[^0-9]", ".");
         return Double.parseDouble(doubleString);
     }
 

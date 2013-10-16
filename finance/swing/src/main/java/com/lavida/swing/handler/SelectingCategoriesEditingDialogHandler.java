@@ -131,10 +131,13 @@ public class SelectingCategoriesEditingDialogHandler {
 
     public void addButtonClicked() {
         String categoryName = (String) dialog.getCategoriesBox().getSelectedItem();
-
+        String newValue = (String) dialog.showInputDialog("dialog.selectingCategories.add.title",
+                "dialog.selectingCategories.add.message", null, null, null);
+        if (newValue.isEmpty()) {
+            dialog.showWarningMessage("mainForm.exception.message.dialog.title", "dialog.selecting.categories.editing.add.notEntered.message");
+            return;
+        }
         if (SelectingCategoriesEditingDialog.CategoryType.BRAND.getName().equals(categoryName)) {
-            String newValue = (String) dialog.showInputDialog("dialog.selectingCategories.add.title",
-                    "dialog.selectingCategories.add.message", null, null, null);
             if (newValue != null) {
                 BrandJdo brandJdo = new BrandJdo(newValue);
                 brandService.update(brandJdo);
@@ -143,8 +146,6 @@ public class SelectingCategoriesEditingDialogHandler {
                 sortListModel((DefaultListModel<String>) viewList.getModel());
             }
         } else if (SelectingCategoriesEditingDialog.CategoryType.SIZE.getName().equals(categoryName)) {
-            String newValue = (String) dialog.showInputDialog("dialog.selectingCategories.add.title",
-                    "dialog.selectingCategories.add.message", null, null, null);
             if (newValue != null) {
                 SizeJdo sizeJdo = new SizeJdo(newValue);
                 sizeService.update(sizeJdo);
@@ -154,8 +155,6 @@ public class SelectingCategoriesEditingDialogHandler {
             }
 
         } else if (SelectingCategoriesEditingDialog.CategoryType.SHOP.getName().equals(categoryName)) {
-            String newValue = (String) dialog.showInputDialog("dialog.selectingCategories.add.title",
-                    "dialog.selectingCategories.add.message", null, null, null);
             if (newValue != null) {
                 ShopJdo shopJdo = new ShopJdo(newValue);
                 shopService.update(shopJdo);
@@ -165,8 +164,6 @@ public class SelectingCategoriesEditingDialogHandler {
             }
 
         } else if (SelectingCategoriesEditingDialog.CategoryType.SELLER.getName().equals(categoryName)) {
-            String newValue = (String) dialog.showInputDialog("dialog.selectingCategories.add.title",
-                    "dialog.selectingCategories.add.message", null, null, null);
             if (newValue != null) {
                 SellerJdo sellerJdo = new SellerJdo(newValue);
                 sellerService.update(sellerJdo);
@@ -176,8 +173,7 @@ public class SelectingCategoriesEditingDialogHandler {
             }
 
         } else if (SelectingCategoriesEditingDialog.CategoryType.TAG.getName().equals(categoryName)) {
-            String newTitle = (String) dialog.showInputDialog("dialog.selectingCategories.add.title",
-                    "dialog.selectingCategories.add.message", null, null, null);
+            String newTitle = newValue;
             if (newTitle != null) {
                 String newName = (String) dialog.showInputDialog("dialog.selectingCategories.add.tagName.title",
                         "dialog.selectingCategories.add.tagName.message", null, null, null);

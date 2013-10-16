@@ -4,6 +4,7 @@ import com.lavida.service.FiltersPurpose;
 import com.lavida.service.UserService;
 import com.lavida.service.ViewColumn;
 import com.lavida.service.entity.DiscountCardJdo;
+import com.lavida.service.remote.google.LavidaGoogleException;
 import com.lavida.service.utils.DateConverter;
 import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.event.DiscountCardUpdateEvent;
@@ -104,6 +105,7 @@ public class DiscountCardsTableModel extends AbstractTableModel implements Appli
         }
     }
 
+/*
     public List<String> getForbiddenHeadersToShow(MessageSource messageSource, Locale locale, List<String> userRoles) {
         List<String> forbiddenHeaders = new ArrayList<>();
         for (Field field : DiscountCardJdo.class.getDeclaredFields()) {
@@ -143,16 +145,7 @@ public class DiscountCardsTableModel extends AbstractTableModel implements Appli
         }
         return false;
     }
-
-    private boolean isForbidden(List<String> userRoles, List<String> forbiddenRoles) {
-        for (String forbiddenRole : forbiddenRoles) {
-            if (userRoles.contains(forbiddenRole)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
+*/
 
     public FiltersPurpose getFiltersPurpose() {
         return FiltersPurpose.ALL_DISCOUNT_CARDS;
@@ -451,9 +444,12 @@ public class DiscountCardsTableModel extends AbstractTableModel implements Appli
                 public void run() {
                     try {
                         discountCardServiceSwingWrapper.updateToSpreadsheet(oldDiscountCardJdo, discountCardJdo);
-                    } catch (RemoteUpdateException e) {
+                    } catch (RemoteUpdateException | LavidaGoogleException e) {
                         fireTableDataChanged();
-                        throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.GOOGLE_SERVICE_EXCEPTION, e);
+                        if (e instanceof LavidaGoogleException) {
+                            throw new LavidaSwingRuntimeException(((LavidaGoogleException) e).getErrorCode(), e);
+                        } else
+                            throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.GOOGLE_SERVICE_EXCEPTION, e);
                     }
                 }
             });

@@ -5,6 +5,7 @@ import com.lavida.service.dao.ArticleDao;
 import com.lavida.service.entity.ChangedFieldJdo;
 import com.lavida.service.entity.ArticleJdo;
 import com.lavida.service.remote.RemoteService;
+import com.lavida.service.remote.google.LavidaGoogleException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -233,11 +234,11 @@ public class ArticleService {
         throw new RuntimeException("There is no article with code: " + code + "!"); //todo create databaseException
     }
 
-    public List<ArticleJdo> loadArticlesFromRemoteServer() throws IOException, ServiceException {
+    public List<ArticleJdo> loadArticlesFromRemoteServer() throws IOException, ServiceException, LavidaGoogleException {
         return remoteService.loadArticles();
     }
 
-    public void updateToSpreadsheet(ArticleJdo articleJdo, Boolean isSold) throws IOException, ServiceException {
+    public void updateToSpreadsheet(ArticleJdo articleJdo, Boolean isSold) throws IOException, ServiceException, LavidaGoogleException {
         remoteService.updateArticleToRemote(articleJdo, isSold);
     }
 
