@@ -31,7 +31,7 @@ import java.util.*;
 public class DiscountCardsTableModel extends AbstractTableModel implements ApplicationListener<DiscountCardUpdateEvent> {
 //    private static final Logger logger = LoggerFactory.getLogger(DiscountCardsTableModel.class);
 
-    private List<String> headerTitles;
+    public List<String> headerTitles;
     private List<String> discountCardFieldsSequence;
     private Map<Integer, SimpleDateFormat> columnIndexToDateFormat;
     private List<DiscountCardJdo> tableData;
@@ -195,13 +195,13 @@ public class DiscountCardsTableModel extends AbstractTableModel implements Appli
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         Object value = getRawValueAt(rowIndex, columnIndex);
-        if (value instanceof Calendar) {
-            return columnIndexToDateFormat.get(columnIndex).format(((Calendar) value).getTime());
-        } else if (value instanceof Date) {
-            return columnIndexToDateFormat.get(columnIndex).format(value);
-        } else {
+//        if (value instanceof Calendar) {
+//            return columnIndexToDateFormat.get(columnIndex).format(((Calendar) value).getTime());
+//        } else if (value instanceof Date) {
+//            return columnIndexToDateFormat.get(columnIndex).format(value);
+//        } else {
             return value;
-        }
+//        }
     }
 
     public Object getRawValueAt(int rowIndex, int columnIndex) {
@@ -518,5 +518,9 @@ public class DiscountCardsTableModel extends AbstractTableModel implements Appli
             tableData = discountCardServiceSwingWrapper.get(query);
             fireTableDataChanged();
         }
+    }
+
+    public List<String> getHeaderTitles() {
+        return headerTitles;
     }
 }

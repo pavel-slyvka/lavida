@@ -35,7 +35,7 @@ import java.util.List;
 public class ArticlesTableModel extends AbstractTableModel implements ApplicationListener<ArticleUpdateEvent> {
     private static final Logger logger = LoggerFactory.getLogger(ArticlesTableModel.class);
 
-    private List<String> headerTitles = new ArrayList<>();
+    public List<String> headerTitles = new ArrayList<>();
     private List<String> articleFieldsSequence;
     private Map<Integer, SimpleDateFormat> columnIndexToDateFormat;
 
@@ -155,13 +155,13 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         Object value = getRawValueAt(rowIndex, columnIndex);
-        if (value instanceof Calendar) {
-            return columnIndexToDateFormat.get(columnIndex).format(((Calendar) value).getTime());
-        } else if (value instanceof Date) {
-            return columnIndexToDateFormat.get(columnIndex).format(value);
-        } else {
+//        if (value instanceof Calendar) {
+//            return columnIndexToDateFormat.get(columnIndex).format(((Calendar) value).getTime());
+//        } else if (value instanceof Date) {
+//            return columnIndexToDateFormat.get(columnIndex).format(value);
+//        } else {
             return value;
-        }
+//        }
     }
 
     public ArticleJdo getArticleJdoByRowIndex(int rowIndex) {
@@ -791,5 +791,9 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
 
     public ShopService getShopService() {
         return shopService;
+    }
+
+    public List<String> getHeaderTitles() {
+        return headerTitles;
     }
 }

@@ -1,13 +1,17 @@
 package com.lavida.swing.form.component;
 
 import com.lavida.service.UserService;
+import com.lavida.service.ViewColumn;
 import com.lavida.service.entity.ArticleJdo;
 import com.lavida.service.entity.BrandJdo;
 import com.lavida.service.entity.ShopJdo;
 import com.lavida.service.entity.SizeJdo;
+import com.lavida.swing.form.component.renderer.CalendarTableCellRenderer;
+import com.lavida.swing.form.component.renderer.DateTableCellRenderer;
 import com.lavida.swing.preferences.*;
 import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.service.ArticlesTableModel;
+import com.lavida.utils.ReflectionUtils;
 import org.springframework.context.MessageSource;
 
 import javax.swing.*;
@@ -138,6 +142,30 @@ public class ArticleTableComponent implements TableModelListener{
 //                null, localeHolder.getLocale()));
 //        shopColumn.setCellEditor(shopEditor);
         updateShopColumnEditor();
+
+
+        List<String> headerTitles = tableModel.getHeaderTitles();
+        String datePattern;
+        String deliveryDateHeader = messageSource.getMessage("mainForm.table.articles.column.purchase.date.title", null, localeHolder.getLocale());
+        if (headerTitles.contains(deliveryDateHeader)) {
+            TableColumn deliveryDateColumn = articlesTable.getColumn(deliveryDateHeader);
+            datePattern = (ReflectionUtils.getFieldAnnotation(ArticleJdo.class, "deliveryDate", ViewColumn.class)).datePattern();
+            deliveryDateColumn.setCellRenderer(new CalendarTableCellRenderer(datePattern));
+        }
+
+        String saleDateHeader = messageSource.getMessage("mainForm.table.articles.column.sell.date.title", null, localeHolder.getLocale());
+        if (headerTitles.contains(saleDateHeader)) {
+            TableColumn saleDateColumn =  articlesTable.getColumn(saleDateHeader);
+            datePattern = (ReflectionUtils.getFieldAnnotation(ArticleJdo.class, "saleDate", ViewColumn.class)).datePattern();
+            saleDateColumn.setCellRenderer(new CalendarTableCellRenderer(datePattern));
+        }
+
+        String refundDateHeader = messageSource.getMessage("mainForm.table.articles.column.refund.title", null, localeHolder.getLocale());
+        if (headerTitles.contains(refundDateHeader)) {
+            TableColumn refundDateColumn = articlesTable.getColumn(refundDateHeader);
+            datePattern = (ReflectionUtils.getFieldAnnotation(ArticleJdo.class, "refundDate", ViewColumn.class)).datePattern();
+            refundDateColumn.setCellRenderer(new DateTableCellRenderer(datePattern));
+        }
     }
 
     /**

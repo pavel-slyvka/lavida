@@ -1,9 +1,13 @@
 package com.lavida.swing.form.component;
 
+import com.lavida.service.ViewColumn;
+import com.lavida.service.entity.ArticleJdo;
 import com.lavida.service.entity.DiscountCardJdo;
+import com.lavida.swing.form.component.renderer.CalendarTableCellRenderer;
 import com.lavida.swing.preferences.*;
 import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.service.DiscountCardsTableModel;
+import com.lavida.utils.ReflectionUtils;
 import org.springframework.context.MessageSource;
 
 import javax.swing.*;
@@ -28,8 +32,8 @@ import java.util.List;
 public class DiscountCardTableComponent implements TableModelListener {
 
     private DiscountCardsTableModel tableModel;
-//    private MessageSource messageSource;
-//    private LocaleHolder localeHolder;
+    private MessageSource messageSource;
+    private LocaleHolder localeHolder;
     private UsersSettingsHolder usersSettingsHolder;
 
     private JPanel mainPanel;
@@ -41,8 +45,8 @@ public class DiscountCardTableComponent implements TableModelListener {
                                      LocaleHolder localeHolder, UsersSettingsHolder usersSettingsHolder) {
         this.tableModel = discountCardsTableModel;
         this.tableModel.addTableModelListener(this);
-//        this.messageSource = messageSource;
-//        this.localeHolder = localeHolder;
+        this.messageSource = messageSource;
+        this.localeHolder = localeHolder;
         this.usersSettingsHolder = usersSettingsHolder;
         tableModel.initAnalyzeFields();
 
@@ -57,6 +61,7 @@ public class DiscountCardTableComponent implements TableModelListener {
         discountCardsTable.setModel(tableModel);
         JTextField textField = new JTextField();
         discountCardsTable.setCellEditor(new DefaultCellEditor(textField));
+        initTableColumnsEditors();
         initTableColumnsWidth();
         discountCardsTable.doLayout();
         discountCardsTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
@@ -87,6 +92,24 @@ public class DiscountCardTableComponent implements TableModelListener {
 //      panel for search operations
         cardFiltersComponent.initializeComponents(tableModel, messageSource, localeHolder);
         discountCardsTable.setRowSorter(cardFiltersComponent.getSorter());
+    }
+
+    private void initTableColumnsEditors() {
+        List<String> headerTitles = tableModel.getHeaderTitles();
+        String datePattern;
+        String registrationDateHeader = messageSource.getMessage("dialog.discounts.card.all.column.title.registrationDate", null, localeHolder.getLocale());
+        if (headerTitles.contains(registrationDateHeader)) {
+            TableColumn registrationDateColumn = discountCardsTable.getColumn(registrationDateHeader);
+            datePattern = (ReflectionUtils.getFieldAnnotation(DiscountCardJdo.class, "registrationDate", ViewColumn.class)).datePattern();
+            registrationDateColumn.setCellRenderer(new CalendarTableCellRenderer(datePattern));
+        }
+
+        String activationDateHeader = messageSource.getMessage("dialog.discounts.card.all.column.title.activationDate", null, localeHolder.getLocale());
+        if (headerTitles.contains(activationDateHeader)) {
+            TableColumn activationDateColumn = discountCardsTable.getColumn(activationDateHeader);
+            datePattern = (ReflectionUtils.getFieldAnnotation(DiscountCardJdo.class, "activationDate", ViewColumn.class)).datePattern();
+            activationDateColumn.setCellRenderer(new CalendarTableCellRenderer(datePattern));
+        }
     }
 
 //    /**

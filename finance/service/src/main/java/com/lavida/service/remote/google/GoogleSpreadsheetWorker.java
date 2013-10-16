@@ -82,9 +82,26 @@ public class GoogleSpreadsheetWorker {
     }
 
     private WorksheetEntry getWorksheetEntry(SpreadsheetEntry spreadsheetEntry, int worksheetNumber) throws LavidaGoogleException {
+/*
+        try {
+            List<WorksheetEntry> entries = spreadsheetEntry.getWorksheets();
+            for (WorksheetEntry entry : entries) {
+                if (entry.getId().endsWith("od6")) {
+                    System.out.println("Yes!");
+                }
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ServiceException e) {
+            e.printStackTrace();
+        }
+
+*/
+
         WorksheetEntry worksheetEntry ;
         try {
-            worksheetEntry =  spreadsheetEntry.getWorksheets().get(worksheetNumber);
+            worksheetEntry = spreadsheetEntry.getWorksheets().get(worksheetNumber);
         } catch (IOException | ServiceException e) {
             throw new LavidaGoogleException(LavidaGoogleException.NOT_FOUND_WORKSHEET, e);
         }

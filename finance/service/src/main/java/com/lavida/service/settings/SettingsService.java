@@ -2,8 +2,6 @@ package com.lavida.service.settings;
 
 import com.lavida.service.dao.GenericDao;
 import com.lavida.service.entity.SettingsJdo;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,7 +34,7 @@ public class SettingsService {
     public void saveSettings(Settings settings) {
         List<SettingsJdo> settingsJdosToSave = settingsTransformer.transformSettingsToSettingsJdo(settings);
         List<SettingsJdo> settingsJdosCurrent = settingsDao.getAll(SettingsJdo.class);
-        List<SettingsJdo> settingsJdosToDelete = new ArrayList<SettingsJdo>();
+        List<SettingsJdo> settingsJdosToDelete = new ArrayList<>();
         for (SettingsJdo settingJdoCurrent : settingsJdosCurrent) {
             SettingsJdo settingJdoToSave = getSettingsJdoByKey(settingsJdosToSave, settingJdoCurrent.getKey());
             if (settingJdoToSave != null && settingJdoToSave.getId() == 0) {

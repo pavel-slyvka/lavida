@@ -75,7 +75,7 @@ public class SettingsTransformer {
     }
 
     public List<SettingsJdo> transformSettingsToSettingsJdo(Settings settings) {
-        List<SettingsJdo> settingsJdos = new ArrayList<SettingsJdo>();
+        List<SettingsJdo> settingsJdos = new ArrayList<>();
         for (Field field : Settings.class.getDeclaredFields()) {
             try {
                 SettingsMapping settingsMapping = field.getAnnotation(SettingsMapping.class);
