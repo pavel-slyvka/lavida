@@ -32,7 +32,7 @@ public class DiscountCardsTableModel extends AbstractTableModel implements Appli
 //    private static final Logger logger = LoggerFactory.getLogger(DiscountCardsTableModel.class);
 
     public List<String> headerTitles;
-    private List<String> discountCardFieldsSequence;
+    private List<String> fieldsSequence;
     private Map<Integer, SimpleDateFormat> columnIndexToDateFormat;
     private List<DiscountCardJdo> tableData;
     private DiscountCardJdo selectedCard;
@@ -59,7 +59,7 @@ public class DiscountCardsTableModel extends AbstractTableModel implements Appli
 
     @PostConstruct
     public void initHeaderFieldAndTitles() {
-        this.discountCardFieldsSequence = new ArrayList<>();
+        this.fieldsSequence = new ArrayList<>();
         this.headerTitles = new ArrayList<>();
         this.columnIndexToDateFormat = new HashMap<>();
         if (query != null) {
@@ -72,7 +72,7 @@ public class DiscountCardsTableModel extends AbstractTableModel implements Appli
             if (viewColumn != null) {
                 field.setAccessible(true);
                 if (DiscountCardJdo.FIND_ALL.equals(query)) {
-                    this.discountCardFieldsSequence.add(field.getName());
+                    this.fieldsSequence.add(field.getName());
                     if (viewColumn.titleKey().isEmpty()) {
                         this.headerTitles.add(field.getName());
                     } else {
@@ -86,7 +86,7 @@ public class DiscountCardsTableModel extends AbstractTableModel implements Appli
                                 viewColumn.titleKey().equals("dialog.discounts.card.all.column.title.discountRate") ||
                                 viewColumn.titleKey().equals("dialog.discounts.card.all.column.title.sumTotalUAH"))
                         ) {
-                    this.discountCardFieldsSequence.add(field.getName());
+                    this.fieldsSequence.add(field.getName());
                     if (viewColumn.titleKey().isEmpty()) {
                         this.headerTitles.add(field.getName());
                     } else {
@@ -207,7 +207,7 @@ public class DiscountCardsTableModel extends AbstractTableModel implements Appli
     public Object getRawValueAt(int rowIndex, int columnIndex) {
         DiscountCardJdo discountCardJdo = getDiscountCardByRowIndex(rowIndex);
         try {
-            Field field = DiscountCardJdo.class.getDeclaredField(discountCardFieldsSequence.get(columnIndex));
+            Field field = DiscountCardJdo.class.getDeclaredField(fieldsSequence.get(columnIndex));
             field.setAccessible(true);
             return field.get(discountCardJdo);
 
@@ -226,13 +226,13 @@ public class DiscountCardsTableModel extends AbstractTableModel implements Appli
      */
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        if (discountCardFieldsSequence.get(columnIndex).equals("sumTotalUAH") ||
-                discountCardFieldsSequence.get(columnIndex).equals("registrationDate") ||
-                discountCardFieldsSequence.get(columnIndex).equals("activationDate") ||
-                discountCardFieldsSequence.get(columnIndex).equals("postponedDate")) {
+        if (fieldsSequence.get(columnIndex).equals("sumTotalUAH") ||
+                fieldsSequence.get(columnIndex).equals("registrationDate") ||
+                fieldsSequence.get(columnIndex).equals("activationDate") ||
+                fieldsSequence.get(columnIndex).equals("postponedDate")) {
             return false;
-        } else if (discountCardFieldsSequence.get(columnIndex).equals("discountRate") ||
-                discountCardFieldsSequence.get(columnIndex).equals("bonusUAH")) {
+        } else if (fieldsSequence.get(columnIndex).equals("discountRate") ||
+                fieldsSequence.get(columnIndex).equals("bonusUAH")) {
             return !userService.hasForbiddenRole();
         }
         return true;
@@ -247,7 +247,30 @@ public class DiscountCardsTableModel extends AbstractTableModel implements Appli
      */
     @Override
     public Class<?> getColumnClass(int columnIndex) {
-        return Object.class;
+        Class columnClass;
+        try {
+            Field field = DiscountCardJdo.class.getDeclaredField(fieldsSequence.get(columnIndex));
+            field.setAccessible(true);
+            if (int.class == field.getType()) {
+                columnClass = Integer.class;
+            } else if (boolean.class == field.getType()) {
+                columnClass = Boolean.class;
+            } else if (double.class == field.getType()) {
+                columnClass = Double.class;
+            } else if (char.class == field.getType()) {
+                columnClass = Character.class;
+            } else if (long.class == field.getType()) {
+                columnClass = Long.class;
+            } else {
+                columnClass = field.getType();
+            }
+        } catch (NoSuchFieldException e) {
+            throw new RuntimeException(e);
+        }
+
+        return columnClass;
+
+//        return Object.class;
     }
 
     /**
@@ -272,7 +295,7 @@ public class DiscountCardsTableModel extends AbstractTableModel implements Appli
         calendarFormatter.setLenient(false);
         boolean toUpdate = true;
         try {
-            Field field = DiscountCardJdo.class.getDeclaredField(discountCardFieldsSequence.get(columnIndex));
+            Field field = DiscountCardJdo.class.getDeclaredField(fieldsSequence.get(columnIndex));
             field.setAccessible(true);
             if (int.class == field.getType()) {
                 int typeValue;

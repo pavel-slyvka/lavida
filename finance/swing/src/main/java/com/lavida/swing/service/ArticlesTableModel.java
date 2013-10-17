@@ -160,7 +160,7 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
 //        } else if (value instanceof Date) {
 //            return columnIndexToDateFormat.get(columnIndex).format(value);
 //        } else {
-            return value;
+        return value;
 //        }
     }
 
@@ -590,7 +590,29 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
      */
     @Override
     public Class<?> getColumnClass(int columnIndex) {
-        return Object.class;
+        Class columnClass;
+        try {
+            Field field = ArticleJdo.class.getDeclaredField(articleFieldsSequence.get(columnIndex));
+            field.setAccessible(true);
+            if (int.class == field.getType()) {
+                columnClass = Integer.class;
+            } else if (boolean.class == field.getType()) {
+                columnClass = Boolean.class;
+            } else if (double.class == field.getType()) {
+                columnClass = Double.class;
+            } else if (char.class == field.getType()) {
+                columnClass = Character.class;
+            } else if (long.class == field.getType()) {
+                columnClass = Long.class;
+            } else {
+                columnClass = field.getType();
+            }
+        } catch (NoSuchFieldException e) {
+            throw new RuntimeException(e);
+        }
+
+        return columnClass;
+//        return Object.class;
     }
 
     /**
@@ -611,7 +633,7 @@ public class ArticlesTableModel extends AbstractTableModel implements Applicatio
                         if (e instanceof LavidaGoogleException) {
                             throw new LavidaSwingRuntimeException(((LavidaGoogleException) e).getErrorCode(), e);
                         } else
-                        throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.GOOGLE_SERVICE_EXCEPTION, e);
+                            throw new LavidaSwingRuntimeException(LavidaSwingRuntimeException.GOOGLE_SERVICE_EXCEPTION, e);
                     }
                 }
             });

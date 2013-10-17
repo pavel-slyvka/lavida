@@ -1,8 +1,10 @@
 Changelog of the LA VIDA Finance
 --------------------
 
-Version 0.3   release date:  __-10-2013
+Version 0.3   release date:  17-10-2013
 -----------------------------------------
+- Improved table row sorting for date, calendar and double values;
+- Improved Google exceptions handling;
 - Added dialog for watching progressing concurrent operations;
 - Added radioButton menu items for selecting presets;
 - Added dialog for managing selecting categories (brand, size, shop, seller, tag);

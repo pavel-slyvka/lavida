@@ -8,6 +8,7 @@ import com.lavida.service.entity.ShopJdo;
 import com.lavida.service.entity.SizeJdo;
 import com.lavida.swing.form.component.renderer.CalendarTableCellRenderer;
 import com.lavida.swing.form.component.renderer.DateTableCellRenderer;
+import com.lavida.swing.form.component.renderer.DoubleTableCellRenderer;
 import com.lavida.swing.preferences.*;
 import com.lavida.swing.LocaleHolder;
 import com.lavida.swing.service.ArticlesTableModel;
@@ -19,9 +20,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
-import javax.swing.table.TableCellEditor;
-import javax.swing.table.TableColumn;
-import javax.swing.table.TableColumnModel;
+import javax.swing.table.*;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.PlainDocument;
 import java.awt.*;
@@ -120,29 +119,9 @@ public class ArticleTableComponent implements TableModelListener{
         selectionColumn.setCellEditor(articlesTable.getDefaultEditor(Boolean.class));
         selectionColumn.setCellRenderer(articlesTable.getDefaultRenderer(Boolean.class));
 
-//        JComboBox brandBox = new JComboBox<>(ArticleJdo.BRAND_ARRAY);
-//        brandBox.setEditable(true);
-//        TableCellEditor brandEditor = new DefaultCellEditor(brandBox);
-//        TableColumn brandColumn = articlesTable.getColumn(messageSource.getMessage("mainForm.table.articles.column.brand.title", null, localeHolder.getLocale()));
-//        brandColumn.setCellEditor(brandEditor);
         updateBrandColumnEditor();
-
-//        JComboBox sizeBox = new JComboBox<>(ArticleJdo.SIZE_ARRAY);
-//        sizeBox.setEditable(true);
-//        TableCellEditor sizeEditor = new DefaultCellEditor(sizeBox);
-//        TableColumn sizeColumn = articlesTable.getColumn(messageSource.getMessage("mainForm.table.articles.column.size.title",
-//                null, localeHolder.getLocale()));
-//        sizeColumn.setCellEditor(sizeEditor);
         updateSizeColumnEditor();
-
-//        JComboBox shopBox = new JComboBox<>(ArticleJdo.SHOP_ARRAY);
-//        shopBox.setEditable(true);
-//        TableCellEditor shopEditor = new DefaultCellEditor(shopBox);
-//        TableColumn shopColumn = articlesTable.getColumn(messageSource.getMessage("mainForm.table.articles.column.shop.title",
-//                null, localeHolder.getLocale()));
-//        shopColumn.setCellEditor(shopEditor);
         updateShopColumnEditor();
-
 
         List<String> headerTitles = tableModel.getHeaderTitles();
         String datePattern;
@@ -166,6 +145,7 @@ public class ArticleTableComponent implements TableModelListener{
             datePattern = (ReflectionUtils.getFieldAnnotation(ArticleJdo.class, "refundDate", ViewColumn.class)).datePattern();
             refundDateColumn.setCellRenderer(new DateTableCellRenderer(datePattern));
         }
+
     }
 
     /**
