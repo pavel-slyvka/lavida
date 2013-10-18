@@ -398,9 +398,26 @@ public class ArticleFiltersComponent {
                     } else if (FilterType.DATE == filterUnit.filterType
                             || FilterType.DATE_DIAPASON == filterUnit.filterType && !statement.contains("-")) {
                         if (statement.length() > 0) {
-                            Date correctedDate = getCorrectedDate(statement.trim());
-                            String correctedDateString = new SimpleDateFormat(filterUnit.columnDatePattern).format(correctedDate);
-                            filter = RowFilter.regexFilter(correctedDateString, columnIndex);
+                           final Date correctedDate = getCorrectedDate(statement.trim());
+                            filter = new RowFilter<ArticlesTableModel, Integer>() {
+                                @Override
+                                public boolean include(Entry<? extends ArticlesTableModel, ? extends Integer> entry) {
+                                    Object dateObject = tableModel.getRawValueAt(entry.getIdentifier(), columnIndex);
+                                    if (dateObject != null) {
+                                        Date date;
+                                        if (dateObject instanceof Date) {
+                                            date = (Date)dateObject;
+                                        } else if (dateObject instanceof Calendar) {
+                                            date = ((Calendar)dateObject).getTime();
+                                        } else {
+                                            throw new RuntimeException("Unsupported class for DATE filterType! " + dateObject.getClass());
+                                        }
+                                        return date.after(addDays(correctedDate, -1)) && date.before(addDays(correctedDate, 1));
+                                    } else {
+                                        return false;
+                                    }
+                                }
+                            };
                         }
                     } else if (FilterType.DATE_DIAPASON == filterUnit.filterType) {
                         if (statement.length() > 0) {

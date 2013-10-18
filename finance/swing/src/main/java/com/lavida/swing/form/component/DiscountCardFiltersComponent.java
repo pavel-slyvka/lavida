@@ -6,6 +6,7 @@ import com.lavida.service.FiltersPurpose;
 import com.lavida.service.ViewColumn;
 import com.lavida.service.entity.DiscountCardJdo;
 import com.lavida.swing.LocaleHolder;
+import com.lavida.swing.service.ArticlesTableModel;
 import com.lavida.swing.service.DiscountCardsTableModel;
 import org.springframework.context.MessageSource;
 
@@ -242,9 +243,26 @@ public class DiscountCardFiltersComponent {
             } else if (FilterType.DATE == filterUnit.filterType
                     || FilterType.DATE_DIAPASON == filterUnit.filterType && !filterUnit.textField.getText().contains("-")) {
                 if (filterUnit.textField.getText().length() > 0) {
-                    Date correctedDate = getCorrectedDate(filterUnit.textField.getText().trim());
-                    String correctedDateString = new SimpleDateFormat(filterUnit.columnDatePattern).format(correctedDate);
-                    filter = RowFilter.regexFilter(correctedDateString, columnIndex);
+                    final Date correctedDate = getCorrectedDate(filterUnit.textField.getText().trim());
+                    filter = new RowFilter<DiscountCardsTableModel, Integer>() {
+                        @Override
+                        public boolean include(Entry<? extends DiscountCardsTableModel, ? extends Integer> entry) {
+                            Object dateObject = tableModel.getRawValueAt(entry.getIdentifier(), columnIndex);
+                            if (dateObject != null) {
+                                Date date;
+                                if (dateObject instanceof Date) {
+                                    date = (Date)dateObject;
+                                } else if (dateObject instanceof Calendar) {
+                                    date = ((Calendar)dateObject).getTime();
+                                } else {
+                                    throw new RuntimeException("Unsupported class for DATE filterType! " + dateObject.getClass());
+                                }
+                                return date.after(addDays(correctedDate, -1)) && date.before(addDays(correctedDate, 1));
+                            } else {
+                                return false;
+                            }
+                        }
+                    };
                 }
             } else if (FilterType.DATE_DIAPASON == filterUnit.filterType) {
                 if (filterUnit.textField.getText().length() > 0) {
