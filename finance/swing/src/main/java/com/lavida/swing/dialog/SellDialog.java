@@ -264,7 +264,7 @@ public class SellDialog extends AbstractDialog {
             shopArray[i] = shopJdoList.get(i).getName();
         }
         Arrays.sort(shopArray);
-        shopComboBox = new JComboBox(shopArray);
+        shopComboBox = new JComboBox<>(shopArray);
         shopComboBox.setEditable(false);
         shopComboBox.setSelectedItem("LA VIDA");
         constraints.fill = GridBagConstraints.HORIZONTAL;
@@ -409,7 +409,7 @@ public class SellDialog extends AbstractDialog {
         for (int i = 0; i < sellers.size(); ++i) {
             sellerNamesArray[i] = sellers.get(i).getName();
         }
-        sellerNames = new JComboBox(sellerNamesArray);
+        sellerNames = new JComboBox<>(sellerNamesArray);
         sellerNames.setSelectedItem(tableModel.getSellerName());
         sellerNames.setEditable(false);
         constraints.fill = GridBagConstraints.HORIZONTAL;
