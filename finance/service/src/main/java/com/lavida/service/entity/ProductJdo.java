@@ -19,7 +19,7 @@ public class ProductJdo {
 
     private String hostURL;
 
-    private String srcURL;
+    private String imageSrcURL;
 
     private String producerBrand;
 
@@ -30,11 +30,59 @@ public class ProductJdo {
     public ProductJdo() {
     }
 
-    public ProductJdo(String hostURL, String srcURL, String producerBrand, String name, String code) {
+    public ProductJdo(String hostURL, String imageSrcURL, String producerBrand, String name, String code) {
         this.hostURL = hostURL;
-        this.srcURL = srcURL;
+        this.imageSrcURL = imageSrcURL;
         this.producerBrand = producerBrand;
         this.name = name;
+        this.code = code;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getHostURL() {
+        return hostURL;
+    }
+
+    public void setHostURL(String hostURL) {
+        this.hostURL = hostURL;
+    }
+
+    public String getImageSrcURL() {
+        return imageSrcURL;
+    }
+
+    public void setImageSrcURL(String srcURL) {
+        this.imageSrcURL = srcURL;
+    }
+
+    public String getProducerBrand() {
+        return producerBrand;
+    }
+
+    public void setProducerBrand(String producerBrand) {
+        this.producerBrand = producerBrand;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
         this.code = code;
     }
 
@@ -50,7 +98,7 @@ public class ProductJdo {
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
         if (producerBrand != null ? !producerBrand.equals(that.producerBrand) : that.producerBrand != null)
             return false;
-        if (srcURL != null ? !srcURL.equals(that.srcURL) : that.srcURL != null) return false;
+        if (imageSrcURL != null ? !imageSrcURL.equals(that.imageSrcURL) : that.imageSrcURL != null) return false;
 
         return true;
     }
@@ -58,7 +106,7 @@ public class ProductJdo {
     @Override
     public int hashCode() {
         int result = hostURL != null ? hostURL.hashCode() : 0;
-        result = 31 * result + (srcURL != null ? srcURL.hashCode() : 0);
+        result = 31 * result + (imageSrcURL != null ? imageSrcURL.hashCode() : 0);
         result = 31 * result + (producerBrand != null ? producerBrand.hashCode() : 0);
         result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + (code != null ? code.hashCode() : 0);
@@ -70,7 +118,7 @@ public class ProductJdo {
         return "ProductJdo{" +
                 "id=" + id +
                 ", hostURL='" + hostURL + '\'' +
-                ", srcURL='" + srcURL + '\'' +
+                ", imageSrcURL='" + imageSrcURL + '\'' +
                 ", producerBrand='" + producerBrand + '\'' +
                 ", name='" + name + '\'' +
                 ", code='" + code + '\'' +

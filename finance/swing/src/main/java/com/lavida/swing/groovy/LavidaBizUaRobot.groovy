@@ -1,5 +1,6 @@
 package com.lavida.swing.groovy
 
+import com.lavida.service.entity.ProductJdo
 import com.lavida.swing.groovy.http.HttpRequest
 import com.lavida.swing.groovy.http.RequestMethod
 import com.lavida.swing.groovy.http.browser.BrowserChrome
@@ -9,7 +10,9 @@ import com.lavida.swing.groovy.http.client.UrlConnectionHttpClient
  * Created: 17.10.13 12:24.
  * @author Ruslan.
  */
-class Robot {
+class LavidaBizUaRobot {
+    public static  final String CODE_RU = "Код";
+
     static String getPage(url) {
         def httpClient = new UrlConnectionHttpClient();
         def browser = new BrowserChrome();
@@ -47,34 +50,57 @@ class Robot {
         }
     }
 
-    static void main(args) {
-
-//        def content = getPage("http://lavida.biz.ua/mango");
-//        new File("D:/lavida/").mkdirs();
-//        saveToFile("D:/lavida/mango.htm", content);
-//        downloadImage("http://lavida.biz.ua/img/logo.png", "D:/lavida/img/");
-
-        def content = getFromFile("D:/lavida/mango.htm");
+    static List<ProductJdo> getProductsFromFile (String filePath) {
+        def content = getFromFile(filePath);
         def tagsoupParser = new org.ccil.cowan.tagsoup.Parser()
         def slurper = new XmlSlurper(tagsoupParser)
         def parser = slurper.parseText(content);
 //        content
         def brand = parser.'**'.find { div -> div.@id == 'content' }.h1.text();
-        println(brand)
         def host = parser.'**'.find {base -> base.name() == 'base'}.@href.text();
-
         def tableNode = parser.'**'.find { div -> div.@id == 'content' }.div.table;
         def goodsImageList = tableNode.'**'.findAll{td -> td.@class == 'goods_img_td'}.div.
-                collect{d -> d.'**'.find{it.name() == 'img' }?.@src }.findAll();
-//        println(goodsImageList);
+                collect{d -> d.'**'.find{it.name() == 'img' }?.@src.text() }.findAll();
         def goodsNameList = tableNode.'**'.findAll(){td -> td.name() == 'td'}.
                 collect{d -> d.'**'.find{it.@class == 'goods_name'}?.text()}.findAll();
-//        println(goodsNameList);
+
         def goodsCodeList = tableNode.'**'.findAll(){td -> td.name() == 'td'}.
                 collect(){d -> d.'**'.find{it.@class == 'goods_code'}?.text()}.findAll();
-        println(goodsCodeList)
+        def codeList = new ArrayList();
+        for (String codeName : goodsCodeList) {
+            String code = codeName.replaceFirst(CODE_RU, "").trim();
+            codeList.add(code);
+        }
+
+        List<ProductJdo> productJdoList = new ArrayList<>();
+        for (int i = 0; i < goodsImageList.size(); ++i) {
+            ProductJdo productJdo = new ProductJdo(host, goodsImageList.get(i), brand, goodsNameList.get(i),
+                    codeList.get(i));
+            productJdoList.add(productJdo);
+        }
+        return productJdoList;
 
     }
+
+    static List<ProductJdo> loadProducts(url, directory) {
+        def file = new File(directory);
+        if (!file.exists()) {
+            file.mkdirs();
+        }
+        def fileName = "${url.tokenize('/')[-1]}".toString();
+        def filePath = directory + fileName + ".htm"
+
+        def content = getPage(url);
+        saveToFile(filePath, content);
+        return getProductsFromFile(filePath);
+
+    }
+
+    static void main(args) {
+        def url = "http://lavida.biz.ua/hm";
+        def directory = "D:/lavida/";
+        println(loadProducts(url, directory));
+   }
 
 
 }
