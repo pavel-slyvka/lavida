@@ -1,6 +1,7 @@
 package com.lavida.swing.groovy.script
 
 import com.lavida.service.entity.ProductJdo
+import com.lavida.swing.groovy.model.Url
 import com.lavida.swing.groovy.utils.Robot
 
 /**
@@ -15,8 +16,24 @@ class LavidaGetData {
 
     static void main(args) {
         def robot = new Robot();
-        robot.getPage("http://lavida.biz.ua/hm");
-        def host = robot.getBaseLink();
+        robot.getPage("http://lavida.biz.ua");
+        def baseLink = robot.getBaseLink();
+        robot.gotoUlId('menu_content');
+        robot.setPosition(robot.getPosition().li[2].ul);
+        robot.getElementsCount(robot.getPosition().li).times {
+            def url = robot.addUrl(new Url());
+            url.setTitle(robot.getPosition().li[$it].a.text());
+            url.setUrl(baseLink + robot.getPosition().li[$it].a.@href.text());
+        }
+
+        robot.getUrlList().each {
+            handleUrl($it);
+        }
+    }
+
+    static void handleUrl(Url url) {
+        def robot = new Robot();
+        robot.getPage(url.getUrl());
 
         def brand = robot.gotoDivId('content').h1.text();
         robot.setPosition(robot.getPosition().div.table);

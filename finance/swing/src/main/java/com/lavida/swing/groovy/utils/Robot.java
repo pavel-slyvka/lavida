@@ -1,7 +1,10 @@
 package com.lavida.swing.groovy.utils;
 
 import com.lavida.service.entity.ProductJdo;
+import com.lavida.swing.groovy.model.Url;
 import groovy.lang.Closure;
+
+import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.
@@ -12,7 +15,7 @@ import groovy.lang.Closure;
  */
 public class Robot {
 
-    public void getPage(String page) {
+    public String getPage(String page) {
         // todo get page from file or from url (if file is absent)
     }
 
@@ -24,8 +27,12 @@ public class Robot {
         return null; // todo get base tag, return link from it (and cache it).
     }
 
-    public Closure getGotoDivId() {
-        return null;  // todo
+    public Closure gotoDivId(String id) {
+        return null;  // todo move to tag div with id
+    }
+
+    public Closure gotoUlId(String id) {
+        return null;  // todo move to tag ul with id
     }
 
     public Closure getGetPosition() {
@@ -40,11 +47,19 @@ public class Robot {
         return null;  // todo return elements count in the list
     }
 
-    public ProductJdo addEntity(ProductJdo p) {
+    public ProductJdo addEntity(ProductJdo product) {
         return null;  // todo add entity to entity list, and return it
     }
 
     public Closure getSaveEntities() {
         return null;  // todo save entities to the DB using service
+    }
+
+    public Url addUrl(Url url) {
+        return null;  // todo save url to url list
+    }
+
+    public List<Url> getUrlList() {
+        return null;  // todo get url list
     }
 }
