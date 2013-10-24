@@ -1,9 +1,24 @@
 package com.lavida.swing.groovy.utils;
 
+import com.lavida.service.ProductService;
+import com.lavida.service.UrlService;
 import com.lavida.service.entity.ProductJdo;
-import com.lavida.swing.groovy.model.Url;
+import com.lavida.service.entity.Url;
+import com.lavida.swing.groovy.http.HttpRequest;
+import com.lavida.swing.groovy.http.HttpResponse;
+import com.lavida.swing.groovy.http.RequestMethod;
+import com.lavida.swing.groovy.http.browser.BrowserChrome;
+import com.lavida.swing.groovy.http.client.UrlConnectionHttpClient;
+import com.lavida.swing.groovy.script.RobotGroovyUtils;
 import groovy.lang.Closure;
+import groovy.lang.GroovyObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import java.io.*;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -14,52 +29,147 @@ import java.util.List;
  * To change this template use File | Settings | File Templates.
  */
 public class Robot {
+    private static final Logger logger = LoggerFactory.getLogger(Robot.class);
 
-    public String getPage(String page) {
-        // todo get page from file or from url (if file is absent)
+    private ApplicationContext context = new ClassPathXmlApplicationContext("spring-swing.xml");
+    private ProductService productService = context.getBean(ProductService.class);
+    private UrlService urlService = context.getBean(UrlService.class);
+
+    private String baseLink;
+    private String pageContent;
+    private GroovyObject position;
+    private List<ProductJdo> products = new ArrayList<>();
+//    private List<Url> urlList = new ArrayList<>();
+
+    public String getPage(String pageUrl) {
+        Url url = urlService.findByUrlString(pageUrl);
+        String pageTitle = null;
+        if (url == null) {
+            url = new Url();
+            url.setUrl(pageUrl);
+            url.setTitle(pageTitle);
+            addUrl(url);
+        }
+        String content;
+        if (url.getFilePath() != null) {
+            try {
+                content = getContentFromFile(url);
+            } catch (IOException e) {
+                logger.warn(e.getMessage(), e);
+                content = getContentFromNet(url);
+            }
+        } else {
+            content = getContentFromNet(url);
+        }
+        urlService.update(url);
+        this.pageContent = content;
+        this.position = RobotGroovyUtils.getStartPosition(content);
+        return content;
     }
 
     public Object getByDivIdFromStart(String divId) {
-        return null;  // todo
+        return RobotGroovyUtils.getByDivIdFromStart(this.pageContent, divId);
     }
 
     public String getBaseLink() {
-        return null; // todo get base tag, return link from it (and cache it).
+        String link = RobotGroovyUtils.getBaseLink(pageContent);
+        this.baseLink = link;
+        return link;
     }
 
-    public Closure gotoDivId(String id) {
-        return null;  // todo move to tag div with id
+    public GroovyObject gotoDivId(String id) {
+        position = RobotGroovyUtils.gotoDivId(position, id);
+        return position;
     }
 
-    public Closure gotoUlId(String id) {
-        return null;  // todo move to tag ul with id
+    public GroovyObject gotoUlId(String id) {
+        position = RobotGroovyUtils.gotoUlId(position, id);
+        return position;
     }
 
-    public Closure getGetPosition() {
-        return null;  // todo return current position
+    public GroovyObject getPosition() {
+        return position;
     }
 
-    public Closure getSetPosition() {
-        return null;  // todo set new current position and return it
+    public GroovyObject setPosition(GroovyObject newPosition) {
+        position = newPosition;
+        return position;
     }
 
-    public Integer getElementsCount(Closure elementList) {
-        return null;  // todo return elements count in the list
+    public Integer getElementsCount(GroovyObject elementList) {
+        return RobotGroovyUtils.getElementsCount(elementList);
     }
 
     public ProductJdo addEntity(ProductJdo product) {
-        return null;  // todo add entity to entity list, and return it
+        products.add(product);
+        return product;
     }
 
-    public Closure getSaveEntities() {
-        return null;  // todo save entities to the DB using service
+    public void saveEntities() {
+        for (ProductJdo productJdo : products) {
+            productService.save(productJdo);
+        }
     }
 
+    public void updateUrl (Url url) {
+        urlService.update(url);
+    }
     public Url addUrl(Url url) {
-        return null;  // todo save url to url list
+//        urlList.add(url);
+        if (urlService.findByUrlString(url.getUrl()) == null) {
+            urlService.save(url);
+        }
+        return urlService.findByUrlString(url.getUrl());
     }
 
     public List<Url> getUrlList() {
-        return null;  // todo get url list
+//        return urlList;
+        return urlService.getAll();
     }
+
+
+    private String getContentFromFile(Url url) throws IOException {
+        FileReader fileReader = new FileReader(url.getFilePath());
+        StringBuilder str = new StringBuilder();
+        int ch;
+        while ((ch = fileReader.read()) != -1) {
+            str.append((char) ch);
+        }
+        return str.toString();
+    }
+
+    private String getContentFromNet(Url url) {
+        UrlConnectionHttpClient httpClient = new UrlConnectionHttpClient();
+        BrowserChrome browser = new BrowserChrome();
+        HttpRequest request = new HttpRequest(RequestMethod.GET, url.getUrl(), null);
+        HttpResponse response = httpClient.sendRequest(request, browser);
+        String content = response.getContent();
+
+        saveFilesFromNet(content);
+        if (url.getTitle() == null) {
+            String title = getUrlTitle(content);
+            url.setTitle(title);
+        }
+        File file = new File(url.getTitle() + ".htm");
+        FileWriter fileWriter;
+        try {
+            fileWriter = new FileWriter(file);
+            fileWriter.write(content);
+            fileWriter.flush();
+            fileWriter.close();
+        } catch (IOException e) {
+            logger.error(e.getMessage(), e);
+        }
+        url.setFilePath(file.getPath());
+        return content;
+    }
+
+    private String getUrlTitle(String content) {
+        return RobotGroovyUtils.getUrlTitle(content);
+    }
+
+    private String saveFilesFromNet(String content) {
+        return RobotGroovyUtils.saveFilesFromNet(content);
+    }
+
 }
