@@ -9,8 +9,7 @@ import com.lavida.swing.groovy.http.HttpResponse;
 import com.lavida.swing.groovy.http.RequestMethod;
 import com.lavida.swing.groovy.http.browser.BrowserChrome;
 import com.lavida.swing.groovy.http.client.UrlConnectionHttpClient;
-import com.lavida.swing.groovy.script.RobotGroovyUtils;
-import groovy.lang.Closure;
+import com.lavida.swing.groovy.utils.RobotGroovyUtils;
 import groovy.lang.GroovyObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,15 +38,32 @@ public class Robot {
     private String pageContent;
     private GroovyObject position;
     private List<ProductJdo> products = new ArrayList<>();
-//    private List<Url> urlList = new ArrayList<>();
+    private boolean enableDatabaseForProcessing = true;
+    private boolean enableDatabaseForData = true;
+    private boolean enableContentSaving = true;
+    private List<Url> urlList = new ArrayList<>();
+    private String baseDir;
+    private long minLatency;
+    private long maxLatency;
+
+
+    public Robot() {
+        File file = new File(System.getProperty("user.dir") + "/robotCache");
+        if (!file.exists()) file.mkdirs();
+        String delimiter = System.getProperty("file.separator");
+        baseDir = file.getPath().replace(delimiter, "/") + "/";
+    }
 
     public Url getPage(String pageUrl) {
-        Url url = urlService.findByUrlString(pageUrl);
+        Url url = null;
+        if (enableDatabaseForProcessing) {
+            url = urlService.findByUrlString(pageUrl);
+        }
         String content;
         if (url == null) {
             url = new Url();
             url.setUrl(pageUrl);
-            content =  getContentFromNet(url);
+            content = getContentFromNet(url);
             addUrl(url);
             this.pageContent = content;
             this.position = RobotGroovyUtils.getStartPosition(content);
@@ -63,7 +79,6 @@ public class Robot {
         } else {
             content = getContentFromNet(url);
         }
-//        urlService.update(url);
         this.pageContent = content;
         this.position = RobotGroovyUtils.getStartPosition(content);
         return url;
@@ -74,9 +89,9 @@ public class Robot {
     }
 
     public String getBaseLink() {
-        String link = RobotGroovyUtils.getBaseLink(pageContent);
-        this.baseLink = link;
-        return link;
+//        String link = RobotGroovyUtils.getBaseLink(pageContent);
+//        this.baseLink = link;
+        return baseLink;
     }
 
     public GroovyObject gotoDivId(String id) {
@@ -108,28 +123,40 @@ public class Robot {
     }
 
     public void saveEntities() {
-        List<ProductJdo> databaseProducts = productService.getAll();
-        for (ProductJdo productJdo : products) {
-            if (!databaseProducts.contains(productJdo)) {
-                productService.save(productJdo);
+        if (enableDatabaseForData) {
+            List<ProductJdo> databaseProducts = productService.getAll();
+            for (ProductJdo productJdo : products) {
+                if (!databaseProducts.contains(productJdo)) {
+                    productService.save(productJdo);
+                }
             }
         }
     }
 
-    public void updateUrl (Url url) {
-        urlService.update(url);
-    }
-    public Url addUrl(Url url) {
-//        urlList.add(url);
-        if (urlService.findByUrlString(url.getUrl()) == null) {
-            urlService.save(url);
+    public void updateUrl(Url url) {
+        if (enableDatabaseForProcessing) {
+            urlService.update(url);
         }
-        return urlService.findByUrlString(url.getUrl());
+    }
+
+    public Url addUrl(Url url) {
+        if (enableDatabaseForProcessing) {
+            if (urlService.findByUrlString(url.getUrl()) == null) {
+                urlService.save(url);
+            }
+            return urlService.findByUrlString(url.getUrl());
+        } else {
+            urlList.add(url);
+            return url;
+        }
     }
 
     public List<Url> getUrlList() {
-//        return urlList;
-        return urlService.getAll();
+        if (enableDatabaseForProcessing) {
+            return urlService.getAll();
+        } else {
+            return urlList;
+        }
     }
 
 
@@ -150,24 +177,31 @@ public class Robot {
         HttpResponse response = httpClient.sendRequest(request, browser);
         String content = response.getContent();
 
-        saveFilesFromNet(content);
         if (url.getTitle() == null) {
             String title = getUrlTitle(content);
+            title = title.replace("|", ", ").replace(":", ", ");
             url.setTitle(title);
         }
-        File file = new File(url.getTitle() + ".htm");
-        if (!file.exists()) {
-            FileWriter fileWriter;
-            try {
-                fileWriter = new FileWriter(file);
-                fileWriter.write(content);
-                fileWriter.flush();
-                fileWriter.close();
-            } catch (IOException e) {
-                logger.error(e.getMessage(), e);
+        this.baseLink = RobotGroovyUtils.getBaseLink(content);
+
+        if (enableContentSaving) {
+            content = saveFilesFromNet(content); // may be changed
+
+            File file = new File(baseDir + url.getTitle() + ".htm");
+            if (!file.exists()) {
+                FileWriter fileWriter;
+                try {
+                    fileWriter = new FileWriter(file);
+                    fileWriter.write(content);
+                    fileWriter.flush();
+                    fileWriter.close();
+                } catch (IOException e) {
+                    logger.error(e.getMessage(), e);
+                }
             }
+            url.setFilePath(file.getPath());
         }
-        url.setFilePath(file.getPath());
+
         return content;
     }
 
@@ -176,7 +210,115 @@ public class Robot {
     }
 
     private String saveFilesFromNet(String content) {
-        return RobotGroovyUtils.saveFilesFromNet(content);
+        return RobotGroovyUtils.saveFilesFromNet(content, baseDir);
     }
 
+    public void clearFileSystemCache() throws IOException {
+        File baseDirFile = new File(baseDir);
+        String files[] = baseDirFile.list();
+        for (String temp : files) {
+            //construct the file structure
+            File fileDelete = new File(baseDirFile, temp);
+            //recursive delete
+            delete(fileDelete);
+        }
+    }
+
+    public void clearUrlDataBase() {
+        List<Url> urlList1 = urlService.getAll();
+        for (Url url : urlList1) {
+            urlService.delete(url.getId());
+        }
+    }
+    private static void delete(File file) throws IOException{
+        if(file.isDirectory()){
+            //directory is empty, then delete it
+            if(file.list().length==0){
+                file.delete();
+            }else{
+                //list all the directory contents
+                String files[] = file.list();
+                for (String temp : files) {
+                    //construct the file structure
+                    File fileDelete = new File(file, temp);
+                    //recursive delete
+                    delete(fileDelete);
+                }
+                //check the directory again, if empty then delete it
+                if(file.list().length==0){
+                    file.delete();
+                }
+            }
+        }else{
+            //if file, then delete it
+            file.delete();
+        }
+    }
+
+    public List<String> getStringListFromFile(String filePath) throws IOException {
+        List<String> stringList = new ArrayList<>();
+        File fileToRead = new File(filePath);
+        BufferedReader br = new BufferedReader(new FileReader(fileToRead));
+        String line;
+        while ((line = br.readLine()) != null) {
+            stringList.add(line);
+        }
+        br.close();
+        return stringList;
+    }
+
+    public void await () {
+        // todo latency for awaiting
+    }
+
+    public boolean isEnableDatabaseForProcessing() {
+        return enableDatabaseForProcessing;
+    }
+
+    public void setEnableDatabaseForProcessing(boolean enableDatabaseForProcessing) {
+        this.enableDatabaseForProcessing = enableDatabaseForProcessing;
+    }
+
+    public boolean isEnableDatabaseForData() {
+        return enableDatabaseForData;
+    }
+
+    public void setEnableDatabaseForData(boolean enableDatabaseForData) {
+        this.enableDatabaseForData = enableDatabaseForData;
+    }
+
+    public boolean isEnableContentSaving() {
+        return enableContentSaving;
+    }
+
+    public void setEnableContentSaving(boolean enableContentSaving) {
+        this.enableContentSaving = enableContentSaving;
+    }
+
+    public String getBaseDir() {
+        return baseDir;
+    }
+
+    public void setBaseDir(String baseDir) {
+        File file = new File(baseDir);
+        if (!file.exists()) file.mkdirs();
+        String delimiter = System.getProperty("file.separator");
+        this.baseDir = file.getPath().replace(delimiter, "/") + "/";
+    }
+
+    public long getMinLatency() {
+        return minLatency;
+    }
+
+    public void setMinLatency(long minLatency) {
+        this.minLatency = minLatency;
+    }
+
+    public long getMaxLatency() {
+        return maxLatency;
+    }
+
+    public void setMaxLatency(long maxLatency) {
+        this.maxLatency = maxLatency;
+    }
 }

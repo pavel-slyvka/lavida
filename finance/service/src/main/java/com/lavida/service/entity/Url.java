@@ -1,6 +1,7 @@
 package com.lavida.service.entity;
 
 import javax.persistence.*;
+import java.util.Date;
 
 /**
  * Created with IntelliJ IDEA.
@@ -28,6 +29,16 @@ public class Url {
     private String filePath;
 
     private boolean processed;
+
+    @Transient
+    private Date startProcessingTime;
+
+    public Url() {
+    }
+
+    public Url(String url) {
+        this.url = url;
+    }
 
     public int getId() {
         return id;
@@ -67,6 +78,14 @@ public class Url {
 
     public void setProcessed(boolean processed) {
         this.processed = processed;
+    }
+
+    public Date getStartProcessingTime() {
+        return startProcessingTime;
+    }
+
+    public void setStartProcessingTime(Date startProcessingTime) {
+        this.startProcessingTime = startProcessingTime;
     }
 
     @Override

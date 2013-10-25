@@ -16,10 +16,10 @@ class LavidaGetData {
 
     static void main(args) {
         def robot = new Robot();
-        def urlStart = robot.getPage("http://lavida.biz.ua");
-        if (urlStart.isProcessed()) {
-            return;
-        }
+        robot.clearFileSystemCache();
+        robot.clearUrlDataBase();
+//        robot.setEnableDatabaseForProcessing(false);
+        def startUrl = robot.getPage("http://lavida.biz.ua");
         def baseLink = robot.getBaseLink();
         robot.gotoUlId('menu_content');
         robot.setPosition(robot.getPosition().li[2].ul);
@@ -29,31 +29,29 @@ class LavidaGetData {
             url.setUrl(baseLink + robot.getPosition().li[it].a.@href.text());
             robot.addUrl(url);
         }
-        urlStart.setProcessed(true);
-        robot.updateUrl(urlStart);
+        startUrl.setProcessed(true);
         robot.getUrlList().each {
-            handleUrl(it);
+            handleUrl(it, robot.getBaseDir());
         }
     }
 
-    static void handleUrl(Url url) {
+    static void handleUrl(Url url, String baseDir) {
         if (!url.isProcessed()) {
             def robot = new Robot();
+            robot.setBaseDir(baseDir);
+//            robot.setEnableDatabaseForProcessing(false)
             url = robot.getPage(url.getUrl());
 
             def brand = robot.gotoDivId('content').h1.text();
-            String workingDir = System.getProperty("user.dir");
-            String delimiter = System.getProperty("file.separator");
-            workingDir = workingDir.replace(delimiter, "/") + "/";
 
             robot.setPosition(robot.getPosition().div.table);
             (robot.getElementsCount(robot.getPosition().tr) / 2).times {
                 def product1 = robot.addEntity(new ProductJdo());
                 product1.setProducerBrand(brand);
-                product1.setHostURL(workingDir);
+                product1.setHostURL(robot.getBaseDir());
                 def product2 = robot.addEntity(new ProductJdo());
                 product2.setProducerBrand(brand);
-                product2.setHostURL(workingDir);
+                product2.setHostURL(robot.getBaseDir());
 
                 product1.setImageSrcURL(robot.getPosition().tr[it * 2].td[0].div.img.@src.text());
                 product2.setImageSrcURL(robot.getPosition().tr[it * 2].td[1].div.img.@src.text());
