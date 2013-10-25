@@ -27,7 +27,7 @@ class RobotGroovyUtils {
 
     static Object getByDivIdFromStart(String content, String divId) {
         def parser = slurper.parseText(content);
-        return parser.'**'.find{tag -> tag.name() == 'div' || tag.@id == divId};
+        return parser.'**'.find{tag -> tag.name() == 'div' & tag.@id == divId};
     }
 
     static GroovyObject getStartPosition(String content) {
@@ -35,11 +35,11 @@ class RobotGroovyUtils {
     }
 
     static GroovyObject gotoDivId(GroovyObject position, String id) {
-        return position.'**'.find{tag -> tag.name() == 'div' || tag.@id == id};
+        return position.'**'.find{tag -> tag.name() == 'div' & tag.@id == id};
     }
 
     static GroovyObject gotoUlId(GroovyObject position, String id) {
-        return position.'**'.find{tag -> tag.name() == 'ul' || tag.@id == id};
+        return position.'**'.find{tag -> tag.name() == 'ul' & tag.@id == id};
     }
 
     static Integer getElementsCount(GroovyObject elementList) {

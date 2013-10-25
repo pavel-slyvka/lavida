@@ -41,16 +41,18 @@ public class Robot {
     private List<ProductJdo> products = new ArrayList<>();
 //    private List<Url> urlList = new ArrayList<>();
 
-    public String getPage(String pageUrl) {
+    public Url getPage(String pageUrl) {
         Url url = urlService.findByUrlString(pageUrl);
-        String pageTitle = null;
+        String content;
         if (url == null) {
             url = new Url();
             url.setUrl(pageUrl);
-            url.setTitle(pageTitle);
+            content =  getContentFromNet(url);
             addUrl(url);
+            this.pageContent = content;
+            this.position = RobotGroovyUtils.getStartPosition(content);
+            return url;
         }
-        String content;
         if (url.getFilePath() != null) {
             try {
                 content = getContentFromFile(url);
@@ -61,10 +63,10 @@ public class Robot {
         } else {
             content = getContentFromNet(url);
         }
-        urlService.update(url);
+//        urlService.update(url);
         this.pageContent = content;
         this.position = RobotGroovyUtils.getStartPosition(content);
-        return content;
+        return url;
     }
 
     public Object getByDivIdFromStart(String divId) {
@@ -106,8 +108,11 @@ public class Robot {
     }
 
     public void saveEntities() {
+        List<ProductJdo> databaseProducts = productService.getAll();
         for (ProductJdo productJdo : products) {
-            productService.save(productJdo);
+            if (!databaseProducts.contains(productJdo)) {
+                productService.save(productJdo);
+            }
         }
     }
 
@@ -151,14 +156,16 @@ public class Robot {
             url.setTitle(title);
         }
         File file = new File(url.getTitle() + ".htm");
-        FileWriter fileWriter;
-        try {
-            fileWriter = new FileWriter(file);
-            fileWriter.write(content);
-            fileWriter.flush();
-            fileWriter.close();
-        } catch (IOException e) {
-            logger.error(e.getMessage(), e);
+        if (!file.exists()) {
+            FileWriter fileWriter;
+            try {
+                fileWriter = new FileWriter(file);
+                fileWriter.write(content);
+                fileWriter.flush();
+                fileWriter.close();
+            } catch (IOException e) {
+                logger.error(e.getMessage(), e);
+            }
         }
         url.setFilePath(file.getPath());
         return content;

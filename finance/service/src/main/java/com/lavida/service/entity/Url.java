@@ -11,12 +11,13 @@ import javax.persistence.*;
  */
 @Entity
 @NamedQueries({
-        @NamedQuery(name = Url.FIND_BY_URL, query = "select u from Url u where u.url =: urlString")
+        @NamedQuery(name = Url.FIND_BY_URL, query = "select u from Url u where u.url=:urlString")
 })
 public class Url {
     public static final String FIND_BY_URL = "Url.findByUrl";
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     private String title;
