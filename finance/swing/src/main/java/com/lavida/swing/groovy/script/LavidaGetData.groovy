@@ -60,7 +60,8 @@ class LavidaGetData {
                 product2.setName(robot.getPosition().tr[it * 2 + 1].td[1].div[0].text());
                 product2.setCode(robot.getPosition().tr[it * 2 + 1].td[1].div[1].text());
             }
-            robot.saveEntities();
+//            robot.saveEntities();
+            robot.workDone();
             url.setProcessed(true);
             robot.updateUrl(url);
         }

@@ -1,0 +1,1 @@
+INSERT  into products (hostURL, imageSrcURL, producerBrand, code, name) VALUES (?, ?, ?, ?, ?)

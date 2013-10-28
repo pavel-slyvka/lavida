@@ -17,6 +17,7 @@ http://java.sun.com/xml/ns/persistence ">
         <class>com.lavida.service.entity.ShopJdo</class>
         <class>com.lavida.service.entity.ProductJdo</class>
         <class>com.lavida.service.entity.Url</class>
+        <class>com.lavida.service.entity.UniversalProductJdo</class>
 
         <properties>
             <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver" />

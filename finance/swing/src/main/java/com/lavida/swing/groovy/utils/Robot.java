@@ -1,15 +1,15 @@
 package com.lavida.swing.groovy.utils;
 
-import com.lavida.service.ProductService;
+import com.lavida.service.UniversalProductService;
 import com.lavida.service.UrlService;
 import com.lavida.service.entity.ProductJdo;
+import com.lavida.service.entity.UniversalProductJdo;
 import com.lavida.service.entity.Url;
 import com.lavida.swing.groovy.http.HttpRequest;
 import com.lavida.swing.groovy.http.HttpResponse;
 import com.lavida.swing.groovy.http.RequestMethod;
 import com.lavida.swing.groovy.http.browser.BrowserChrome;
 import com.lavida.swing.groovy.http.client.UrlConnectionHttpClient;
-import com.lavida.swing.groovy.utils.RobotGroovyUtils;
 import groovy.lang.GroovyObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +17,10 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.io.*;
+import java.lang.reflect.Field;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -30,24 +33,29 @@ import java.util.List;
 public class Robot {
     private static final Logger logger = LoggerFactory.getLogger(Robot.class);
 
+
     private ApplicationContext context = new ClassPathXmlApplicationContext("spring-swing.xml");
-    private ProductService productService = context.getBean(ProductService.class);
     private UrlService urlService = context.getBean(UrlService.class);
+    private UniversalProductService universalProductService = context.getBean(UniversalProductService.class);
 
     private String baseLink;
     private String pageContent;
     private GroovyObject position;
-    private List<ProductJdo> products = new ArrayList<>();
+    private List products = new ArrayList<>(); // not safe container
     private boolean enableDatabaseForProcessing = true;
     private boolean enableDatabaseForData = true;
     private boolean enableContentSaving = true;
+    private boolean enableBinder = true;
     private List<Url> urlList = new ArrayList<>();
     private String baseDir;
     private long minLatency;
     private long maxLatency;
-
+    private static final String DATE_PATTERN = "dd.MM.yyyy HH:mm:ss";
+    private SimpleDateFormat dateFormat;
 
     public Robot() {
+        dateFormat = new SimpleDateFormat(DATE_PATTERN);
+        logger.debug("Started at time: " + dateFormat.format(new Date()));
         File file = new File(System.getProperty("user.dir") + "/robotCache");
         if (!file.exists()) file.mkdirs();
         String delimiter = System.getProperty("file.separator");
@@ -122,6 +130,40 @@ public class Robot {
         return product;
     }
 
+    public void workDone() {
+        if (enableBinder) {
+            logger.debug(dateFormat.format(new Date()) + ": pass products to Binder.");
+            Binder binder = new Binder();
+            binder.handle(products);
+        }
+
+        logger.debug(dateFormat.format(new Date()) + ": saving universal products.");
+        saveProducts(products);
+        logger.debug(dateFormat.format(new Date()) + ": finished process for " + urlList.get(0).getUrl());
+
+    }
+
+    private void saveProducts(List products) {
+        List<UniversalProductJdo> universalProductList = new ArrayList<>();
+        for (Object object: products) {
+            String className = object.getClass().getCanonicalName();
+            long objectId = new Date().getTime();
+            for (Field field : object.getClass().getDeclaredFields()) {
+                field.setAccessible(true);
+                try {
+                    UniversalProductJdo universalProductJdo = new UniversalProductJdo(className, objectId, field.getName(), field.get(object).toString());
+                    universalProductList.add(universalProductJdo);
+                } catch (IllegalAccessException e) {
+                    logger.error(e.getMessage(), e);
+                }
+            }
+        }
+        for (UniversalProductJdo universalProductJdo : universalProductList) {
+            universalProductService.save(universalProductJdo);
+        }
+    }
+
+/*
     public void saveEntities() {
         if (enableDatabaseForData) {
             List<ProductJdo> databaseProducts = productService.getAll();
@@ -132,6 +174,7 @@ public class Robot {
             }
         }
     }
+*/
 
     public void updateUrl(Url url) {
         if (enableDatabaseForProcessing) {
@@ -161,6 +204,7 @@ public class Robot {
 
 
     private String getContentFromFile(Url url) throws IOException {
+        logger.debug(dateFormat.format(new Date()) + ": getting content from file " + url.getFilePath());
         FileReader fileReader = new FileReader(url.getFilePath());
         StringBuilder str = new StringBuilder();
         int ch;
@@ -171,6 +215,7 @@ public class Robot {
     }
 
     private String getContentFromNet(Url url) {
+        logger.debug(dateFormat.format(new Date()) + ": getting content from Net " + url.getUrl());
         UrlConnectionHttpClient httpClient = new UrlConnectionHttpClient();
         BrowserChrome browser = new BrowserChrome();
         HttpRequest request = new HttpRequest(RequestMethod.GET, url.getUrl(), null);
@@ -320,5 +365,13 @@ public class Robot {
 
     public void setMaxLatency(long maxLatency) {
         this.maxLatency = maxLatency;
+    }
+
+    public boolean isEnableBinder() {
+        return enableBinder;
+    }
+
+    public void setEnableBinder(boolean enableBinder) {
+        this.enableBinder = enableBinder;
     }
 }
