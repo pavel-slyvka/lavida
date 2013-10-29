@@ -30,6 +30,7 @@ class LavidaGetData {
             robot.addUrl(url);
         }
         startUrl.setProcessed(true);
+        robot.updateUrl(startUrl);
         robot.getUrlList().each {
             handleUrl(it, robot.getBaseDir());
         }

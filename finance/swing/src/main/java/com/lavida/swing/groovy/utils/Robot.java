@@ -132,14 +132,18 @@ public class Robot {
 
     public void workDone() {
         if (enableBinder) {
-            logger.debug(dateFormat.format(new Date()) + ": pass products to Binder.");
-            Binder binder = new Binder();
-            binder.handle(products);
-        }
+            if (products.size() > 0) {
+                logger.debug(dateFormat.format(new Date()) + ": pass products to Binder.");
+                Binder binder = new Binder();
+                binder.handle(products);
+            }
 
-        logger.debug(dateFormat.format(new Date()) + ": saving universal products.");
-        saveProducts(products);
-        logger.debug(dateFormat.format(new Date()) + ": finished process for " + urlList.get(0).getUrl());
+        }
+        if (products.size() > 0) {
+            logger.debug(dateFormat.format(new Date()) + ": saving universal products.");
+            saveProducts(products);
+            logger.debug(dateFormat.format(new Date()) + ": finished process for " + urlList.get(0).getUrl());
+        }
 
     }
 

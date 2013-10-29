@@ -6,8 +6,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import java.io.*;
+import java.lang.reflect.Field;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -53,46 +57,35 @@ public class Binder {
         String dbUser = properties.getProperty("db.user");
         String dbPassword = properties.getProperty("db.password");
 
-        try {
-            Class.forName("com.mysql.jdbc.Driver").newInstance();
-        } catch (ClassNotFoundException e) {
-            logger.error(e.getMessage(), e);
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        }
-        Connection connection = null;
-        PreparedStatement statement = null;
-        try {
-            connection = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
-        } catch (SQLException e) {
-            logger.error(e.getMessage(), e);
-        }
+        DriverManagerDataSource dataSource = new DriverManagerDataSource(dbUrl,dbUser, dbPassword);
+        NamedParameterJdbcTemplate template = new NamedParameterJdbcTemplate(dataSource);
 
         for (int i = 0; i < products.size(); ++i) {
-            executeQueries(products.get(i), classesQueriesMap.get(products.get(i).getClass().getCanonicalName()), connection);
+            if (enableDatabaseQuerying) {
+                executeQueries(products.get(i), classesQueriesMap.get(products.get(i).getClass().getCanonicalName()), template);
+            }
         }
 
 
     }
 
-    private void executeQueries(Object product, String queriesFilePath, Connection connection) {
+    private void executeQueries(Object product, String queriesFilePath, NamedParameterJdbcTemplate template) {
         try {
             List<String> queries = getStringListFromFile(queriesFilePath);
-            PreparedStatement statement;
-            for (String query : queries) {
-                statement = connection.prepareStatement(query);
-                ParameterMetaData parameterMetaData = statement.getParameterMetaData();
-                int paramCount = parameterMetaData.getParameterCount();
-                String[] paramNames = new String[paramCount];
-                for (int i = 0; i < paramCount; ++i) {
-                    paramNames[i] = parameterMetaData.getParameterTypeName(i);
+                MapSqlParameterSource parameterSource = new MapSqlParameterSource();
+                for (Field field : product.getClass().getDeclaredFields()) {
+                    field.setAccessible(true);
+                    try {
+                        parameterSource.addValue(field.getName(), field.get(product));
+                    } catch (IllegalAccessException e) {
+                        logger.error(e.getMessage(), e);
+                    }
                 }
+            for (String query : queries) {
+                template.update(query, parameterSource);
             }
+
         } catch (IOException e) {
-            logger.error(e.getMessage(), e);
-        } catch (SQLException e) {
             logger.error(e.getMessage(), e);
         }
 
