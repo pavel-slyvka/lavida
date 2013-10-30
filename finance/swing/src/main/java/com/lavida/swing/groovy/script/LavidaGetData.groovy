@@ -13,11 +13,13 @@ import com.lavida.swing.groovy.utils.Robot
  */
 
 class LavidaGetData {
+    public static final String CODE_RU = "Код";
 
     static void main(args) {
         def robot = new Robot();
         robot.clearFileSystemCache();
         robot.clearUrlDataBase();
+        robot.clearUniversalProductDataBase();
 //        robot.setEnableDatabaseForProcessing(false);
         def startUrl = robot.getPage("http://lavida.biz.ua");
         def baseLink = robot.getBaseLink();
@@ -34,6 +36,8 @@ class LavidaGetData {
         robot.getUrlList().each {
             handleUrl(it, robot.getBaseDir());
         }
+        robot.workDone();
+
     }
 
     static void handleUrl(Url url, String baseDir) {
@@ -57,12 +61,11 @@ class LavidaGetData {
                 product1.setImageSrcURL(robot.getPosition().tr[it * 2].td[0].div.img.@src.text());
                 product2.setImageSrcURL(robot.getPosition().tr[it * 2].td[1].div.img.@src.text());
                 product1.setName(robot.getPosition().tr[it * 2 + 1].td[0].div[0].text());
-                product1.setCode(robot.getPosition().tr[it * 2 + 1].td[0].div[1].text());
+                product1.setCode((robot.getPosition().tr[it * 2 + 1].td[0].div[1].text()).replaceFirst(CODE_RU, "").trim());
                 product2.setName(robot.getPosition().tr[it * 2 + 1].td[1].div[0].text());
-                product2.setCode(robot.getPosition().tr[it * 2 + 1].td[1].div[1].text());
+                product2.setCode((robot.getPosition().tr[it * 2 + 1].td[1].div[1].text()).replaceFirst(CODE_RU, "").trim());
             }
-//            robot.saveEntities();
-            robot.workDone();
+            robot.saveEntities();
             url.setProcessed(true);
             robot.updateUrl(url);
         }

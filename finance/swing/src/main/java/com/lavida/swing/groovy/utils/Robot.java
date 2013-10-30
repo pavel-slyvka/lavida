@@ -5,6 +5,7 @@ import com.lavida.service.UrlService;
 import com.lavida.service.entity.ProductJdo;
 import com.lavida.service.entity.UniversalProductJdo;
 import com.lavida.service.entity.Url;
+import com.lavida.swing.groovy.Binder;
 import com.lavida.swing.groovy.http.HttpRequest;
 import com.lavida.swing.groovy.http.HttpResponse;
 import com.lavida.swing.groovy.http.RequestMethod;
@@ -22,6 +23,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * Created with IntelliJ IDEA.
@@ -32,7 +34,7 @@ import java.util.List;
  */
 public class Robot {
     private static final Logger logger = LoggerFactory.getLogger(Robot.class);
-
+    private static long objectId = 0;
 
     private ApplicationContext context = new ClassPathXmlApplicationContext("spring-swing.xml");
     private UrlService urlService = context.getBean(UrlService.class);
@@ -42,10 +44,25 @@ public class Robot {
     private String pageContent;
     private GroovyObject position;
     private List products = new ArrayList<>(); // not safe container
-    private boolean enableDatabaseForProcessing = true;
-    private boolean enableDatabaseForData = true;
-    private boolean enableContentSaving = true;
-    private boolean enableBinder = true;
+    private boolean enableDatabaseForProcessing;
+    private boolean enableDatabaseForData;
+    private boolean enableContentSaving;
+    private boolean enableBinder;
+    private boolean enableFilesCopying;
+    private boolean enableFlatten;
+    private boolean enableDatabaseQuerying;
+    private String destinationPrefix;
+    private String imagePrefix;
+    private int startImageNumber;
+    private String dbUrl;
+    private String dbUser;
+    private String dbPassword;
+    private String dbName;
+    private String mysqlPath;
+    private String tableName;
+    private String sourceTableSql;
+
+
     private List<Url> urlList = new ArrayList<>();
     private String baseDir;
     private long minLatency;
@@ -54,8 +71,36 @@ public class Robot {
     private SimpleDateFormat dateFormat;
 
     public Robot() {
+        Properties properties = new Properties();
+        FileInputStream inputStream;
+        try {
+            inputStream = new FileInputStream("robot.properties");
+            properties.load(inputStream);
+        } catch (IOException e) {
+            logger.error(e.getMessage(), e);
+        }
+        enableDatabaseForProcessing = new Boolean(properties.getProperty("enableDatabaseForProcessing"));
+        enableDatabaseForData = new Boolean(properties.getProperty("enableDatabaseForData"));
+        enableContentSaving = new Boolean(properties.getProperty("enableContentSaving"));
+        enableBinder = new Boolean(properties.getProperty("enableBinder"));
+
+        enableFilesCopying = new Boolean(properties.getProperty("enableFilesCopying"));
+        enableFlatten = new Boolean(properties.getProperty("enableFlatten"));
+        enableDatabaseQuerying = new Boolean(properties.getProperty("enableDatabaseQuerying"));
+        destinationPrefix = properties.getProperty("destinationPrefix");
+        imagePrefix = properties.getProperty("imagePrefix");
+        startImageNumber = Integer.valueOf(properties.getProperty("startImageNumber"));
+        dbUrl = properties.getProperty("db.url");
+        dbUser = properties.getProperty("db.user");
+        dbPassword = properties.getProperty("db.password");
+        dbName = properties.getProperty("db.name");
+        mysqlPath = properties.getProperty("mysql.path");
+        tableName = properties.getProperty("table.name");
+        sourceTableSql = properties.getProperty("source.table.sql");
+
+
         dateFormat = new SimpleDateFormat(DATE_PATTERN);
-        logger.debug("Started at time: " + dateFormat.format(new Date()));
+        logger.info("Started at time: " + dateFormat.format(new Date()));
         File file = new File(System.getProperty("user.dir") + "/robotCache");
         if (!file.exists()) file.mkdirs();
         String delimiter = System.getProperty("file.separator");
@@ -77,6 +122,7 @@ public class Robot {
             this.position = RobotGroovyUtils.getStartPosition(content);
             return url;
         }
+        urlList.add(url);
         if (url.getFilePath() != null) {
             try {
                 content = getContentFromFile(url);
@@ -132,18 +178,31 @@ public class Robot {
 
     public void workDone() {
         if (enableBinder) {
-            if (products.size() > 0) {
-                logger.debug(dateFormat.format(new Date()) + ": pass products to Binder.");
+                logger.info(dateFormat.format(new Date()) + ": pass products to Binder.");
                 Binder binder = new Binder();
-                binder.handle(products);
-            }
+                binder.handle(universalProductService.getAll());
 
+        }else {
+            logger.info(dateFormat.format(new Date()) + ": export universal_product table.");
+            int complete = -1;
+            try {
+                complete = exportUniversalPoductDatabaseTable ();
+            } catch (IOException | InterruptedException e) {
+                logger.error(e.getMessage(), e);
+            }
+            if (complete != 0) {
+                logger.warn(dateFormat.format(new Date()) + ": can't dump out table.");
+            }
         }
-        if (products.size() > 0) {
-            logger.debug(dateFormat.format(new Date()) + ": saving universal products.");
-            saveProducts(products);
-            logger.debug(dateFormat.format(new Date()) + ": finished process for " + urlList.get(0).getUrl());
-        }
+        logger.info(dateFormat.format(new Date()) + ": pass finished work.");
+
+    }
+
+    private int exportUniversalPoductDatabaseTable() throws IOException, InterruptedException {
+        String exportTable = "/" + mysqlPath + "/mysqldump -u" + dbUser + " -p" + dbPassword + " " + dbName + " " + tableName + " -r" + sourceTableSql;
+        Process runtimeProcess = Runtime.getRuntime().exec(exportTable);
+
+        return runtimeProcess.waitFor();
 
     }
 
@@ -151,7 +210,7 @@ public class Robot {
         List<UniversalProductJdo> universalProductList = new ArrayList<>();
         for (Object object: products) {
             String className = object.getClass().getCanonicalName();
-            long objectId = new Date().getTime();
+            ++ objectId ;
             for (Field field : object.getClass().getDeclaredFields()) {
                 field.setAccessible(true);
                 try {
@@ -167,18 +226,15 @@ public class Robot {
         }
     }
 
-/*
     public void saveEntities() {
         if (enableDatabaseForData) {
-            List<ProductJdo> databaseProducts = productService.getAll();
-            for (ProductJdo productJdo : products) {
-                if (!databaseProducts.contains(productJdo)) {
-                    productService.save(productJdo);
-                }
+            if (products.size() > 0) {
+                logger.info(dateFormat.format(new Date()) + ": saving universal products.");
+                saveProducts(products);
+                logger.info(dateFormat.format(new Date()) + ": finished process for " + urlList.get(0).getUrl());
             }
         }
     }
-*/
 
     public void updateUrl(Url url) {
         if (enableDatabaseForProcessing) {
@@ -187,13 +243,13 @@ public class Robot {
     }
 
     public Url addUrl(Url url) {
+        urlList.add(url);
         if (enableDatabaseForProcessing) {
             if (urlService.findByUrlString(url.getUrl()) == null) {
                 urlService.save(url);
             }
             return urlService.findByUrlString(url.getUrl());
         } else {
-            urlList.add(url);
             return url;
         }
     }
@@ -208,7 +264,7 @@ public class Robot {
 
 
     private String getContentFromFile(Url url) throws IOException {
-        logger.debug(dateFormat.format(new Date()) + ": getting content from file " + url.getFilePath());
+        logger.info(dateFormat.format(new Date()) + ": getting content from file " + url.getFilePath());
         FileReader fileReader = new FileReader(url.getFilePath());
         StringBuilder str = new StringBuilder();
         int ch;
@@ -219,7 +275,7 @@ public class Robot {
     }
 
     private String getContentFromNet(Url url) {
-        logger.debug(dateFormat.format(new Date()) + ": getting content from Net " + url.getUrl());
+        logger.info(dateFormat.format(new Date()) + ": getting content from Net " + url.getUrl());
         UrlConnectionHttpClient httpClient = new UrlConnectionHttpClient();
         BrowserChrome browser = new BrowserChrome();
         HttpRequest request = new HttpRequest(RequestMethod.GET, url.getUrl(), null);
@@ -262,6 +318,20 @@ public class Robot {
         return RobotGroovyUtils.saveFilesFromNet(content, baseDir);
     }
 
+    public void clearUrlDataBase() {
+        List<Url> urlList1 = urlService.getAll();
+        for (Url url : urlList1) {
+            urlService.delete(url.getId());
+        }
+    }
+
+    public void clearUniversalProductDataBase() {
+        List<UniversalProductJdo> universalProductJdoList = universalProductService.getAll();
+        for (UniversalProductJdo universalProductJdo : universalProductJdoList) {
+            universalProductService.delete(universalProductJdo.getId());
+        }
+    }
+
     public void clearFileSystemCache() throws IOException {
         File baseDirFile = new File(baseDir);
         String files[] = baseDirFile.list();
@@ -273,12 +343,6 @@ public class Robot {
         }
     }
 
-    public void clearUrlDataBase() {
-        List<Url> urlList1 = urlService.getAll();
-        for (Url url : urlList1) {
-            urlService.delete(url.getId());
-        }
-    }
     private static void delete(File file) throws IOException{
         if(file.isDirectory()){
             //directory is empty, then delete it
@@ -377,5 +441,11 @@ public class Robot {
 
     public void setEnableBinder(boolean enableBinder) {
         this.enableBinder = enableBinder;
+    }
+
+
+    public static void main(String[] args) {
+        Robot robot = new Robot();
+        robot.workDone();
     }
 }
