@@ -17,8 +17,6 @@ public class ProductJdo {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    private String hostURL;
-
     private String imageSrcURL;
 
     private String producerBrand;
@@ -27,16 +25,12 @@ public class ProductJdo {
 
     private String code;
 
+    @Transient
+    private boolean processed;
+
     public ProductJdo() {
     }
 
-    public ProductJdo(String hostURL, String imageSrcURL, String producerBrand, String name, String code) {
-        this.hostURL = hostURL;
-        this.imageSrcURL = imageSrcURL;
-        this.producerBrand = producerBrand;
-        this.name = name;
-        this.code = code;
-    }
 
     public int getId() {
         return id;
@@ -46,20 +40,12 @@ public class ProductJdo {
         this.id = id;
     }
 
-    public String getHostURL() {
-        return hostURL;
-    }
-
-    public void setHostURL(String hostURL) {
-        this.hostURL = hostURL;
-    }
-
     public String getImageSrcURL() {
         return imageSrcURL;
     }
 
-    public void setImageSrcURL(String srcURL) {
-        this.imageSrcURL = srcURL;
+    public void setImageSrcURL(String imageSrcURL) {
+        this.imageSrcURL = imageSrcURL;
     }
 
     public String getProducerBrand() {
@@ -86,6 +72,14 @@ public class ProductJdo {
         this.code = code;
     }
 
+    public boolean isProcessed() {
+        return processed;
+    }
+
+    public void setProcessed(boolean processed) {
+        this.processed = processed;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -94,19 +88,17 @@ public class ProductJdo {
         ProductJdo that = (ProductJdo) o;
 
         if (code != null ? !code.equals(that.code) : that.code != null) return false;
-        if (hostURL != null ? !hostURL.equals(that.hostURL) : that.hostURL != null) return false;
+        if (imageSrcURL != null ? !imageSrcURL.equals(that.imageSrcURL) : that.imageSrcURL != null) return false;
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
         if (producerBrand != null ? !producerBrand.equals(that.producerBrand) : that.producerBrand != null)
             return false;
-        if (imageSrcURL != null ? !imageSrcURL.equals(that.imageSrcURL) : that.imageSrcURL != null) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = hostURL != null ? hostURL.hashCode() : 0;
-        result = 31 * result + (imageSrcURL != null ? imageSrcURL.hashCode() : 0);
+        int result = imageSrcURL != null ? imageSrcURL.hashCode() : 0;
         result = 31 * result + (producerBrand != null ? producerBrand.hashCode() : 0);
         result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + (code != null ? code.hashCode() : 0);
@@ -117,11 +109,11 @@ public class ProductJdo {
     public String toString() {
         return "ProductJdo{" +
                 "id=" + id +
-                ", hostURL='" + hostURL + '\'' +
                 ", imageSrcURL='" + imageSrcURL + '\'' +
                 ", producerBrand='" + producerBrand + '\'' +
                 ", name='" + name + '\'' +
                 ", code='" + code + '\'' +
+                ", processed=" + processed +
                 '}';
     }
 }

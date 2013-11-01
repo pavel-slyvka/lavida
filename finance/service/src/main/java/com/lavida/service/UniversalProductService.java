@@ -43,4 +43,10 @@ public class UniversalProductService {
     public UniversalProductJdo getById (int id) {
         return universalProductDao.getById(UniversalProductJdo.class, id);
     }
+
+    public void update (List<UniversalProductJdo> universalProductJdoList) {
+        for (UniversalProductJdo universalProductJdo : universalProductJdoList) {
+            update(universalProductJdo);
+        }
+    }
 }

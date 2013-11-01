@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.util.FileCopyUtils;
 
 import java.io.*;
 import java.lang.reflect.Field;
@@ -34,7 +35,7 @@ import java.util.Properties;
  */
 public class Robot {
     private static final Logger logger = LoggerFactory.getLogger(Robot.class);
-    private static long objectId = 0;
+    private static long objectId = 1;
 
     private ApplicationContext context = new ClassPathXmlApplicationContext("spring-swing.xml");
     private UrlService urlService = context.getBean(UrlService.class);
@@ -48,12 +49,10 @@ public class Robot {
     private boolean enableDatabaseForData;
     private boolean enableContentSaving;
     private boolean enableBinder;
-    private boolean enableFilesCopying;
+    private boolean enableFilesCopying; // todo what is this for
     private boolean enableFlatten;
-    private boolean enableDatabaseQuerying;
     private String destinationPrefix;
     private String imagePrefix;
-    private int startImageNumber;
     private String dbUrl;
     private String dbUser;
     private String dbPassword;
@@ -86,10 +85,8 @@ public class Robot {
 
         enableFilesCopying = new Boolean(properties.getProperty("enableFilesCopying"));
         enableFlatten = new Boolean(properties.getProperty("enableFlatten"));
-        enableDatabaseQuerying = new Boolean(properties.getProperty("enableDatabaseQuerying"));
         destinationPrefix = properties.getProperty("destinationPrefix");
         imagePrefix = properties.getProperty("imagePrefix");
-        startImageNumber = Integer.valueOf(properties.getProperty("startImageNumber"));
         dbUrl = properties.getProperty("db.url");
         dbUser = properties.getProperty("db.user");
         dbPassword = properties.getProperty("db.password");
@@ -97,14 +94,19 @@ public class Robot {
         mysqlPath = properties.getProperty("mysql.path");
         tableName = properties.getProperty("table.name");
         sourceTableSql = properties.getProperty("source.table.sql");
-
+        String fileCacheDir = properties.getProperty("file.cache.dir");
 
         dateFormat = new SimpleDateFormat(DATE_PATTERN);
         logger.info("Started at time: " + dateFormat.format(new Date()));
-        File file = new File(System.getProperty("user.dir") + "/robotCache");
-        if (!file.exists()) file.mkdirs();
-        String delimiter = System.getProperty("file.separator");
-        baseDir = file.getPath().replace(delimiter, "/") + "/";
+        if (fileCacheDir.isEmpty()) {
+            File file = new File(System.getProperty("user.dir") + "/robotCache");
+            if (!file.exists()) file.mkdirs();
+            String delimiter = System.getProperty("file.separator");
+            baseDir = file.getPath().replace(delimiter, "/") + "/";
+        } else {
+            baseDir = fileCacheDir;
+        }
+
     }
 
     public Url getPage(String pageUrl) {
@@ -177,16 +179,20 @@ public class Robot {
     }
 
     public void workDone() {
+        if (enableFlatten) {
+            logger.info(dateFormat.format(new Date()) + ": flattening images' files.");
+            flattenProductFiles();
+        }
         if (enableBinder) {
-                logger.info(dateFormat.format(new Date()) + ": pass products to Binder.");
-                Binder binder = new Binder();
-                binder.handle(universalProductService.getAll());
+            logger.info(dateFormat.format(new Date()) + ": pass products to Binder.");
+            Binder binder = new Binder();
+            binder.handle(universalProductService.getAll());
 
-        }else {
+        } else {
             logger.info(dateFormat.format(new Date()) + ": export universal_product table.");
             int complete = -1;
             try {
-                complete = exportUniversalPoductDatabaseTable ();
+                complete = exportUniversalPoductDatabaseTable();
             } catch (IOException | InterruptedException e) {
                 logger.error(e.getMessage(), e);
             }
@@ -196,6 +202,63 @@ public class Robot {
         }
         logger.info(dateFormat.format(new Date()) + ": pass finished work.");
 
+    }
+
+    private void flattenProductFiles() {
+        String remoteDir;
+        if (destinationPrefix.isEmpty()) {
+            File file = new File(System.getProperty("user.dir") + "/binderCache");
+            if (!file.exists()) file.mkdirs();
+            String delimiter = System.getProperty("file.separator");
+            remoteDir = file.getPath().replace(delimiter, "/") + "/";
+        } else {
+            remoteDir = destinationPrefix;
+        }
+        String imageFolder;
+        if (imagePrefix.isEmpty()) {
+            imageFolder = "img/";
+        } else {
+            imageFolder = imagePrefix;
+        }
+
+        List<UniversalProductJdo> imageList = new ArrayList<>();
+        for (UniversalProductJdo universalProductJdo : universalProductService.getAll()) {
+            if ((universalProductJdo.getFieldName()).contains("imageSrc")) {
+                imageList.add(universalProductJdo);
+            }
+        }
+
+        int imageNumber = 1;
+        for (UniversalProductJdo universalProductJdo : imageList) {
+            String oldSrcUrl = universalProductJdo.getFieldValue();
+            if (oldSrcUrl.isEmpty()) continue;
+            String[] dirParts = oldSrcUrl.split("/");
+            String sectionName;
+            if (dirParts.length < 3) {
+                sectionName = "common/";
+            } else {
+                sectionName = dirParts[1].trim() + "/";
+            }
+            String imageName = dirParts[dirParts.length - 1].trim();
+            int extensionStartPoint = imageName.lastIndexOf(".");
+            String extension = imageName.substring(extensionStartPoint);
+            String newSrcUrl = imageFolder + sectionName + imageNumber + extension;
+            File oldFile = new File(baseDir + oldSrcUrl);
+            File newFile = new File(remoteDir + newSrcUrl);
+            File newDirectory = newFile.getParentFile();
+            newDirectory.mkdirs();
+            if (oldFile.exists() && newDirectory.exists()) {
+                try {
+                    FileCopyUtils.copy(oldFile, newFile);
+                    universalProductJdo.setFieldValue(newSrcUrl);
+                    universalProductService.update(universalProductJdo);
+                } catch (IOException e) {
+                    logger.error(e.getMessage(), e);
+                }
+            }
+            ++imageNumber;
+        }
+//        universalProductService.update(imageList);
     }
 
     private int exportUniversalPoductDatabaseTable() throws IOException, InterruptedException {
@@ -208,22 +271,36 @@ public class Robot {
 
     private void saveProducts(List products) {
         List<UniversalProductJdo> universalProductList = new ArrayList<>();
-        for (Object object: products) {
+        for (Object object : products) {
             String className = object.getClass().getCanonicalName();
-            ++ objectId ;
+            List<UniversalProductJdo> fieldsList = new ArrayList<>();
             for (Field field : object.getClass().getDeclaredFields()) {
                 field.setAccessible(true);
                 try {
                     UniversalProductJdo universalProductJdo = new UniversalProductJdo(className, objectId, field.getName(), field.get(object).toString());
-                    universalProductList.add(universalProductJdo);
+                    fieldsList.add(universalProductJdo);
                 } catch (IllegalAccessException e) {
                     logger.error(e.getMessage(), e);
                 }
+            }
+            if (containsImages(fieldsList)) {
+                universalProductList.addAll(fieldsList);
+                ++objectId;
             }
         }
         for (UniversalProductJdo universalProductJdo : universalProductList) {
             universalProductService.save(universalProductJdo);
         }
+    }
+
+    private boolean containsImages(List<UniversalProductJdo> fieldsList) {
+        for (UniversalProductJdo universalProductJdo :fieldsList) {
+            if (universalProductJdo.getFieldName().contains("imageSrc")){
+                if (!(universalProductJdo.getFieldValue()).isEmpty())
+                return true;
+            }
+        }
+        return false;
     }
 
     public void saveEntities() {
@@ -343,12 +420,12 @@ public class Robot {
         }
     }
 
-    private static void delete(File file) throws IOException{
-        if(file.isDirectory()){
+    private static void delete(File file) throws IOException {
+        if (file.isDirectory()) {
             //directory is empty, then delete it
-            if(file.list().length==0){
+            if (file.list().length == 0) {
                 file.delete();
-            }else{
+            } else {
                 //list all the directory contents
                 String files[] = file.list();
                 for (String temp : files) {
@@ -358,11 +435,11 @@ public class Robot {
                     delete(fileDelete);
                 }
                 //check the directory again, if empty then delete it
-                if(file.list().length==0){
+                if (file.list().length == 0) {
                     file.delete();
                 }
             }
-        }else{
+        } else {
             //if file, then delete it
             file.delete();
         }
@@ -380,7 +457,7 @@ public class Robot {
         return stringList;
     }
 
-    public void await () {
+    public void await() {
         // todo latency for awaiting
     }
 
@@ -443,9 +520,17 @@ public class Robot {
         this.enableBinder = enableBinder;
     }
 
+    public Object getH1Text() {
+        return RobotGroovyUtils.getH1Text(position);
+    }
+
 
     public static void main(String[] args) {
         Robot robot = new Robot();
         robot.workDone();
+    }
+
+    public boolean tableContainsNamesAndCodes() {
+        return RobotGroovyUtils.tableContainsNamesAndCodes(position);
     }
 }

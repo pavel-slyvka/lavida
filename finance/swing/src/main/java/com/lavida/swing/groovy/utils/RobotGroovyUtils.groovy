@@ -14,7 +14,6 @@ class RobotGroovyUtils {
     }
 
     static String saveFilesFromNet(String content, String baseDir) {
-        // todo saving all needed files (img, css, js ) to file system and changing their references to local paths in content
         def parser = slurper.parseText(content);
         def host = parser.'**'.find { base -> base.name() == 'base' };
         // download css-files
@@ -145,5 +144,16 @@ class RobotGroovyUtils {
         int count;
         elementList.each { count ++}
         return count.intValue();
+    }
+
+    static Object getH1Text(GroovyObject position) {
+        def h1 = position.'**'.find{tag -> tag.name() == 'h1'}.text();
+        return h1;
+    }
+
+    static boolean tableContainsNamesAndCodes(GroovyObject tablePosition) {
+        def namesNodeList = tablePosition.'**'.findAll{tag -> tag.@class == 'goods_name'};
+        def codesNodeList = tablePosition.'**'.findAll{tag -> tag.@class == 'goods_code'};
+        return (namesNodeList.size() > 0 || codesNodeList.size() > 0);
     }
 }

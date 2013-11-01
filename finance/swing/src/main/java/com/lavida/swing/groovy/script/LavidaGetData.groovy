@@ -47,23 +47,41 @@ class LavidaGetData {
 //            robot.setEnableDatabaseForProcessing(false)
             url = robot.getPage(url.getUrl());
 
-            def brand = robot.gotoDivId('content').h1.text();
-
+            robot.gotoDivId('content');
+            def brand = robot.getH1Text();
             robot.setPosition(robot.getPosition().div.table);
-            (robot.getElementsCount(robot.getPosition().tr) / 2).times {
-                def product1 = robot.addEntity(new ProductJdo());
-                product1.setProducerBrand(brand);
-                product1.setHostURL(robot.getBaseDir());
-                def product2 = robot.addEntity(new ProductJdo());
-                product2.setProducerBrand(brand);
-                product2.setHostURL(robot.getBaseDir());
+            int rowsQuantity = robot.getElementsCount(robot.getPosition().tr);
+            if (robot.tableContainsNamesAndCodes()) {
+                if (rowsQuantity % 2 > 0) {
+                    rowsQuantity +=1;
+                }
+                (rowsQuantity / 2).times {
+                    def product1 = robot.addEntity(new ProductJdo());
+                    product1.setProducerBrand(brand);
+                    def product2 = robot.addEntity(new ProductJdo());
+                    product2.setProducerBrand(brand);
+                    product1.setImageSrcURL(robot.getPosition().tr[it * 2].td[0].div.img.@src.text());
+                    product2.setImageSrcURL(robot.getPosition().tr[it * 2].td[1].div.img.@src.text());
+                    product1.setName(robot.getPosition().tr[it * 2 + 1].td[0].div[0].text());
+                    product1.setCode((robot.getPosition().tr[it * 2 + 1].td[0].div[1].text()).replaceFirst(CODE_RU, "").trim());
+                    product2.setName(robot.getPosition().tr[it * 2 + 1].td[1].div[0].text());
+                    product2.setCode((robot.getPosition().tr[it * 2 + 1].td[1].div[1].text()).replaceFirst(CODE_RU, "").trim());
+                }
 
-                product1.setImageSrcURL(robot.getPosition().tr[it * 2].td[0].div.img.@src.text());
-                product2.setImageSrcURL(robot.getPosition().tr[it * 2].td[1].div.img.@src.text());
-                product1.setName(robot.getPosition().tr[it * 2 + 1].td[0].div[0].text());
-                product1.setCode((robot.getPosition().tr[it * 2 + 1].td[0].div[1].text()).replaceFirst(CODE_RU, "").trim());
-                product2.setName(robot.getPosition().tr[it * 2 + 1].td[1].div[0].text());
-                product2.setCode((robot.getPosition().tr[it * 2 + 1].td[1].div[1].text()).replaceFirst(CODE_RU, "").trim());
+            } else {
+                (rowsQuantity).times {
+                    def product1 = robot.addEntity(new ProductJdo());
+                    product1.setProducerBrand(brand);
+                    def product2 = robot.addEntity(new ProductJdo());
+                    product2.setProducerBrand(brand);
+                    product1.setImageSrcURL(robot.getPosition().tr[it].td[0].div.img.@src.text());
+                    product2.setImageSrcURL(robot.getPosition().tr[it].td[1].div.img.@src.text());
+                    product1.setName("");
+                    product1.setCode("");
+                    product2.setName("");
+                    product2.setCode("");
+                }
+
             }
             robot.saveEntities();
             url.setProcessed(true);

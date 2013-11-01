@@ -1,1 +1,1 @@
-id # INSERT  into products (hostURL, imageSrcURL, producerBrand, code, name) VALUES (:hostURL, :imageSrcURL, :producerBrand, :code, :name)
+id # INSERT  into products (imageSrcURL, producerBrand, code, name) VALUES (:imageSrcURL, :producerBrand, :code, :name)
