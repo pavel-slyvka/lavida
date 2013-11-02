@@ -51,7 +51,7 @@ class LavidaGetData {
             def brand = robot.getH1Text();
             robot.setPosition(robot.getPosition().div.table);
             int rowsQuantity = robot.getElementsCount(robot.getPosition().tr);
-            if (robot.tableContainsNamesAndCodes()) {
+            if (robot.containsClass("goods_name") || robot.containsClass("goods_code")) {
                 if (rowsQuantity % 2 > 0) {
                     rowsQuantity +=1;
                 }

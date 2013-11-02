@@ -84,17 +84,18 @@ public class Binder {
 
         DriverManagerDataSource dataSource = new DriverManagerDataSource(dbUrl, dbUser, dbPassword);
         NamedParameterJdbcTemplate template = new NamedParameterJdbcTemplate(dataSource);
-        List<UniversalProductJdo> universalProductsForUpdate = new ArrayList<>();
+//        List<UniversalProductJdo> universalProductsForUpdate = new ArrayList<>();
         for (List<UniversalProductJdo> fieldsList : productFieldSet) {
             if (enableDatabaseQuerying) {
-                universalProductsForUpdate.addAll(executeQueries(fieldsList, template));
+                executeQueries(fieldsList, template);
+//                universalProductsForUpdate.addAll(executeQueries(fieldsList, template));
             }
         }
 
-        if (universalProductsForUpdate.size() > 0) {
-            logger.info(dateFormat.format(new Date()) + " : updating universal products changes " + universalProductsForUpdate.size() + " pcs.");
-            universalProductService.update(universalProductsForUpdate);
-        }
+//        if (universalProductsForUpdate.size() > 0) {
+//            logger.info(dateFormat.format(new Date()) + " : updating universal products changes " + universalProductsForUpdate.size() + " pcs.");
+//            universalProductService.update(universalProductsForUpdate);
+//        }
         logger.info(dateFormat.format(new Date()) + " : finished binding.");
 
     }
@@ -397,7 +398,8 @@ public class Binder {
                             for (UniversalProductJdo universalProductJdo : fieldsList) {
                                 if (fieldName.equals(universalProductJdo.getFieldName())) {
                                     universalProductJdo.setFieldValue(String.valueOf(key));
-                                    universalProductsForUpdate.add(universalProductJdo);
+                                    universalProductService.update(universalProductJdo);
+//                                    universalProductsForUpdate.add(universalProductJdo);
                                     break;
                                 }
                             }
@@ -411,7 +413,8 @@ public class Binder {
             for (UniversalProductJdo universalProductJdo : fieldsList) {
                 if ("processed".equals(universalProductJdo.getFieldName())) {
                     universalProductJdo.setFieldValue("true");
-                    universalProductsForUpdate.add(universalProductJdo);
+                    universalProductService.update(universalProductJdo);
+//                    universalProductsForUpdate.add(universalProductJdo);
                     break;
                 }
             }

@@ -151,9 +151,8 @@ class RobotGroovyUtils {
         return h1;
     }
 
-    static boolean tableContainsNamesAndCodes(GroovyObject tablePosition) {
-        def namesNodeList = tablePosition.'**'.findAll{tag -> tag.@class == 'goods_name'};
-        def codesNodeList = tablePosition.'**'.findAll{tag -> tag.@class == 'goods_code'};
-        return (namesNodeList.size() > 0 || codesNodeList.size() > 0);
+    static boolean containsClass(GroovyObject position, String tagClassName) {
+        def nodeList = position.'**'.findAll{tag -> tag.@class == tagClassName};
+        return (nodeList.size() > 0 );
     }
 }

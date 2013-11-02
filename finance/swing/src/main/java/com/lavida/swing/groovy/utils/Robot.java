@@ -49,11 +49,11 @@ public class Robot {
     private boolean enableDatabaseForData;
     private boolean enableContentSaving;
     private boolean enableBinder;
-    private boolean enableFilesCopying; // todo what is this for
+//    private boolean enableFilesCopying; // todo what is this for
     private boolean enableFlatten;
     private String destinationPrefix;
     private String imagePrefix;
-    private String dbUrl;
+//    private String dbUrl;
     private String dbUser;
     private String dbPassword;
     private String dbName;
@@ -78,16 +78,16 @@ public class Robot {
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
         }
-        enableDatabaseForProcessing = new Boolean(properties.getProperty("enableDatabaseForProcessing"));
-        enableDatabaseForData = new Boolean(properties.getProperty("enableDatabaseForData"));
-        enableContentSaving = new Boolean(properties.getProperty("enableContentSaving"));
-        enableBinder = new Boolean(properties.getProperty("enableBinder"));
+        enableDatabaseForProcessing = Boolean.parseBoolean(properties.getProperty("enableDatabaseForProcessing"));
+        enableDatabaseForData = Boolean.parseBoolean(properties.getProperty("enableDatabaseForData"));
+        enableContentSaving = Boolean.parseBoolean(properties.getProperty("enableContentSaving"));
+        enableBinder = Boolean.parseBoolean(properties.getProperty("enableBinder"));
 
-        enableFilesCopying = new Boolean(properties.getProperty("enableFilesCopying"));
-        enableFlatten = new Boolean(properties.getProperty("enableFlatten"));
+//        enableFilesCopying = Boolean.parseBoolean(properties.getProperty("enableFilesCopying"));
+        enableFlatten = Boolean.parseBoolean(properties.getProperty("enableFlatten"));
         destinationPrefix = properties.getProperty("destinationPrefix");
         imagePrefix = properties.getProperty("imagePrefix");
-        dbUrl = properties.getProperty("db.url");
+//        dbUrl = properties.getProperty("db.url");
         dbUser = properties.getProperty("db.user");
         dbPassword = properties.getProperty("db.password");
         dbName = properties.getProperty("db.name");
@@ -258,15 +258,12 @@ public class Robot {
             }
             ++imageNumber;
         }
-//        universalProductService.update(imageList);
     }
 
     private int exportUniversalPoductDatabaseTable() throws IOException, InterruptedException {
         String exportTable = "/" + mysqlPath + "/mysqldump -u" + dbUser + " -p" + dbPassword + " " + dbName + " " + tableName + " -r" + sourceTableSql;
         Process runtimeProcess = Runtime.getRuntime().exec(exportTable);
-
         return runtimeProcess.waitFor();
-
     }
 
     private void saveProducts(List products) {
@@ -277,7 +274,8 @@ public class Robot {
             for (Field field : object.getClass().getDeclaredFields()) {
                 field.setAccessible(true);
                 try {
-                    UniversalProductJdo universalProductJdo = new UniversalProductJdo(className, objectId, field.getName(), field.get(object).toString());
+                    String fieldValue = field.get(object) == null ? "" : field.get(object).toString();
+                    UniversalProductJdo universalProductJdo = new UniversalProductJdo(className, objectId, field.getName(), fieldValue);
                     fieldsList.add(universalProductJdo);
                 } catch (IllegalAccessException e) {
                     logger.error(e.getMessage(), e);
@@ -530,7 +528,7 @@ public class Robot {
         robot.workDone();
     }
 
-    public boolean tableContainsNamesAndCodes() {
-        return RobotGroovyUtils.tableContainsNamesAndCodes(position);
+    public boolean  containsClass(String tagClassName) {
+        return RobotGroovyUtils.containsClass(position, tagClassName);
     }
 }

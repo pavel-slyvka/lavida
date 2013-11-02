@@ -28,15 +28,18 @@ public class UrlConnectionHttpClient implements HttpClient {
 
     public HttpResponse sendRequest(HttpRequest httpRequest, BrowserType browserType) {
         HttpResponse httpResponse = new HttpResponse();
-        try {
-
-            URL url = new URL(httpRequest.getUrl());
-            URLConnection urlConnection = url.openConnection();
-            setHeaders(urlConnection, browserType);
-            httpResponse.setContent(getContent(urlConnection));
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        URLConnection urlConnection ;
+        URL url;
+        boolean gotContent = false;
+        while(!gotContent) {
+            try {
+                url = new URL(httpRequest.getUrl());
+                urlConnection = url.openConnection();
+                setHeaders(urlConnection, browserType);
+                httpResponse.setContent(getContent(urlConnection));
+                gotContent = true;
+            } catch (Exception e) {
+            }
         }
         return httpResponse;
     }
